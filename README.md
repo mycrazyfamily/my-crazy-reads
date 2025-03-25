@@ -1,3 +1,54 @@
+# 📚 My Crazy Reads (My Crazy Family)
+
+Bienvenue dans le dépôt officiel du projet **My Crazy Reads**, la plateforme magique de livres personnalisés pour enfants, livrés chaque mois dans un format imprimé et hautement personnalisé.
+
+## 🌟 Vision
+Créer une aventure littéraire immersive et émotionnelle entre enfants et parents, où chaque livre est un chapitre d’une grande histoire familiale.
+
+## 🚀 Fonctionnalités prévues
+- Abonnement mensuel à un livre imprimé personnalisé
+- Création de profils enfant & famille
+- Boutique de livres à l’unité (hors abonnement)
+- Cadeaux personnalisés à offrir à une autre famille
+- Dashboard famille avec bibliothèque personnelle
+
+## 🧱 Architecture prévue
+- Frontend : React + TypeScript + Tailwind CSS + Vite
+- Backend (à venir) : FastAPI ou connecteurs Lovable
+- Livraison imprimée via intégration API ou process externe
+
+## 📁 Structure du code
+```
+my-crazy-reads/
+├── public/                  # Fichiers statiques
+├── src/
+│   ├── assets/              # Images, icônes, etc.
+│   ├── components/          # Composants réutilisables (boutons, cartes, etc.)
+│   ├── pages/               # Pages principales : Accueil, Profil, Dashboard
+│   ├── App.tsx              # Routing principal
+│   ├── main.tsx             # Entrée de l'application
+├── README.md
+├── package.json
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
+
+## 🛠️ Setup du projet
+```bash
+npm install
+npm run dev
+```
+
+## 🧠 À propos
+Développé en duo avec [Lovable.dev](https://lovable.dev) pour prototyper rapidement les interfaces, puis enrichi manuellement pour plus de personnalisation.
+
+---
+
+📬 Contact : [robin.mycrazyfamily@gmail.com](mailto:robin.mycrazyfamily@gmail.com)  
+🌐 Projet en cours de développement – contributions bienvenues bientôt !
+
+Info about Lovable
 # Welcome to your Lovable project
 
 ## Project info
