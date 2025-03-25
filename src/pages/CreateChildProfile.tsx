@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { 
@@ -15,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
 type ChildProfileFormData = {
   firstName: string;
@@ -38,7 +38,57 @@ type ChildProfileFormData = {
   };
   hairType: "straight" | "wavy" | "curly" | "coily";
   glasses: boolean;
+  
+  height: "small" | "medium" | "tall";
+  superpowers: string[];
+  passions: string[];
+  challenges: string[];
 };
+
+const SUPERPOWERS_OPTIONS = [
+  { value: "curious", label: "Curieux.se", icon: "🧐" },
+  { value: "adventurous", label: "Aventurier.e", icon: "🌍" },
+  { value: "dreamer", label: "Rêveur.se", icon: "💭" },
+  { value: "funny", label: "Drôle", icon: "😆" },
+  { value: "brave", label: "Courageux.se", icon: "🛡️" },
+  { value: "emotional", label: "Émotif.ve", icon: "💖" },
+  { value: "athletic", label: "Sportif.ve", icon: "⚽" },
+  { value: "mischievous", label: "Malicieux.se", icon: "🐒" },
+  { value: "calm", label: "Calme", icon: "🌿" },
+];
+
+const PASSIONS_OPTIONS = [
+  { value: "dinosaurs", label: "Dinosaures", icon: "🦖" },
+  { value: "animals", label: "Animaux", icon: "🐶" },
+  { value: "space", label: "Espace", icon: "🚀" },
+  { value: "pirates", label: "Pirates", icon: "🏴‍☠️" },
+  { value: "magic", label: "Magie", icon: "✨" },
+  { value: "fairytales", label: "Contes de fées", icon: "🏰" },
+  { value: "nature", label: "Nature", icon: "🌳" },
+  { value: "vehicles", label: "Véhicules", icon: "🚒" },
+  { value: "robots", label: "Robots", icon: "🤖" },
+  { value: "unicorns", label: "Licornes", icon: "🦄" },
+  { value: "ghosts", label: "Fantômes", icon: "👻" },
+  { value: "superheroes", label: "Super-héros", icon: "🦸‍♀️" },
+  { value: "wizards", label: "Sorciers", icon: "🧙" },
+  { value: "princesses", label: "Princesses", icon: "👑" },
+  { value: "food", label: "Nourriture", icon: "🍔" },
+  { value: "games", label: "Jeux", icon: "🎲" },
+];
+
+const CHALLENGES_OPTIONS = [
+  { value: "darkness", label: "Braver l'obscurité", icon: "🌙" },
+  { value: "monsters", label: "Affronter des monstres imaginaires", icon: "👹" },
+  { value: "sleep", label: "S'endormir seul", icon: "🛏️" },
+  { value: "focus", label: "Se concentrer", icon: "🧠" },
+  { value: "energy", label: "Canaliser son énergie", icon: "⚡" },
+  { value: "emotions", label: "Gérer ses émotions", icon: "💬" },
+  { value: "confidence", label: "Prendre confiance en soi", icon: "🌟" },
+  { value: "openness", label: "S'ouvrir aux autres", icon: "👫" },
+  { value: "express", label: "Dire ce qu'il/elle ressent", icon: "🗣️" },
+  { value: "perseverance", label: "Persévérer face à l'échec", icon: "🔁" },
+  { value: "frustration", label: "Accepter la frustration", icon: "😤" },
+];
 
 const CreateChildProfile = () => {
   const [formStep, setFormStep] = useState(0);
@@ -58,6 +108,10 @@ const CreateChildProfile = () => {
       hairColor: { type: "blonde" },
       hairType: "straight",
       glasses: false,
+      height: "medium",
+      superpowers: [],
+      passions: [],
+      challenges: [],
     },
   });
 
@@ -74,9 +128,41 @@ const CreateChildProfile = () => {
     if (isValid) {
       setFormStep(1); // Pour l'instant on ne va qu'à l'étape suivante
       toast.success("Première section complétée !");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       toast.error("Veuillez compléter tous les champs requis");
     }
+  };
+
+  const handlePreviousStep = () => {
+    setFormStep(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleContinue = () => {
+    // Vérifier si les champs de la section 2 sont valides
+    const superpowers = form.getValues().superpowers || [];
+    const passions = form.getValues().passions || [];
+    const challenges = form.getValues().challenges || [];
+
+    // Validation des sélections maximales
+    if (superpowers.length > 3) {
+      toast.error("Veuillez sélectionner au maximum 3 super-pouvoirs");
+      return;
+    }
+    if (passions.length > 3) {
+      toast.error("Veuillez sélectionner au maximum 3 passions");
+      return;
+    }
+    if (challenges.length > 3) {
+      toast.error("Veuillez sélectionner au maximum 3 défis");
+      return;
+    }
+
+    // Soumission du formulaire
+    form.handleSubmit(onSubmit)();
+    toast.success("Personnalité et passions enregistrées !");
+    // Ici plus tard, on passera à la section suivante
   };
 
   return (
@@ -89,477 +175,275 @@ const CreateChildProfile = () => {
       </p>
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-amber/20">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
-            <span className="text-2xl">👶</span> L'enfant, le héros de l'histoire <span className="text-2xl">🌟</span>
-          </h2>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
-              {/* Prénom */}
-              <FormField
-                control={form.control}
-                name="firstName"
-                rules={{ required: "Le prénom est requis" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                      <span className="text-xl">✨</span> Quel est le prénom de votre enfant ?
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Prénom" 
-                        className="focus-visible:ring-mcf-orange" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Surnom */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">❤️</span> A-t-il/elle un surnom ?
-                </h3>
+        {formStep === 0 && (
+          <div className="mb-6 animate-fade-in">
+            <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+              <span className="text-2xl">👶</span> L'enfant, le héros de l'histoire <span className="text-2xl">🌟</span>
+            </h2>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedNickname === "none" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedNickname("none");
-                      form.setValue("nickname", { type: "none" });
-                    }}
+                {/* Section 1: L'enfant, le héros de l'histoire */}
+                {/* ... keep existing code (all form fields for the first section) */
+
+                <div className="pt-6 flex justify-center">
+                  <Button 
+                    type="button" 
+                    onClick={handleNextStep}
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedNickname === "none" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedNickname === "none" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Aucun</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedNickname === "petitChou" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedNickname("petitChou");
-                      form.setValue("nickname", { type: "petitChou" });
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedNickname === "petitChou" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedNickname === "petitChou" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Petit(e) chou</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedNickname === "tresor" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedNickname("tresor");
-                      form.setValue("nickname", { type: "tresor" });
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedNickname === "tresor" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedNickname === "tresor" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Mon trésor</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedNickname === "boubou" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedNickname("boubou");
-                      form.setValue("nickname", { type: "boubou" });
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedNickname === "boubou" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedNickname === "boubou" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Boubou</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all sm:col-span-2 ${selectedNickname === "custom" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedNickname("custom");
-                      form.setValue("nickname", { type: "custom", custom: form.getValues().nickname.custom || "" });
-                    }}
-                  >
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedNickname === "custom" ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedNickname === "custom" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">Autre : </span>
-                      </div>
-                      
-                      <Input 
-                        className={`flex-1 min-w-[200px] focus-visible:ring-mcf-orange ${selectedNickname !== "custom" && "bg-gray-100"}`}
-                        placeholder="Précisez le surnom"
-                        disabled={selectedNickname !== "custom"}
-                        value={form.getValues().nickname.custom || ""}
-                        onChange={(e) => form.setValue("nickname", { type: "custom", custom: e.target.value })}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
+                    Continuer l'aventure →
+                  </Button>
                 </div>
-              </div>
+              </form>
+            </Form>
+          </div>
+        )}
 
-              {/* Âge */}
-              <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                      <span className="text-xl">🎂</span> Quel âge a-t-il/elle ?
-                    </FormLabel>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {[
-                        { value: "0-2", label: "0-2 ans" },
-                        { value: "3-5", label: "3-5 ans" },
-                        { value: "6-7", label: "6-7 ans" },
-                        { value: "8-10", label: "8-10 ans" },
-                      ].map((option) => (
-                        <div
-                          key={option.value}
-                          className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                            field.value === option.value
-                              ? "border-mcf-orange bg-mcf-amber/10"
-                              : "border-gray-200 hover:border-mcf-amber"
-                          }`}
-                          onClick={() => form.setValue("age", option.value as any)}
-                        >
-                          {option.label}
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        {formStep === 1 && (
+          <div className="mb-6 animate-fade-in">
+            <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+              <span className="text-2xl">🎭</span> Personnalité et passions <span className="text-2xl">🚀</span>
+            </h2>
+            
+            <Form {...form}>
+              <form className="space-y-8">
+                {/* Taille par rapport à son âge */}
+                <FormField
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">📏</span> Comment est sa taille par rapport à son âge ?
+                      </FormLabel>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                        {[
+                          { value: "small", label: "Petit(e) pour son âge" },
+                          { value: "medium", label: "Taille moyenne" },
+                          { value: "tall", label: "Grand(e) pour son âge" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              field.value === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => form.setValue("height", option.value as any)}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Genre */}
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold">
-                      Quel est son genre ?
-                    </FormLabel>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {[
-                        { value: "girl", label: "👧 Fille" },
-                        { value: "boy", label: "👦 Garçon" },
-                        { value: "neutral", label: "🧑 Neutre" },
-                      ].map((option) => (
-                        <div
-                          key={option.value}
-                          className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                            field.value === option.value
-                              ? "border-mcf-orange bg-mcf-amber/10"
-                              : "border-gray-200 hover:border-mcf-amber"
-                          }`}
-                          onClick={() => form.setValue("gender", option.value as any)}
-                        >
-                          {option.label}
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                {/* Super-pouvoirs */}
+                <FormField
+                  control={form.control}
+                  name="superpowers"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">✨</span> Quels sont les 3 super-pouvoirs de votre enfant ?
+                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
+                      </FormLabel>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                        {SUPERPOWERS_OPTIONS.map((option) => {
+                          const superpowers = form.getValues().superpowers || [];
+                          const isSelected = superpowers.includes(option.value);
+                          const hasReachedLimit = superpowers.length >= 3 && !isSelected;
+                          
+                          return (
+                            <Card 
+                              key={option.value} 
+                              className={`cursor-pointer transition-all ${
+                                isSelected 
+                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
+                                  : hasReachedLimit 
+                                    ? "border-gray-200 opacity-50" 
+                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
+                              }`}
+                              onClick={() => {
+                                if (hasReachedLimit) {
+                                  toast.error("Vous avez déjà sélectionné 3 super-pouvoirs");
+                                  return;
+                                }
+                                
+                                const currentValues = superpowers;
+                                const updatedValues = isSelected
+                                  ? currentValues.filter((value) => value !== option.value)
+                                  : [...currentValues, option.value];
+                                
+                                form.setValue("superpowers", updatedValues);
+                              }}
+                            >
+                              <CardContent className="p-4 flex items-center gap-3">
+                                <div className="text-2xl">{option.icon}</div>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
+                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
+                                  </div>
+                                  <span className="font-medium">{option.label}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {(form.getValues().superpowers?.length || 0)}/3 super-pouvoirs sélectionnés
+                      </p>
+                    </FormItem>
+                  )}
+                />
 
-              {/* Couleur de peau */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold">
-                  Quelle est sa couleur de peau ?
-                </h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedSkinColor === "light" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedSkinColor("light");
-                      form.setValue("skinColor", { type: "light" });
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedSkinColor === "light" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedSkinColor === "light" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
+                {/* Passions */}
+                <FormField
+                  control={form.control}
+                  name="passions"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">❤️</span> Qu'aime le plus votre enfant ?
+                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
+                      </FormLabel>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                        {PASSIONS_OPTIONS.map((option) => {
+                          const passions = form.getValues().passions || [];
+                          const isSelected = passions.includes(option.value);
+                          const hasReachedLimit = passions.length >= 3 && !isSelected;
+                          
+                          return (
+                            <Card 
+                              key={option.value} 
+                              className={`cursor-pointer transition-all ${
+                                isSelected 
+                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
+                                  : hasReachedLimit 
+                                    ? "border-gray-200 opacity-50" 
+                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
+                              }`}
+                              onClick={() => {
+                                if (hasReachedLimit) {
+                                  toast.error("Vous avez déjà sélectionné 3 passions");
+                                  return;
+                                }
+                                
+                                const currentValues = passions;
+                                const updatedValues = isSelected
+                                  ? currentValues.filter((value) => value !== option.value)
+                                  : [...currentValues, option.value];
+                                
+                                form.setValue("passions", updatedValues);
+                              }}
+                            >
+                              <CardContent className="p-4 flex items-center gap-3">
+                                <div className="text-2xl">{option.icon}</div>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
+                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
+                                  </div>
+                                  <span className="font-medium">{option.label}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                       </div>
-                      <span className="font-medium">Claire</span>
-                    </div>
-                  </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {(form.getValues().passions?.length || 0)}/3 passions sélectionnées
+                      </p>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Grands défis */}
+                <FormField
+                  control={form.control}
+                  name="challenges"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">🏆</span> Quels sont les grands défis de votre enfant ?
+                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
+                      </FormLabel>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                        {CHALLENGES_OPTIONS.map((option) => {
+                          const challenges = form.getValues().challenges || [];
+                          const isSelected = challenges.includes(option.value);
+                          const hasReachedLimit = challenges.length >= 3 && !isSelected;
+                          
+                          return (
+                            <Card 
+                              key={option.value} 
+                              className={`cursor-pointer transition-all ${
+                                isSelected 
+                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
+                                  : hasReachedLimit 
+                                    ? "border-gray-200 opacity-50" 
+                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
+                              }`}
+                              onClick={() => {
+                                if (hasReachedLimit) {
+                                  toast.error("Vous avez déjà sélectionné 3 défis");
+                                  return;
+                                }
+                                
+                                const currentValues = challenges;
+                                const updatedValues = isSelected
+                                  ? currentValues.filter((value) => value !== option.value)
+                                  : [...currentValues, option.value];
+                                
+                                form.setValue("challenges", updatedValues);
+                              }}
+                            >
+                              <CardContent className="p-4 flex items-center gap-3">
+                                <div className="text-2xl">{option.icon}</div>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
+                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
+                                  </div>
+                                  <span className="font-medium">{option.label}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {(form.getValues().challenges?.length || 0)}/3 défis sélectionnés
+                      </p>
+                    </FormItem>
+                  )}
+                />
+
+                <div className="pt-6 flex justify-between">
+                  <Button 
+                    type="button" 
+                    onClick={handlePreviousStep}
+                    variant="outline"
+                    className="text-mcf-orange border-mcf-orange hover:bg-mcf-amber/10 font-semibold py-2 px-6 rounded-full text-base"
+                  >
+                    ← Retour
+                  </Button>
                   
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedSkinColor === "medium" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedSkinColor("medium");
-                      form.setValue("skinColor", { type: "medium" });
-                    }}
+                  <Button 
+                    type="button" 
+                    onClick={handleContinue}
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedSkinColor === "medium" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedSkinColor === "medium" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Mate</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedSkinColor === "dark" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedSkinColor("dark");
-                      form.setValue("skinColor", { type: "dark" });
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedSkinColor === "dark" ? "border-mcf-orange" : "border-gray-300"}`}>
-                        {selectedSkinColor === "dark" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                      </div>
-                      <span className="font-medium">Foncée</span>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedSkinColor === "custom" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedSkinColor("custom");
-                      form.setValue("skinColor", { type: "custom", custom: form.getValues().skinColor.custom || "" });
-                    }}
-                  >
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedSkinColor === "custom" ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedSkinColor === "custom" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">Autre : </span>
-                      </div>
-                      
-                      <Input 
-                        className={`flex-1 min-w-[100px] focus-visible:ring-mcf-orange ${selectedSkinColor !== "custom" && "bg-gray-100"}`}
-                        placeholder="Précisez"
-                        disabled={selectedSkinColor !== "custom"}
-                        value={form.getValues().skinColor.custom || ""}
-                        onChange={(e) => form.setValue("skinColor", { type: "custom", custom: e.target.value })}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
+                    Continuer l'aventure →
+                  </Button>
                 </div>
-              </div>
-
-              {/* Couleur des yeux */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">👀</span> Couleur de ses yeux ?
-                </h3>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {[
-                    { value: "blue", label: "Bleu" },
-                    { value: "green", label: "Vert" },
-                    { value: "brown", label: "Marron" },
-                    { value: "black", label: "Noir" },
-                  ].map((option) => (
-                    <div 
-                      key={option.value}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedEyeColor === option.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                      onClick={() => {
-                        setSelectedEyeColor(option.value);
-                        form.setValue("eyeColor", { type: option.value as any });
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedEyeColor === option.value ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedEyeColor === option.value && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">{option.label}</span>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all md:col-span-3 ${selectedEyeColor === "custom" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedEyeColor("custom");
-                      form.setValue("eyeColor", { type: "custom", custom: form.getValues().eyeColor.custom || "" });
-                    }}
-                  >
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedEyeColor === "custom" ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedEyeColor === "custom" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">Autre : </span>
-                      </div>
-                      
-                      <Input 
-                        className={`flex-1 min-w-[100px] focus-visible:ring-mcf-orange ${selectedEyeColor !== "custom" && "bg-gray-100"}`}
-                        placeholder="Précisez"
-                        disabled={selectedEyeColor !== "custom"}
-                        value={form.getValues().eyeColor.custom || ""}
-                        onChange={(e) => form.setValue("eyeColor", { type: "custom", custom: e.target.value })}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Couleur des cheveux */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✂️</span> Couleur de ses cheveux ?
-                </h3>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {[
-                    { value: "blonde", label: "Blond" },
-                    { value: "chestnut", label: "Châtain" },
-                    { value: "brown", label: "Brun" },
-                    { value: "red", label: "Roux" },
-                    { value: "black", label: "Noir" },
-                  ].map((option) => (
-                    <div 
-                      key={option.value}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedHairColor === option.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                      onClick={() => {
-                        setSelectedHairColor(option.value);
-                        form.setValue("hairColor", { type: option.value as any });
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedHairColor === option.value ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedHairColor === option.value && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">{option.label}</span>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <div 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all md:col-span-3 ${selectedHairColor === "custom" ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"}`}
-                    onClick={() => {
-                      setSelectedHairColor("custom");
-                      form.setValue("hairColor", { type: "custom", custom: form.getValues().hairColor.custom || "" });
-                    }}
-                  >
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedHairColor === "custom" ? "border-mcf-orange" : "border-gray-300"}`}>
-                          {selectedHairColor === "custom" && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                        </div>
-                        <span className="font-medium">Autre : </span>
-                      </div>
-                      
-                      <Input 
-                        className={`flex-1 min-w-[100px] focus-visible:ring-mcf-orange ${selectedHairColor !== "custom" && "bg-gray-100"}`}
-                        placeholder="Précisez"
-                        disabled={selectedHairColor !== "custom"}
-                        value={form.getValues().hairColor.custom || ""}
-                        onChange={(e) => form.setValue("hairColor", { type: "custom", custom: e.target.value })}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Type de cheveux */}
-              <FormField
-                control={form.control}
-                name="hairType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                      <span className="text-xl">💇</span> Type de cheveux ?
-                    </FormLabel>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {[
-                        { value: "straight", label: "Raides" },
-                        { value: "wavy", label: "Ondulés" },
-                        { value: "curly", label: "Bouclés" },
-                        { value: "coily", label: "Crépus" },
-                      ].map((option) => (
-                        <div
-                          key={option.value}
-                          className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                            field.value === option.value
-                              ? "border-mcf-orange bg-mcf-amber/10"
-                              : "border-gray-200 hover:border-mcf-amber"
-                          }`}
-                          onClick={() => form.setValue("hairType", option.value as any)}
-                        >
-                          {option.label}
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Lunettes */}
-              <FormField
-                control={form.control}
-                name="glasses"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                      <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
-                    </FormLabel>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                          field.value === true
-                            ? "border-mcf-orange bg-mcf-amber/10"
-                            : "border-gray-200 hover:border-mcf-amber"
-                        }`}
-                        onClick={() => form.setValue("glasses", true)}
-                      >
-                        Oui
-                      </div>
-                      <div
-                        className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                          field.value === false
-                            ? "border-mcf-orange bg-mcf-amber/10"
-                            : "border-gray-200 hover:border-mcf-amber"
-                        }`}
-                        onClick={() => form.setValue("glasses", false)}
-                      >
-                        Non
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="pt-6 flex justify-center">
-                <Button 
-                  type="button" 
-                  onClick={handleNextStep}
-                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                >
-                  Continuer l'aventure →
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+              </form>
+            </Form>
+          </div>
+        )}
       </div>
     </div>
   );
