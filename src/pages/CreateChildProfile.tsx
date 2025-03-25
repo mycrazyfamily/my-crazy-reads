@@ -15,6 +15,47 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Plus, Edit, Trash, X } from "lucide-react";
+
+type RelativeType = 
+  | "mother" | "father" | "otherParent" 
+  | "sister" | "brother" 
+  | "grandmother" | "grandfather" 
+  | "femaleCousin" | "maleCousin" 
+  | "femaleFriend" | "maleFriend" 
+  | "other";
+
+type RelativeData = {
+  id: string;
+  type: RelativeType;
+  firstName: string;
+  nickname: {
+    type: "none" | "mamoune" | "papou" | "custom";
+    custom?: string;
+  };
+  age: string;
+  job: string;
+  skinColor: {
+    type: "light" | "medium" | "dark" | "custom";
+    custom?: string;
+  };
+  hairColor: {
+    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "custom";
+    custom?: string;
+  };
+  hairType: "straight" | "wavy" | "curly" | "coily";
+  glasses: boolean;
+  traits: string[];
+  otherTypeName?: string;
+};
+
+type FamilyData = {
+  selectedRelatives: RelativeType[];
+  relatives: RelativeData[];
+  otherRelativeType?: string;
+};
 
 type ChildProfileFormData = {
   firstName: string;
@@ -43,6 +84,8 @@ type ChildProfileFormData = {
   superpowers: string[];
   passions: string[];
   challenges: string[];
+
+  family: FamilyData;
 };
 
 const SUPERPOWERS_OPTIONS = [
@@ -90,12 +133,41 @@ const CHALLENGES_OPTIONS = [
   { value: "frustration", label: "Accepter la frustration", icon: "😤" },
 ];
 
+const CHARACTER_TRAITS_OPTIONS = [
+  { value: "funny", label: "Drôle", icon: "😆" },
+  { value: "generous", label: "Généreux.se", icon: "❤️" },
+  { value: "calm", label: "Calme", icon: "🌿" },
+  { value: "dynamic", label: "Dynamique", icon: "⚡" },
+  { value: "creative", label: "Créatif.ve", icon: "🎨" },
+  { value: "talkative", label: "Bavard.e", icon: "💬" },
+  { value: "authoritative", label: "Autoritaire", icon: "👮" },
+  { value: "adventurous", label: "Aventurier.e", icon: "🌍" },
+  { value: "sensitive", label: "Sensible", icon: "💞" },
+];
+
+const RELATIVE_TYPE_OPTIONS = [
+  { value: "mother", label: "Maman", icon: "👩" },
+  { value: "father", label: "Papa", icon: "👨" },
+  { value: "otherParent", label: "Autre figure parentale", icon: "🏡" },
+  { value: "sister", label: "Sœur(s)", icon: "👧" },
+  { value: "brother", label: "Frère(s)", icon: "👦" },
+  { value: "grandmother", label: "Grand-mère(s)", icon: "👵" },
+  { value: "grandfather", label: "Grand-père(s)", icon: "👴" },
+  { value: "femaleCousin", label: "Cousine(s)", icon: "👧" },
+  { value: "maleCousin", label: "Cousin(s)", icon: "👦" },
+  { value: "femaleFriend", label: "Meilleure amie(s)", icon: "👭" },
+  { value: "maleFriend", label: "Meilleur ami(s)", icon: "👬" },
+  { value: "other", label: "Autre", icon: "➕" },
+];
+
 const CreateChildProfile = () => {
   const [formStep, setFormStep] = useState(0);
   const [selectedNickname, setSelectedNickname] = useState<string>("none");
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>("light");
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("blue");
   const [selectedHairColor, setSelectedHairColor] = useState<string>("blonde");
+  const [currentRelative, setCurrentRelative] = useState<RelativeData | null>(null);
+  const [isEditingRelative, setIsEditingRelative] = useState(false);
   
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
@@ -112,6 +184,10 @@ const CreateChildProfile = () => {
       superpowers: [],
       passions: [],
       challenges: [],
+      family: {
+        selectedRelatives: [],
+        relatives: [],
+      }
     },
   });
 
@@ -126,8 +202,8 @@ const CreateChildProfile = () => {
     const isValid = form.formState.isValid;
     
     if (isValid) {
-      setFormStep(1); // Pour l'instant on ne va qu'à l'étape suivante
-      toast.success("Première section complétée !");
+      setFormStep(prev => prev + 1);
+      toast.success("Section complétée !");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       toast.error("Veuillez compléter tous les champs requis");
@@ -135,8 +211,129 @@ const CreateChildProfile = () => {
   };
 
   const handlePreviousStep = () => {
-    setFormStep(0);
+    setFormStep(prev => prev - 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAddRelative = () => {
+    // Vérifier si des types de proches ont été sélectionnés
+    const selectedRelatives = form.getValues().family?.selectedRelatives || [];
+    
+    if (selectedRelatives.length === 0) {
+      toast.error("Veuillez sélectionner au moins un type de proche");
+      return;
+    }
+
+    // Créer un nouveau proche vide
+    const newRelative: RelativeData = {
+      id: Date.now().toString(),
+      type: selectedRelatives[0], // Par défaut, utiliser le premier type sélectionné
+      firstName: '',
+      nickname: { type: "none" },
+      age: '',
+      job: '',
+      skinColor: { type: "light" },
+      hairColor: { type: "blonde" },
+      hairType: "straight",
+      glasses: false,
+      traits: [],
+    };
+
+    setCurrentRelative(newRelative);
+    setIsEditingRelative(true);
+  };
+
+  const handleSaveRelative = () => {
+    if (!currentRelative) return;
+    
+    // Validation basique
+    if (!currentRelative.firstName) {
+      toast.error("Le prénom est requis");
+      return;
+    }
+
+    if (currentRelative.traits.length > 3) {
+      toast.error("Veuillez sélectionner au maximum 3 traits de caractère");
+      return;
+    }
+
+    // Récupérer la liste actuelle des proches
+    const currentRelatives = form.getValues().family?.relatives || [];
+    
+    // Ajouter ou mettre à jour le proche
+    const updatedRelatives = currentRelatives.some(r => r.id === currentRelative.id)
+      ? currentRelatives.map(r => r.id === currentRelative.id ? currentRelative : r)
+      : [...currentRelatives, currentRelative];
+    
+    // Mettre à jour le formulaire
+    form.setValue("family.relatives", updatedRelatives);
+    
+    // Réinitialiser l'état
+    setCurrentRelative(null);
+    setIsEditingRelative(false);
+    
+    toast.success(
+      currentRelatives.some(r => r.id === currentRelative.id) 
+        ? "Proche modifié avec succès !" 
+        : "Proche ajouté avec succès !"
+    );
+  };
+
+  const handleEditRelative = (relative: RelativeData) => {
+    setCurrentRelative({...relative});
+    setIsEditingRelative(true);
+  };
+
+  const handleDeleteRelative = (id: string) => {
+    // Récupérer la liste actuelle des proches
+    const currentRelatives = form.getValues().family?.relatives || [];
+    
+    // Filtrer pour retirer le proche à supprimer
+    const updatedRelatives = currentRelatives.filter(r => r.id !== id);
+    
+    // Mettre à jour le formulaire
+    form.setValue("family.relatives", updatedRelatives);
+    
+    toast.success("Proche supprimé avec succès !");
+  };
+
+  const handleCancelRelativeEdit = () => {
+    setCurrentRelative(null);
+    setIsEditingRelative(false);
+  };
+
+  const getRelativeTypeLabel = (type: RelativeType) => {
+    const option = RELATIVE_TYPE_OPTIONS.find(opt => opt.value === type);
+    return option ? option.label : "Autre";
+  };
+
+  const getRelativeTypeIcon = (type: RelativeType) => {
+    const option = RELATIVE_TYPE_OPTIONS.find(opt => opt.value === type);
+    return option ? option.icon : "👤";
+  };
+
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  const getHairColorForAvatar = (hairColor: string) => {
+    switch(hairColor) {
+      case "blonde": return "bg-yellow-300";
+      case "chestnut": return "bg-amber-700";
+      case "brown": return "bg-amber-950";
+      case "red": return "bg-orange-600";
+      case "black": return "bg-gray-900";
+      default: return "bg-amber-700";
+    }
+  };
+
+  const getSkinColorForAvatar = (skinColor: string) => {
+    switch(skinColor) {
+      case "light": return "text-rose-100";
+      case "medium": return "text-amber-300";
+      case "dark": return "text-amber-800";
+      default: return "text-rose-100";
+    }
   };
 
   const handleContinue = () => {
@@ -159,10 +356,21 @@ const CreateChildProfile = () => {
       return;
     }
 
-    // Soumission du formulaire
+    // Passer à l'étape suivante
+    handleNextStep();
+  };
+
+  const handleFamilySectionContinue = () => {
+    // Vérifier si au moins un proche a été ajouté
+    const relatives = form.getValues().family?.relatives || [];
+    
+    if (relatives.length === 0) {
+      toast.error("Veuillez ajouter au moins un proche");
+      return;
+    }
+
+    // Soumission du formulaire pour l'instant, mais plus tard on passera à la section suivante
     form.handleSubmit(onSubmit)();
-    toast.success("Personnalité et passions enregistrées !");
-    // Ici plus tard, on passera à la section suivante
   };
 
   return (
@@ -185,7 +393,368 @@ const CreateChildProfile = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
                 {/* Section 1: L'enfant, le héros de l'histoire */}
-                {/* ... keep existing code (all form fields for the first section) */
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">👶</span> Quel est son prénom ?
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Son prénom" {...field} className="border-mcf-amber" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Surnom */}
+                <FormField
+                  control={form.control}
+                  name="nickname.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">💖</span> Comment le surnommez-vous ?
+                      </FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                        {[
+                          { value: "none", label: "Aucun" },
+                          { value: "petitChou", label: "Petit chou" },
+                          { value: "tresor", label: "Trésor" },
+                          { value: "boubou", label: "Boubou" },
+                          { value: "custom", label: "Autre" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              selectedNickname === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => {
+                              setSelectedNickname(option.value);
+                              form.setValue("nickname.type", option.value);
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Champ texte pour le surnom personnalisé */}
+                {selectedNickname === "custom" && (
+                  <FormField
+                    control={form.control}
+                    name="nickname.custom"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                          <span className="text-xl">✨</span> Surnom personnalisé
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Son surnom personnalisé" {...field} className="border-mcf-amber" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Âge */}
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">🎂</span> Quel âge a-t-il/elle ?
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-mcf-amber">
+                            <SelectValue placeholder="Sélectionner l'âge" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="0-2">0-2 ans</SelectItem>
+                          <SelectItem value="3-5">3-5 ans</SelectItem>
+                          <SelectItem value="6-7">6-7 ans</SelectItem>
+                          <SelectItem value="8-10">8-10 ans</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Genre */}
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">⚧️</span> Quel est son genre ?
+                      </FormLabel>
+                      <RadioGroup defaultValue={field.value} onValueChange={field.onChange} className="flex flex-col space-y-1">
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="girl" id="gender-girl" className="peer h-5 w-5" />
+                          </FormControl>
+                          <FormLabel htmlFor="gender-girl">Fille</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="boy" id="gender-boy" className="peer h-5 w-5" />
+                          </FormControl>
+                          <FormLabel htmlFor="gender-boy">Garçon</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="neutral" id="gender-neutral" className="peer h-5 w-5" />
+                          </FormControl>
+                          <FormLabel htmlFor="gender-neutral">Neutre</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Couleur de peau */}
+                <FormField
+                  control={form.control}
+                  name="skinColor.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">🖐️</span> Quelle est sa couleur de peau ?
+                      </FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                        {[
+                          { value: "light", label: "Claire" },
+                          { value: "medium", label: "Mate" },
+                          { value: "dark", label: "Foncée" },
+                          { value: "custom", label: "Autre" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              selectedSkinColor === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => {
+                              setSelectedSkinColor(option.value);
+                              form.setValue("skinColor.type", option.value);
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Champ texte pour la couleur de peau personnalisée */}
+                {selectedSkinColor === "custom" && (
+                  <FormField
+                    control={form.control}
+                    name="skinColor.custom"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                          <span className="text-xl">✨</span> Couleur de peau personnalisée
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Sa couleur de peau personnalisée" {...field} className="border-mcf-amber" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Couleur des yeux */}
+                <FormField
+                  control={form.control}
+                  name="eyeColor.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">👁️</span> Quelle est la couleur de ses yeux ?
+                      </FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                        {[
+                          { value: "blue", label: "Bleus" },
+                          { value: "green", label: "Verts" },
+                          { value: "brown", label: "Marrons" },
+                          { value: "black", label: "Noirs" },
+                          { value: "custom", label: "Autre" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              selectedEyeColor === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => {
+                              setSelectedEyeColor(option.value);
+                              form.setValue("eyeColor.type", option.value);
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Champ texte pour la couleur des yeux personnalisée */}
+                {selectedEyeColor === "custom" && (
+                  <FormField
+                    control={form.control}
+                    name="eyeColor.custom"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                          <span className="text-xl">✨</span> Couleur des yeux personnalisée
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Sa couleur des yeux personnalisée" {...field} className="border-mcf-amber" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Couleur des cheveux */}
+                <FormField
+                  control={form.control}
+                  name="hairColor.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">💇</span> Quelle est la couleur de ses cheveux ?
+                      </FormLabel>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
+                        {[
+                          { value: "blonde", label: "Blonds" },
+                          { value: "chestnut", label: "Châtains" },
+                          { value: "brown", label: "Bruns" },
+                          { value: "red", label: "Roux" },
+                          { value: "black", label: "Noirs" },
+                          { value: "custom", label: "Autre" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              selectedHairColor === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => {
+                              setSelectedHairColor(option.value);
+                              form.setValue("hairColor.type", option.value);
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Champ texte pour la couleur des cheveux personnalisée */}
+                {selectedHairColor === "custom" && (
+                  <FormField
+                    control={form.control}
+                    name="hairColor.custom"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                          <span className="text-xl">✨</span> Couleur des cheveux personnalisée
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Sa couleur des cheveux personnalisée" {...field} className="border-mcf-amber" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Type de cheveux */}
+                <FormField
+                  control={form.control}
+                  name="hairType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                        <span className="text-xl">〰️</span> Comment sont ses cheveux ?
+                      </FormLabel>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                        {[
+                          { value: "straight", label: "Raides" },
+                          { value: "wavy", label: "Ondulés" },
+                          { value: "curly", label: "Bouclés" },
+                          { value: "coily", label: "Frisés" },
+                        ].map((option) => (
+                          <div
+                            key={option.value}
+                            className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                              field.value === option.value
+                                ? "border-mcf-orange bg-mcf-amber/10"
+                                : "border-gray-200 hover:border-mcf-amber"
+                            }`}
+                            onClick={() => form.setValue("hairType", option.value)}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Est-ce qu'il/elle porte des lunettes ? */}
+                <FormField
+                  control={form.control}
+                  name="glasses"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                          <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
+                        </FormLabel>
+                        <FormDescription>
+                          Cochez la case si votre enfant porte des lunettes.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
                 <div className="pt-6 flex justify-center">
                   <Button 
@@ -226,227 +795,4 @@ const CreateChildProfile = () => {
                         ].map((option) => (
                           <div
                             key={option.value}
-                            className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                              field.value === option.value
-                                ? "border-mcf-orange bg-mcf-amber/10"
-                                : "border-gray-200 hover:border-mcf-amber"
-                            }`}
-                            onClick={() => form.setValue("height", option.value as any)}
-                          >
-                            {option.label}
-                          </div>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Super-pouvoirs */}
-                <FormField
-                  control={form.control}
-                  name="superpowers"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                        <span className="text-xl">✨</span> Quels sont les 3 super-pouvoirs de votre enfant ?
-                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
-                      </FormLabel>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {SUPERPOWERS_OPTIONS.map((option) => {
-                          const superpowers = form.getValues().superpowers || [];
-                          const isSelected = superpowers.includes(option.value);
-                          const hasReachedLimit = superpowers.length >= 3 && !isSelected;
-                          
-                          return (
-                            <Card 
-                              key={option.value} 
-                              className={`cursor-pointer transition-all ${
-                                isSelected 
-                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
-                                  : hasReachedLimit 
-                                    ? "border-gray-200 opacity-50" 
-                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
-                              }`}
-                              onClick={() => {
-                                if (hasReachedLimit) {
-                                  toast.error("Vous avez déjà sélectionné 3 super-pouvoirs");
-                                  return;
-                                }
-                                
-                                const currentValues = superpowers;
-                                const updatedValues = isSelected
-                                  ? currentValues.filter((value) => value !== option.value)
-                                  : [...currentValues, option.value];
-                                
-                                form.setValue("superpowers", updatedValues);
-                              }}
-                            >
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="text-2xl">{option.icon}</div>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
-                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                                  </div>
-                                  <span className="font-medium">{option.label}</span>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {(form.getValues().superpowers?.length || 0)}/3 super-pouvoirs sélectionnés
-                      </p>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Passions */}
-                <FormField
-                  control={form.control}
-                  name="passions"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                        <span className="text-xl">❤️</span> Qu'aime le plus votre enfant ?
-                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
-                      </FormLabel>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {PASSIONS_OPTIONS.map((option) => {
-                          const passions = form.getValues().passions || [];
-                          const isSelected = passions.includes(option.value);
-                          const hasReachedLimit = passions.length >= 3 && !isSelected;
-                          
-                          return (
-                            <Card 
-                              key={option.value} 
-                              className={`cursor-pointer transition-all ${
-                                isSelected 
-                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
-                                  : hasReachedLimit 
-                                    ? "border-gray-200 opacity-50" 
-                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
-                              }`}
-                              onClick={() => {
-                                if (hasReachedLimit) {
-                                  toast.error("Vous avez déjà sélectionné 3 passions");
-                                  return;
-                                }
-                                
-                                const currentValues = passions;
-                                const updatedValues = isSelected
-                                  ? currentValues.filter((value) => value !== option.value)
-                                  : [...currentValues, option.value];
-                                
-                                form.setValue("passions", updatedValues);
-                              }}
-                            >
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="text-2xl">{option.icon}</div>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
-                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                                  </div>
-                                  <span className="font-medium">{option.label}</span>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {(form.getValues().passions?.length || 0)}/3 passions sélectionnées
-                      </p>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Grands défis */}
-                <FormField
-                  control={form.control}
-                  name="challenges"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                        <span className="text-xl">🏆</span> Quels sont les grands défis de votre enfant ?
-                        <span className="text-sm font-normal text-mcf-orange-dark ml-2">(max 3)</span>
-                      </FormLabel>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                        {CHALLENGES_OPTIONS.map((option) => {
-                          const challenges = form.getValues().challenges || [];
-                          const isSelected = challenges.includes(option.value);
-                          const hasReachedLimit = challenges.length >= 3 && !isSelected;
-                          
-                          return (
-                            <Card 
-                              key={option.value} 
-                              className={`cursor-pointer transition-all ${
-                                isSelected 
-                                  ? "border-mcf-orange shadow-md bg-mcf-amber/10" 
-                                  : hasReachedLimit 
-                                    ? "border-gray-200 opacity-50" 
-                                    : "border-gray-200 hover:border-mcf-amber hover:shadow-sm"
-                              }`}
-                              onClick={() => {
-                                if (hasReachedLimit) {
-                                  toast.error("Vous avez déjà sélectionné 3 défis");
-                                  return;
-                                }
-                                
-                                const currentValues = challenges;
-                                const updatedValues = isSelected
-                                  ? currentValues.filter((value) => value !== option.value)
-                                  : [...currentValues, option.value];
-                                
-                                form.setValue("challenges", updatedValues);
-                              }}
-                            >
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="text-2xl">{option.icon}</div>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-mcf-orange" : "border-gray-300"}`}>
-                                    {isSelected && <div className="w-3 h-3 rounded-full bg-mcf-orange"></div>}
-                                  </div>
-                                  <span className="font-medium">{option.label}</span>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {(form.getValues().challenges?.length || 0)}/3 défis sélectionnés
-                      </p>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="pt-6 flex justify-between">
-                  <Button 
-                    type="button" 
-                    onClick={handlePreviousStep}
-                    variant="outline"
-                    className="text-mcf-orange border-mcf-orange hover:bg-mcf-amber/10 font-semibold py-2 px-6 rounded-full text-base"
-                  >
-                    ← Retour
-                  </Button>
-                  
-                  <Button 
-                    type="button" 
-                    onClick={handleContinue}
-                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                  >
-                    Continuer l'aventure →
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default CreateChildProfile;
+                            className={`p-4 rounded-
