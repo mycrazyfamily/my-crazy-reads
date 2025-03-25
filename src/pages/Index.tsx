@@ -1,12 +1,121 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React, { useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import BenefitCard from '../components/BenefitCard';
+import Footer from '../components/Footer';
+
+const Index: React.FC = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const benefits = [
+    {
+      title: "Une aventure magique chaque mois",
+      description: "Des histoires enchanteresses qui nourrissent l'imagination de votre enfant et renforcent votre lien familial.",
+      icon: "📖",
+      delay: "animation-delay-100"
+    },
+    {
+      title: "Des livres imprimés de qualité à garder",
+      description: "Des ouvrages soigneusement imprimés, conçus pour résister au temps et devenir de précieux souvenirs familiaux.",
+      icon: "📚",
+      delay: "animation-delay-200"
+    },
+    {
+      title: "Des thèmes essentiels et éducatifs",
+      description: "Découvrez des aventures abordant l'écologie, les émotions, la culture et bien d'autres sujets important pour l'épanouissement de votre enfant.",
+      icon: "🌍",
+      delay: "animation-delay-300"
+    },
+    {
+      title: "Un cadeau touchant et original",
+      description: "Offrez une expérience unique qui se renouvelle chaque mois et crée des moments privilégiés en famille.",
+      icon: "🎁",
+      delay: "animation-delay-400"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      
+      <main>
+        <Hero />
+        
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
+              Pourquoi choisir My Crazy Family ?
+            </h2>
+            <p className="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12 opacity-0 animate-fade-in animation-delay-100">
+              Plus qu'un simple livre personnalisé, My Crazy Family est une invitation à créer des souvenirs durables avec votre enfant.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {benefits.map((benefit, index) => (
+                <BenefitCard
+                  key={index}
+                  title={benefit.title}
+                  description={benefit.description}
+                  icon={benefit.icon}
+                  delay={benefit.delay}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+        
+        <section className="py-20 px-4 hero-gradient">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
+              Commencez votre voyage littéraire aujourd'hui
+            </h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in animation-delay-100">
+              Rejoignez des milliers de familles qui ont déjà embarqué pour cette aventure unique de lecture partagée et de découverte.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
+              <a 
+                href="/commencer" 
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+              >
+                Commencer l'aventure
+              </a>
+              <a 
+                href="/offrir" 
+                className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+              >
+                Offrir un livre
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="max-w-4xl mx-auto glassmorphism rounded-2xl overflow-hidden card-shadow p-8 md:p-12">
+              <div className="flex flex-col md:flex-row items-center">
+                <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                  <h3 className="text-2xl md:text-3xl font-bold text-mcf-orange-dark mb-4">
+                    L'aventure continue mois après mois
+                  </h3>
+                  <p className="text-gray-700">
+                    My Crazy Family n'est pas qu'un livre, c'est une tradition familiale qui grandit avec votre enfant. Chaque nouvelle histoire enrichit sa bibliothèque personnelle et renforce votre lien à travers des moments privilégiés de lecture partagée.
+                  </p>
+                </div>
+                <div className="md:w-1/2 flex justify-center">
+                  <div className="w-full max-w-sm h-64 bg-mcf-beige rounded-lg flex items-center justify-center text-5xl animate-float">
+                    📚
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      <Footer />
     </div>
   );
 };
