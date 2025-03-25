@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import CreateChildProfile from "./pages/CreateChildProfile";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/creer-profil-enfant" element={<CreateChildProfile />} />
           <Route path="/histoires" element={<NotFound />} />
           <Route path="/fonctionnement" element={<NotFound />} />
           <Route path="/abonnement" element={<NotFound />} />
