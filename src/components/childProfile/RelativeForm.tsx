@@ -356,7 +356,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
             </div>
             <Checkbox 
               checked={formData.glasses} 
-              onCheckedChange={(checked) => handleInputChange('glasses', checked)}
+              onCheckedChange={(checked) => handleInputChange('glasses', !!checked)}
             />
           </div>
           
@@ -379,11 +379,13 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
                     onClick={() => handleTraitToggle(option.value)}
                   >
                     <div className="flex items-start gap-2">
-                      <Checkbox 
-                        checked={isChecked}
-                        disabled={!isChecked && formData.traits.length >= 3}
-                        className="mt-1"
-                      />
+                      <div className="mt-1">
+                        <Checkbox 
+                          checked={isChecked}
+                          disabled={!isChecked && formData.traits.length >= 3}
+                          className="pointer-events-none"
+                        />
+                      </div>
                       <div>
                         <div className="text-xl mb-1">{option.icon}</div>
                         <div>{option.label}</div>

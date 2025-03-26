@@ -53,6 +53,25 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
     handleNextStep();
   };
 
+  const handleCheckboxToggle = (field: 'superpowers' | 'passions' | 'challenges', value: string) => {
+    const currentValues = form.getValues()[field] || [];
+    
+    if (currentValues.includes(value)) {
+      // Remove value
+      form.setValue(
+        field, 
+        currentValues.filter(val => val !== value)
+      );
+    } else {
+      // Add value if less than 3 selected
+      if (currentValues.length < 3) {
+        form.setValue(field, [...currentValues, value]);
+      } else {
+        toast.error(`Vous pouvez sélectionner 3 ${field === 'superpowers' ? 'super-pouvoirs' : field === 'passions' ? 'passions' : 'défis'} maximum`);
+      }
+    }
+  };
+
   return (
     <div className="mb-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
@@ -116,28 +135,16 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
                           ? "border-mcf-orange bg-mcf-amber/10" 
                           : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => {
-                        const currentValues = form.getValues().superpowers || [];
-                        if (currentValues.includes(option.value)) {
-                          form.setValue(
-                            "superpowers", 
-                            currentValues.filter(val => val !== option.value)
-                          );
-                        } else {
-                          if (currentValues.length < 3) {
-                            form.setValue("superpowers", [...currentValues, option.value]);
-                          } else {
-                            toast.error("Vous pouvez sélectionner 3 super-pouvoirs maximum");
-                          }
-                        }
-                      }}
+                      onClick={() => handleCheckboxToggle('superpowers', option.value)}
                     >
                       <div className="flex items-start gap-2">
-                        <Checkbox 
-                          checked={isChecked}
-                          disabled={!isChecked && totalSelected >= 3}
-                          className="mt-1"
-                        />
+                        <div className="mt-1">
+                          <Checkbox 
+                            checked={isChecked}
+                            disabled={!isChecked && totalSelected >= 3}
+                            className="pointer-events-none"
+                          />
+                        </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
                           <div>{option.label}</div>
@@ -176,28 +183,16 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
                           ? "border-mcf-orange bg-mcf-amber/10" 
                           : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => {
-                        const currentValues = form.getValues().passions || [];
-                        if (currentValues.includes(option.value)) {
-                          form.setValue(
-                            "passions", 
-                            currentValues.filter(val => val !== option.value)
-                          );
-                        } else {
-                          if (currentValues.length < 3) {
-                            form.setValue("passions", [...currentValues, option.value]);
-                          } else {
-                            toast.error("Vous pouvez sélectionner 3 passions maximum");
-                          }
-                        }
-                      }}
+                      onClick={() => handleCheckboxToggle('passions', option.value)}
                     >
                       <div className="flex items-start gap-2">
-                        <Checkbox 
-                          checked={isChecked}
-                          disabled={!isChecked && totalSelected >= 3}
-                          className="mt-1"
-                        />
+                        <div className="mt-1">
+                          <Checkbox 
+                            checked={isChecked}
+                            disabled={!isChecked && totalSelected >= 3}
+                            className="pointer-events-none"
+                          />
+                        </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
                           <div>{option.label}</div>
@@ -236,28 +231,16 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
                           ? "border-mcf-orange bg-mcf-amber/10" 
                           : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => {
-                        const currentValues = form.getValues().challenges || [];
-                        if (currentValues.includes(option.value)) {
-                          form.setValue(
-                            "challenges", 
-                            currentValues.filter(val => val !== option.value)
-                          );
-                        } else {
-                          if (currentValues.length < 3) {
-                            form.setValue("challenges", [...currentValues, option.value]);
-                          } else {
-                            toast.error("Vous pouvez sélectionner 3 défis maximum");
-                          }
-                        }
-                      }}
+                      onClick={() => handleCheckboxToggle('challenges', option.value)}
                     >
                       <div className="flex items-start gap-2">
-                        <Checkbox 
-                          checked={isChecked}
-                          disabled={!isChecked && totalSelected >= 3}
-                          className="mt-1"
-                        />
+                        <div className="mt-1">
+                          <Checkbox 
+                            checked={isChecked}
+                            disabled={!isChecked && totalSelected >= 3}
+                            className="pointer-events-none"
+                          />
+                        </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
                           <div>{option.label}</div>

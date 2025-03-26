@@ -129,6 +129,21 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Soumission du formulaire
     form.handleSubmit(onSubmit)();
   };
+
+  const handleRelativeTypeToggle = (relativeType: RelativeType) => {
+    const currentValues = form.getValues().family?.selectedRelatives || [];
+    
+    if (currentValues.includes(relativeType)) {
+      // Remove value
+      form.setValue(
+        "family.selectedRelatives", 
+        currentValues.filter(val => val !== relativeType)
+      );
+    } else {
+      // Add value
+      form.setValue("family.selectedRelatives", [...currentValues, relativeType]);
+    }
+  };
   
   return (
     <div className="mb-6 animate-fade-in">
@@ -158,20 +173,15 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
                           ? "border-mcf-orange bg-mcf-amber/10" 
                           : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => {
-                        const currentValues = field.value || [];
-                        if (currentValues.includes(option.value as RelativeType)) {
-                          field.onChange(currentValues.filter(val => val !== option.value));
-                        } else {
-                          field.onChange([...currentValues, option.value as RelativeType]);
-                        }
-                      }}
+                      onClick={() => handleRelativeTypeToggle(option.value as RelativeType)}
                     >
                       <div className="flex items-start gap-2">
-                        <Checkbox 
-                          checked={isChecked}
-                          className="mt-1"
-                        />
+                        <div className="mt-1">
+                          <Checkbox 
+                            checked={isChecked}
+                            className="pointer-events-none"
+                          />
+                        </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
                           <div>{option.label}</div>
