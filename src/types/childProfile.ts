@@ -14,13 +14,27 @@ export type RelativeTypeInfo = {
   gender: RelativeGender;
 };
 
+export type NicknameType = 
+  | "none" | "custom"
+  | "mamoune" | "mamandamour"
+  | "papou" | "papaours"
+  | "tata" | "tonton"
+  | "soeurette" | "chouquette"
+  | "frerot" | "loulou" 
+  | "mamie" | "maminou"
+  | "papi" | "papinou"
+  | "cousinette" | "lili"
+  | "cousinou" | "nino"
+  | "copinedecoeur" | "bff"
+  | "copainfidele";
+
 export type RelativeData = {
   id: string;
   type: RelativeType;
   gender: RelativeGender;
   firstName: string;
   nickname: {
-    type: "none" | "mamoune" | "papou" | "custom";
+    type: NicknameType;
     custom?: string;
   };
   age: string;

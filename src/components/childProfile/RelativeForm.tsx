@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -124,6 +123,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
               custom: value
             }
           }))}
+          relativeType={formData.type}
         />
         
         <RelativeAppearanceSection 
