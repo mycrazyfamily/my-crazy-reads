@@ -130,20 +130,24 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     form.handleSubmit(onSubmit)();
   };
 
+  // Modifier cette fonction pour éviter la boucle infinie
   const handleRelativeTypeToggle = (relativeType: RelativeType) => {
     const currentValues = form.getValues().family?.selectedRelatives || [];
+    let newValues;
     
     if (currentValues.includes(relativeType)) {
       // Remove value
-      form.setValue(
-        "family.selectedRelatives", 
-        currentValues.filter(val => val !== relativeType)
-      );
+      newValues = currentValues.filter(val => val !== relativeType);
     } else {
       // Add value
-      form.setValue("family.selectedRelatives", [...currentValues, relativeType]);
+      newValues = [...currentValues, relativeType];
     }
+    
+    form.setValue("family.selectedRelatives", newValues, { shouldDirty: true });
   };
+  
+  // Récupérer l'état actuel des types de proches sélectionnés
+  const selectedRelatives = form.watch("family.selectedRelatives") || [];
   
   return (
     <div className="mb-6 animate-fade-in">
@@ -163,7 +167,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                 {RELATIVE_TYPE_OPTIONS.map((option) => {
-                  const isChecked = field.value?.includes(option.value as RelativeType);
+                  const isChecked = selectedRelatives.includes(option.value as RelativeType);
                   
                   return (
                     <div 
@@ -177,10 +181,9 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-1">
-                          <Checkbox 
-                            checked={isChecked}
-                            className="pointer-events-none"
-                          />
+                          <div className={`h-4 w-4 border ${isChecked ? "bg-primary border-primary" : "border-primary"} rounded-sm flex items-center justify-center`}>
+                            {isChecked && <span className="text-white text-xs">✓</span>}
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
@@ -198,7 +201,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
         />
         
         {/* Nom personnalisé pour "autre" */}
-        {form.watch('family.selectedRelatives')?.includes('other') && (
+        {selectedRelatives.includes('other') && (
           <FormField
             control={form.control}
             name="family.otherRelativeType"
