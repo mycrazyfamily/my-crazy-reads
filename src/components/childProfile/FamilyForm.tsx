@@ -1,21 +1,12 @@
+
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage 
-} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
-import RelativeForm from './RelativeForm';
-import RelativeCard from './RelativeCard';
 import type { ChildProfileFormData, RelativeData, RelativeType } from '@/types/childProfile';
+import RelativeForm from './RelativeForm';
+import RelativeTypeSelection from './relatives/RelativeTypeSelection';
+import RelativesList from './relatives/RelativesList';
 
 type FamilyFormProps = {
   handlePreviousStep: () => void;
@@ -128,7 +119,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     form.handleSubmit(onSubmit)();
   };
 
-  // Modifier cette fonction pour éviter la boucle infinie
+  // Éviter la boucle infinie
   const handleRelativeTypeToggle = (relativeType: RelativeType) => {
     const currentValues = form.getValues().family?.selectedRelatives || [];
     let newValues;
@@ -146,6 +137,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   
   // Récupérer l'état actuel des types de proches sélectionnés
   const selectedRelatives = form.watch("family.selectedRelatives") || [];
+  const relatives = form.watch("family.relatives") || [];
   
   return (
     <div className="mb-6 animate-fade-in">
@@ -154,105 +146,17 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
       </h2>
       
       <form className="space-y-8">
-        <FormField
-          control={form.control}
-          name="family.selectedRelatives"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">👪</span> Qui accompagnera votre enfant dans son aventure ?
-              </FormLabel>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                {RELATIVE_TYPE_OPTIONS.map((option) => {
-                  const isChecked = selectedRelatives.includes(option.value as RelativeType);
-                  
-                  return (
-                    <div 
-                      key={option.value}
-                      className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                        isChecked 
-                          ? "border-mcf-orange bg-mcf-amber/10" 
-                          : "border-gray-200 hover:border-mcf-amber"
-                      }`}
-                      onClick={() => handleRelativeTypeToggle(option.value as RelativeType)}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="mt-1">
-                          <div className={`h-4 w-4 border ${isChecked ? "bg-primary border-primary" : "border-primary"} rounded-sm flex items-center justify-center`}>
-                            {isChecked && <span className="text-white text-xs">✓</span>}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xl mb-1">{option.icon}</div>
-                          <div>{option.label}</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <FormMessage />
-            </FormItem>
-          )}
+        <RelativeTypeSelection 
+          selectedRelatives={selectedRelatives}
+          handleRelativeTypeToggle={handleRelativeTypeToggle}
         />
         
-        {/* Nom personnalisé pour "autre" */}
-        {selectedRelatives.includes('other') && (
-          <FormField
-            control={form.control}
-            name="family.otherRelativeType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Précisez quel(s) autre(s) type(s) de proche(s)
-                </FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Ex: nounou, ami de la famille..." 
-                    {...field} 
-                    className="border-mcf-amber" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Liste des proches */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Proches ajoutés</h3>
-            <Button 
-              onClick={handleAddRelative}
-              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white"
-            >
-              <Plus className="mr-1 h-4 w-4" /> Ajouter un proche
-            </Button>
-          </div>
-          
-          {form.watch('family.relatives')?.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 text-center text-gray-500">
-                <p>Aucun proche n'a encore été ajouté.</p>
-                <p className="text-sm mt-2">Cliquez sur "Ajouter un proche" pour commencer.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {form.watch('family.relatives')?.map((relative) => (
-                <RelativeCard
-                  key={relative.id}
-                  relative={relative}
-                  onEdit={handleEditRelative}
-                  onDelete={handleDeleteRelative}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <RelativesList
+          relatives={relatives}
+          onAddRelative={handleAddRelative}
+          onEditRelative={handleEditRelative}
+          onDeleteRelative={handleDeleteRelative}
+        />
         
         <div className="pt-6 flex justify-between">
           <Button 
