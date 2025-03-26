@@ -67,22 +67,29 @@ const CreateChildProfile = () => {
         // En cas d'erreur, on continue avec les valeurs par défaut
       }
     }
-  }, []);
+  }, [form]);
 
   // Sauvegarder l'état du formulaire à chaque changement
   useEffect(() => {
-    const formValues = form.getValues();
-    const stateToSave = {
-      formStep,
-      selectedNickname,
-      selectedSkinColor,
-      selectedEyeColor,
-      selectedHairColor,
-      formValues
+    const saveFormState = () => {
+      const formValues = form.getValues();
+      const stateToSave = {
+        formStep,
+        selectedNickname,
+        selectedSkinColor,
+        selectedEyeColor,
+        selectedHairColor,
+        formValues
+      };
+      
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(stateToSave));
     };
+
+    // Utiliser un délai pour éviter de sauvegarder trop fréquemment
+    const timeoutId = setTimeout(saveFormState, 500);
     
-    localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [formStep, form.watch(), selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor]);
+    return () => clearTimeout(timeoutId);
+  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor]);
 
   const onSubmit = (data: ChildProfileFormData) => {
     console.log(data);
@@ -93,7 +100,6 @@ const CreateChildProfile = () => {
   };
 
   const handleNextStep = () => {
-    form.trigger();
     const isValid = form.formState.isValid;
     
     if (isValid) {
