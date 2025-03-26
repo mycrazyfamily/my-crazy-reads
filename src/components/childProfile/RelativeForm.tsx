@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import type { RelativeData, RelativeType } from '@/types/childProfile';
+import type { RelativeData, RelativeType, RelativeGender } from '@/types/childProfile';
 import RelativeBasicInfoSection from './relatives/RelativeBasicInfoSection';
 import RelativeNicknameSection from './relatives/RelativeNicknameSection';
 import RelativeAppearanceSection from './relatives/RelativeAppearanceSection';
@@ -14,18 +14,39 @@ type RelativeFormProps = {
   onCancel: () => void;
 };
 
+// Helper function to determine gender based on relative type
+const getRelativeGender = (type: RelativeType): RelativeGender => {
+  const femaleTypes = ["mother", "sister", "grandmother", "femaleCousin", "femaleFriend"];
+  const maleTypes = ["father", "brother", "grandfather", "maleCousin", "maleFriend"];
+  
+  if (femaleTypes.includes(type)) return "female";
+  if (maleTypes.includes(type)) return "male";
+  return "neutral";
+};
+
 const RelativeForm: React.FC<RelativeFormProps> = ({
   relative,
   onSave,
   onCancel
 }) => {
-  const [formData, setFormData] = useState<RelativeData>(relative);
+  const [formData, setFormData] = useState<RelativeData>({
+    ...relative,
+    gender: relative.gender || getRelativeGender(relative.type)
+  });
   const [selectedNickname, setSelectedNickname] = useState<string>(relative.nickname.type);
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.skinColor.type);
   const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.hairColor.type);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
+  
+  // Update gender when type changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      gender: getRelativeGender(prev.type)
+    }));
+  }, [formData.type]);
   
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -96,6 +117,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setAge={(value) => updateFormData('age', value)}
           job={formData.job}
           setJob={(value) => updateFormData('job', value)}
+          gender={formData.gender}
         />
         
         <RelativeNicknameSection 
@@ -136,6 +158,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setHairType={(value) => updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily")}
           glasses={formData.glasses}
           setGlasses={(value) => updateFormData('glasses', value)}
+          gender={formData.gender}
         />
         
         <RelativeTraitsSection 
@@ -143,6 +166,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           handleTraitToggle={handleTraitToggle}
           customTraits={customTraits}
           setCustomTraits={setCustomTraits}
+          gender={formData.gender}
         />
       </div>
       

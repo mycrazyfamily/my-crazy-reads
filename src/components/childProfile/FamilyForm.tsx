@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import type { ChildProfileFormData, RelativeData, RelativeType } from '@/types/childProfile';
+import type { ChildProfileFormData, RelativeData, RelativeType, RelativeGender } from '@/types/childProfile';
 import RelativeForm from './RelativeForm';
 import RelativeTypeSelection from './relatives/RelativeTypeSelection';
 import RelativesList from './relatives/RelativesList';
@@ -10,6 +11,16 @@ import RelativesList from './relatives/RelativesList';
 type FamilyFormProps = {
   handlePreviousStep: () => void;
   onSubmit: (data: ChildProfileFormData) => void;
+};
+
+// Helper function to determine gender based on relative type
+const getRelativeGender = (type: RelativeType): RelativeGender => {
+  const femaleTypes = ["mother", "sister", "grandmother", "femaleCousin", "femaleFriend"];
+  const maleTypes = ["father", "brother", "grandfather", "maleCousin", "maleFriend"];
+  
+  if (femaleTypes.includes(type)) return "female";
+  if (maleTypes.includes(type)) return "male";
+  return "neutral";
 };
 
 const FamilyForm: React.FC<FamilyFormProps> = ({
@@ -29,10 +40,14 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
       return;
     }
 
+    const selectedType = selectedRelatives[0];
+    const gender = getRelativeGender(selectedType);
+
     // Créer un nouveau proche vide
     const newRelative: RelativeData = {
       id: Date.now().toString(),
-      type: selectedRelatives[0], // Par défaut, utiliser le premier type sélectionné
+      type: selectedType,
+      gender: gender,
       firstName: '',
       nickname: { type: "none" },
       age: '',
@@ -86,7 +101,13 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   };
 
   const handleEditRelative = (relative: RelativeData) => {
-    setCurrentRelative({...relative});
+    // Ensure the relative has a gender property
+    const relativeWithGender = {
+      ...relative,
+      gender: relative.gender || getRelativeGender(relative.type)
+    };
+    
+    setCurrentRelative(relativeWithGender);
     setIsEditingRelative(true);
   };
 

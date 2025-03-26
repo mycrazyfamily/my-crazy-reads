@@ -1,21 +1,50 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { CHARACTER_TRAITS_OPTIONS } from '@/constants/childProfileOptions';
+import type { RelativeGender } from '@/types/childProfile';
 
 type RelativeTraitsSectionProps = {
   traits: string[];
   handleTraitToggle: (trait: string) => void;
   customTraits: Record<string, string>;
   setCustomTraits: (traits: Record<string, string>) => void;
+  gender: RelativeGender;
 };
 
 const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
   traits,
   handleTraitToggle,
   customTraits,
-  setCustomTraits
+  setCustomTraits,
+  gender
 }) => {
+  // Function to get gender-specific trait labels
+  const getGenderedTraitLabel = (trait: { value: string, label: string, icon: string }) => {
+    // For traits with gendered forms like "Généreux.se", use the appropriate form
+    if (trait.label === "Généreux.se") {
+      return gender === "female" ? "Généreuse" : "Généreux";
+    }
+    if (trait.label === "Aventurier.e") {
+      return gender === "female" ? "Aventurière" : "Aventurier";
+    }
+    if (trait.label === "Protecteur.trice") {
+      return gender === "female" ? "Protectrice" : "Protecteur";
+    }
+    if (trait.label === "Organisé.e") {
+      return gender === "female" ? "Organisée" : "Organisé";
+    }
+    if (trait.label === "Bavard.e") {
+      return gender === "female" ? "Bavarde" : "Bavard";
+    }
+    if (trait.label === "Têtu.e") {
+      return gender === "female" ? "Têtue" : "Têtu";
+    }
+    
+    // Return original label for non-gendered traits
+    return trait.label;
+  };
+
   // Gestion des traits personnalisés
   const handleCustomTraitChange = (traitKey: string, value: string) => {
     setCustomTraits({
@@ -54,7 +83,7 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
                   </div>
                   <div>
                     <div className="text-xl mb-1">{option.icon}</div>
-                    <div>{option.label}</div>
+                    <div>{isCustomTrait ? option.label : getGenderedTraitLabel(option)}</div>
                   </div>
                 </div>
               </div>

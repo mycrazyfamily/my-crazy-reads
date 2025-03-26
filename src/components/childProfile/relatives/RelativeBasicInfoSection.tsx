@@ -3,7 +3,7 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
-import type { RelativeType } from '@/types/childProfile';
+import type { RelativeType, RelativeGender } from '@/types/childProfile';
 
 type RelativeBasicInfoSectionProps = {
   type: RelativeType;
@@ -16,6 +16,7 @@ type RelativeBasicInfoSectionProps = {
   setAge: (age: string) => void;
   job: string;
   setJob: (job: string) => void;
+  gender: RelativeGender;
 };
 
 const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
@@ -28,7 +29,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   age,
   setAge,
   job,
-  setJob
+  setJob,
+  gender
 }) => {
   return (
     <>

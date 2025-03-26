@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { RelativeGender } from '@/types/childProfile';
 
 type RelativeAppearanceSectionProps = {
   selectedSkinColor: string;
@@ -16,6 +17,7 @@ type RelativeAppearanceSectionProps = {
   setHairType: (type: string) => void;
   glasses: boolean;
   setGlasses: (hasGlasses: boolean) => void;
+  gender: RelativeGender;
 };
 
 const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
@@ -30,8 +32,16 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
   hairType,
   setHairType,
   glasses,
-  setGlasses
+  setGlasses,
+  gender
 }) => {
+  // Function to get gender-specific text
+  const getGenderedText = (maleText: string, femaleText: string, neutralText: string) => {
+    if (gender === "male") return maleText;
+    if (gender === "female") return femaleText;
+    return neutralText;
+  };
+
   return (
     <>
       {/* Couleur de peau */}
@@ -150,7 +160,11 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       {/* Lunettes - version avec boutons radio au lieu de checkbox */}
       <div className="form-group">
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
+          <span className="text-xl">👓</span> {getGenderedText(
+            "Porte-t-il des lunettes ?",
+            "Porte-t-elle des lunettes ?",
+            "Porte-t-il/elle des lunettes ?"
+          )}
         </label>
         <RadioGroup 
           onValueChange={(value) => setGlasses(value === "true")} 

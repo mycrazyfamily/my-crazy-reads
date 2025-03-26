@@ -7,9 +7,17 @@ export type RelativeType =
   | "femaleFriend" | "maleFriend" 
   | "other";
 
+export type RelativeGender = "male" | "female" | "neutral";
+
+export type RelativeTypeInfo = {
+  type: RelativeType;
+  gender: RelativeGender;
+};
+
 export type RelativeData = {
   id: string;
   type: RelativeType;
+  gender: RelativeGender;
   firstName: string;
   nickname: {
     type: "none" | "mamoune" | "papou" | "custom";
@@ -28,7 +36,7 @@ export type RelativeData = {
   hairType: "straight" | "wavy" | "curly" | "coily";
   glasses: boolean;
   traits: string[];
-  customTraits?: Record<string, string>; // Ajout de customTraits pour stocker les traits personnalisés
+  customTraits?: Record<string, string>;
   otherTypeName?: string;
 };
 
