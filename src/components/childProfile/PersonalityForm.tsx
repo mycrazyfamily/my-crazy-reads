@@ -8,8 +8,8 @@ import {
   FormControl,
   FormMessage 
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import { 
   SUPERPOWERS_OPTIONS, 
@@ -53,7 +53,7 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
     handleNextStep();
   };
 
-  const handleCheckboxToggle = (field: 'superpowers' | 'passions' | 'challenges', value: string) => {
+  const handleOptionToggle = (field: 'superpowers' | 'passions' | 'challenges', value: string) => {
     const currentValues = form.getValues()[field] || [];
     
     if (currentValues.includes(value)) {
@@ -124,26 +124,33 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                 {SUPERPOWERS_OPTIONS.map((option) => {
-                  const isChecked = form.watch('superpowers')?.includes(option.value);
+                  const isSelected = form.watch('superpowers')?.includes(option.value);
                   const totalSelected = form.watch('superpowers')?.length || 0;
+                  const isDisabled = !isSelected && totalSelected >= 3;
                   
                   return (
                     <div 
                       key={option.value}
                       className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                        isChecked 
+                        isSelected 
                           ? "border-mcf-orange bg-mcf-amber/10" 
-                          : "border-gray-200 hover:border-mcf-amber"
+                          : isDisabled 
+                            ? "border-gray-200 opacity-60 cursor-not-allowed"
+                            : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => handleCheckboxToggle('superpowers', option.value)}
+                      onClick={() => {
+                        if (!isDisabled || isSelected) {
+                          handleOptionToggle('superpowers', option.value);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-1">
-                          <Checkbox 
-                            checked={isChecked}
-                            disabled={!isChecked && totalSelected >= 3}
-                            className="pointer-events-none"
-                          />
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
+                            isSelected ? "border-primary bg-primary text-primary-foreground" : "border-primary"
+                          }`}>
+                            {isSelected && <span className="text-xs text-white">✓</span>}
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
@@ -172,26 +179,33 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
                 {PASSIONS_OPTIONS.map((option) => {
-                  const isChecked = form.watch('passions')?.includes(option.value);
+                  const isSelected = form.watch('passions')?.includes(option.value);
                   const totalSelected = form.watch('passions')?.length || 0;
+                  const isDisabled = !isSelected && totalSelected >= 3;
                   
                   return (
                     <div 
                       key={option.value}
                       className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                        isChecked 
+                        isSelected 
                           ? "border-mcf-orange bg-mcf-amber/10" 
-                          : "border-gray-200 hover:border-mcf-amber"
+                          : isDisabled 
+                            ? "border-gray-200 opacity-60 cursor-not-allowed"
+                            : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => handleCheckboxToggle('passions', option.value)}
+                      onClick={() => {
+                        if (!isDisabled || isSelected) {
+                          handleOptionToggle('passions', option.value);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-1">
-                          <Checkbox 
-                            checked={isChecked}
-                            disabled={!isChecked && totalSelected >= 3}
-                            className="pointer-events-none"
-                          />
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
+                            isSelected ? "border-primary bg-primary text-primary-foreground" : "border-primary"
+                          }`}>
+                            {isSelected && <span className="text-xs text-white">✓</span>}
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
@@ -220,26 +234,33 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                 {CHALLENGES_OPTIONS.map((option) => {
-                  const isChecked = form.watch('challenges')?.includes(option.value);
+                  const isSelected = form.watch('challenges')?.includes(option.value);
                   const totalSelected = form.watch('challenges')?.length || 0;
+                  const isDisabled = !isSelected && totalSelected >= 3;
                   
                   return (
                     <div 
                       key={option.value}
                       className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                        isChecked 
+                        isSelected 
                           ? "border-mcf-orange bg-mcf-amber/10" 
-                          : "border-gray-200 hover:border-mcf-amber"
+                          : isDisabled 
+                            ? "border-gray-200 opacity-60 cursor-not-allowed"
+                            : "border-gray-200 hover:border-mcf-amber"
                       }`}
-                      onClick={() => handleCheckboxToggle('challenges', option.value)}
+                      onClick={() => {
+                        if (!isDisabled || isSelected) {
+                          handleOptionToggle('challenges', option.value);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-1">
-                          <Checkbox 
-                            checked={isChecked}
-                            disabled={!isChecked && totalSelected >= 3}
-                            className="pointer-events-none"
-                          />
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
+                            isSelected ? "border-primary bg-primary text-primary-foreground" : "border-primary"
+                          }`}>
+                            {isSelected && <span className="text-xs text-white">✓</span>}
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl mb-1">{option.icon}</div>
