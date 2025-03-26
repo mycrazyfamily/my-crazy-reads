@@ -1,18 +1,12 @@
+
 import React, { useState } from 'react';
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X } from "lucide-react";
-import { RELATIVE_TYPE_OPTIONS, CHARACTER_TRAITS_OPTIONS } from '@/constants/childProfileOptions';
 import type { RelativeData, RelativeType } from '@/types/childProfile';
+import RelativeBasicInfoSection from './relatives/RelativeBasicInfoSection';
+import RelativeNicknameSection from './relatives/RelativeNicknameSection';
+import RelativeAppearanceSection from './relatives/RelativeAppearanceSection';
+import RelativeTraitsSection from './relatives/RelativeTraitsSection';
 
 type RelativeFormProps = {
   relative: RelativeData;
@@ -30,7 +24,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.skinColor.type);
   const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.hairColor.type);
   
-  const handleInputChange = (field: keyof RelativeData, value: any) => {
+  const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -40,13 +34,34 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     if (currentTraits.includes(trait)) {
       // Remove trait
       const updatedTraits = currentTraits.filter(t => t !== trait);
-      setFormData(prev => ({ ...prev, traits: updatedTraits }));
+      updateFormData('traits', updatedTraits);
     } else {
       // Add trait if less than 3 selected
       if (currentTraits.length < 3) {
-        setFormData(prev => ({ ...prev, traits: [...currentTraits, trait] }));
+        updateFormData('traits', [...currentTraits, trait]);
       }
     }
+  };
+
+  const handleSaveClick = () => {
+    // Update all custom fields before saving
+    const updatedRelative = {
+      ...formData,
+      nickname: {
+        type: selectedNickname as "none" | "mamoune" | "papou" | "custom",
+        custom: selectedNickname === 'custom' ? formData.nickname.custom : undefined
+      },
+      skinColor: {
+        type: selectedSkinColor as "light" | "medium" | "dark" | "custom",
+        custom: selectedSkinColor === 'custom' ? formData.skinColor.custom : undefined
+      },
+      hairColor: {
+        type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom",
+        custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
+      }
+    };
+    
+    onSave(updatedRelative);
   };
   
   return (
@@ -67,348 +82,63 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         </div>
         
         <div className="space-y-6">
-          {/* Type de proche */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">👤</span> Qui est ce proche ?
-            </label>
-            <Select 
-              value={formData.type} 
-              onValueChange={(value: RelativeType) => handleInputChange('type', value)}
-            >
-              <SelectTrigger className="border-mcf-amber">
-                <SelectValue placeholder="Type de proche" />
-              </SelectTrigger>
-              <SelectContent>
-                {RELATIVE_TYPE_OPTIONS.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.icon} {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <RelativeBasicInfoSection 
+            type={formData.type}
+            setType={(value) => updateFormData('type', value)}
+            firstName={formData.firstName}
+            setFirstName={(value) => updateFormData('firstName', value)}
+            otherTypeName={formData.otherTypeName}
+            setOtherTypeName={(value) => updateFormData('otherTypeName', value)}
+            age={formData.age}
+            setAge={(value) => updateFormData('age', value)}
+            job={formData.job}
+            setJob={(value) => updateFormData('job', value)}
+          />
           
-          {/* Nom personnalisé pour "autre" */}
-          {formData.type === 'other' && (
-            <div className="form-group">
-              <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-                <span className="text-xl">✨</span> Précisez
-              </label>
-              <Input 
-                value={formData.otherTypeName || ''} 
-                onChange={(e) => handleInputChange('otherTypeName', e.target.value)}
-                placeholder="Ex: ami de la famille, nounou..." 
-                className="border-mcf-amber"
-              />
-            </div>
-          )}
+          <RelativeNicknameSection 
+            selectedNickname={selectedNickname}
+            setSelectedNickname={setSelectedNickname}
+            nicknameCustomValue={formData.nickname.custom}
+            setNicknameCustomValue={(value) => setFormData(prev => ({
+              ...prev,
+              nickname: {
+                ...prev.nickname,
+                custom: value
+              }
+            }))}
+          />
           
-          {/* Prénom */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">👤</span> Prénom
-            </label>
-            <Input 
-              value={formData.firstName} 
-              onChange={(e) => handleInputChange('firstName', e.target.value)}
-              placeholder="Son prénom" 
-              className="border-mcf-amber"
-            />
-          </div>
+          <RelativeAppearanceSection 
+            selectedSkinColor={selectedSkinColor}
+            setSelectedSkinColor={setSelectedSkinColor}
+            skinColorCustomValue={formData.skinColor.custom}
+            setSkinColorCustomValue={(value) => setFormData(prev => ({
+              ...prev,
+              skinColor: {
+                ...prev.skinColor,
+                custom: value
+              }
+            }))}
+            selectedHairColor={selectedHairColor}
+            setSelectedHairColor={setSelectedHairColor}
+            hairColorCustomValue={formData.hairColor.custom}
+            setHairColorCustomValue={(value) => setFormData(prev => ({
+              ...prev,
+              hairColor: {
+                ...prev.hairColor,
+                custom: value
+              }
+            }))}
+            hairType={formData.hairType}
+            setHairType={(value) => updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily")}
+            glasses={formData.glasses}
+            setGlasses={(value) => updateFormData('glasses', value)}
+          />
           
-          {/* Surnom */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">💖</span> Surnom (facultatif)
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-              {[
-                { value: "none", label: "Aucun" },
-                { value: "mamoune", label: "Mamoune" },
-                { value: "papou", label: "Papou" },
-                { value: "custom", label: "Autre" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                    selectedNickname === option.value
-                      ? "border-mcf-orange bg-mcf-amber/10"
-                      : "border-gray-200 hover:border-mcf-amber"
-                  }`}
-                  onClick={() => {
-                    setSelectedNickname(option.value);
-                    setFormData(prev => ({
-                      ...prev,
-                      nickname: {
-                        ...prev.nickname,
-                        type: option.value as any
-                      }
-                    }));
-                  }}
-                >
-                  {option.label}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Surnom personnalisé */}
-          {selectedNickname === "custom" && (
-            <div className="form-group">
-              <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-                <span className="text-xl">✨</span> Surnom personnalisé
-              </label>
-              <Input 
-                value={formData.nickname.custom || ''} 
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  nickname: {
-                    ...prev.nickname,
-                    custom: e.target.value
-                  }
-                }))}
-                placeholder="Son surnom personnalisé" 
-                className="border-mcf-amber"
-              />
-            </div>
-          )}
-          
-          {/* Âge */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">🎂</span> Âge (facultatif)
-            </label>
-            <Input 
-              value={formData.age} 
-              onChange={(e) => handleInputChange('age', e.target.value)}
-              placeholder="Ex: 35" 
-              className="border-mcf-amber"
-            />
-          </div>
-          
-          {/* Métier */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">💼</span> Métier/Activité (facultatif)
-            </label>
-            <Input 
-              value={formData.job} 
-              onChange={(e) => handleInputChange('job', e.target.value)}
-              placeholder="Ex: Professeur, écolier..." 
-              className="border-mcf-amber"
-            />
-          </div>
-          
-          {/* Couleur de peau */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">🖐️</span> Couleur de peau
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-              {[
-                { value: "light", label: "Claire" },
-                { value: "medium", label: "Mate" },
-                { value: "dark", label: "Foncée" },
-                { value: "custom", label: "Autre" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                    selectedSkinColor === option.value
-                      ? "border-mcf-orange bg-mcf-amber/10"
-                      : "border-gray-200 hover:border-mcf-amber"
-                  }`}
-                  onClick={() => {
-                    setSelectedSkinColor(option.value);
-                    setFormData(prev => ({
-                      ...prev,
-                      skinColor: {
-                        ...prev.skinColor,
-                        type: option.value as any
-                      }
-                    }));
-                  }}
-                >
-                  {option.label}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Couleur de peau personnalisée */}
-          {selectedSkinColor === "custom" && (
-            <div className="form-group">
-              <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-                <span className="text-xl">✨</span> Couleur de peau personnalisée
-              </label>
-              <Input 
-                value={formData.skinColor.custom || ''} 
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  skinColor: {
-                    ...prev.skinColor,
-                    custom: e.target.value
-                  }
-                }))}
-                placeholder="Description de la couleur de peau" 
-                className="border-mcf-amber"
-              />
-            </div>
-          )}
-          
-          {/* Couleur des cheveux */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">💇</span> Couleur des cheveux
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
-              {[
-                { value: "blonde", label: "Blonds" },
-                { value: "chestnut", label: "Châtains" },
-                { value: "brown", label: "Bruns" },
-                { value: "red", label: "Roux" },
-                { value: "black", label: "Noirs" },
-                { value: "custom", label: "Autre" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                    selectedHairColor === option.value
-                      ? "border-mcf-orange bg-mcf-amber/10"
-                      : "border-gray-200 hover:border-mcf-amber"
-                  }`}
-                  onClick={() => {
-                    setSelectedHairColor(option.value);
-                    setFormData(prev => ({
-                      ...prev,
-                      hairColor: {
-                        ...prev.hairColor,
-                        type: option.value as any
-                      }
-                    }));
-                  }}
-                >
-                  {option.label}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Couleur des cheveux personnalisée */}
-          {selectedHairColor === "custom" && (
-            <div className="form-group">
-              <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-                <span className="text-xl">✨</span> Couleur des cheveux personnalisée
-              </label>
-              <Input 
-                value={formData.hairColor.custom || ''} 
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  hairColor: {
-                    ...prev.hairColor,
-                    custom: e.target.value
-                  }
-                }))}
-                placeholder="Description de la couleur des cheveux" 
-                className="border-mcf-amber"
-              />
-            </div>
-          )}
-          
-          {/* Type de cheveux */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">〰️</span> Type de cheveux
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-              {[
-                { value: "straight", label: "Raides" },
-                { value: "wavy", label: "Ondulés" },
-                { value: "curly", label: "Bouclés" },
-                { value: "coily", label: "Frisés" },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                    formData.hairType === option.value
-                      ? "border-mcf-orange bg-mcf-amber/10"
-                      : "border-gray-200 hover:border-mcf-amber"
-                  }`}
-                  onClick={() => handleInputChange('hairType', option.value)}
-                >
-                  {option.label}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Lunettes - version avec boutons radio au lieu de checkbox */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
-            </label>
-            <RadioGroup 
-              onValueChange={(value) => handleInputChange('glasses', value === "true")} 
-              value={formData.glasses ? "true" : "false"}
-              className="flex gap-4 mt-2"
-            >
-              <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                formData.glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="true" id="relative-glasses-yes" className="peer h-5 w-5" />
-                  <label htmlFor="relative-glasses-yes" className="cursor-pointer">Oui</label>
-                </div>
-              </div>
-              
-              <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                !formData.glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="false" id="relative-glasses-no" className="peer h-5 w-5" />
-                  <label htmlFor="relative-glasses-no" className="cursor-pointer">Non</label>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
-          
-          {/* Traits de caractère */}
-          <div className="form-group">
-            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-              <span className="text-xl">💪</span> Traits de caractère (3 max)
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-              {CHARACTER_TRAITS_OPTIONS.map((option) => {
-                const isChecked = formData.traits.includes(option.value);
-                return (
-                  <div 
-                    key={option.value}
-                    className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                      isChecked 
-                        ? "border-mcf-orange bg-mcf-amber/10" 
-                        : "border-gray-200 hover:border-mcf-amber"
-                    }`}
-                    onClick={() => handleTraitToggle(option.value)}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="mt-1">
-                        <div className={`flex h-4 w-4 items-center justify-center border ${
-                          isChecked ? "border-primary bg-primary text-primary-foreground" : "border-primary"
-                        } rounded-sm`}>
-                          {isChecked && <span className="text-xs">✓</span>}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xl mb-1">{option.icon}</div>
-                        <div>{option.label}</div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <RelativeTraitsSection 
+            traits={formData.traits}
+            handleTraitToggle={handleTraitToggle}
+          />
         </div>
         
         <div className="flex justify-between mt-8">
@@ -420,7 +150,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           </Button>
           <Button 
             className="bg-mcf-orange hover:bg-mcf-orange-dark text-white"
-            onClick={() => onSave(formData)}
+            onClick={handleSaveClick}
           >
             Enregistrer
           </Button>
@@ -431,4 +161,3 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
 };
 
 export default RelativeForm;
-
