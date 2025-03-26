@@ -145,45 +145,47 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
         <span className="text-2xl">👨‍👩‍👦‍👦</span> Famille et entourage <span className="text-2xl">💞</span>
       </h2>
       
-      <form className="space-y-8">
-        <RelativeTypeSelection 
-          selectedRelatives={selectedRelatives}
-          handleRelativeTypeToggle={handleRelativeTypeToggle}
-        />
-        
-        <RelativesList
-          relatives={relatives}
-          onAddRelative={handleAddRelative}
-          onEditRelative={handleEditRelative}
-          onDeleteRelative={handleDeleteRelative}
-        />
-        
-        <div className="pt-6 flex justify-between">
-          <Button 
-            type="button" 
-            onClick={handlePreviousStep}
-            variant="outline"
-            className="font-semibold"
-          >
-            ← Retour
-          </Button>
+      {!isEditingRelative ? (
+        <form className="space-y-8">
+          <RelativeTypeSelection 
+            selectedRelatives={selectedRelatives}
+            handleRelativeTypeToggle={handleRelativeTypeToggle}
+          />
           
-          <Button 
-            type="button" 
-            onClick={handleFamilySectionContinue}
-            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-          >
-            Finaliser le profil
-          </Button>
+          <RelativesList
+            relatives={relatives}
+            onAddRelative={handleAddRelative}
+            onEditRelative={handleEditRelative}
+            onDeleteRelative={handleDeleteRelative}
+          />
+          
+          <div className="pt-6 flex justify-between">
+            <Button 
+              type="button" 
+              onClick={handlePreviousStep}
+              variant="outline"
+              className="font-semibold"
+            >
+              ← Retour
+            </Button>
+            
+            <Button 
+              type="button" 
+              onClick={handleFamilySectionContinue}
+              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            >
+              Finaliser le profil
+            </Button>
+          </div>
+        </form>
+      ) : currentRelative && (
+        <div className="animate-fade-in">
+          <RelativeForm
+            relative={currentRelative}
+            onSave={handleSaveRelative}
+            onCancel={handleCancelRelativeEdit}
+          />
         </div>
-      </form>
-      
-      {isEditingRelative && currentRelative && (
-        <RelativeForm
-          relative={currentRelative}
-          onSave={handleSaveRelative}
-          onCancel={handleCancelRelativeEdit}
-        />
       )}
     </div>
   );
