@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     const selectedRelatives = form.getValues().family?.selectedRelatives || [];
     
     if (selectedRelatives.length === 0) {
-      toast.error("Veuillez sélectionner au moins un type de proche");
+      toast.error("Veuillez sélectionner un type de proche");
       return;
     }
 
@@ -71,6 +70,9 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     
     // Mettre à jour le formulaire
     form.setValue("family.relatives", updatedRelatives);
+    
+    // Réinitialiser l'état de sélection après avoir sauvegardé un proche
+    form.setValue("family.selectedRelatives", []);
     
     // Réinitialiser l'état
     setCurrentRelative(null);
@@ -119,17 +121,17 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     form.handleSubmit(onSubmit)();
   };
 
-  // Éviter la boucle infinie
+  // Simplifier le toggle pour qu'un seul type puisse être sélectionné à la fois
   const handleRelativeTypeToggle = (relativeType: RelativeType) => {
     const currentValues = form.getValues().family?.selectedRelatives || [];
     let newValues;
     
     if (currentValues.includes(relativeType)) {
-      // Remove value
-      newValues = currentValues.filter(val => val !== relativeType);
+      // Désélectionner
+      newValues = [];
     } else {
-      // Add value
-      newValues = [...currentValues, relativeType];
+      // Sélectionner uniquement ce type
+      newValues = [relativeType];
     }
     
     form.setValue("family.selectedRelatives", newValues, { shouldDirty: true });

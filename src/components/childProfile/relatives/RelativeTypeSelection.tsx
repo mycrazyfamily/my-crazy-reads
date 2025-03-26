@@ -27,6 +27,7 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
               {RELATIVE_TYPE_OPTIONS.map((option) => {
                 const isChecked = selectedRelatives.includes(option.value as RelativeType);
+                const isDisabled = selectedRelatives.length > 0 && !isChecked;
                 
                 return (
                   <div 
@@ -34,9 +35,11 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
                     className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
                       isChecked 
                         ? "border-mcf-orange bg-mcf-amber/10" 
-                        : "border-gray-200 hover:border-mcf-amber"
+                        : isDisabled
+                          ? "border-gray-200 opacity-50 cursor-not-allowed"
+                          : "border-gray-200 hover:border-mcf-amber"
                     }`}
-                    onClick={() => handleRelativeTypeToggle(option.value as RelativeType)}
+                    onClick={() => !isDisabled && handleRelativeTypeToggle(option.value as RelativeType)}
                   >
                     <div className="flex items-start gap-2">
                       <div className="mt-1">
