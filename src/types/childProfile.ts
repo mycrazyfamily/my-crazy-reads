@@ -28,6 +28,7 @@ export type RelativeData = {
   hairType: "straight" | "wavy" | "curly" | "coily";
   glasses: boolean;
   traits: string[];
+  customTraits?: Record<string, string>; // Ajout de customTraits pour stocker les traits personnalisés
   otherTypeName?: string;
 };
 

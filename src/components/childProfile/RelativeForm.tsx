@@ -23,6 +23,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [selectedNickname, setSelectedNickname] = useState<string>(relative.nickname.type);
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.skinColor.type);
   const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.hairColor.type);
+  const [customTraits, setCustomTraits] = useState<Record<string, string>>(
+    relative.customTraits || {}
+  );
   
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -58,7 +61,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       hairColor: {
         type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom",
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
-      }
+      },
+      customTraits: customTraits
     };
     
     onSave(updatedRelative);
@@ -137,6 +141,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         <RelativeTraitsSection 
           traits={formData.traits}
           handleTraitToggle={handleTraitToggle}
+          customTraits={customTraits}
+          setCustomTraits={setCustomTraits}
         />
       </div>
       

@@ -49,11 +49,15 @@ export const CHARACTER_TRAITS_OPTIONS = [
   { value: "generous", label: "Généreux.se", icon: "❤️" },
   { value: "calm", label: "Calme", icon: "🌿" },
   { value: "dynamic", label: "Dynamique", icon: "⚡" },
-  { value: "creative", label: "Créatif.ve", icon: "🎨" },
-  { value: "talkative", label: "Bavard.e", icon: "💬" },
-  { value: "authoritative", label: "Autoritaire", icon: "👮" },
   { value: "adventurous", label: "Aventurier.e", icon: "🌍" },
-  { value: "sensitive", label: "Sensible", icon: "💞" },
+  { value: "protective", label: "Protecteur.trice", icon: "🛡️" },
+  { value: "organized", label: "Organisé.e", icon: "📅" },
+  { value: "sensitive", label: "Sensible", icon: "💖" },
+  { value: "talkative", label: "Bavard.e", icon: "🗣️" },
+  { value: "stubborn", label: "Têtu.e", icon: "🐏" },
+  { value: "other1", label: "Autre", icon: "✨" },
+  { value: "other2", label: "Autre", icon: "✨" },
+  { value: "other3", label: "Autre", icon: "✨" },
 ];
 
 export const RELATIVE_TYPE_OPTIONS = [
