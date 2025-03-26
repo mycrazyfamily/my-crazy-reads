@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   FormField, 
@@ -8,8 +7,8 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X } from "lucide-react";
 import { RELATIVE_TYPE_OPTIONS, CHARACTER_TRAITS_OPTIONS } from '@/constants/childProfileOptions';
@@ -344,20 +343,34 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
             </div>
           </div>
           
-          {/* Lunettes ? */}
-          <div className="form-group flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <label className="block text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
-              </label>
-              <p className="text-sm text-gray-500">
-                Cochez la case si cette personne porte des lunettes.
-              </p>
-            </div>
-            <Checkbox 
-              checked={formData.glasses} 
-              onCheckedChange={(checked) => handleInputChange('glasses', !!checked)}
-            />
+          {/* Lunettes - version avec boutons radio au lieu de checkbox */}
+          <div className="form-group">
+            <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
+              <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
+            </label>
+            <RadioGroup 
+              onValueChange={(value) => handleInputChange('glasses', value === "true")} 
+              value={formData.glasses ? "true" : "false"}
+              className="flex gap-4 mt-2"
+            >
+              <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                formData.glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="true" id="relative-glasses-yes" className="peer h-5 w-5" />
+                  <label htmlFor="relative-glasses-yes" className="cursor-pointer">Oui</label>
+                </div>
+              </div>
+              
+              <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                !formData.glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="false" id="relative-glasses-no" className="peer h-5 w-5" />
+                  <label htmlFor="relative-glasses-no" className="cursor-pointer">Non</label>
+                </div>
+              </div>
+            </RadioGroup>
           </div>
           
           {/* Traits de caractère */}
@@ -380,11 +393,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
                   >
                     <div className="flex items-start gap-2">
                       <div className="mt-1">
-                        <Checkbox 
-                          checked={isChecked}
-                          disabled={!isChecked && formData.traits.length >= 3}
-                          className="pointer-events-none"
-                        />
+                        <div className={`flex h-4 w-4 items-center justify-center border ${
+                          isChecked ? "border-primary bg-primary text-primary-foreground" : "border-primary"
+                        } rounded-sm`}>
+                          {isChecked && <span className="text-xs">✓</span>}
+                        </div>
                       </div>
                       <div>
                         <div className="text-xl mb-1">{option.icon}</div>
@@ -418,3 +431,4 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
 };
 
 export default RelativeForm;
+

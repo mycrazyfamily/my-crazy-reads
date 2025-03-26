@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { 
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ChildProfileFormData } from '@/types/childProfile';
 
@@ -390,26 +388,46 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Est-ce qu'il/elle porte des lunettes ? */}
+        {/* Lunettes - version avec boutons radio au lieu de checkbox */}
         <FormField
           control={form.control}
           name="glasses"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
-                </FormLabel>
-                <FormDescription>
-                  Cochez la case si votre enfant porte des lunettes.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
+            <FormItem>
+              <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
+              </FormLabel>
+              <FormDescription>
+                Sélectionnez Oui ou Non.
+              </FormDescription>
+              <RadioGroup 
+                onValueChange={(value) => field.onChange(value === "true")} 
+                value={field.value ? "true" : "false"}
+                className="flex gap-4 mt-2"
+              >
+                <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                  field.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+                }`}>
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="true" id="glasses-yes" className="peer h-5 w-5" />
+                    </FormControl>
+                    <FormLabel htmlFor="glasses-yes" className="cursor-pointer">Oui</FormLabel>
+                  </FormItem>
+                </div>
+                
+                <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                  !field.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+                }`}>
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="false" id="glasses-no" className="peer h-5 w-5" />
+                    </FormControl>
+                    <FormLabel htmlFor="glasses-no" className="cursor-pointer">Non</FormLabel>
+                  </FormItem>
+                </div>
+              </RadioGroup>
+              <FormMessage />
             </FormItem>
           )}
         />
