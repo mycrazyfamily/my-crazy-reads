@@ -40,14 +40,6 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     relative.customTraits || {}
   );
   
-  // Update gender when type changes
-  useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      gender: getRelativeGender(prev.type)
-    }));
-  }, [formData.type]);
-  
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -118,6 +110,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           job={formData.job}
           setJob={(value) => updateFormData('job', value)}
           gender={formData.gender}
+          setGender={(value) => updateFormData('gender', value)}
         />
         
         <RelativeNicknameSection 

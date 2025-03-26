@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
@@ -17,6 +17,17 @@ type RelativeBasicInfoSectionProps = {
   job: string;
   setJob: (job: string) => void;
   gender: RelativeGender;
+  setGender: (gender: RelativeGender) => void;
+};
+
+// Helper function to determine gender based on relative type
+const getRelativeGender = (type: RelativeType): RelativeGender => {
+  const femaleTypes = ["mother", "sister", "grandmother", "femaleCousin", "femaleFriend"];
+  const maleTypes = ["father", "brother", "grandfather", "maleCousin", "maleFriend"];
+  
+  if (femaleTypes.includes(type)) return "female";
+  if (maleTypes.includes(type)) return "male";
+  return "neutral";
 };
 
 const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
@@ -30,8 +41,23 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   setAge,
   job,
   setJob,
-  gender
+  gender,
+  setGender
 }) => {
+  // Update gender whenever the type changes
+  useEffect(() => {
+    const newGender = getRelativeGender(type);
+    if (newGender !== gender) {
+      setGender(newGender);
+    }
+  }, [type, gender, setGender]);
+
+  const handleTypeChange = (value: RelativeType) => {
+    setType(value);
+    // Update gender immediately when type changes
+    setGender(getRelativeGender(value));
+  };
+
   return (
     <>
       {/* Type de proche */}
@@ -41,7 +67,7 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         </label>
         <Select 
           value={type} 
-          onValueChange={(value: RelativeType) => setType(value)}
+          onValueChange={handleTypeChange}
         >
           <SelectTrigger className="border-mcf-amber">
             <SelectValue placeholder="Type de proche" />
