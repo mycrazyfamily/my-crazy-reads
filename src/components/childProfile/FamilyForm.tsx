@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { 
@@ -8,7 +7,6 @@ import {
   FormControl, 
   FormMessage 
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
