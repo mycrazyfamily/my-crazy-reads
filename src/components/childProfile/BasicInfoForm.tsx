@@ -89,7 +89,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedNickname(option.value);
-                      form.setValue("nickname.type", option.value);
+                      form.setValue("nickname.type", option.value as "none" | "petitChou" | "tresor" | "boubou" | "custom");
                     }}
                   >
                     {option.label}
@@ -210,7 +210,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedSkinColor(option.value);
-                      form.setValue("skinColor.type", option.value);
+                      form.setValue("skinColor.type", option.value as "light" | "medium" | "dark" | "custom");
                     }}
                   >
                     {option.label}
@@ -267,7 +267,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedEyeColor(option.value);
-                      form.setValue("eyeColor.type", option.value);
+                      form.setValue("eyeColor.type", option.value as "blue" | "green" | "brown" | "black" | "custom");
                     }}
                   >
                     {option.label}
@@ -325,7 +325,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedHairColor(option.value);
-                      form.setValue("hairColor.type", option.value);
+                      form.setValue("hairColor.type", option.value as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom");
                     }}
                   >
                     {option.label}

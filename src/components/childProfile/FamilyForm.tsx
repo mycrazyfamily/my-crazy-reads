@@ -148,7 +148,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                 {RELATIVE_TYPE_OPTIONS.map((option) => {
-                  const isChecked = field.value?.includes(option.value);
+                  const isChecked = field.value?.includes(option.value as RelativeType);
                   
                   return (
                     <div 
@@ -160,10 +160,10 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
                       }`}
                       onClick={() => {
                         const currentValues = field.value || [];
-                        if (currentValues.includes(option.value)) {
+                        if (currentValues.includes(option.value as RelativeType)) {
                           field.onChange(currentValues.filter(val => val !== option.value));
                         } else {
-                          field.onChange([...currentValues, option.value]);
+                          field.onChange([...currentValues, option.value as RelativeType]);
                         }
                       }}
                     >
