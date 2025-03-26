@@ -12,24 +12,24 @@ const FORM_STORAGE_KEY = 'child-profile-form-state';
 
 const CreateChildProfile = () => {
   const [formStep, setFormStep] = useState(0);
-  const [selectedNickname, setSelectedNickname] = useState<string>("none");
-  const [selectedSkinColor, setSelectedSkinColor] = useState<string>("light");
-  const [selectedEyeColor, setSelectedEyeColor] = useState<string>("blue");
-  const [selectedHairColor, setSelectedHairColor] = useState<string>("blonde");
+  const [selectedNickname, setSelectedNickname] = useState<string>("");
+  const [selectedSkinColor, setSelectedSkinColor] = useState<string>("");
+  const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
+  const [selectedHairColor, setSelectedHairColor] = useState<string>("");
   
   // Initialiser le formulaire avec les valeurs par défaut ou les valeurs sauvegardées
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
       firstName: '',
-      nickname: { type: "none" },
-      age: "3-5",
-      gender: "neutral",
-      skinColor: { type: "light" },
-      eyeColor: { type: "blue" },
-      hairColor: { type: "blonde" },
-      hairType: "straight",
-      glasses: false,
-      height: "medium",
+      nickname: { type: "" },
+      age: "",
+      gender: "",
+      skinColor: { type: "" },
+      eyeColor: { type: "" },
+      hairColor: { type: "" },
+      hairType: "",
+      glasses: undefined,
+      height: "",
       superpowers: [],
       passions: [],
       challenges: [],
