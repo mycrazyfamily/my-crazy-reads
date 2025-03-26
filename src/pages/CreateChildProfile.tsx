@@ -17,19 +17,19 @@ const CreateChildProfile = () => {
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
   const [selectedHairColor, setSelectedHairColor] = useState<string>("");
   
-  // Initialiser le formulaire avec les valeurs par défaut ou les valeurs sauvegardées
+  // Initialiser le formulaire avec les valeurs par défaut vides mais compatibles avec les types
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
       firstName: '',
-      nickname: { type: "" },
-      age: "",
-      gender: "",
-      skinColor: { type: "" },
-      eyeColor: { type: "" },
-      hairColor: { type: "" },
-      hairType: "",
+      nickname: { type: "none" }, // Doit être une valeur valide selon le type
+      age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10", // Technique pour initialiser sans valeur réelle
+      gender: undefined as unknown as "girl" | "boy" | "neutral",
+      skinColor: { type: "light" }, // Valeur valide requise pour le type
+      eyeColor: { type: "blue" }, // Valeur valide requise pour le type
+      hairColor: { type: "blonde" }, // Valeur valide requise pour le type
+      hairType: undefined as unknown as "straight" | "wavy" | "curly" | "coily",
       glasses: undefined,
-      height: "",
+      height: undefined as unknown as "small" | "medium" | "tall",
       superpowers: [],
       passions: [],
       challenges: [],
