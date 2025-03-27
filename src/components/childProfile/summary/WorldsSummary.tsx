@@ -1,7 +1,6 @@
-
 import React from 'react';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
-import { FAVORITE_WORLD_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 
 type WorldsSummaryProps = {
   data: ChildProfileFormData;
@@ -38,7 +37,7 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
               }
               
               // Pour les options prédéfinies
-              const worldOption = FAVORITE_WORLD_OPTIONS.find(option => option.value === world);
+              const worldOption = FAVORITE_WORLDS_OPTIONS.find(option => option.value === world);
               return worldOption ? (
                 <WorldTag 
                   key={world} 
@@ -122,7 +121,7 @@ const WorldTag: React.FC<WorldTagProps> = ({ label, icon }) => {
 const getWorldIcon = (world: FavoriteWorldType | string): string => {
   if (world === 'other1' || world === 'other2') return '✨';
   
-  const worldOption = FAVORITE_WORLD_OPTIONS.find(option => option.value === world);
+  const worldOption = FAVORITE_WORLDS_OPTIONS.find(option => option.value === world);
   return worldOption?.icon || '🌍';
 };
 

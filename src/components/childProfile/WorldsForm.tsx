@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { FAVORITE_WORLD_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
 
 type WorldsFormProps = {
@@ -159,7 +158,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {FAVORITE_WORLD_OPTIONS.map((world) => {
+            {FAVORITE_WORLDS_OPTIONS.map((world) => {
               const isSelected = favoriteWorlds.includes(world.value as FavoriteWorldType);
               const isDisabled = favoriteWorlds.length >= 3 && !isSelected;
               

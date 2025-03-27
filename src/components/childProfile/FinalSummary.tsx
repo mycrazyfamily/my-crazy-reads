@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
-import { Baby, BookOpen, Brain, Cat, Family, Rabbit, Sparkles, Globe, Pencil } from 'lucide-react';
+import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { ChildProfileFormData } from '@/types/childProfile';
@@ -35,7 +34,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   const handleStartAdventure = () => {
     handleSubmit();
     toast.success("L'aventure de votre enfant commence maintenant !");
-    // Rediriger vers la page suivante (abonnement ou sélection d'histoire)
     navigate('/abonnement');
   };
 
@@ -72,7 +70,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {/* Bloc 3: Famille & entourage */}
         <SummaryBlock 
           title="Famille & entourage" 
-          icon={<Family className="h-6 w-6 text-mcf-orange" />}
+          icon={<Users className="h-6 w-6 text-mcf-orange" />}
           onEdit={() => handleGoToStep(2)}
         >
           <FamilySummary data={formData} />
