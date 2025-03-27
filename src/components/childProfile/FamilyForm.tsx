@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -173,23 +172,33 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
             onDeleteRelative={handleDeleteRelative}
           />
           
-          <div className="pt-6 flex justify-between">
-            <Button 
-              type="button" 
-              onClick={handlePreviousStep}
-              variant="outline"
-              className="font-semibold"
-            >
-              ← Retour
-            </Button>
+          {/* Section de confirmation et bouton de finalisation */}
+          <div className="mt-10 space-y-6">
+            <div className="bg-mcf-amber/10 p-4 rounded-lg border border-mcf-amber/30">
+              <p className="text-center text-gray-700">
+                Avez-vous ajouté tous les personnages importants pour votre enfant ?<br />
+                <span className="text-sm italic">Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille 😉</span>
+              </p>
+            </div>
             
-            <Button 
-              type="button" 
-              onClick={handleFamilySectionContinue}
-              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-            >
-              Finaliser le profil
-            </Button>
+            <div className="pt-4 flex justify-between items-center">
+              <Button 
+                type="button" 
+                onClick={handlePreviousStep}
+                variant="outline"
+                className="font-semibold"
+              >
+                ← Retour
+              </Button>
+              
+              <Button 
+                type="button" 
+                onClick={handleFamilySectionContinue}
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+              >
+                Oui, j'ai ajouté tous les proches ! 🧡
+              </Button>
+            </div>
           </div>
         </form>
       ) : currentRelative && (
