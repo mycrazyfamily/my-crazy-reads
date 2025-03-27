@@ -16,6 +16,8 @@ export const FAVORITE_WORLDS_OPTIONS = [
   { value: "fairytales" as FavoriteWorldType, label: "Contes classiques", icon: "📚" },
   { value: "food" as FavoriteWorldType, label: "Nourriture", icon: "🍕" },
   { value: "wizards" as FavoriteWorldType, label: "Sorciers", icon: "🧙‍♂️" },
+  { value: "other1" as FavoriteWorldType, label: "Autre", icon: "✨" },
+  { value: "other2" as FavoriteWorldType, label: "Autre", icon: "✨" },
 ];
 
 export const DISCOVERY_OPTIONS = [
@@ -29,4 +31,6 @@ export const DISCOVERY_OPTIONS = [
   { value: "legends" as DiscoveryType, label: "Les légendes et mythologies anciennes", icon: "🐉" },
   { value: "ecology" as DiscoveryType, label: "La planète et l'écologie", icon: "🌱" },
   { value: "nothing" as DiscoveryType, label: "Rien de tout cela", icon: "😅" },
+  { value: "other1" as DiscoveryType, label: "Autre", icon: "✨" },
+  { value: "other2" as DiscoveryType, label: "Autre", icon: "✨" },
 ];

@@ -112,16 +112,26 @@ export type FavoriteWorldType =
   | "animals" | "nature" | "magic" | "space" 
   | "princesses" | "dragons" | "pirates" | "superheroes" 
   | "dinosaurs" | "robots" | "monsters" | "fairytales" 
-  | "food" | "wizards";
+  | "food" | "wizards" 
+  | "other1" | "other2"; // Ajout des options "Autre 1" et "Autre 2"
 
 export type DiscoveryType = 
   | "countries" | "worldAnimals" | "traditions" | "geography" 
   | "emotions" | "values" | "history" | "legends" 
-  | "ecology" | "nothing";
+  | "ecology" | "nothing"
+  | "other1" | "other2"; // Ajout des options "Autre 1" et "Autre 2"
 
 export type WorldsData = {
   favoriteWorlds: FavoriteWorldType[];
   discoveries: DiscoveryType[];
+  customWorlds?: {
+    other1?: string;
+    other2?: string;
+  };
+  customDiscoveries?: {
+    other1?: string;
+    other2?: string;
+  };
 };
 
 export type ChildProfileFormData = {
