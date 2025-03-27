@@ -23,8 +23,8 @@ const CreateChildProfile = () => {
     defaultValues: {
       firstName: '',
       nickname: { type: "none" }, // Doit être une valeur valide selon le type
-      birthDate: undefined, // Nouvelle propriété pour la date de naissance
-      age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10", // Technique pour initialiser sans valeur réelle
+      birthDate: undefined, // Date de naissance
+      age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10", // L'âge sera calculé à partir de la date de naissance
       gender: undefined as unknown as "girl" | "boy" | "neutral",
       skinColor: { type: "light" }, // Valeur valide requise pour le type
       eyeColor: { type: "blue" }, // Valeur valide requise pour le type

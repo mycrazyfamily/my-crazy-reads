@@ -44,6 +44,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   const [ageDisplay, setAgeDisplay] = useState<string>("");
+  const [yearView, setYearView] = useState<boolean>(false);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
@@ -94,6 +95,41 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     return date;
   };
 
+  const renderYearSelector = () => {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 10;
+    const years = [];
+    
+    for (let year = currentYear; year >= minYear; year--) {
+      years.push(year);
+    }
+    
+    return (
+      <div className="grid grid-cols-3 gap-1 p-2">
+        {years.map(year => (
+          <Button
+            key={year}
+            variant="outline"
+            className={cn(
+              "h-9 w-full",
+              form.watch("birthDate") && form.watch("birthDate")?.getFullYear() === year
+                ? "bg-primary text-primary-foreground"
+                : ""
+            )}
+            onClick={() => {
+              const newDate = form.watch("birthDate") || new Date();
+              newDate.setFullYear(year);
+              form.setValue("birthDate", new Date(newDate));
+              setYearView(false);
+            }}
+          >
+            {year}
+          </Button>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="mb-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
@@ -112,6 +148,43 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormControl>
                 <Input placeholder="Son prénom" {...field} className="border-mcf-amber" />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                <span className="text-xl">🧑‍🍼</span> Quel est son genre ?
+              </FormLabel>
+              <RadioGroup 
+                defaultValue={field.value} 
+                onValueChange={field.onChange} 
+                className="flex flex-col space-y-1"
+              >
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value="girl" id="gender-girl" className="peer h-5 w-5" />
+                  </FormControl>
+                  <FormLabel htmlFor="gender-girl">Fille</FormLabel>
+                </FormItem>
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value="boy" id="gender-boy" className="peer h-5 w-5" />
+                  </FormControl>
+                  <FormLabel htmlFor="gender-boy">Garçon</FormLabel>
+                </FormItem>
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value="neutral" id="gender-neutral" className="peer h-5 w-5" />
+                  </FormControl>
+                  <FormLabel htmlFor="gender-neutral">Neutre</FormLabel>
+                </FormItem>
+              </RadioGroup>
               <FormMessage />
             </FormItem>
           )}
@@ -145,16 +218,42 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < getMinDate()
-                    }
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
+                  {yearView ? (
+                    <div className="flex flex-col">
+                      <div className="flex justify-between p-2 border-b">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setYearView(false)}
+                        >
+                          Retour au calendrier
+                        </Button>
+                      </div>
+                      {renderYearSelector()}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col">
+                      <div className="flex justify-between p-2 border-b">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setYearView(true)}
+                        >
+                          Sélectionner l'année
+                        </Button>
+                      </div>
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < getMinDate()
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
               <FormDescription>
@@ -227,69 +326,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        <FormField
-          control={form.control}
-          name="age"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">🎂</span> Quel âge a-t-il/elle ?
-              </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                <FormControl>
-                  <SelectTrigger className="border-mcf-amber">
-                    <SelectValue placeholder="Sélectionner l'âge" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="0-2">0-2 ans</SelectItem>
-                  <SelectItem value="3-5">3-5 ans</SelectItem>
-                  <SelectItem value="6-7">6-7 ans</SelectItem>
-                  <SelectItem value="8-10">8-10 ans</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">⚧️</span> Quel est son genre ?
-              </FormLabel>
-              <RadioGroup 
-                defaultValue={field.value} 
-                onValueChange={field.onChange} 
-                className="flex flex-col space-y-1"
-              >
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <RadioGroupItem value="girl" id="gender-girl" className="peer h-5 w-5" />
-                  </FormControl>
-                  <FormLabel htmlFor="gender-girl">Fille</FormLabel>
-                </FormItem>
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <RadioGroupItem value="boy" id="gender-boy" className="peer h-5 w-5" />
-                  </FormControl>
-                  <FormLabel htmlFor="gender-boy">Garçon</FormLabel>
-                </FormItem>
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <RadioGroupItem value="neutral" id="gender-neutral" className="peer h-5 w-5" />
-                  </FormControl>
-                  <FormLabel htmlFor="gender-neutral">Neutre</FormLabel>
-                </FormItem>
-              </RadioGroup>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        
         <FormField
           control={form.control}
           name="skinColor.type"
