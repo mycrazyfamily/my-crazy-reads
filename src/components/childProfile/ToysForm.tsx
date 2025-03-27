@@ -125,7 +125,7 @@ const ToysForm: React.FC<ToysFormProps> = ({
               <Button
                 type="button"
                 onClick={handleAddToy}
-                className="bg-mcf-amber hover:bg-mcf-amber-dark text-white font-semibold"
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-semibold"
               >
                 Ajouter un doudou +
               </Button>

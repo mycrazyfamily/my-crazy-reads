@@ -23,6 +23,8 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
   const [otherType, setOtherType] = useState(toy?.otherType || '');
   const [appearance, setAppearance] = useState(toy?.appearance || '');
   const [selectedRoles, setSelectedRoles] = useState<ToyRole[]>(toy?.roles || []);
+  const [customRole1, setCustomRole1] = useState(toy?.customRoles?.otherRole1 || '');
+  const [customRole2, setCustomRole2] = useState(toy?.customRoles?.otherRole2 || '');
 
   const isEditing = !!toy;
 
@@ -62,6 +64,10 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
       otherType: toyType === 'other' ? otherType.trim() : undefined,
       appearance: appearance.trim(),
       roles: selectedRoles,
+      customRoles: {
+        ...(selectedRoles.includes('otherRole1') ? { otherRole1: customRole1.trim() } : {}),
+        ...(selectedRoles.includes('otherRole2') ? { otherRole2: customRole2.trim() } : {})
+      }
     };
 
     onSave(newToy);
@@ -199,6 +205,40 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
                 </div>
               ))}
             </div>
+
+            {/* Champs pour les rôles personnalisés */}
+            {selectedRoles.includes('otherRole1') && (
+              <div className="pt-2">
+                <Label htmlFor="custom-role-1" className="text-sm font-medium">
+                  Précisez le premier rôle personnalisé:
+                </Label>
+                <Input
+                  id="custom-role-1"
+                  value={customRole1}
+                  onChange={e => setCustomRole1(e.target.value)}
+                  placeholder="Ex: Confident, Compagnon de voyage..."
+                  className="mt-1 bg-white"
+                  required={selectedRoles.includes('otherRole1')}
+                />
+              </div>
+            )}
+
+            {selectedRoles.includes('otherRole2') && (
+              <div className="pt-2">
+                <Label htmlFor="custom-role-2" className="text-sm font-medium">
+                  Précisez le second rôle personnalisé:
+                </Label>
+                <Input
+                  id="custom-role-2"
+                  value={customRole2}
+                  onChange={e => setCustomRole2(e.target.value)}
+                  placeholder="Ex: Gardien des secrets, Source de courage..."
+                  className="mt-1 bg-white"
+                  required={selectedRoles.includes('otherRole2')}
+                />
+              </div>
+            )}
+            
             {isMaxRolesReached && (
               <p className="text-sm text-amber-600 italic">
                 Vous avez atteint le nombre maximum de rôles (2)
@@ -220,7 +260,9 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
         <Button 
           type="submit"
           className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold"
-          disabled={!toyName.trim() || (toyType === 'other' && !otherType.trim())}
+          disabled={!toyName.trim() || (toyType === 'other' && !otherType.trim()) || 
+            (selectedRoles.includes('otherRole1') && !customRole1.trim()) || 
+            (selectedRoles.includes('otherRole2') && !customRole2.trim())}
         >
           {isEditing ? "Enregistrer les modifications" : "Ajouter le doudou"}
         </Button>

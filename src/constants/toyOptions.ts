@@ -16,5 +16,7 @@ export const toyRoleOptions: { value: ToyRole; label: string; emoji: string }[] 
   { value: "magicProtector", label: "Protecteur magique", emoji: "🪄" },
   { value: "secretHero", label: "Super-héros secret", emoji: "🦸" },
   { value: "playmate", label: "Compagnon de jeux", emoji: "🎮" },
-  { value: "noSpecificRole", label: "Aucun rôle particulier", emoji: "❓" }
+  { value: "noSpecificRole", label: "Aucun rôle particulier", emoji: "❓" },
+  { value: "otherRole1", label: "Autre", emoji: "✨" },
+  { value: "otherRole2", label: "Autre", emoji: "✨" }
 ];

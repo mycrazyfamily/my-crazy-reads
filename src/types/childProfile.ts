@@ -86,7 +86,8 @@ export type ToyType = "plush" | "blanket" | "doll" | "miniCar" | "figurine" | "o
 
 export type ToyRole = 
   | "sleepGuardian" | "invisibleFriend" | "magicProtector" 
-  | "secretHero" | "playmate" | "noSpecificRole";
+  | "secretHero" | "playmate" | "noSpecificRole"
+  | "otherRole1" | "otherRole2";
 
 export type ToyData = {
   id: string;
@@ -95,6 +96,10 @@ export type ToyData = {
   otherType?: string;
   appearance: string;
   roles: ToyRole[];
+  customRoles?: {
+    otherRole1?: string;
+    otherRole2?: string;
+  };
 };
 
 export type ToysData = {
