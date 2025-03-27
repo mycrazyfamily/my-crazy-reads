@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import RelativesList from './relatives/RelativesList';
 
 type FamilyFormProps = {
   handlePreviousStep: () => void;
-  onSubmit: (data: ChildProfileFormData) => void;
+  onSubmit: () => void;
 };
 
 // Helper function to determine gender based on relative type
@@ -128,8 +129,8 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
       return;
     }
 
-    // Soumission du formulaire
-    form.handleSubmit(onSubmit)();
+    // Passer à l'étape suivante (animaux de compagnie) au lieu de soumettre le formulaire
+    onSubmit();
   };
 
   // Simplifier le toggle pour qu'un seul type puisse être sélectionné à la fois

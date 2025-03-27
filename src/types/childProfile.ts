@@ -60,6 +60,25 @@ export type FamilyData = {
   otherRelativeType?: string;
 };
 
+export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "other";
+
+export type PetTrait = 
+  | "playful" | "lazy" | "protective" | "clingy" 
+  | "clever" | "grumpy" | "gentle" | "noisy" | "talkative";
+
+export type PetData = {
+  id: string;
+  name: string;
+  type: PetType;
+  otherType?: string;
+  traits: PetTrait[];
+};
+
+export type PetsData = {
+  hasPets: boolean;
+  pets: PetData[];
+};
+
 export type ChildProfileFormData = {
   firstName: string;
   nickname: {
@@ -89,4 +108,5 @@ export type ChildProfileFormData = {
   challenges: string[];
 
   family: FamilyData;
+  pets: PetsData;
 };

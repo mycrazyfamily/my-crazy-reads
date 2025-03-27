@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
 import PersonalityForm from '@/components/childProfile/PersonalityForm';
 import FamilyForm from '@/components/childProfile/FamilyForm';
+import PetsForm from '@/components/childProfile/PetsForm';
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
@@ -36,6 +37,10 @@ const CreateChildProfile = () => {
       family: {
         selectedRelatives: [],
         relatives: [],
+      },
+      pets: {
+        hasPets: false,
+        pets: [],
       }
     },
   });
@@ -151,7 +156,14 @@ const CreateChildProfile = () => {
           {formStep === 2 && (
             <FamilyForm
               handlePreviousStep={handlePreviousStep}
-              onSubmit={onSubmit}
+              onSubmit={() => handleNextStep()}
+            />
+          )}
+
+          {formStep === 3 && (
+            <PetsForm
+              handleNextStep={handleNextStep}
+              handlePreviousStep={handlePreviousStep}
             />
           )}
         </FormProvider>
