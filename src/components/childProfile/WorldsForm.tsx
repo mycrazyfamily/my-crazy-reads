@@ -1,12 +1,11 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { FAVORITE_WORLD_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
 
 type WorldsFormProps = {
@@ -14,15 +13,13 @@ type WorldsFormProps = {
   handlePreviousStep: () => void;
 };
 
-const MAX_SELECTIONS = 3;
-
 const WorldsForm: React.FC<WorldsFormProps> = ({
   handleNextStep,
   handlePreviousStep
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   
-  // État local pour les sélections
+  // États pour les sélections
   const [favoriteWorlds, setFavoriteWorlds] = useState<FavoriteWorldType[]>(
     form.getValues("worlds.favoriteWorlds") || []
   );
@@ -47,142 +44,133 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
   // Met à jour le formulaire quand les états locaux changent
   useEffect(() => {
     form.setValue("worlds.favoriteWorlds", favoriteWorlds, { shouldDirty: true });
-  }, [favoriteWorlds, form]);
+    
+    // Mise à jour des champs personnalisés pour les univers
+    if (favoriteWorlds.includes("other1") || favoriteWorlds.includes("other2")) {
+      const customWorlds = {
+        ...(favoriteWorlds.includes("other1") ? { other1: customWorld1 } : {}),
+        ...(favoriteWorlds.includes("other2") ? { other2: customWorld2 } : {})
+      };
+      form.setValue("worlds.customWorlds", customWorlds, { shouldDirty: true });
+    } else {
+      form.setValue("worlds.customWorlds", undefined, { shouldDirty: true });
+    }
+  }, [favoriteWorlds, customWorld1, customWorld2, form]);
 
   useEffect(() => {
     form.setValue("worlds.discoveries", discoveries, { shouldDirty: true });
-  }, [discoveries, form]);
-  
-  useEffect(() => {
-    // Ne met à jour les champs personnalisés que si les options correspondantes sont sélectionnées
-    if (favoriteWorlds.includes('other1') || favoriteWorlds.includes('other2')) {
-      form.setValue("worlds.customWorlds", {
-        ...(favoriteWorlds.includes('other1') ? { other1: customWorld1 } : {}),
-        ...(favoriteWorlds.includes('other2') ? { other2: customWorld2 } : {})
-      }, { shouldDirty: true });
+    
+    // Mise à jour des champs personnalisés pour les découvertes
+    if (discoveries.includes("other1") || discoveries.includes("other2")) {
+      const customDiscoveries = {
+        ...(discoveries.includes("other1") ? { other1: customDiscovery1 } : {}),
+        ...(discoveries.includes("other2") ? { other2: customDiscovery2 } : {})
+      };
+      form.setValue("worlds.customDiscoveries", customDiscoveries, { shouldDirty: true });
+    } else {
+      form.setValue("worlds.customDiscoveries", undefined, { shouldDirty: true });
     }
-  }, [customWorld1, customWorld2, favoriteWorlds, form]);
-  
-  useEffect(() => {
-    // Ne met à jour les champs personnalisés que si les options correspondantes sont sélectionnées
-    if (discoveries.includes('other1') || discoveries.includes('other2')) {
-      form.setValue("worlds.customDiscoveries", {
-        ...(discoveries.includes('other1') ? { other1: customDiscovery1 } : {}),
-        ...(discoveries.includes('other2') ? { other2: customDiscovery2 } : {})
-      }, { shouldDirty: true });
-    }
-  }, [customDiscovery1, customDiscovery2, discoveries, form]);
+  }, [discoveries, customDiscovery1, customDiscovery2, form]);
 
-  // Gestionnaire pour les changements de sélection des univers préférés
-  const handleFavoriteWorldToggle = useCallback((value: FavoriteWorldType) => {
-    setFavoriteWorlds(prev => {
+  // Gère la sélection/désélection d'un univers préféré
+  const handleFavoriteWorldToggle = (world: FavoriteWorldType) => {
+    if (favoriteWorlds.includes(world)) {
       // Si déjà sélectionné, on le retire
-      if (prev.includes(value)) {
-        return prev.filter(w => w !== value);
+      setFavoriteWorlds(prev => prev.filter(w => w !== world));
+    } else {
+      // Si pas encore sélectionné et qu'on n'a pas atteint la limite
+      if (favoriteWorlds.length < 3) {
+        setFavoriteWorlds(prev => [...prev, world]);
       } else {
-        // Si on a déjà atteint la limite, on ne fait rien et on affiche un message
-        if (prev.length >= MAX_SELECTIONS) {
-          toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} univers`);
-          return prev;
-        }
-        // Sinon on l'ajoute
-        return [...prev, value];
+        toast.error("Vous pouvez sélectionner au maximum 3 univers préférés.");
       }
-    });
-  }, []);
-
-  // Gestionnaire pour les changements de sélection des découvertes
-  const handleDiscoveryToggle = useCallback((value: DiscoveryType) => {
-    // Si "Rien de tout cela" est sélectionné, traitement spécial
-    if (value === 'nothing') {
-      setDiscoveries(prev => {
-        if (prev.includes('nothing')) {
-          return prev.filter(d => d !== 'nothing');
-        } else {
-          return ['nothing'];
-        }
-      });
-      return;
     }
+  };
 
-    // Si on sélectionne une autre option, désélectionner "Rien de tout cela"
-    setDiscoveries(prev => {
-      const withoutNothing = prev.filter(d => d !== 'nothing');
-      
-      if (prev.includes(value)) {
-        return withoutNothing.filter(d => d !== value);
+  // Gère la sélection/désélection d'une découverte
+  const handleDiscoveryToggle = (discovery: DiscoveryType) => {
+    if (discoveries.includes(discovery)) {
+      // Si déjà sélectionné, on le retire
+      setDiscoveries(prev => prev.filter(d => d !== discovery));
+    } else {
+      // Si pas encore sélectionné et qu'on n'a pas atteint la limite
+      if (discoveries.length < 3) {
+        setDiscoveries(prev => [...prev, discovery]);
       } else {
-        // Si on a déjà atteint la limite et que l'option n'est pas déjà sélectionnée, on ne fait rien
-        if (withoutNothing.length >= MAX_SELECTIONS) {
-          toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} découvertes`);
-          return withoutNothing;
-        }
-        return [...withoutNothing, value];
+        toast.error("Vous pouvez sélectionner au maximum 3 types de découvertes.");
       }
-    });
-  }, []);
+    }
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Vérifier que les champs personnalisés sont remplis s'ils sont sélectionnés
-    const isCustomWorldsValid = 
-      (!favoriteWorlds.includes('other1') || customWorld1.trim()) && 
-      (!favoriteWorlds.includes('other2') || customWorld2.trim());
-      
-    const isCustomDiscoveriesValid = 
-      (!discoveries.includes('other1') || customDiscovery1.trim()) && 
-      (!discoveries.includes('other2') || customDiscovery2.trim());
-      
-    if (!isCustomWorldsValid) {
-      toast.error("Veuillez préciser votre univers personnalisé");
+  // Gère les changements dans les champs de texte personnalisés
+  const handleCustomWorldChange = (value: string, fieldNumber: 1 | 2) => {
+    if (fieldNumber === 1) {
+      setCustomWorld1(value);
+    } else {
+      setCustomWorld2(value);
+    }
+  };
+
+  const handleCustomDiscoveryChange = (value: string, fieldNumber: 1 | 2) => {
+    if (fieldNumber === 1) {
+      setCustomDiscovery1(value);
+    } else {
+      setCustomDiscovery2(value);
+    }
+  };
+
+  const handleSubmit = () => {
+    // Validation des champs personnalisés si nécessaire
+    if (favoriteWorlds.includes("other1") && !customWorld1) {
+      toast.error("Veuillez préciser l'univers personnalisé 1");
       return;
     }
-    
-    if (!isCustomDiscoveriesValid) {
-      toast.error("Veuillez préciser votre découverte personnalisée");
+    if (favoriteWorlds.includes("other2") && !customWorld2) {
+      toast.error("Veuillez préciser l'univers personnalisé 2");
       return;
     }
-    
-    // Soumettre le formulaire
-    form.handleSubmit(() => {
-      handleNextStep();
-    })();
+    if (discoveries.includes("other1") && !customDiscovery1) {
+      toast.error("Veuillez préciser la découverte personnalisée 1");
+      return;
+    }
+    if (discoveries.includes("other2") && !customDiscovery2) {
+      toast.error("Veuillez préciser la découverte personnalisée 2");
+      return;
+    }
+
+    // Si tout est valide, on passe à l'étape suivante
+    handleNextStep();
   };
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-2 text-mcf-orange flex items-center justify-center gap-2">
-        <span className="text-2xl">🌍</span> Univers préféré & ouverture culturelle <span className="text-2xl">🌟</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+        <span className="text-2xl">🌍</span> Univers préféré & ouverture culturelle <span className="text-2xl">✨</span>
       </h2>
       
-      <p className="text-center text-gray-600 mb-8">
-        Quels mondes voulez-vous explorer avec votre enfant ? 🌟
-      </p>
-      
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form className="space-y-8">
         {/* Univers préférés */}
         <div className="space-y-4">
-          <Label className="text-base font-medium block mb-2">
-            Quels sont ses univers préférés ? <span className="text-sm text-gray-500 font-normal">(3 maximum)</span>
-          </Label>
+          <div>
+            <Label className="text-base font-medium mb-2 block">
+              Quels sont ses univers préférés ? (3 maximum) 🚀
+            </Label>
+            <p className="text-gray-500 text-sm mb-4">Ces univers seront mis en avant dans ses histoires.</p>
+          </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {FAVORITE_WORLDS_OPTIONS.map((world) => {
-              const isSelected = favoriteWorlds.includes(world.value);
-              const isDisabled = favoriteWorlds.length >= MAX_SELECTIONS && !isSelected;
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {FAVORITE_WORLD_OPTIONS.map((world) => {
+              const isSelected = favoriteWorlds.includes(world.value as FavoriteWorldType);
+              const isDisabled = favoriteWorlds.length >= 3 && !isSelected;
               
               return (
-                <div
+                <div 
                   key={world.value}
-                  className={`relative flex items-center rounded-md border p-3 ${
-                    isDisabled 
-                      ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
-                      : isSelected 
-                        ? 'bg-mcf-amber/20 border-mcf-amber cursor-pointer' 
-                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer'
+                  className={`flex items-center p-2 rounded-md border cursor-pointer transition-colors ${
+                    isSelected ? 'border-mcf-orange bg-mcf-amber/10' : 'border-gray-200 hover:bg-gray-50'
+                  } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
-                  onClick={() => !isDisabled && handleFavoriteWorldToggle(world.value)}
+                  onClick={() => !isDisabled && handleFavoriteWorldToggle(world.value as FavoriteWorldType)}
                 >
                   <div className="mr-2">
                     <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
@@ -197,73 +185,69 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                     htmlFor={`world-${world.value}`}
                     className="flex items-center gap-2 cursor-pointer flex-1 text-sm"
                   >
-                    <span className="text-xl">{world.icon}</span>
-                    <span>{world.label}</span>
+                    <span>{world.icon}</span> {world.label}
                   </Label>
                 </div>
               );
             })}
           </div>
           
-          {/* Champs pour les univers personnalisés */}
-          {favoriteWorlds.includes('other1') && (
-            <div className="mt-3">
-              <Label htmlFor="custom-world-1" className="text-sm font-medium">
-                Précisez l'univers personnalisé 1:
-              </Label>
-              <Input
-                id="custom-world-1"
-                value={customWorld1}
-                onChange={e => setCustomWorld1(e.target.value)}
-                placeholder="Ex: Chevaliers, Fées, Voyages..."
-                className="mt-1 bg-white"
-                required
-              />
-            </div>
-          )}
-          
-          {favoriteWorlds.includes('other2') && (
-            <div className="mt-3">
-              <Label htmlFor="custom-world-2" className="text-sm font-medium">
-                Précisez l'univers personnalisé 2:
-              </Label>
-              <Input
-                id="custom-world-2"
-                value={customWorld2}
-                onChange={e => setCustomWorld2(e.target.value)}
-                placeholder="Ex: Mondes miniatures, Inuits, Mer..."
-                className="mt-1 bg-white"
-                required
-              />
-            </div>
-          )}
+          {/* Champs personnalisés pour les univers */}
+          <div className="space-y-3 mt-3">
+            {favoriteWorlds.includes("other1") && (
+              <div>
+                <Label htmlFor="custom-world-1" className="text-sm font-medium">
+                  Autre univers (1):
+                </Label>
+                <Input
+                  id="custom-world-1"
+                  value={customWorld1}
+                  onChange={(e) => handleCustomWorldChange(e.target.value, 1)}
+                  placeholder="Précisez l'univers"
+                  className="mt-1"
+                />
+              </div>
+            )}
+            
+            {favoriteWorlds.includes("other2") && (
+              <div>
+                <Label htmlFor="custom-world-2" className="text-sm font-medium">
+                  Autre univers (2):
+                </Label>
+                <Input
+                  id="custom-world-2"
+                  value={customWorld2}
+                  onChange={(e) => handleCustomWorldChange(e.target.value, 2)}
+                  placeholder="Précisez l'univers"
+                  className="mt-1"
+                />
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Découvertes */}
         <div className="space-y-4">
-          <Label className="text-base font-medium block mb-2">
-            Aime-t-il découvrir... <span className="text-sm text-gray-500 font-normal">(3 maximum)</span>
-          </Label>
+          <div>
+            <Label className="text-base font-medium mb-2 block">
+              Quel type de découvertes aime-t-il faire ? (3 maximum) 🔍
+            </Label>
+            <p className="text-gray-500 text-sm mb-4">Ces thèmes seront intégrés subtilement dans ses histoires pour l'ouvrir sur le monde.</p>
+          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {DISCOVERY_OPTIONS.map((discovery) => {
-              const isSelected = discoveries.includes(discovery.value);
-              const isDisabled = discovery.value !== 'nothing' && 
-                                discoveries.length >= MAX_SELECTIONS && 
-                                !isSelected && 
-                                !discoveries.includes('nothing');
+              const isSelected = discoveries.includes(discovery.value as DiscoveryType);
+              const isDisabled = discoveries.length >= 3 && !isSelected;
               
               return (
-                <div
+                <div 
                   key={discovery.value}
-                  className={`relative flex items-center rounded-md border p-3 ${
-                    isDisabled 
-                      ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
-                      : isSelected 
-                        ? 'bg-mcf-amber/20 border-mcf-amber cursor-pointer' 
-                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer'
+                  className={`flex items-center p-2 rounded-md border cursor-pointer transition-colors ${
+                    isSelected ? 'border-mcf-orange bg-mcf-amber/10' : 'border-gray-200 hover:bg-gray-50'
+                  } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
-                  onClick={() => !isDisabled && handleDiscoveryToggle(discovery.value)}
+                  onClick={() => !isDisabled && handleDiscoveryToggle(discovery.value as DiscoveryType)}
                 >
                   <div className="mr-2">
                     <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
@@ -278,46 +262,45 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                     htmlFor={`discovery-${discovery.value}`}
                     className="flex items-center gap-2 cursor-pointer flex-1 text-sm"
                   >
-                    <span className="text-xl">{discovery.icon}</span>
-                    <span>{discovery.label}</span>
+                    <span>{discovery.icon}</span> {discovery.label}
                   </Label>
                 </div>
               );
             })}
           </div>
           
-          {/* Champs pour les découvertes personnalisées */}
-          {discoveries.includes('other1') && (
-            <div className="mt-3">
-              <Label htmlFor="custom-discovery-1" className="text-sm font-medium">
-                Précisez la découverte personnalisée 1:
-              </Label>
-              <Input
-                id="custom-discovery-1"
-                value={customDiscovery1}
-                onChange={e => setCustomDiscovery1(e.target.value)}
-                placeholder="Ex: Cosmos, Inventeurs, Agriculture..."
-                className="mt-1 bg-white"
-                required
-              />
-            </div>
-          )}
-          
-          {discoveries.includes('other2') && (
-            <div className="mt-3">
-              <Label htmlFor="custom-discovery-2" className="text-sm font-medium">
-                Précisez la découverte personnalisée 2:
-              </Label>
-              <Input
-                id="custom-discovery-2"
-                value={customDiscovery2}
-                onChange={e => setCustomDiscovery2(e.target.value)}
-                placeholder="Ex: Arts, Sciences, Architecture..."
-                className="mt-1 bg-white"
-                required
-              />
-            </div>
-          )}
+          {/* Champs personnalisés pour les découvertes */}
+          <div className="space-y-3 mt-3">
+            {discoveries.includes("other1") && (
+              <div>
+                <Label htmlFor="custom-discovery-1" className="text-sm font-medium">
+                  Autre découverte (1):
+                </Label>
+                <Input
+                  id="custom-discovery-1"
+                  value={customDiscovery1}
+                  onChange={(e) => handleCustomDiscoveryChange(e.target.value, 1)}
+                  placeholder="Précisez le type de découverte"
+                  className="mt-1"
+                />
+              </div>
+            )}
+            
+            {discoveries.includes("other2") && (
+              <div>
+                <Label htmlFor="custom-discovery-2" className="text-sm font-medium">
+                  Autre découverte (2):
+                </Label>
+                <Input
+                  id="custom-discovery-2"
+                  value={customDiscovery2}
+                  onChange={(e) => handleCustomDiscoveryChange(e.target.value, 2)}
+                  placeholder="Précisez le type de découverte"
+                  className="mt-1"
+                />
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Boutons de navigation */}
@@ -332,10 +315,11 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           </Button>
           
           <Button 
-            type="submit"
+            type="button" 
+            onClick={handleSubmit}
             className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
-            Terminer le profil →
+            Voir le récapitulatif →
           </Button>
         </div>
       </form>

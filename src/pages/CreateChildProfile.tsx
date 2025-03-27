@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Form } from "@/components/ui/form";
@@ -8,6 +9,7 @@ import FamilyForm from '@/components/childProfile/FamilyForm';
 import PetsForm from '@/components/childProfile/PetsForm';
 import ToysForm from '@/components/childProfile/ToysForm';
 import WorldsForm from '@/components/childProfile/WorldsForm';
+import FinalSummary from '@/components/childProfile/FinalSummary';
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
@@ -129,6 +131,11 @@ const CreateChildProfile = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleGoToStep = (step: number) => {
+    setFormStep(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:max-w-4xl">
       <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-mcf-orange-dark">
@@ -184,8 +191,16 @@ const CreateChildProfile = () => {
 
           {formStep === 5 && (
             <WorldsForm
-              handleNextStep={handleSubmitForm}
+              handleNextStep={handleNextStep}
               handlePreviousStep={handlePreviousStep}
+            />
+          )}
+
+          {formStep === 6 && (
+            <FinalSummary
+              handlePreviousStep={handlePreviousStep}
+              handleGoToStep={handleGoToStep}
+              handleSubmit={handleSubmitForm}
             />
           )}
         </FormProvider>
