@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Form } from "@/components/ui/form";
@@ -20,7 +19,6 @@ const CreateChildProfile = () => {
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
   const [selectedHairColor, setSelectedHairColor] = useState<string>("");
   
-  // Initialiser le formulaire avec les valeurs par défaut vides mais compatibles avec les types
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
       firstName: '',
@@ -56,27 +54,22 @@ const CreateChildProfile = () => {
     },
   });
 
-  // Charger l'état du formulaire depuis localStorage au chargement initial
   useEffect(() => {
     const savedState = localStorage.getItem(FORM_STORAGE_KEY);
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
         
-        // Restaurer l'étape du formulaire
         if (parsedState.formStep !== undefined) {
           setFormStep(parsedState.formStep);
         }
         
-        // Restaurer les sélections d'apparence
         if (parsedState.selectedNickname) setSelectedNickname(parsedState.selectedNickname);
         if (parsedState.selectedSkinColor) setSelectedSkinColor(parsedState.selectedSkinColor);
         if (parsedState.selectedEyeColor) setSelectedEyeColor(parsedState.selectedEyeColor);
         if (parsedState.selectedHairColor) setSelectedHairColor(parsedState.selectedHairColor);
         
-        // Restaurer les valeurs du formulaire
         if (parsedState.formValues) {
-          // Convertir la date de naissance de chaîne à objet Date si elle existe
           if (parsedState.formValues.birthDate) {
             parsedState.formValues.birthDate = new Date(parsedState.formValues.birthDate);
           }
@@ -84,12 +77,10 @@ const CreateChildProfile = () => {
         }
       } catch (error) {
         console.error("Erreur lors de la restauration de l'état du formulaire:", error);
-        // En cas d'erreur, on continue avec les valeurs par défaut
       }
     }
   }, [form]);
 
-  // Sauvegarder l'état du formulaire à chaque changement
   useEffect(() => {
     const saveFormState = () => {
       const formValues = form.getValues();
@@ -105,7 +96,6 @@ const CreateChildProfile = () => {
       localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(stateToSave));
     };
 
-    // Utiliser un délai pour éviter de sauvegarder trop fréquemment
     const timeoutId = setTimeout(saveFormState, 500);
     
     return () => clearTimeout(timeoutId);
@@ -114,9 +104,12 @@ const CreateChildProfile = () => {
   const onSubmit = (data: ChildProfileFormData) => {
     console.log(data);
     toast.success("Profil créé avec succès !");
-    // Effacer le localStorage après soumission réussie
     localStorage.removeItem(FORM_STORAGE_KEY);
-    // Plus tard, on pourra ajouter ici la navigation vers l'étape suivante
+  };
+
+  const handleSubmitForm = () => {
+    const formData = form.getValues();
+    onSubmit(formData);
   };
 
   const handleNextStep = () => {
@@ -191,7 +184,7 @@ const CreateChildProfile = () => {
 
           {formStep === 5 && (
             <WorldsForm
-              handleNextStep={onSubmit}
+              handleNextStep={handleSubmitForm}
               handlePreviousStep={handlePreviousStep}
             />
           )}
