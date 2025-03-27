@@ -73,25 +73,27 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
     }
   }, [customDiscovery1, customDiscovery2, discoveries, form]);
 
-  // Gestionnaire memoïsé pour les changements de sélection des univers préférés
+  // Gestionnaire pour les changements de sélection des univers préférés
   const handleFavoriteWorldToggle = useCallback((value: FavoriteWorldType) => {
     setFavoriteWorlds(prev => {
+      // Si déjà sélectionné, on le retire
       if (prev.includes(value)) {
         return prev.filter(w => w !== value);
       } else {
-        // Limiter à 3 sélections maximum
-        if (prev.length < MAX_SELECTIONS) {
-          return [...prev, value];
+        // Si on a déjà atteint la limite, on ne fait rien et on affiche un message
+        if (prev.length >= MAX_SELECTIONS) {
+          toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} univers`);
+          return prev;
         }
-        toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} univers`);
-        return prev;
+        // Sinon on l'ajoute
+        return [...prev, value];
       }
     });
   }, []);
 
-  // Gestionnaire memoïsé pour les changements de sélection des découvertes
+  // Gestionnaire pour les changements de sélection des découvertes
   const handleDiscoveryToggle = useCallback((value: DiscoveryType) => {
-    // Si "Rien de tout cela" est sélectionné, désélectionner les autres options
+    // Si "Rien de tout cela" est sélectionné, traitement spécial
     if (value === 'nothing') {
       setDiscoveries(prev => {
         if (prev.includes('nothing')) {
@@ -110,12 +112,12 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
       if (prev.includes(value)) {
         return withoutNothing.filter(d => d !== value);
       } else {
-        // Limiter à 3 sélections maximum
-        if (withoutNothing.length < MAX_SELECTIONS) {
-          return [...withoutNothing, value];
+        // Si on a déjà atteint la limite et que l'option n'est pas déjà sélectionnée, on ne fait rien
+        if (withoutNothing.length >= MAX_SELECTIONS) {
+          toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} découvertes`);
+          return withoutNothing;
         }
-        toast.info(`Vous pouvez sélectionner au maximum ${MAX_SELECTIONS} découvertes`);
-        return withoutNothing;
+        return [...withoutNothing, value];
       }
     });
   }, []);
@@ -173,12 +175,12 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
               return (
                 <div
                   key={world.value}
-                  className={`relative flex items-center rounded-md border p-3 cursor-pointer transition-colors ${
-                    isSelected 
-                      ? 'bg-mcf-amber/20 border-mcf-amber' 
-                      : isDisabled 
-                        ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
-                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5'
+                  className={`relative flex items-center rounded-md border p-3 ${
+                    isDisabled 
+                      ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
+                      : isSelected 
+                        ? 'bg-mcf-amber/20 border-mcf-amber cursor-pointer' 
+                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer'
                   }`}
                   onClick={() => !isDisabled && handleFavoriteWorldToggle(world.value)}
                 >
@@ -186,8 +188,10 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                     id={`world-${world.value}`}
                     checked={isSelected}
                     disabled={isDisabled}
-                    onCheckedChange={() => !isDisabled && handleFavoriteWorldToggle(world.value)}
                     className="mr-2"
+                    onCheckedChange={() => {
+                      // Ne faire rien ici, car l'action est gérée par le onClick du div parent
+                    }}
                   />
                   <Label
                     htmlFor={`world-${world.value}`}
@@ -252,12 +256,12 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
               return (
                 <div
                   key={discovery.value}
-                  className={`relative flex items-center rounded-md border p-3 cursor-pointer transition-colors ${
-                    isSelected 
-                      ? 'bg-mcf-amber/20 border-mcf-amber' 
-                      : isDisabled 
-                        ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
-                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5'
+                  className={`relative flex items-center rounded-md border p-3 ${
+                    isDisabled 
+                      ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed' 
+                      : isSelected 
+                        ? 'bg-mcf-amber/20 border-mcf-amber cursor-pointer' 
+                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer'
                   }`}
                   onClick={() => !isDisabled && handleDiscoveryToggle(discovery.value)}
                 >
@@ -265,8 +269,10 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                     id={`discovery-${discovery.value}`}
                     checked={isSelected}
                     disabled={isDisabled}
-                    onCheckedChange={() => !isDisabled && handleDiscoveryToggle(discovery.value)}
                     className="mr-2"
+                    onCheckedChange={() => {
+                      // Ne faire rien ici, car l'action est gérée par le onClick du div parent
+                    }}
                   />
                   <Label
                     htmlFor={`discovery-${discovery.value}`}
