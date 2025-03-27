@@ -47,7 +47,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
       setSelectedTraits(selectedTraits.filter(t => t !== trait));
       
       // Si c'était un trait custom, on retire aussi sa valeur
-      if (trait === 'other') {
+      if (trait === 'other' || trait === 'other2') {
         const newCustomTraits = { ...customTraits };
         delete newCustomTraits[trait];
         setCustomTraits(newCustomTraits);
@@ -84,7 +84,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
 
     // Vérifier que les traits personnalisés sont remplis
     const hasEmptyCustomTrait = selectedTraits.some(trait => 
-      trait === 'other' && (!customTraits[trait] || !customTraits[trait].trim())
+      (trait === 'other' || trait === 'other2') && (!customTraits[trait] || !customTraits[trait].trim())
     );
 
     if (hasEmptyCustomTrait) {
@@ -191,7 +191,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
                 </button>
                 
                 {/* Champ pour préciser un trait personnalisé */}
-                {isTraitSelected && trait.value === 'other' && (
+                {isTraitSelected && (trait.value === 'other' || trait.value === 'other2') && (
                   <Input
                     placeholder="Précisez le trait de caractère"
                     value={customTraits[trait.value] || ''}

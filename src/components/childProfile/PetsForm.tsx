@@ -125,7 +125,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
               <Button
                 type="button"
                 onClick={handleAddPet}
-                className="bg-mcf-amber hover:bg-mcf-amber-dark text-white font-semibold"
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-semibold"
               >
                 Ajouter un animal +
               </Button>

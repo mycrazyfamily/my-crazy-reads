@@ -20,4 +20,5 @@ export const PET_TRAIT_OPTIONS = [
   { value: "noisy", label: "Bruyant", icon: "🔊" },
   { value: "talkative", label: "Bavard", icon: "🗣️" },
   { value: "other", label: "Autre", icon: "✏️" },
+  { value: "other2", label: "Autre", icon: "✏️" },
 ];

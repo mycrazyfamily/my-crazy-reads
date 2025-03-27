@@ -65,7 +65,7 @@ export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "
 export type PetTrait = 
   | "playful" | "lazy" | "protective" | "clingy" 
   | "clever" | "grumpy" | "gentle" | "noisy" | "talkative" 
-  | "other"; // Added 'other' trait type
+  | "other" | "other2"; // Ajout du second trait personnalisé "other2"
 
 export type PetData = {
   id: string;
