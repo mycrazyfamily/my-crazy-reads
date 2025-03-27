@@ -8,11 +8,13 @@ import type { RelativeType } from '@/types/childProfile';
 type RelativeTypeSelectionProps = {
   selectedRelatives: RelativeType[];
   handleRelativeTypeToggle: (relativeType: RelativeType) => void;
+  onAddRelative: (relativeType: RelativeType) => void;
 };
 
 const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
   selectedRelatives,
   handleRelativeTypeToggle,
+  onAddRelative
 }) => {
   return (
     <>
@@ -26,25 +28,19 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
               {RELATIVE_TYPE_OPTIONS.map((option) => {
-                const isChecked = selectedRelatives.includes(option.value as RelativeType);
-                const isDisabled = selectedRelatives.length > 0 && !isChecked;
-                
                 return (
                   <div 
                     key={option.value}
-                    className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                      isChecked 
-                        ? "border-mcf-orange bg-mcf-amber/10" 
-                        : isDisabled
-                          ? "border-gray-200 opacity-50 cursor-not-allowed"
-                          : "border-gray-200 hover:border-mcf-amber"
-                    }`}
-                    onClick={() => !isDisabled && handleRelativeTypeToggle(option.value as RelativeType)}
+                    className="relative rounded-lg border-2 p-4 cursor-pointer transition-all border-gray-200 hover:border-mcf-amber hover:bg-mcf-amber/5"
+                    onClick={() => {
+                      handleRelativeTypeToggle(option.value as RelativeType);
+                      onAddRelative(option.value as RelativeType);
+                    }}
                   >
                     <div className="flex items-start gap-2">
                       <div className="mt-1">
-                        <div className={`h-4 w-4 border ${isChecked ? "bg-primary border-primary" : "border-primary"} rounded-sm flex items-center justify-center`}>
-                          {isChecked && <span className="text-white text-xs">✓</span>}
+                        <div className="h-4 w-4 border border-primary rounded-sm flex items-center justify-center">
+                          {selectedRelatives.includes(option.value as RelativeType) && <span className="text-white text-xs">✓</span>}
                         </div>
                       </div>
                       <div>

@@ -31,22 +31,13 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   const [currentRelative, setCurrentRelative] = useState<RelativeData | null>(null);
   const [isEditingRelative, setIsEditingRelative] = useState(false);
   
-  const handleAddRelative = () => {
-    // Vérifier si des types de proches ont été sélectionnés
-    const selectedRelatives = form.getValues().family?.selectedRelatives || [];
-    
-    if (selectedRelatives.length === 0) {
-      toast.error("Veuillez sélectionner un type de proche");
-      return;
-    }
-
-    const selectedType = selectedRelatives[0];
-    const gender = getRelativeGender(selectedType);
+  const handleAddRelative = (relativeType: RelativeType) => {
+    const gender = getRelativeGender(relativeType);
 
     // Créer un nouveau proche vide
     const newRelative: RelativeData = {
       id: Date.now().toString(),
-      type: selectedType,
+      type: relativeType,
       gender: gender,
       firstName: '',
       nickname: { type: "none" },
@@ -173,11 +164,11 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           <RelativeTypeSelection 
             selectedRelatives={selectedRelatives}
             handleRelativeTypeToggle={handleRelativeTypeToggle}
+            onAddRelative={handleAddRelative}
           />
           
           <RelativesList
             relatives={relatives}
-            onAddRelative={handleAddRelative}
             onEditRelative={handleEditRelative}
             onDeleteRelative={handleDeleteRelative}
           />
