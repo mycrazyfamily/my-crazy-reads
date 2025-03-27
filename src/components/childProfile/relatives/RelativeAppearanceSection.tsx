@@ -157,7 +157,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         </div>
       </div>
       
-      {/* Lunettes - version avec boutons radio au lieu de checkbox */}
+      {/* Lunettes - Fix for infinite update loop by using direct div onClick instead of RadioGroup onChange */}
       <div className="form-group">
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">👓</span> {getGenderedText(
@@ -166,29 +166,43 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
             "Porte-t-il/elle des lunettes ?"
           )}
         </label>
-        <RadioGroup 
-          onValueChange={(value) => setGlasses(value === "true")} 
-          value={glasses ? "true" : "false"}
-          className="flex gap-4 mt-2"
-        >
-          <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-            glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-          }`}>
+        <div className="flex gap-4 mt-2">
+          <div 
+            className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+              glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+            }`}
+            onClick={() => setGlasses(true)}
+          >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="true" id="relative-glasses-yes" className="peer h-5 w-5" />
+              <input 
+                type="radio" 
+                id="relative-glasses-yes"
+                checked={glasses} 
+                onChange={() => {}} // Empty onChange to avoid React warning about controlled component
+                className="h-5 w-5" 
+              />
               <label htmlFor="relative-glasses-yes" className="cursor-pointer">Oui</label>
             </div>
           </div>
           
-          <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-            !glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-          }`}>
+          <div 
+            className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+              !glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
+            }`}
+            onClick={() => setGlasses(false)}
+          >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="false" id="relative-glasses-no" className="peer h-5 w-5" />
+              <input 
+                type="radio" 
+                id="relative-glasses-no" 
+                checked={!glasses} 
+                onChange={() => {}} // Empty onChange to avoid React warning about controlled component
+                className="h-5 w-5" 
+              />
               <label htmlFor="relative-glasses-no" className="cursor-pointer">Non</label>
             </div>
           </div>
-        </RadioGroup>
+        </div>
       </div>
     </>
   );
