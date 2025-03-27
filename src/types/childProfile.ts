@@ -102,6 +102,23 @@ export type ToysData = {
   toys: ToyData[];
 };
 
+// Nouveaux types pour les univers préférés et découvertes
+export type FavoriteWorldType = 
+  | "animals" | "nature" | "magic" | "space" 
+  | "princesses" | "dragons" | "pirates" | "superheroes" 
+  | "dinosaurs" | "robots" | "monsters" | "fairytales" 
+  | "food" | "wizards";
+
+export type DiscoveryType = 
+  | "countries" | "worldAnimals" | "traditions" | "geography" 
+  | "emotions" | "values" | "history" | "legends" 
+  | "ecology" | "nothing";
+
+export type WorldsData = {
+  favoriteWorlds: FavoriteWorldType[];
+  discoveries: DiscoveryType[];
+};
+
 export type ChildProfileFormData = {
   firstName: string;
   nickname: {
@@ -134,4 +151,5 @@ export type ChildProfileFormData = {
   family: FamilyData;
   pets: PetsData;
   toys: ToysData; // Ajout des doudous et objets magiques
+  worlds: WorldsData; // Ajout des univers préférés et découvertes
 };
