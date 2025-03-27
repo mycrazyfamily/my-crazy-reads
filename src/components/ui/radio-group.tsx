@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
@@ -8,10 +9,22 @@ const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, ...props }, ref) => {
+  // Prevent re-renders by memoizing the onValueChange handler if it exists
+  const onValueChange = props.onValueChange;
+  const memoizedOnValueChange = React.useCallback(
+    (value: string) => {
+      if (onValueChange) {
+        onValueChange(value);
+      }
+    },
+    [onValueChange]
+  );
+
   return (
     <RadioGroupPrimitive.Root
       className={cn("grid gap-2", className)}
       {...props}
+      onValueChange={memoizedOnValueChange}
       ref={ref}
     />
   )
