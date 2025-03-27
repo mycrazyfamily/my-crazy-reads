@@ -32,16 +32,16 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
   
   // États pour les champs personnalisés
   const [customWorld1, setCustomWorld1] = useState(
-    form.getValues("worlds.customWorlds?.other1") || ''
+    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds.other1") || ''
   );
   const [customWorld2, setCustomWorld2] = useState(
-    form.getValues("worlds.customWorlds?.other2") || ''
+    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds.other2") || ''
   );
   const [customDiscovery1, setCustomDiscovery1] = useState(
-    form.getValues("worlds.customDiscoveries?.other1") || ''
+    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries.other1") || ''
   );
   const [customDiscovery2, setCustomDiscovery2] = useState(
-    form.getValues("worlds.customDiscoveries?.other2") || ''
+    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries.other2") || ''
   );
 
   // Met à jour le formulaire quand les états locaux changent
@@ -57,8 +57,8 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
     // Ne met à jour les champs personnalisés que si les options correspondantes sont sélectionnées
     if (favoriteWorlds.includes('other1') || favoriteWorlds.includes('other2')) {
       form.setValue("worlds.customWorlds", {
-        ...(favoriteWorlds.includes('other1') ? { other1: customWorld1.trim() } : {}),
-        ...(favoriteWorlds.includes('other2') ? { other2: customWorld2.trim() } : {})
+        ...(favoriteWorlds.includes('other1') ? { other1: customWorld1 } : {}),
+        ...(favoriteWorlds.includes('other2') ? { other2: customWorld2 } : {})
       }, { shouldDirty: true });
     }
   }, [customWorld1, customWorld2, favoriteWorlds, form]);
@@ -67,8 +67,8 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
     // Ne met à jour les champs personnalisés que si les options correspondantes sont sélectionnées
     if (discoveries.includes('other1') || discoveries.includes('other2')) {
       form.setValue("worlds.customDiscoveries", {
-        ...(discoveries.includes('other1') ? { other1: customDiscovery1.trim() } : {}),
-        ...(discoveries.includes('other2') ? { other2: customDiscovery2.trim() } : {})
+        ...(discoveries.includes('other1') ? { other1: customDiscovery1 } : {}),
+        ...(discoveries.includes('other2') ? { other2: customDiscovery2 } : {})
       }, { shouldDirty: true });
     }
   }, [customDiscovery1, customDiscovery2, discoveries, form]);
