@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { 
   FormField, 
@@ -11,6 +11,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format, differenceInMonths, differenceInYears } from "date-fns";
+import { cn } from "@/lib/utils";
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 type BasicInfoFormProps = {
@@ -37,6 +43,56 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   handleNextStep
 }) => {
   const form = useFormContext<ChildProfileFormData>();
+  const [ageDisplay, setAgeDisplay] = useState<string>("");
+  
+  useEffect(() => {
+    const birthDate = form.watch("birthDate");
+    if (birthDate) {
+      calculateExactAge(birthDate);
+    }
+  }, [form.watch("birthDate")]);
+
+  const calculateExactAge = (birthDate: Date) => {
+    const today = new Date();
+    const years = differenceInYears(today, birthDate);
+    
+    const monthDiff = differenceInMonths(today, birthDate) % 12;
+    
+    let ageString = "";
+    
+    if (years > 0) {
+      ageString += `${years} an${years > 1 ? 's' : ''}`;
+      
+      if (monthDiff > 0) {
+        ageString += ` et ${monthDiff} mois`;
+      }
+    } else if (monthDiff > 0) {
+      ageString = `${monthDiff} mois`;
+    } else {
+      ageString = "moins d'un mois";
+    }
+    
+    setAgeDisplay(ageString);
+    
+    let ageRange: "0-2" | "3-5" | "6-7" | "8-10";
+    if (years < 3) {
+      ageRange = "0-2";
+    } else if (years < 6) {
+      ageRange = "3-5";
+    } else if (years < 8) {
+      ageRange = "6-7";
+    } else {
+      ageRange = "8-10";
+    }
+    
+    form.setValue("age", ageRange);
+  };
+
+  const getMinDate = () => {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - 10);
+    return date;
+  };
 
   return (
     <div className="mb-6 animate-fade-in">
@@ -61,7 +117,61 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Surnom */}
+        <FormField
+          control={form.control}
+          name="birthDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                <span className="text-xl">🎂</span> Quelle est la date de naissance de votre enfant ?
+              </FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal border-mcf-amber",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "dd/MM/yyyy")
+                      ) : (
+                        <span>Sélectionner une date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) =>
+                      date > new Date() || date < getMinDate()
+                    }
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                Nous utilisons cette information pour adapter les histoires à son âge exact.
+              </FormDescription>
+              {ageDisplay && (
+                <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
+                  <p className="text-sm font-medium text-mcf-orange-dark">
+                    Votre enfant a {ageDisplay}
+                  </p>
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="nickname.type"
@@ -99,7 +209,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Champ texte pour le surnom personnalisé */}
         {selectedNickname === "custom" && (
           <FormField
             control={form.control}
@@ -118,7 +227,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        {/* Âge */}
         <FormField
           control={form.control}
           name="age"
@@ -127,7 +235,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">🎂</span> Quel âge a-t-il/elle ?
               </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="border-mcf-amber">
                     <SelectValue placeholder="Sélectionner l'âge" />
@@ -145,7 +253,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Genre */}
         <FormField
           control={form.control}
           name="gender"
@@ -183,7 +290,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Couleur de peau */}
         <FormField
           control={form.control}
           name="skinColor.type"
@@ -220,7 +326,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Champ texte pour la couleur de peau personnalisée */}
         {selectedSkinColor === "custom" && (
           <FormField
             control={form.control}
@@ -239,7 +344,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        {/* Couleur des yeux */}
         <FormField
           control={form.control}
           name="eyeColor.type"
@@ -277,7 +381,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Champ texte pour la couleur des yeux personnalisée */}
         {selectedEyeColor === "custom" && (
           <FormField
             control={form.control}
@@ -296,7 +399,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        {/* Couleur des cheveux */}
         <FormField
           control={form.control}
           name="hairColor.type"
@@ -335,7 +437,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Champ texte pour la couleur des cheveux personnalisée */}
         {selectedHairColor === "custom" && (
           <FormField
             control={form.control}
@@ -354,7 +455,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        {/* Type de cheveux */}
         <FormField
           control={form.control}
           name="hairType"
@@ -388,7 +488,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           )}
         />
 
-        {/* Lunettes - version avec boutons radio au lieu de checkbox */}
         <FormField
           control={form.control}
           name="glasses"

@@ -23,6 +23,7 @@ const CreateChildProfile = () => {
     defaultValues: {
       firstName: '',
       nickname: { type: "none" }, // Doit être une valeur valide selon le type
+      birthDate: undefined, // Nouvelle propriété pour la date de naissance
       age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10", // Technique pour initialiser sans valeur réelle
       gender: undefined as unknown as "girl" | "boy" | "neutral",
       skinColor: { type: "light" }, // Valeur valide requise pour le type
@@ -65,6 +66,10 @@ const CreateChildProfile = () => {
         
         // Restaurer les valeurs du formulaire
         if (parsedState.formValues) {
+          // Convertir la date de naissance de chaîne à objet Date si elle existe
+          if (parsedState.formValues.birthDate) {
+            parsedState.formValues.birthDate = new Date(parsedState.formValues.birthDate);
+          }
           form.reset(parsedState.formValues);
         }
       } catch (error) {

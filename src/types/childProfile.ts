@@ -85,6 +85,7 @@ export type ChildProfileFormData = {
     type: "none" | "petitChou" | "tresor" | "boubou" | "custom";
     custom?: string;
   };
+  birthDate?: Date; // Champ ajouté pour la date de naissance
   age: "0-2" | "3-5" | "6-7" | "8-10";
   gender: "girl" | "boy" | "neutral";
   skinColor: {
