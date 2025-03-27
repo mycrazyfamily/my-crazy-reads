@@ -64,7 +64,8 @@ export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "
 
 export type PetTrait = 
   | "playful" | "lazy" | "protective" | "clingy" 
-  | "clever" | "grumpy" | "gentle" | "noisy" | "talkative";
+  | "clever" | "grumpy" | "gentle" | "noisy" | "talkative" 
+  | "other"; // Added 'other' trait type
 
 export type PetData = {
   id: string;
@@ -72,6 +73,7 @@ export type PetData = {
   type: PetType;
   otherType?: string;
   traits: PetTrait[];
+  customTraits?: Record<string, string>; // Added custom traits field
 };
 
 export type PetsData = {

@@ -19,6 +19,10 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
+  const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
+  
+  const MAX_TRAITS = 2;
+  const hasReachedMaxTraits = selectedTraits.length >= MAX_TRAITS;
 
   const getIconComponent = (petType: PetType) => {
     switch (petType) {
@@ -39,14 +43,30 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
 
   const handleTraitToggle = (trait: PetTrait) => {
     if (selectedTraits.includes(trait)) {
+      // Si le trait est déjà sélectionné, on le retire
       setSelectedTraits(selectedTraits.filter(t => t !== trait));
+      
+      // Si c'était un trait custom, on retire aussi sa valeur
+      if (trait === 'other') {
+        const newCustomTraits = { ...customTraits };
+        delete newCustomTraits[trait];
+        setCustomTraits(newCustomTraits);
+      }
     } else {
-      if (selectedTraits.length < 2) {
+      // Si le maximum n'est pas atteint, on peut ajouter le trait
+      if (selectedTraits.length < MAX_TRAITS) {
         setSelectedTraits([...selectedTraits, trait]);
       } else {
-        toast.error("Vous pouvez sélectionner 2 traits maximum");
+        toast.error(`Vous pouvez sélectionner ${MAX_TRAITS} traits maximum`);
       }
     }
+  };
+
+  const handleCustomTraitChange = (trait: PetTrait, value: string) => {
+    setCustomTraits({
+      ...customTraits,
+      [trait]: value
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,12 +82,23 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
       return;
     }
 
+    // Vérifier que les traits personnalisés sont remplis
+    const hasEmptyCustomTrait = selectedTraits.some(trait => 
+      trait === 'other' && (!customTraits[trait] || !customTraits[trait].trim())
+    );
+
+    if (hasEmptyCustomTrait) {
+      toast.error("Veuillez préciser tous les traits personnalisés");
+      return;
+    }
+
     const newPet: PetData = {
       id: pet?.id || Date.now().toString(),
       name: name.trim(),
       type,
       otherType: type === 'other' ? otherType.trim() : undefined,
       traits: selectedTraits,
+      customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
 
     onSave(newPet);
@@ -134,24 +165,43 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
       {/* Traits de caractère */}
       <div className="space-y-3">
         <Label className="text-base font-medium block">
-          Traits de caractère <span className="text-xs text-gray-500">(2 maximum)</span>
+          Traits de caractère <span className="text-xs text-gray-500">({MAX_TRAITS} maximum)</span>
         </Label>
         <div className="grid grid-cols-3 gap-2">
-          {PET_TRAIT_OPTIONS.map((trait) => (
-            <button
-              key={trait.value}
-              type="button"
-              onClick={() => handleTraitToggle(trait.value as PetTrait)}
-              className={`flex items-center justify-start p-2 rounded-lg border gap-2 transition-all ${
-                selectedTraits.includes(trait.value as PetTrait)
-                  ? 'bg-mcf-amber/10 border-mcf-amber shadow-sm'
-                  : 'border-gray-200 hover:border-mcf-amber/50'
-              }`}
-            >
-              <span className="text-xl">{trait.icon}</span>
-              <span className="text-sm">{trait.label}</span>
-            </button>
-          ))}
+          {PET_TRAIT_OPTIONS.map((trait) => {
+            const isTraitSelected = selectedTraits.includes(trait.value as PetTrait);
+            const isDisabled = !isTraitSelected && hasReachedMaxTraits;
+            
+            return (
+              <div key={trait.value} className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleTraitToggle(trait.value as PetTrait)}
+                  disabled={isDisabled}
+                  className={`flex items-center justify-start p-2 rounded-lg border gap-2 transition-all w-full
+                    ${isTraitSelected 
+                      ? 'bg-mcf-amber/10 border-mcf-amber shadow-sm' 
+                      : isDisabled
+                        ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-200 hover:border-mcf-amber/50'
+                    }`}
+                >
+                  <span className="text-xl">{trait.icon}</span>
+                  <span className="text-sm">{trait.label}</span>
+                </button>
+                
+                {/* Champ pour préciser un trait personnalisé */}
+                {isTraitSelected && trait.value === 'other' && (
+                  <Input
+                    placeholder="Précisez le trait de caractère"
+                    value={customTraits[trait.value] || ''}
+                    onChange={(e) => handleCustomTraitChange(trait.value as PetTrait, e.target.value)}
+                    className="mt-1 text-sm"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

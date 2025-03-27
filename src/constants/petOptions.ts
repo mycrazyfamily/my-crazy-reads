@@ -19,4 +19,5 @@ export const PET_TRAIT_OPTIONS = [
   { value: "gentle", label: "Doux", icon: "💞" },
   { value: "noisy", label: "Bruyant", icon: "🔊" },
   { value: "talkative", label: "Bavard", icon: "🗣️" },
+  { value: "other", label: "Autre", icon: "✏️" },
 ];
