@@ -79,6 +79,27 @@ export type PetsData = {
   pets: PetData[];
 };
 
+// Nouveaux types pour les doudous et objets magiques
+export type ToyType = "plush" | "blanket" | "doll" | "miniCar" | "figurine" | "other";
+
+export type ToyRole = 
+  | "sleepGuardian" | "invisibleFriend" | "magicProtector" 
+  | "secretHero" | "playmate" | "noSpecificRole";
+
+export type ToyData = {
+  id: string;
+  name: string;
+  type: ToyType;
+  otherType?: string;
+  appearance: string;
+  roles: ToyRole[];
+};
+
+export type ToysData = {
+  hasToys: boolean;
+  toys: ToyData[];
+};
+
 export type ChildProfileFormData = {
   firstName: string;
   nickname: {
@@ -110,4 +131,5 @@ export type ChildProfileFormData = {
 
   family: FamilyData;
   pets: PetsData;
+  toys: ToysData; // Ajout des doudous et objets magiques
 };

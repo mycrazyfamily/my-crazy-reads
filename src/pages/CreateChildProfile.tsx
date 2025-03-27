@@ -7,6 +7,7 @@ import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
 import PersonalityForm from '@/components/childProfile/PersonalityForm';
 import FamilyForm from '@/components/childProfile/FamilyForm';
 import PetsForm from '@/components/childProfile/PetsForm';
+import ToysForm from '@/components/childProfile/ToysForm';
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
@@ -42,6 +43,10 @@ const CreateChildProfile = () => {
       pets: {
         hasPets: false,
         pets: [],
+      },
+      toys: {
+        hasToys: false,
+        toys: [],
       }
     },
   });
@@ -167,6 +172,13 @@ const CreateChildProfile = () => {
 
           {formStep === 3 && (
             <PetsForm
+              handleNextStep={handleNextStep}
+              handlePreviousStep={handlePreviousStep}
+            />
+          )}
+
+          {formStep === 4 && (
+            <ToysForm
               handleNextStep={handleNextStep}
               handlePreviousStep={handlePreviousStep}
             />
