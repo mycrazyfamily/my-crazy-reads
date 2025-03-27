@@ -1,13 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { toyTypeOptions, toyRoleOptions } from '@/constants/toyOptions';
 import { v4 as uuidv4 } from 'uuid';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
@@ -35,7 +33,8 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
     }
   };
 
-  const handleRoleToggle = (role: ToyRole) => {
+  // Memoized handler to prevent infinite updates
+  const handleRoleToggle = useCallback((role: ToyRole) => {
     setSelectedRoles(prev => {
       if (prev.includes(role)) {
         return prev.filter(r => r !== role);
@@ -47,7 +46,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
         return prev;
       }
     });
-  };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +66,15 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
 
     onSave(newToy);
   };
+
+  // Vérifie si un rôle a déjà été sélectionné
+  const isRoleSelected = (role: ToyRole) => selectedRoles.includes(role);
+  
+  // Vérifie si on a atteint la limite de sélection (2 rôles max)
+  const isMaxRolesReached = selectedRoles.length >= 2;
+  
+  // Détermine si un rôle est désactivé (max atteint mais pas déjà sélectionné)
+  const isRoleDisabled = (role: ToyRole) => isMaxRolesReached && !isRoleSelected(role);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
@@ -152,7 +160,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
             />
           </div>
 
-          {/* Rôle dans l'imaginaire */}
+          {/* Rôle dans l'imaginaire - RESTRUCTURATION POUR ÉVITER LES BOUCLES INFINIES */}
           <div className="space-y-3">
             <Label className="text-base font-medium">
               Quel rôle a-t-il dans son imaginaire ? 🪄 <span className="text-sm text-gray-500 font-normal">(2 max)</span>
@@ -162,22 +170,28 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
               {toyRoleOptions.map(role => (
                 <div 
                   key={role.value}
-                  className={`flex items-center space-x-2 p-3 rounded-md border cursor-pointer ${
-                    selectedRoles.includes(role.value)
+                  onClick={() => {
+                    if (!isRoleDisabled(role.value)) {
+                      handleRoleToggle(role.value);
+                    }
+                  }}
+                  className={`flex items-center space-x-2 p-3 rounded-md border cursor-pointer transition-colors ${
+                    isRoleSelected(role.value)
                       ? 'bg-mcf-amber/20 border-mcf-amber'
-                      : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5'
+                      : isRoleDisabled(role.value)
+                        ? 'bg-gray-100 border-gray-300 opacity-50 cursor-not-allowed'
+                        : 'bg-white border-mcf-amber/30 hover:bg-mcf-amber/5'
                   }`}
-                  onClick={() => handleRoleToggle(role.value)}
                 >
-                  <Checkbox
-                    id={`role-${role.value}`}
-                    checked={selectedRoles.includes(role.value)}
-                    onCheckedChange={() => handleRoleToggle(role.value)}
-                    className="h-4 w-4"
-                  />
+                  <div className="h-4 w-4 border border-primary rounded flex items-center justify-center">
+                    {isRoleSelected(role.value) && (
+                      <div className="h-2 w-2 bg-primary rounded-sm" />
+                    )}
+                  </div>
                   <Label 
-                    htmlFor={`role-${role.value}`} 
-                    className="flex items-center gap-2 cursor-pointer flex-1"
+                    className={`flex items-center gap-2 cursor-pointer flex-1 ${
+                      isRoleDisabled(role.value) ? 'cursor-not-allowed' : ''
+                    }`}
                   >
                     <span className="text-xl">{role.emoji}</span>
                     <span>{role.label}</span>
@@ -185,6 +199,11 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
                 </div>
               ))}
             </div>
+            {isMaxRolesReached && (
+              <p className="text-sm text-amber-600 italic">
+                Vous avez atteint le nombre maximum de rôles (2)
+              </p>
+            )}
           </div>
         </div>
       </div>
