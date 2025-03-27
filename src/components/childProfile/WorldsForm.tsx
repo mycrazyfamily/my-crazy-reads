@@ -32,16 +32,16 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
   
   // États pour les champs personnalisés
   const [customWorld1, setCustomWorld1] = useState(
-    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds.other1") || ''
+    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds").other1 || ''
   );
   const [customWorld2, setCustomWorld2] = useState(
-    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds.other2") || ''
+    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds").other2 || ''
   );
   const [customDiscovery1, setCustomDiscovery1] = useState(
-    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries.other1") || ''
+    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries").other1 || ''
   );
   const [customDiscovery2, setCustomDiscovery2] = useState(
-    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries.other2") || ''
+    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries").other2 || ''
   );
 
   // Met à jour le formulaire quand les états locaux changent
@@ -184,15 +184,15 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                   }`}
                   onClick={() => !isDisabled && handleFavoriteWorldToggle(world.value)}
                 >
-                  <Checkbox
-                    id={`world-${world.value}`}
-                    checked={isSelected}
-                    disabled={isDisabled}
-                    className="mr-2"
-                    onCheckedChange={() => {
-                      // Ne faire rien ici, car l'action est gérée par le onClick du div parent
-                    }}
-                  />
+                  <div className="mr-2">
+                    <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
+                      isSelected 
+                        ? 'border-primary bg-primary text-primary-foreground' 
+                        : 'border-primary'
+                    }`}>
+                      {isSelected && <span className="h-4 w-4 text-xs text-white">✓</span>}
+                    </div>
+                  </div>
                   <Label
                     htmlFor={`world-${world.value}`}
                     className="flex items-center gap-2 cursor-pointer flex-1 text-sm"
@@ -265,15 +265,15 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                   }`}
                   onClick={() => !isDisabled && handleDiscoveryToggle(discovery.value)}
                 >
-                  <Checkbox
-                    id={`discovery-${discovery.value}`}
-                    checked={isSelected}
-                    disabled={isDisabled}
-                    className="mr-2"
-                    onCheckedChange={() => {
-                      // Ne faire rien ici, car l'action est gérée par le onClick du div parent
-                    }}
-                  />
+                  <div className="mr-2">
+                    <div className={`flex h-4 w-4 items-center justify-center rounded-sm border ${
+                      isSelected 
+                        ? 'border-primary bg-primary text-primary-foreground' 
+                        : 'border-primary'
+                    }`}>
+                      {isSelected && <span className="h-4 w-4 text-xs text-white">✓</span>}
+                    </div>
+                  </div>
                   <Label
                     htmlFor={`discovery-${discovery.value}`}
                     className="flex items-center gap-2 cursor-pointer flex-1 text-sm"
