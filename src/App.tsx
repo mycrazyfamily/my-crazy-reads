@@ -11,6 +11,7 @@ import CreateChildProfile from "./pages/CreateChildProfile";
 import StartAdventure from "./pages/StartAdventure";
 import FinishSubscription from "./pages/FinishSubscription";
 import ConfirmationPage from "./pages/ConfirmationPage";
+import FamilyDashboard from "./pages/FamilyDashboard";
 
 const App = () => {
   // Créer une nouvelle instance de QueryClient à l'intérieur du composant fonctionnel
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/pret-a-demarrer" element={<StartAdventure />} />
             <Route path="/finaliser-abonnement" element={<FinishSubscription />} />
             <Route path="/confirmation-abonnement" element={<ConfirmationPage />} />
+            <Route path="/espace-famille" element={<FamilyDashboard />} />
             <Route path="/histoires" element={<NotFound />} />
             <Route path="/fonctionnement" element={<NotFound />} />
             <Route path="/abonnement" element={<NotFound />} />
@@ -40,7 +42,6 @@ const App = () => {
             <Route path="/conditions-generales" element={<NotFound />} />
             <Route path="/confidentialite" element={<NotFound />} />
             <Route path="/livraison" element={<NotFound />} />
-            <Route path="/espace-famille" element={<NotFound />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

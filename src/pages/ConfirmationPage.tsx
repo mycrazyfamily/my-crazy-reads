@@ -27,7 +27,7 @@ const ConfirmationPage = () => {
     toast({
       title: "Paiement confirmé !",
       description: "Votre abonnement a été activé avec succès.",
-      variant: "success"
+      variant: "default" // Changed from "success" to "default" to fix the build error
     });
   }, [toast]);
 
