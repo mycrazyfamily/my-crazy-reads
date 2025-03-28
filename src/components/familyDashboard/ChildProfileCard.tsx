@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ShoppingBag, Edit, Users, Palette, Cat, Dog, Toy, PlusSquare } from 'lucide-react';
+import { ShoppingBag, Edit, Users, Palette, Cat, Dog, PlusSquare, Gamepad2 } from 'lucide-react';
 
 interface Child {
   id: string;
@@ -48,7 +48,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           
           {child.hasToys && (
             <div className="flex items-center gap-2">
-              <Toy className="h-4 w-4 text-mcf-orange" />
+              <Gamepad2 className="h-4 w-4 text-mcf-orange" />
               <span>Jouets préférés</span>
             </div>
           )}
