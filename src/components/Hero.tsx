@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 const Hero: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [debug, setDebug] = useState(false); // Pour afficher le cadre rouge si nécessaire
 
   useEffect(() => {
     // Vérifier si nous sommes sur un appareil mobile
@@ -15,15 +16,25 @@ const Hero: React.FC = () => {
       return;
     }
 
+    const element = heroRef.current;
+    if (!element) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       try {
-        if (!heroRef.current) return;
+        const current = heroRef.current;
+        if (!current) {
+          console.log("Hero ref is null during mousemove");
+          return;
+        }
         
         const { clientX, clientY } = e;
-        const rect = heroRef.current.getBoundingClientRect();
+        const rect = current.getBoundingClientRect();
         
         // Vérifier si le rectangle a une taille valide
-        if (rect.width === 0 || rect.height === 0) return;
+        if (rect.width === 0 || rect.height === 0) {
+          console.log("Invalid dimensions", rect);
+          return;
+        }
         
         const x = (clientX - rect.left) / rect.width;
         const y = (clientY - rect.top) / rect.height;
@@ -31,8 +42,11 @@ const Hero: React.FC = () => {
         const moveX = (x - 0.5) * 20;
         const moveY = (y - 0.5) * 20;
         
-        heroRef.current.style.backgroundPosition = `${50 + moveX * 0.5}% ${50 + moveY * 0.5}%`;
-        setIsHovering(true);
+        // Vérification explicite avant de modifier le style
+        if (current && current.style) {
+          current.style.backgroundPosition = `${50 + moveX * 0.5}% ${50 + moveY * 0.5}%`;
+          setIsHovering(true);
+        }
       } catch (error) {
         console.error("Erreur lors du mouvement de souris:", error);
         // Ne pas propager l'erreur pour éviter de faire crasher l'application
@@ -40,30 +54,40 @@ const Hero: React.FC = () => {
     };
     
     const handleMouseLeave = () => {
-      if (heroRef.current) {
+      console.log("MouseLeave triggered");
+      const current = heroRef.current;
+      if (current && current.style) {
         // Revenir à la position initiale
-        heroRef.current.style.backgroundPosition = '50% 50%';
+        current.style.backgroundPosition = '50% 50%';
         setIsHovering(false);
       }
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
+    // Attacher les événements sur l'élément Hero, pas sur document
+    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mouseleave', handleMouseLeave);
+    
+    // Activer temporairement le débogage visuel
+    setDebug(true);
+    setTimeout(() => setDebug(false), 5000); // Désactiver après 5 secondes
     
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      // Nettoyer les événements sur l'élément spécifique
+      if (element) {
+        element.removeEventListener('mousemove', handleMouseMove);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+      }
     };
   }, []);
 
-  console.log("Hero component rendering");
+  console.log("Hero component rendering", { hasRef: !!heroRef.current, isHovering });
 
   return (
     <div 
       ref={heroRef}
       className={`hero-gradient min-h-screen flex items-center justify-center pt-16 pb-10 transition-all duration-300 ease-out ${
         isHovering ? 'bg-[length:120%_120%]' : 'bg-[length:110%_110%]'
-      }`}
+      } ${debug ? 'debug min-h-[100vh] bg-red-100/20 border border-red-500' : ''}`}
       style={{ backgroundPosition: '50% 50%' }}
     >
       <div className="container mx-auto px-4 md:px-6">
