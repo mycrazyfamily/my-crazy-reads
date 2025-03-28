@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,12 @@ import { GiftIcon, BookOpen, Sparkles, Package, Gift, Check, BookOpenCheck, Book
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const StartAdventure = () => {
+  const navigate = useNavigate();
+
+  const handleSubscribe = () => {
+    navigate('/finaliser-abonnement');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
       <div className="container px-4 mx-auto max-w-5xl">
@@ -70,7 +76,7 @@ const StartAdventure = () => {
               <Button
                 className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all w-full"
                 size="lg"
-                onClick={() => window.location.href = '/abonnement'}
+                onClick={handleSubscribe}
               >
                 <BookOpen className="mr-2 h-5 w-5" /> Je m'abonne à My Crazy Family 📚
               </Button>
