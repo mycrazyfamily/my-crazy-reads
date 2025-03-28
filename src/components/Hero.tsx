@@ -1,30 +1,58 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Hero: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
+    // Vérifier si nous sommes sur un appareil mobile
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    
+    if (isMobile) {
+      // Sur mobile, pas besoin d'effet de souris
+      return;
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (!heroRef.current) return;
-      
-      const { clientX, clientY } = e;
-      const { width, height, left, top } = heroRef.current.getBoundingClientRect();
-      
-      const x = (clientX - left) / width;
-      const y = (clientY - top) / height;
-      
-      const moveX = (x - 0.5) * 20;
-      const moveY = (y - 0.5) * 20;
-      
-      heroRef.current.style.backgroundPosition = `${50 + moveX * 0.5}% ${50 + moveY * 0.5}%`;
+      try {
+        if (!heroRef.current) return;
+        
+        const { clientX, clientY } = e;
+        const rect = heroRef.current.getBoundingClientRect();
+        
+        // Vérifier si le rectangle a une taille valide
+        if (rect.width === 0 || rect.height === 0) return;
+        
+        const x = (clientX - rect.left) / rect.width;
+        const y = (clientY - rect.top) / rect.height;
+        
+        const moveX = (x - 0.5) * 20;
+        const moveY = (y - 0.5) * 20;
+        
+        heroRef.current.style.backgroundPosition = `${50 + moveX * 0.5}% ${50 + moveY * 0.5}%`;
+        setIsHovering(true);
+      } catch (error) {
+        console.error("Erreur lors du mouvement de souris:", error);
+        // Ne pas propager l'erreur pour éviter de faire crasher l'application
+      }
+    };
+    
+    const handleMouseLeave = () => {
+      if (heroRef.current) {
+        // Revenir à la position initiale
+        heroRef.current.style.backgroundPosition = '50% 50%';
+        setIsHovering(false);
+      }
     };
 
     document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
     
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
@@ -33,7 +61,10 @@ const Hero: React.FC = () => {
   return (
     <div 
       ref={heroRef}
-      className="hero-gradient min-h-screen flex items-center justify-center pt-16 pb-10 bg-[length:120%_120%] transition-all duration-300 ease-out"
+      className={`hero-gradient min-h-screen flex items-center justify-center pt-16 pb-10 transition-all duration-300 ease-out ${
+        isHovering ? 'bg-[length:120%_120%]' : 'bg-[length:110%_110%]'
+      }`}
+      style={{ backgroundPosition: '50% 50%' }}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">

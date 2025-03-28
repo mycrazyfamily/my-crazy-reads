@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -7,6 +6,8 @@ import BenefitCard from '../components/BenefitCard';
 import Footer from '../components/Footer';
 
 const Index: React.FC = () => {
+  const [heroError, setHeroError] = useState<boolean>(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     // Ajouter une classe au body pour s'assurer que la couleur de fond est appliquée
@@ -52,7 +53,38 @@ const Index: React.FC = () => {
       <Navbar />
       
       <main className="flex-grow">
-        <Hero />
+        {heroError ? (
+          <div className="min-h-screen flex items-center justify-center pt-16 pb-10 hero-gradient">
+            <div className="container mx-auto px-4 md:px-6 text-center">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mcf-orange-dark leading-tight mb-4">
+                Bienvenue dans My Crazy Family
+              </h1>
+              <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+                Chaque mois, une nouvelle histoire imprimée personnalisée, pour vivre des aventures magiques en famille.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                <Link 
+                  to="/creer-profil-enfant" 
+                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+                >
+                  Commencer l'aventure
+                </Link>
+                <Link 
+                  to="/offrir-livre" 
+                  className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+                >
+                  Offrir un livre
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <React.Suspense fallback={<div>Chargement...</div>}>
+            <ErrorBoundary onError={() => setHeroError(true)}>
+              <Hero />
+            </ErrorBoundary>
+          </React.Suspense>
+        )}
         
         <section className="py-20 px-4 bg-white">
           <div className="container mx-auto">
@@ -129,5 +161,17 @@ const Index: React.FC = () => {
     </div>
   );
 };
+
+// Composant ErrorBoundary simple pour capturer les erreurs
+class ErrorBoundary extends React.Component<{ children: React.ReactNode; onError: () => void }> {
+  componentDidCatch(error: Error) {
+    console.error("Error in component:", error);
+    this.props.onError();
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
 
 export default Index;
