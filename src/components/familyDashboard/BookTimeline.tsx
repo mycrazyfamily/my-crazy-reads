@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Book, Clock, Truck, Tag, FileText, Calendar, 
-  Sparkles, Globe, Brain, Dragon
+  Sparkles, Globe, Brain, Flame
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -18,7 +17,7 @@ const BookTimeline: React.FC = () => {
       estimatedDelivery: "15 juin 2024",
       cover: null,
       theme: "dragons",
-      themeIcon: <Dragon className="h-4 w-4" />
+      themeIcon: <Flame className="h-4 w-4" />
     },
     {
       id: "book2",
