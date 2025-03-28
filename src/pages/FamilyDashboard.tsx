@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { 
   Baby, Book, Gift, User, Clock, Truck, Edit, Plus, Settings, 
-  LogOut, Home, Heart, HelpCircle, Copy, ExternalLink, MessageSquarePlus
+  LogOut, Home, Heart, HelpCircle, Copy, ExternalLink, MessageSquarePlus,
+  ShoppingBag
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
+import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChildProfileCard from '@/components/familyDashboard/ChildProfileCard';
@@ -20,7 +22,7 @@ import SubscriptionSummary from '@/components/familyDashboard/SubscriptionSummar
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { logout, user } = useAuth();
   
   // Example data - in a real application, this would come from an API
   const mockChildren = [
@@ -55,6 +57,12 @@ const FamilyDashboard: React.FC = () => {
     address: "123 Rue de la Magie, 75001 Paris"
   };
   
+  const handleLogout = () => {
+    logout();
+    toast.success("Vous avez été déconnecté avec succès.");
+    navigate('/');
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream via-mcf-cream to-white">
       <Navbar />
@@ -68,6 +76,25 @@ const FamilyDashboard: React.FC = () => {
         </div>
         
         <div className="grid gap-8">
+          {/* Quick action buttons */}
+          <section className="animate-fade-in">
+            <div className="flex flex-wrap gap-3 mb-6">
+              <Button 
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
+                onClick={() => navigate('/creer-profil-enfant')}
+              >
+                <Plus className="h-4 w-4" /> Nouvel enfant
+              </Button>
+              
+              <Button 
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
+                onClick={() => navigate('/offrir/profil-enfant')}
+              >
+                <ShoppingBag className="h-4 w-4" /> Offrir un nouveau livre
+              </Button>
+            </div>
+          </section>
+          
           {/* Section 1: Children Profiles */}
           <section className="animate-fade-in">
             <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
@@ -139,13 +166,7 @@ const FamilyDashboard: React.FC = () => {
             <Button 
               variant="outline" 
               className="border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10 gap-2"
-              onClick={() => {
-                toast({
-                  title: "Déconnexion réussie",
-                  description: "Vous avez été déconnecté avec succès.",
-                });
-                navigate('/');
-              }}
+              onClick={handleLogout}
             >
               <LogOut className="h-4 w-4" /> Déconnexion
             </Button>

@@ -1,82 +1,100 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, UserPlus } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { ShoppingBag, Edit, Users, Palette, Cat, Dog, Toy, PlusSquare } from 'lucide-react';
 
-type ChildProfileProps = {
-  child: {
-    id: string;
-    firstName: string;
-    age: string;
-    avatar: string | null;
-    personalityEmoji: string;
-    relatives: number;
-    hasToys: boolean;
-    hasPets: number;
-  };
-};
+interface Child {
+  id: string;
+  firstName: string;
+  age: string;
+  avatar: string | null;
+  personalityEmoji: string;
+  relatives?: number;
+  hasToys?: boolean;
+  hasPets?: number;
+}
 
-const ChildProfileCard: React.FC<ChildProfileProps> = ({ child }) => {
-  const navigate = useNavigate();
-  
+interface ChildProfileCardProps {
+  child: Child;
+}
+
+const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
   return (
-    <Card className="overflow-hidden hover-scale transition-all border-mcf-amber/30 shadow-md hover:shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-mcf-amber/20 to-mcf-beige p-4 flex flex-row items-center gap-4">
-        <Avatar className="h-16 w-16 border-2 border-white shadow-md">
-          {child.avatar ? (
-            <AvatarImage src={child.avatar} alt={child.firstName} />
-          ) : (
-            <AvatarFallback className="bg-mcf-orange text-white text-xl">
-              {child.firstName.charAt(0)}
-            </AvatarFallback>
-          )}
+    <Card className="overflow-hidden border-mcf-amber/30 animate-fade-in">
+      <CardHeader className="bg-gradient-to-br from-mcf-amber/20 to-transparent p-4 flex flex-row items-center gap-4">
+        <Avatar className="h-16 w-16 border-2 border-mcf-orange">
+          <AvatarImage src={child.avatar || undefined} alt={child.firstName} />
+          <AvatarFallback className="text-2xl bg-mcf-orange/20 text-mcf-orange-dark">
+            {child.personalityEmoji || child.firstName.charAt(0).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="text-xl font-bold text-mcf-orange-dark flex items-center gap-2">
-            {child.firstName} <span className="text-2xl">{child.personalityEmoji}</span>
-          </h3>
+          <h3 className="text-xl font-bold text-mcf-orange-dark">{child.firstName}</h3>
           <p className="text-gray-600">{child.age} ans</p>
         </div>
       </CardHeader>
       
       <CardContent className="p-4">
-        <div className="mb-4">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-mcf-amber/10 p-2 rounded-md">
-              <p className="text-sm text-gray-600">Proches</p>
-              <p className="font-bold text-mcf-orange-dark">{child.relatives}</p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {child.relatives && (
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-mcf-orange" />
+              <span>{child.relatives} proches</span>
             </div>
-            <div className="bg-mcf-amber/10 p-2 rounded-md">
-              <p className="text-sm text-gray-600">Doudou</p>
-              <p className="font-bold text-mcf-orange-dark">{child.hasToys ? '✓' : '✗'}</p>
+          )}
+          
+          {child.hasToys && (
+            <div className="flex items-center gap-2">
+              <Toy className="h-4 w-4 text-mcf-orange" />
+              <span>Jouets préférés</span>
             </div>
-            <div className="bg-mcf-amber/10 p-2 rounded-md">
-              <p className="text-sm text-gray-600">Animaux</p>
-              <p className="font-bold text-mcf-orange-dark">{child.hasPets}</p>
+          )}
+          
+          {child.hasPets && (
+            <div className="flex items-center gap-2">
+              {child.hasPets > 1 ? (
+                <Cat className="h-4 w-4 text-mcf-orange" />
+              ) : (
+                <Dog className="h-4 w-4 text-mcf-orange" />
+              )}
+              <span>{child.hasPets} animal{child.hasPets > 1 ? 'aux' : ''}</span>
             </div>
+          )}
+          
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-mcf-orange" />
+            <span>Préférences</span>
           </div>
         </div>
-        
-        <div className="flex gap-2 flex-col sm:flex-row">
-          <Button
-            variant="outline"
-            className="border-mcf-amber text-mcf-orange-dark hover:bg-mcf-amber/10 gap-2 w-full"
-            onClick={() => navigate(`/modifier-profil/${child.id}`)}
-          >
-            <Edit className="h-4 w-4" /> Modifier ce profil
-          </Button>
-          <Button
-            variant="outline"
-            className="border-mcf-amber text-mcf-orange-dark hover:bg-mcf-amber/10 gap-2 w-full"
-            onClick={() => navigate(`/ajouter-proche/${child.id}`)}
-          >
-            <UserPlus className="h-4 w-4" /> Ajouter un proche
-          </Button>
-        </div>
       </CardContent>
+      
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-amber/20">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-1 w-full border-mcf-amber/30 hover:bg-mcf-amber/10"
+          asChild
+        >
+          <Link to={`/modifier-enfant/${child.id}`}>
+            <Edit className="h-3.5 w-3.5" />
+            <span>Modifier</span>
+          </Link>
+        </Button>
+        
+        <Button 
+          size="sm" 
+          className="flex items-center gap-1 w-full bg-mcf-orange hover:bg-mcf-orange-dark text-white"
+          asChild
+        >
+          <Link to={`/offrir/theme?child=${child.id}`}>
+            <ShoppingBag className="h-3.5 w-3.5" />
+            <span>Commander</span>
+          </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

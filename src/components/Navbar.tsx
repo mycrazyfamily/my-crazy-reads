@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,25 +40,52 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 items-center">
-            <Link to="/" className="font-medium hover:text-mcf-orange transition-colors">
+          <div className="hidden md:flex space-x-4 items-center">
+            <Link to="/" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Accueil
             </Link>
-            <Link to="/histoires" className="font-medium hover:text-mcf-orange transition-colors">
+            <Link to="/histoires" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Nos Histoires
             </Link>
-            <Link to="/fonctionnement" className="font-medium hover:text-mcf-orange transition-colors">
+            <Link to="/fonctionnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Comment ça marche
             </Link>
-            <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors">
+            <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Abonnement
             </Link>
-            <Link 
-              to="/commencer" 
-              className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-            >
-              Commencer
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to="/espace-famille" 
+                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-1 px-3 py-2"
+                >
+                  <User size={18} />
+                  Espace famille
+                </Link>
+                <Link 
+                  to="/creer-profil-enfant" 
+                  className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
+                >
+                  Commencer
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/authentification" 
+                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors px-3 py-2"
+                >
+                  Se connecter
+                </Link>
+                <Link 
+                  to="/creer-profil-enfant" 
+                  className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
+                >
+                  Commencer
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -73,7 +102,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden glassmorphism mt-3 py-4 px-4">
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2">
             <Link 
               to="/" 
               className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
@@ -102,9 +131,31 @@ const Navbar: React.FC = () => {
             >
               Abonnement
             </Link>
+            
+            {isAuthenticated && (
+              <Link 
+                to="/espace-famille" 
+                className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-2 px-2 py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={18} />
+                Espace famille
+              </Link>
+            )}
+            
+            {!isAuthenticated && (
+              <Link 
+                to="/authentification" 
+                className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors px-2 py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Se connecter
+              </Link>
+            )}
+            
             <Link 
-              to="/commencer" 
-              className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors text-center"
+              to="/creer-profil-enfant" 
+              className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors text-center mt-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Commencer
