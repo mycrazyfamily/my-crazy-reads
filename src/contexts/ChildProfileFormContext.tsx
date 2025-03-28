@@ -21,6 +21,7 @@ type ChildProfileFormContextType = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
+  handleSubmitForm: () => void; // Ajout de la fonction qui manquait dans le type
 };
 
 const ChildProfileFormContext = createContext<ChildProfileFormContextType | undefined>(undefined);
@@ -154,6 +155,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   };
 
   const handleSubmitForm = () => {
+    console.log("Direct submit in context triggered");
     const formData = form.getValues();
     onSubmit(formData);
   };
@@ -179,7 +181,9 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   return (
     <ChildProfileFormContext.Provider value={value}>
       <FormProvider {...form}>
-        {children}
+        <form onSubmit={form.handleSubmit(handleSubmitForm)} id="child-profile-form">
+          {children}
+        </form>
       </FormProvider>
     </ChildProfileFormContext.Provider>
   );

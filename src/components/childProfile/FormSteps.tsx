@@ -12,7 +12,7 @@ import FinalSummary from '@/components/childProfile/FinalSummary';
 type FormStepsProps = {
   isGiftMode?: boolean;
   nextButtonText?: string;
-  onFormSubmit: () => void;
+  onFormSubmit?: () => void; // Rendu optionnel
 };
 
 const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonText, onFormSubmit }) => {
@@ -28,13 +28,17 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     selectedEyeColor,
     setSelectedEyeColor,
     selectedHairColor,
-    setSelectedHairColor
+    setSelectedHairColor,
+    handleSubmitForm
   } = useChildProfileForm();
 
   // Fonction pour gérer la soumission finale du formulaire
   const handleFinalSubmit = () => {
-    console.log("Final form submission triggered");
-    onFormSubmit();
+    console.log("Final form submission triggered via direct context call");
+    handleSubmitForm(); // Appel direct de la méthode du contexte
+    if (onFormSubmit) {
+      onFormSubmit();
+    }
   };
 
   return (

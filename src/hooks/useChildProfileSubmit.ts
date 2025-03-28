@@ -13,7 +13,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
   const FORM_STORAGE_KEY = 'child-profile-form-state';
 
   const handleSubmit = (data: ChildProfileFormData) => {
-    console.log("Handling form submission:", data);
+    console.log("Handling form submission with data:", data);
     
     // Clear stored form data
     localStorage.removeItem(FORM_STORAGE_KEY);
@@ -25,16 +25,17 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     
     // Définir la destination en fonction du mode
     const destination = isGiftMode && nextPath ? nextPath : '/start-adventure';
-    console.log("Redirecting to:", destination);
+    console.log("Will redirect to:", destination);
     
-    // Utiliser setTimeout pour s'assurer que la redirection se produit après la notification
+    // Force immediate timeout to ensure we handle this after the current synchronous code
     setTimeout(() => {
+      console.log("Executing navigation to:", destination);
       if (isGiftMode && nextPath) {
         navigate(nextPath, { state: { childProfile: data } });
       } else {
         navigate('/start-adventure', { state: { childProfile: data } });
       }
-    }, 1500); // Increased timeout to ensure redirection happens
+    }, 1500); // 1.5 seconds timeout to ensure redirection happens after toast is visible
   };
 
   return { handleSubmit };

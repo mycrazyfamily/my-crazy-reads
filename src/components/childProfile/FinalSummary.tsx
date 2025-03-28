@@ -2,11 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
-import { useNavigate } from 'react-router-dom';
 import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -31,11 +27,10 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   nextButtonText
 }) => {
   const form = useFormContext<ChildProfileFormData>();
-  const navigate = useNavigate();
-  
   const formData = form.getValues();
   
   const handleStartAdventure = () => {
+    console.log("Starting adventure button clicked");
     handleSubmit();
   };
 
@@ -112,6 +107,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
 
       <div className="flex flex-col gap-4 mt-10 items-center">
         <Button 
+          type="submit"
           onClick={handleStartAdventure}
           className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2"
         >
@@ -124,6 +120,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         
         <Button 
           variant="outline" 
+          type="button"
           onClick={handlePreviousStep}
           className="text-gray-600 hover:text-gray-800"
         >

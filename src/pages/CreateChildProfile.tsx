@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Form } from "@/components/ui/form";
 import FormSteps from '@/components/childProfile/FormSteps';
 import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
@@ -14,16 +13,6 @@ type CreateChildProfileProps = {
 
 const CreateChildProfile = ({ isGiftMode = false, familyCode, nextPath }: CreateChildProfileProps) => {
   const { handleSubmit } = useChildProfileSubmit({ isGiftMode, nextPath });
-
-  const triggerFormSubmit = () => {
-    console.log("Triggering form submit");
-    const formElement = document.querySelector('form');
-    if (formElement) {
-      formElement.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    } else {
-      console.error("Form element not found");
-    }
-  };
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:max-w-4xl">
@@ -42,7 +31,6 @@ const CreateChildProfile = ({ isGiftMode = false, familyCode, nextPath }: Create
           <FormSteps 
             isGiftMode={isGiftMode} 
             nextButtonText={isGiftMode ? "Continuer vers le choix du thème →" : undefined}
-            onFormSubmit={triggerFormSubmit}
           />
         </ChildProfileFormProvider>
       </div>
