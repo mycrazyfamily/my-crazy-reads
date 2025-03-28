@@ -1,5 +1,6 @@
 
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import BenefitCard from '../components/BenefitCard';
@@ -76,18 +77,18 @@ const Index: React.FC = () => {
               Rejoignez des milliers de familles qui ont déjà embarqué pour cette aventure unique de lecture partagée et de découverte.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
-              <a 
-                href="/commencer" 
+              <Link 
+                to="/creer-profil-enfant" 
                 className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
               >
                 Commencer l'aventure
-              </a>
-              <a 
-                href="/offrir" 
+              </Link>
+              <Link 
+                to="/offrir-livre" 
                 className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
               >
                 Offrir un livre
-              </a>
+              </Link>
             </div>
           </div>
         </section>
