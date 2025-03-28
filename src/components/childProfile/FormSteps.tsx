@@ -31,6 +31,12 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     setSelectedHairColor
   } = useChildProfileForm();
 
+  // Fonction pour gérer la soumission finale du formulaire
+  const handleFinalSubmit = () => {
+    console.log("Final form submission triggered");
+    onFormSubmit();
+  };
+
   return (
     <>
       {formStep === 0 && (
@@ -86,7 +92,7 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
         <FinalSummary
           handlePreviousStep={handlePreviousStep}
           handleGoToStep={handleGoToStep}
-          handleSubmit={onFormSubmit}
+          handleSubmit={handleFinalSubmit}
           isGiftMode={isGiftMode}
           nextButtonText={nextButtonText}
         />
