@@ -119,9 +119,11 @@ const StartAdventure = () => {
                 variant="outline"
                 className="border-mcf-orange text-mcf-orange-dark hover:bg-mcf-amber/20 font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all w-full"
                 size="lg"
-                onClick={() => window.location.href = '/commencer'}
+                asChild
               >
-                <GiftIcon className="mr-2 h-5 w-5" /> Je choisis un livre à l'unité 🎁
+                <Link to="/offrir-livre">
+                  <GiftIcon className="mr-2 h-5 w-5" /> Je choisis un livre à l'unité 🎁
+                </Link>
               </Button>
             </CardFooter>
           </Card>

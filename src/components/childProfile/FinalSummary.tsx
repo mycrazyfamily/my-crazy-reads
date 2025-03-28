@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
-import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil } from 'lucide-react';
+import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { ChildProfileFormData } from '@/types/childProfile';
@@ -20,12 +20,16 @@ type FinalSummaryProps = {
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
   handleSubmit: () => void;
+  isGiftMode?: boolean;
+  nextButtonText?: string;
 };
 
 const FinalSummary: React.FC<FinalSummaryProps> = ({
   handlePreviousStep,
   handleGoToStep,
-  handleSubmit
+  handleSubmit,
+  isGiftMode = false,
+  nextButtonText
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   const navigate = useNavigate();
@@ -34,18 +38,25 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   
   const handleStartAdventure = () => {
     handleSubmit();
-    toast.success("L'aventure de votre enfant commence maintenant !");
-    navigate('/pret-a-demarrer');
+    toast.success(isGiftMode 
+      ? "Profil créé avec succès ! Continuons votre cadeau." 
+      : "L'aventure de votre enfant commence maintenant !");
   };
 
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-mcf-orange-dark mb-2">
-          C'est prêt ! Voici le profil de votre enfant ✨
+          {isGiftMode 
+            ? "Parfait ! Le profil est prêt ✨"
+            : "C'est prêt ! Voici le profil de votre enfant ✨"
+          }
         </h2>
         <p className="text-gray-600">
-          Vous pouvez encore modifier un détail si besoin, sinon… place à l'imaginaire ! 🧠📚
+          {isGiftMode
+            ? "Vérifiez les informations avant de choisir le thème de l'histoire"
+            : "Vous pouvez encore modifier un détail si besoin, sinon… place à l'imaginaire ! 🧠📚"
+          }
         </p>
       </div>
 
@@ -115,8 +126,11 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           onClick={handleStartAdventure}
           className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2"
         >
-          <BookOpen className="h-5 w-5" /> 
-          Tout est prêt, on démarre l'aventure !
+          {isGiftMode ? <Gift className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
+          {nextButtonText || (isGiftMode 
+            ? "Continuer vers le choix du thème →" 
+            : "Tout est prêt, on démarre l'aventure !"
+          )}
         </Button>
         
         <Button 

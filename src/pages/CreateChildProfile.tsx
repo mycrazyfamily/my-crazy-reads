@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
 import PersonalityForm from '@/components/childProfile/PersonalityForm';
 import FamilyForm from '@/components/childProfile/FamilyForm';
@@ -14,12 +14,19 @@ import type { ChildProfileFormData } from '@/types/childProfile';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
 
-const CreateChildProfile = () => {
+type CreateChildProfileProps = {
+  isGiftMode?: boolean;
+  familyCode?: string;
+  nextPath?: string;
+};
+
+const CreateChildProfile = ({ isGiftMode = false, familyCode, nextPath }: CreateChildProfileProps) => {
   const [formStep, setFormStep] = useState(0);
   const [selectedNickname, setSelectedNickname] = useState<string>("");
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>("");
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
   const [selectedHairColor, setSelectedHairColor] = useState<string>("");
+  const navigate = useNavigate();
   
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
@@ -59,31 +66,36 @@ const CreateChildProfile = () => {
   });
 
   useEffect(() => {
-    const savedState = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedState) {
-      try {
-        const parsedState = JSON.parse(savedState);
-        
-        if (parsedState.formStep !== undefined) {
-          setFormStep(parsedState.formStep);
-        }
-        
-        if (parsedState.selectedNickname) setSelectedNickname(parsedState.selectedNickname);
-        if (parsedState.selectedSkinColor) setSelectedSkinColor(parsedState.selectedSkinColor);
-        if (parsedState.selectedEyeColor) setSelectedEyeColor(parsedState.selectedEyeColor);
-        if (parsedState.selectedHairColor) setSelectedHairColor(parsedState.selectedHairColor);
-        
-        if (parsedState.formValues) {
-          if (parsedState.formValues.birthDate) {
-            parsedState.formValues.birthDate = new Date(parsedState.formValues.birthDate);
+    if (familyCode) {
+      toast.info(`Code famille utilisé: ${familyCode}`);
+      form.setValue("firstName", "Enfant pré-rempli");
+    } else {
+      const savedState = localStorage.getItem(FORM_STORAGE_KEY);
+      if (savedState) {
+        try {
+          const parsedState = JSON.parse(savedState);
+          
+          if (parsedState.formStep !== undefined) {
+            setFormStep(parsedState.formStep);
           }
-          form.reset(parsedState.formValues);
+          
+          if (parsedState.selectedNickname) setSelectedNickname(parsedState.selectedNickname);
+          if (parsedState.selectedSkinColor) setSelectedSkinColor(parsedState.selectedSkinColor);
+          if (parsedState.selectedEyeColor) setSelectedEyeColor(parsedState.selectedEyeColor);
+          if (parsedState.selectedHairColor) setSelectedHairColor(parsedState.selectedHairColor);
+          
+          if (parsedState.formValues) {
+            if (parsedState.formValues.birthDate) {
+              parsedState.formValues.birthDate = new Date(parsedState.formValues.birthDate);
+            }
+            form.reset(parsedState.formValues);
+          }
+        } catch (error) {
+          console.error("Erreur lors de la restauration de l'état du formulaire:", error);
         }
-      } catch (error) {
-        console.error("Erreur lors de la restauration de l'état du formulaire:", error);
       }
     }
-  }, [form]);
+  }, [form, familyCode]);
 
   useEffect(() => {
     const saveFormState = () => {
@@ -109,6 +121,12 @@ const CreateChildProfile = () => {
     console.log(data);
     toast.success("Profil créé avec succès !");
     localStorage.removeItem(FORM_STORAGE_KEY);
+    
+    if (isGiftMode && nextPath) {
+      navigate(nextPath, { state: { childProfile: data } });
+    } else {
+      navigate('/pret-a-demarrer');
+    }
   };
 
   const handleSubmitForm = () => {
@@ -141,10 +159,13 @@ const CreateChildProfile = () => {
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:max-w-4xl">
       <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-mcf-orange-dark">
-        Créer le profil de l'enfant
+        {isGiftMode ? "Profil de l'enfant pour son livre cadeau 🎁" : "Créer le profil de l'enfant"}
       </h1>
       <p className="text-center text-gray-600 mb-8">
-        Personnalisez l'aventure magique de votre enfant en nous parlant de lui/elle
+        {isGiftMode 
+          ? "Pour offrir une histoire vraiment personnalisée, remplissez ces informations sur l'enfant"
+          : "Personnalisez l'aventure magique de votre enfant en nous parlant de lui/elle"
+        }
       </p>
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-amber/20">
@@ -203,6 +224,8 @@ const CreateChildProfile = () => {
               handlePreviousStep={handlePreviousStep}
               handleGoToStep={handleGoToStep}
               handleSubmit={handleSubmitForm}
+              isGiftMode={isGiftMode}
+              nextButtonText={isGiftMode ? "Continuer vers le choix du thème →" : undefined}
             />
           )}
         </FormProvider>
