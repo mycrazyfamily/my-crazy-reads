@@ -1,20 +1,37 @@
 
 import React from 'react';
 import type { ChildProfileFormData } from '@/types/childProfile';
+import { 
+  SUPERPOWERS_OPTIONS, 
+  PASSIONS_OPTIONS, 
+  CHALLENGES_OPTIONS 
+} from '@/constants/childProfileOptions';
 
 type PersonalitySummaryProps = {
   data: ChildProfileFormData;
 };
 
 const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
-  // Fonction pour obtenir le libellé de la taille
+  // Fonction pour obtenir le libellé de la taille accordé au genre
   const getHeightLabel = () => {
+    const gender = data.gender || 'neutral';
+    
     switch (data.height) {
-      case 'small': return 'Petit(e)';
-      case 'medium': return 'Moyen(ne)';
-      case 'tall': return 'Grand(e)';
-      default: return 'Non spécifiée';
+      case 'small': 
+        return gender === 'girl' ? 'Petite' : gender === 'boy' ? 'Petit' : 'Petit(e)';
+      case 'medium': 
+        return gender === 'girl' ? 'Moyenne' : gender === 'boy' ? 'Moyen' : 'Moyen(ne)';
+      case 'tall': 
+        return gender === 'girl' ? 'Grande' : gender === 'boy' ? 'Grand' : 'Grand(e)';
+      default: 
+        return 'Non spécifiée';
     }
+  };
+
+  // Fonction pour obtenir le label français à partir de la valeur
+  const getLabelFromValue = (value: string, options: any[]) => {
+    const option = options.find(opt => opt.value === value);
+    return option ? option.label : value;
   };
 
   return (
@@ -33,7 +50,7 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
                 key={index} 
                 className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
               >
-                {power}
+                {getLabelFromValue(power, SUPERPOWERS_OPTIONS)}
               </span>
             ))}
           </div>
@@ -49,7 +66,7 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
                 key={index} 
                 className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
               >
-                {passion}
+                {getLabelFromValue(passion, PASSIONS_OPTIONS)}
               </span>
             ))}
           </div>
@@ -65,7 +82,7 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
                 key={index} 
                 className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
               >
-                {challenge}
+                {getLabelFromValue(challenge, CHALLENGES_OPTIONS)}
               </span>
             ))}
           </div>
