@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { GiftIcon, BookOpen, Sparkles, Package, Gift, Check, BookOpenCheck, BookText, Users, Star } from 'lucide-react';
+import { GiftIcon, BookOpen, Sparkles, Package, Gift, Check, BookOpenCheck, BookText, Users, Star, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { ChildProfileFormData } from '@/types/childProfile';
 
@@ -26,9 +26,25 @@ const StartAdventure = () => {
     });
   };
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
       <div className="container px-4 mx-auto max-w-5xl">
+        {/* Bouton retour */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+        </div>
+        
         {/* En-tête */}
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-mcf-orange-dark mb-4">
