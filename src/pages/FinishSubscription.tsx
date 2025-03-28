@@ -74,7 +74,7 @@ const FinishSubscription = () => {
     // Simuler un traitement de paiement
     setTimeout(() => {
       toast.success("Abonnement confirmé ! Votre aventure commence !");
-      navigate("/"); // Rediriger vers le dashboard ou une page de confirmation
+      navigate("/confirmation-abonnement"); // Rediriger vers la page de confirmation
       setIsProcessing(false);
     }, 2000);
   };
