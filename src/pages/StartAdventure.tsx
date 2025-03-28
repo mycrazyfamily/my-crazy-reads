@@ -79,12 +79,15 @@ const StartAdventure = () => {
               </ul>
               <div className="bg-mcf-amber/10 p-4 rounded-lg mb-4">
                 <h4 className="font-semibold text-center text-mcf-orange-dark mb-2">Formule</h4>
-                <div className="flex flex-col sm:flex-row justify-center gap-4 text-center">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-center">
                   <div className="flex-1 bg-white p-3 rounded-lg shadow-sm">
                     <p className="font-bold text-lg text-mcf-orange-dark">9,90€/mois</p>
                     <p className="text-sm text-gray-600">Sans engagement</p>
                   </div>
-                  <div className="flex-1 bg-white p-3 rounded-lg shadow-sm border-2 border-mcf-orange">
+                  <div className="text-center font-medium text-gray-600 py-2">
+                    ou
+                  </div>
+                  <div className="flex-1 bg-white p-3 rounded-lg shadow-sm">
                     <p className="font-bold text-lg text-mcf-orange-dark">99€/an</p>
                     <Badge className="bg-mcf-orange text-white">2 mois offerts</Badge>
                   </div>
