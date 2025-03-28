@@ -14,8 +14,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
   const handleSubmit = (data: ChildProfileFormData) => {
     console.log("Handling form submission:", data);
-    toast.success("Profil créé avec succès !");
+    
+    // Clear stored form data
     localStorage.removeItem(FORM_STORAGE_KEY);
+    
+    // Show success message
+    toast.success(isGiftMode 
+      ? "Profil créé avec succès !" 
+      : "L'aventure de votre enfant commence maintenant !");
     
     // Définir la destination en fonction du mode
     const destination = isGiftMode && nextPath ? nextPath : '/pret-a-demarrer';
@@ -28,7 +34,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       } else {
         navigate('/pret-a-demarrer');
       }
-    }, 300);
+    }, 1000); // Increased timeout to ensure redirection happens
   };
 
   return { handleSubmit };

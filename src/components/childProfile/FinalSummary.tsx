@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -38,9 +37,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   
   const handleStartAdventure = () => {
     handleSubmit();
-    toast.success(isGiftMode 
-      ? "Profil créé avec succès ! Continuons votre cadeau." 
-      : "L'aventure de votre enfant commence maintenant !");
   };
 
   return (
@@ -61,7 +57,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
       </div>
 
       <div className="space-y-6">
-        {/* Bloc 1: L'enfant */}
         <SummaryBlock 
           title="L'enfant"
           icon={<Baby className="h-6 w-6 text-mcf-orange" />}
@@ -70,7 +65,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <BasicInfoSummary data={formData} />
         </SummaryBlock>
 
-        {/* Bloc 2: Personnalité & passions */}
         <SummaryBlock 
           title="Personnalité & passions" 
           icon={<Brain className="h-6 w-6 text-mcf-orange" />}
@@ -79,7 +73,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <PersonalitySummary data={formData} />
         </SummaryBlock>
 
-        {/* Bloc 3: Famille & entourage */}
         <SummaryBlock 
           title="Famille & entourage" 
           icon={<Users className="h-6 w-6 text-mcf-orange" />}
@@ -88,7 +81,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <FamilySummary data={formData} />
         </SummaryBlock>
 
-        {/* Bloc 4: Animaux (si applicable) */}
         {formData.pets && formData.pets.hasPets && (
           <SummaryBlock 
             title="Animaux de compagnie" 
@@ -99,7 +91,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           </SummaryBlock>
         )}
 
-        {/* Bloc 5: Doudous & objets magiques (si applicable) */}
         {formData.toys && formData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
@@ -110,7 +101,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           </SummaryBlock>
         )}
 
-        {/* Bloc 6: Univers préféré & culture */}
         <SummaryBlock 
           title="Univers préféré & culture" 
           icon={<Globe className="h-6 w-6 text-mcf-orange" />}
@@ -120,7 +110,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         </SummaryBlock>
       </div>
 
-      {/* Boutons de navigation */}
       <div className="flex flex-col gap-4 mt-10 items-center">
         <Button 
           onClick={handleStartAdventure}
