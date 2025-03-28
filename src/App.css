@@ -52,7 +52,7 @@ body {
   color: #888;
 }
 
-/* Ajout de styles de base pour les sections et les conteneurs */
+/* Styles de base pour les sections et les conteneurs */
 .container {
   width: 100%;
   max-width: 1280px;
@@ -60,24 +60,48 @@ body {
   padding: 0 1rem;
 }
 
-/* Ajout de styles pour améliorer l'apparence des boutons */
+/* Styles pour améliorer l'apparence des boutons */
 button, .button {
   font-weight: bold;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
 }
 
-/* Styles spécifiques pour les éléments orangés */
-.bg-orange {
-  background-color: #FB923C;
+/* Styles spécifiques pour les éléments orangés - Utilisation de valeurs hexadécimales directes */
+.bg-orange, .bg-mcf-orange {
+  background-color: #FB923C !important;
 }
 
-.text-orange {
-  color: #FB923C;
+.text-orange, .text-mcf-orange {
+  color: #FB923C !important;
 }
 
-.border-orange {
-  border-color: #FB923C;
+.text-mcf-orange-dark {
+  color: #F97316 !important;
+}
+
+.border-orange, .border-mcf-orange {
+  border-color: #FB923C !important;
+}
+
+.bg-mcf-orange-dark {
+  background-color: #F97316 !important;
+}
+
+.bg-mcf-amber {
+  background-color: #FCD34D !important;
+}
+
+.bg-mcf-amber-dark {
+  background-color: #F59E0B !important;
+}
+
+.bg-mcf-cream {
+  background-color: #FFFBEB !important;
+}
+
+.bg-mcf-beige {
+  background-color: #FEF3C7 !important;
 }
 
 /* Réglage spécifique pour assurer que les éléments prennent toute la hauteur */

@@ -92,7 +92,7 @@ const Hero: React.FC = () => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mcf-orange-dark leading-tight mb-4 opacity-0 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mcf-orange-dark leading-tight mb-4 opacity-0 animate-fade-in" style={{ color: '#F97316' }}>
             Bienvenue dans My Crazy Family
           </h1>
           
@@ -104,6 +104,7 @@ const Hero: React.FC = () => {
             <Link 
               to="/creer-profil-enfant" 
               className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+              style={{ backgroundColor: '#FB923C', color: 'white' }}
             >
               Commencer l'aventure
             </Link>
@@ -111,14 +112,15 @@ const Hero: React.FC = () => {
             <Link 
               to="/offrir-livre" 
               className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+              style={{ borderColor: '#FB923C', color: '#F97316' }}
             >
               Offrir un livre
             </Link>
           </div>
           
           <div className="mt-16 relative w-full max-w-2xl opacity-0 animate-fade-in animation-delay-400">
-            <div className="absolute -top-8 -left-8 w-24 h-24 bg-mcf-amber rounded-full opacity-50 animate-float"></div>
-            <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-mcf-orange rounded-full opacity-50 animate-float animation-delay-300"></div>
+            <div className="absolute -top-8 -left-8 w-24 h-24 bg-mcf-amber rounded-full opacity-50 animate-float" style={{ backgroundColor: '#FCD34D' }}></div>
+            <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-mcf-orange rounded-full opacity-50 animate-float animation-delay-300" style={{ backgroundColor: '#FB923C' }}></div>
             
             <div className="relative glassmorphism rounded-2xl overflow-hidden card-shadow">
               <div className="bg-mcf-cream/50 p-6 md:p-10 flex flex-col items-center">
@@ -126,7 +128,7 @@ const Hero: React.FC = () => {
                   Plus qu'un livre, c'est le début d'une aventure familiale exceptionnelle.
                 </p>
                 
-                <div className="font-display text-xl md:text-2xl text-mcf-orange-dark font-bold">
+                <div className="font-display text-xl md:text-2xl text-mcf-orange-dark font-bold" style={{ color: '#F97316' }}>
                   Embarquez avec nous !
                 </div>
               </div>

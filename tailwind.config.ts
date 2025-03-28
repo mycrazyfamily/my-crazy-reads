@@ -53,7 +53,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Couleurs spécifiques à My Crazy Family
+        // Couleurs spécifiques à My Crazy Family - Corrigées avec des valeurs hexadécimales directes
         'mcf-orange': '#FB923C',
         'mcf-orange-dark': '#F97316',
         'mcf-amber': '#FCD34D',
