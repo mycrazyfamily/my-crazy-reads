@@ -3,6 +3,7 @@ import React from 'react';
 import FormSteps from '@/components/childProfile/FormSteps';
 import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
+import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 type CreateChildProfileProps = {

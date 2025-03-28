@@ -10,14 +10,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import { format, differenceInMonths, differenceInYears } from "date-fns";
+import { differenceInMonths, differenceInYears, format, isAfter, isBefore, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ChildProfileFormData } from '@/types/childProfile';
+import { fr } from 'date-fns/locale';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -44,14 +45,35 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   const [ageDisplay, setAgeDisplay] = useState<string>("");
-  const [yearView, setYearView] = useState<boolean>(false);
+  const [ageError, setAgeError] = useState<string>("");
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
     if (birthDate) {
-      calculateExactAge(birthDate);
+      const isValidAge = validateAge(birthDate);
+      if (isValidAge) {
+        calculateExactAge(birthDate);
+        setAgeError("");
+      }
     }
   }, [form.watch("birthDate")]);
+
+  const validateAge = (birthDate: Date): boolean => {
+    const today = new Date();
+    const years = differenceInYears(today, birthDate);
+    
+    if (years > 10) {
+      setAgeError("My Crazy Family est conçu pour les enfants de 0 à 10 ans. Cette date dépasse l'âge limite.");
+      return false;
+    }
+    
+    if (isAfter(birthDate, today)) {
+      setAgeError("La date de naissance ne peut pas être dans le futur.");
+      return false;
+    }
+    
+    return true;
+  };
 
   const calculateExactAge = (birthDate: Date) => {
     const today = new Date();
@@ -95,39 +117,18 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     return date;
   };
 
-  const renderYearSelector = () => {
-    const currentYear = new Date().getFullYear();
-    const minYear = currentYear - 10;
-    const years = [];
-    
-    for (let year = currentYear; year >= minYear; year--) {
-      years.push(year);
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      const isValid = validateAge(date);
+      form.setValue("birthDate", date, { shouldValidate: true });
+      
+      if (isValid) {
+        calculateExactAge(date);
+      }
+    } else {
+      form.setValue("birthDate", undefined, { shouldValidate: true });
+      setAgeDisplay("");
     }
-    
-    return (
-      <div className="grid grid-cols-3 gap-1 p-2">
-        {years.map(year => (
-          <Button
-            key={year}
-            variant="outline"
-            className={cn(
-              "h-9 w-full",
-              form.watch("birthDate") && form.watch("birthDate")?.getFullYear() === year
-                ? "bg-primary text-primary-foreground"
-                : ""
-            )}
-            onClick={() => {
-              const newDate = form.watch("birthDate") || new Date();
-              newDate.setFullYear(year);
-              form.setValue("birthDate", new Date(newDate));
-              setYearView(false);
-            }}
-          >
-            {year}
-          </Button>
-        ))}
-      </div>
-    );
   };
 
   return (
@@ -198,68 +199,45 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">🎂</span> Quelle est la date de naissance de votre enfant ?
               </FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal border-mcf-amber",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "dd/MM/yyyy")
-                      ) : (
-                        <span>Sélectionner une date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  {yearView ? (
-                    <div className="flex flex-col">
-                      <div className="flex justify-between p-2 border-b">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setYearView(false)}
-                        >
-                          Retour au calendrier
-                        </Button>
-                      </div>
-                      {renderYearSelector()}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col">
-                      <div className="flex justify-between p-2 border-b">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setYearView(true)}
-                        >
-                          Sélectionner l'année
-                        </Button>
-                      </div>
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < getMinDate()
-                        }
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
+              <FormControl>
+                <div className="relative">
+                  <DatePicker
+                    selected={field.value}
+                    onChange={handleDateChange}
+                    showYearDropdown
+                    showMonthDropdown
+                    dropdownMode="select"
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="JJ/MM/AAAA"
+                    locale={fr}
+                    maxDate={new Date()}
+                    minDate={getMinDate()}
+                    yearDropdownItemNumber={15}
+                    customInput={
+                      <Input 
+                        className={cn(
+                          "border-mcf-amber",
+                          ageError ? "border-red-500 focus-visible:ring-red-500" : ""
+                        )}
                       />
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
+                    }
+                    className="z-50"
+                  />
+                </div>
+              </FormControl>
               <FormDescription>
                 Nous utilisons cette information pour adapter les histoires à son âge exact.
               </FormDescription>
-              {ageDisplay && (
+              {ageError && (
+                <Alert variant="destructive" className="mt-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Âge non valide</AlertTitle>
+                  <AlertDescription>
+                    {ageError}
+                  </AlertDescription>
+                </Alert>
+              )}
+              {ageDisplay && !ageError && (
                 <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
                   <p className="text-sm font-medium text-mcf-orange-dark">
                     Votre enfant a {ageDisplay}
@@ -326,7 +304,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
-        
         <FormField
           control={form.control}
           name="skinColor.type"
@@ -572,7 +549,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           <button 
             type="button" 
             onClick={handleNextStep}
-            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            disabled={!!ageError}
+            className={`bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
+              ageError ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
             Continuer l'aventure →
           </button>

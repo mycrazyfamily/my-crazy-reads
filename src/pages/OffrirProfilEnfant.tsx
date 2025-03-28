@@ -2,6 +2,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import CreateChildProfile from './CreateChildProfile';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const OffrirProfilEnfant = () => {
   const location = useLocation();
