@@ -11,7 +11,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #FFFBEB;
+  background-color: #FFFBEB !important;
   color: #333;
   font-family: 'Quicksand', sans-serif;
 }
@@ -67,28 +67,28 @@ button, .button {
   transition: all 0.3s ease;
 }
 
-/* Styles spécifiques pour les éléments orangés - Utilisation de valeurs hexadécimales directes */
-.bg-orange, .bg-mcf-orange {
+/* Styles pour les éléments orangés - Utilisation de couleurs en hexadécimal avec !important */
+.bg-mcf-orange, .bg-crazy-orange {
   background-color: #FB923C !important;
 }
 
-.text-orange, .text-mcf-orange {
+.bg-orange, .text-mcf-orange, .text-crazy-orange {
   color: #FB923C !important;
 }
 
-.text-mcf-orange-dark {
+.text-mcf-orange-dark, .text-crazy-orange-dark {
   color: #F97316 !important;
 }
 
-.border-orange, .border-mcf-orange {
+.border-orange, .border-mcf-orange, .border-crazy-orange {
   border-color: #FB923C !important;
 }
 
-.bg-mcf-orange-dark {
+.bg-mcf-orange-dark, .bg-crazy-orange-dark {
   background-color: #F97316 !important;
 }
 
-.bg-mcf-amber {
+.bg-mcf-amber, .bg-crazy-amber {
   background-color: #FCD34D !important;
 }
 
@@ -96,12 +96,33 @@ button, .button {
   background-color: #F59E0B !important;
 }
 
-.bg-mcf-cream {
+.bg-mcf-cream, .bg-crazy-cream {
   background-color: #FFFBEB !important;
 }
 
 .bg-mcf-beige {
   background-color: #FEF3C7 !important;
+}
+
+/* Style supplémentaire pour forcer l'affichage des couleurs */
+[class*="text-mcf-orange"] {
+  color: #FB923C !important;
+}
+
+[class*="text-mcf-orange-dark"] {
+  color: #F97316 !important;
+}
+
+[class*="bg-mcf-orange"] {
+  background-color: #FB923C !important;
+}
+
+[class*="bg-mcf-orange-dark"] {
+  background-color: #F97316 !important;
+}
+
+[class*="border-mcf-orange"] {
+  border-color: #FB923C !important;
 }
 
 /* Réglage spécifique pour assurer que les éléments prennent toute la hauteur */
@@ -181,4 +202,16 @@ button, .button {
 /* Shadow pour les cartes */
 .card-shadow {
   box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1), 0 8px 10px -6px rgba(249, 115, 22, 0.05);
+}
+
+/* Forcer la visibilité des éléments avec animation */
+.animate-fade-in, .animate-scale-up {
+  opacity: 1 !important;
+}
+
+/* Classe de débogage temporaire */
+.debug {
+  min-height: 100vh;
+  border: 1px solid red;
+  background-color: rgba(255, 0, 0, 0.05);
 }

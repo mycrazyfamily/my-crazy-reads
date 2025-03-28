@@ -53,13 +53,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Couleurs spécifiques à My Crazy Family - Corrigées avec des valeurs hexadécimales directes
+        // Utilisation de couleurs directes sans aucune variable CSS
         'mcf-orange': '#FB923C',
         'mcf-orange-dark': '#F97316',
         'mcf-amber': '#FCD34D',
         'mcf-amber-dark': '#F59E0B',
         'mcf-cream': '#FFFBEB',
         'mcf-beige': '#FEF3C7',
+        // Ajouter des alternatives nommées différemment pour éviter tout conflit
+        'crazy-orange': '#FB923C',
+        'crazy-orange-dark': '#F97316',
+        'crazy-amber': '#FCD34D',
+        'crazy-cream': '#FFFBEB',
       },
       borderRadius: {
         lg: "var(--radius)",
