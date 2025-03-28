@@ -79,3 +79,8 @@ button, .button {
 .border-orange {
   border-color: #FB923C;
 }
+
+/* Réglage spécifique pour assurer que les éléments prennent toute la hauteur */
+.min-h-screen {
+  min-height: 100vh;
+}

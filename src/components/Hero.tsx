@@ -28,6 +28,8 @@ const Hero: React.FC = () => {
     };
   }, []);
 
+  console.log("Hero component rendering");
+
   return (
     <div 
       ref={heroRef}
@@ -45,14 +47,14 @@ const Hero: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-in animation-delay-300">
             <Link 
-              to="/commencer" 
+              to="/creer-profil-enfant" 
               className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
             >
               Commencer l'aventure
             </Link>
             
             <Link 
-              to="/offrir" 
+              to="/offrir-livre" 
               className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
             >
               Offrir un livre

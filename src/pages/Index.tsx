@@ -9,6 +9,13 @@ import Footer from '../components/Footer';
 const Index: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Ajouter une classe au body pour s'assurer que la couleur de fond est appliquée
+    document.body.classList.add('bg-mcf-cream');
+    
+    // Nettoyer l'effet lorsque le composant est démonté
+    return () => {
+      document.body.classList.remove('bg-mcf-cream');
+    };
   }, []);
 
   const benefits = [
@@ -38,11 +45,13 @@ const Index: React.FC = () => {
     }
   ];
 
+  console.log("Index page rendering");
+
   return (
     <div className="min-h-screen flex flex-col bg-mcf-cream">
       <Navbar />
       
-      <main>
+      <main className="flex-grow">
         <Hero />
         
         <section className="py-20 px-4 bg-white">
