@@ -1,17 +1,29 @@
 
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { GiftIcon, BookOpen, Sparkles, Package, Gift, Check, BookOpenCheck, BookText, Users, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import type { ChildProfileFormData } from '@/types/childProfile';
 
 const StartAdventure = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const childProfile = location.state?.childProfile as ChildProfileFormData | undefined;
+
+  useEffect(() => {
+    // Log child profile data to verify it's being passed correctly
+    if (childProfile) {
+      console.log("Child profile data received on StartAdventure page:", childProfile);
+    }
+  }, [childProfile]);
 
   const handleSubscribe = () => {
-    navigate('/finaliser-abonnement');
+    navigate('/finaliser-abonnement', { 
+      state: { childProfile: childProfile } 
+    });
   };
 
   return (

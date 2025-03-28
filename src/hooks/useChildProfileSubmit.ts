@@ -24,7 +24,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       : "L'aventure de votre enfant commence maintenant !");
     
     // Définir la destination en fonction du mode
-    const destination = isGiftMode && nextPath ? nextPath : '/pret-a-demarrer';
+    const destination = isGiftMode && nextPath ? nextPath : '/start-adventure';
     console.log("Redirecting to:", destination);
     
     // Utiliser setTimeout pour s'assurer que la redirection se produit après la notification
@@ -32,9 +32,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       if (isGiftMode && nextPath) {
         navigate(nextPath, { state: { childProfile: data } });
       } else {
-        navigate('/pret-a-demarrer');
+        navigate('/start-adventure', { state: { childProfile: data } });
       }
-    }, 1000); // Increased timeout to ensure redirection happens
+    }, 1500); // Increased timeout to ensure redirection happens
   };
 
   return { handleSubmit };

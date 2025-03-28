@@ -30,6 +30,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/creer-profil-enfant" element={<CreateChildProfile />} />
+          <Route path="/start-adventure" element={<StartAdventure />} />
           <Route path="/pret-a-demarrer" element={<StartAdventure />} />
           <Route path="/finaliser-abonnement" element={<FinishSubscription />} />
           <Route path="/confirmation" element={<ConfirmationPage />} />
