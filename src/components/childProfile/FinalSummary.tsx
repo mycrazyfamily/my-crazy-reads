@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   const handleStartAdventure = () => {
     handleSubmit();
     toast.success("L'aventure de votre enfant commence maintenant !");
-    navigate('/abonnement');
+    navigate('/pret-a-demarrer');
   };
 
   return (
@@ -77,7 +78,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         </SummaryBlock>
 
         {/* Bloc 4: Animaux (si applicable) */}
-        {formData.pets.hasPets && (
+        {formData.pets && formData.pets.hasPets && (
           <SummaryBlock 
             title="Animaux de compagnie" 
             icon={<Cat className="h-6 w-6 text-mcf-orange" />}
@@ -88,7 +89,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         )}
 
         {/* Bloc 5: Doudous & objets magiques (si applicable) */}
-        {formData.toys.hasToys && (
+        {formData.toys && formData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
             icon={<Sparkles className="h-6 w-6 text-mcf-orange" />}
