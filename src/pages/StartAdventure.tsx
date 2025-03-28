@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -62,9 +61,6 @@ const StartAdventure = () => {
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {/* Option 1: Abonnement */}
           <Card className="border-2 border-mcf-orange overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in animation-delay-200 relative">
-            <div className="absolute -right-10 top-6 rotate-45 bg-mcf-orange-dark text-white py-1 px-10 shadow-md z-10">
-              <span className="text-sm font-semibold">Recommandé</span>
-            </div>
             <CardHeader className="bg-mcf-amber/20 border-b border-mcf-amber/30">
               <CardTitle className="flex items-center justify-center gap-2 text-2xl text-mcf-orange-dark">
                 <BookOpen className="h-6 w-6" /> Abonnement MCF
