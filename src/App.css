@@ -1,8 +1,19 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #FFFBEB;
+  color: #333;
+  font-family: 'Quicksand', sans-serif;
 }
 
 .logo {
@@ -39,4 +50,32 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Ajout de styles de base pour les sections et les conteneurs */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Ajout de styles pour améliorer l'apparence des boutons */
+button, .button {
+  font-weight: bold;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Styles spécifiques pour les éléments orangés */
+.bg-orange {
+  background-color: #FB923C;
+}
+
+.text-orange {
+  color: #FB923C;
+}
+
+.border-orange {
+  border-color: #FB923C;
 }

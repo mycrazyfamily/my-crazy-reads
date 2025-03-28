@@ -39,7 +39,7 @@ const Index: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-mcf-cream">
       <Navbar />
       
       <main>
@@ -95,7 +95,7 @@ const Index: React.FC = () => {
 
         <section className="py-16 px-4 bg-white">
           <div className="container mx-auto">
-            <div className="max-w-4xl mx-auto glassmorphism rounded-2xl overflow-hidden card-shadow p-8 md:p-12">
+            <div className="max-w-4xl mx-auto glassmorphism rounded-2xl overflow-hidden card-shadow p-8 md:p-12 bg-gradient-to-br from-mcf-cream to-white">
               <div className="flex flex-col md:flex-row items-center">
                 <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
                   <h3 className="text-2xl md:text-3xl font-bold text-mcf-orange-dark mb-4">

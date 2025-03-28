@@ -14,6 +14,7 @@ import FinishSubscription from './pages/FinishSubscription'
 import ConfirmationPage from './pages/ConfirmationPage'
 import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
+import Abonnement from './pages/Abonnement'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
@@ -33,6 +34,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/creer-profil-enfant" element={<CreateChildProfile />} />
             <Route path="/authentification" element={<Authentication />} />
+            <Route path="/abonnement" element={<Abonnement />} />
             
             {/* Semi-protected routes - will redirect to auth before payment */}
             <Route path="/start-adventure" element={<StartAdventure />} />
