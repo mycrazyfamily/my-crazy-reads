@@ -28,10 +28,28 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
     }
   };
 
-  // Fonction pour obtenir le label français à partir de la valeur
+  // Fonction pour obtenir le label français à partir de la valeur, en accord avec le genre
   const getLabelFromValue = (value: string, options: any[]) => {
     const option = options.find(opt => opt.value === value);
-    return option ? option.label : value;
+    if (!option) return value;
+    
+    const label = option.label;
+    const gender = data.gender || 'neutral';
+    
+    // Si le label contient un point (ex: "Aventurier.e"), on adapte selon le genre
+    if (label.includes('.')) {
+      if (gender === 'girl') {
+        // Pour le féminin, on remplace ".e" par "e", ".se" par "se", etc.
+        return label.replace(/\.\w+/g, match => match.substring(1));
+      } else if (gender === 'boy') {
+        // Pour le masculin, on supprime tout ce qui suit le point
+        return label.replace(/\.\w+/g, '');
+      }
+      // Si neutre ou non spécifié, on laisse le label tel quel
+      return label;
+    }
+    
+    return label;
   };
 
   return (
