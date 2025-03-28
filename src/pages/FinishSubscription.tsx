@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from "zod";
@@ -26,10 +25,10 @@ import {
   UserRound, 
   CalendarCheck, 
   Rocket, 
-  ShieldCheck 
+  ShieldCheck,
+  ArrowLeft
 } from 'lucide-react';
 
-// Schéma de validation pour le formulaire
 const formSchema = z.object({
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -50,8 +49,7 @@ const FinishSubscription = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Récupérer les infos de l'enfant (à terme depuis un stockage)
-  const childName = "Thomas"; // À remplacer par le vrai nom depuis le contexte/storage
+  const childName = "Thomas";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,13 +66,16 @@ const FinishSubscription = () => {
     }
   });
 
+  const handleGoBack = () => {
+    navigate('/pret-a-demarrer');
+  };
+
   const onSubmit = (data: FormValues) => {
     setIsProcessing(true);
     
-    // Simuler un traitement de paiement
     setTimeout(() => {
       toast.success("Abonnement confirmé ! Votre aventure commence !");
-      navigate("/confirmation-abonnement"); // Rediriger vers la page de confirmation
+      navigate("/confirmation-abonnement");
       setIsProcessing(false);
     }, 2000);
   };
@@ -82,6 +83,17 @@ const FinishSubscription = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
       <div className="container px-4 mx-auto max-w-4xl">
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+        </div>
+
         <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-3">
             💳 Finaliser mon abonnement
@@ -95,7 +107,6 @@ const FinishSubscription = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Colonne de gauche: récapitulatif */}
           <div className="md:col-span-1">
             <Card className="border-2 border-mcf-amber/30 sticky top-4">
               <CardHeader className="bg-mcf-amber/10 border-b border-mcf-amber/20">
@@ -145,11 +156,9 @@ const FinishSubscription = () => {
             </Card>
           </div>
 
-          {/* Colonne de droite: formulaire */}
           <div className="md:col-span-2">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Choix de formule */}
                 <Card className="border border-gray-200">
                   <CardHeader className="bg-gray-50 border-b">
                     <CardTitle className="text-xl text-mcf-orange-dark flex items-center gap-2">
@@ -206,7 +215,6 @@ const FinishSubscription = () => {
                   </CardContent>
                 </Card>
 
-                {/* Coordonnées client */}
                 <Card className="border border-gray-200">
                   <CardHeader className="bg-gray-50 border-b">
                     <CardTitle className="text-xl text-mcf-orange-dark flex items-center gap-2">
@@ -328,7 +336,6 @@ const FinishSubscription = () => {
                   </CardContent>
                 </Card>
 
-                {/* Paiement */}
                 <Card className="border border-gray-200">
                   <CardHeader className="bg-gray-50 border-b">
                     <CardTitle className="text-xl text-mcf-orange-dark flex items-center gap-2">
@@ -413,7 +420,6 @@ const FinishSubscription = () => {
   );
 };
 
-// Composant pour les fonctionnalités de l'abonnement
 const SubscriptionFeature = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
   <div className="flex items-start gap-3">
     <div className="text-mcf-orange shrink-0 mt-0.5">

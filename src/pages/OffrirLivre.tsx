@@ -1,17 +1,20 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Gift, User, Sparkles, Key } from 'lucide-react';
+import { BookOpen, Gift, User, Sparkles, Key, ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
 import { useState } from 'react';
 
 const OffrirLivre = () => {
   const [familyCode, setFamilyCode] = useState('');
   const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate('/');
+  };
 
   const handleNoCodeContinue = () => {
     navigate('/offrir/profil-enfant');
@@ -38,6 +41,18 @@ const OffrirLivre = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
       <div className="container px-4 mx-auto max-w-4xl">
+        {/* Bouton retour */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour à l'accueil
+          </Button>
+        </div>
+
         {/* En-tête */}
         <div className="text-center mb-10 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-mcf-orange-dark mb-4">

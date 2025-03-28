@@ -13,7 +13,6 @@ const StartAdventure = () => {
   const childProfile = location.state?.childProfile as ChildProfileFormData | undefined;
 
   useEffect(() => {
-    // Log child profile data to verify it's being passed correctly
     if (childProfile) {
       console.log("Child profile data received on StartAdventure page:", childProfile);
     }
@@ -26,13 +25,12 @@ const StartAdventure = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1);
+    navigate('/creer-profil-enfant');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
       <div className="container px-4 mx-auto max-w-5xl">
-        {/* Bouton retour */}
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -44,7 +42,6 @@ const StartAdventure = () => {
           </Button>
         </div>
         
-        {/* En-tête */}
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-mcf-orange-dark mb-4">
             🎉 Prêt à démarrer l'aventure !
@@ -57,9 +54,7 @@ const StartAdventure = () => {
           </p>
         </div>
 
-        {/* Conteneur des deux options */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Option 1: Abonnement */}
           <Card className="border-2 border-mcf-orange overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in animation-delay-200 relative">
             <CardHeader className="bg-mcf-amber/20 border-b border-mcf-amber/30">
               <CardTitle className="flex items-center justify-center gap-2 text-2xl text-mcf-orange-dark">
@@ -107,7 +102,6 @@ const StartAdventure = () => {
             </CardFooter>
           </Card>
 
-          {/* Option 2: Livre à l'unité */}
           <Card className="border-2 border-mcf-amber/30 overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in animation-delay-300">
             <CardHeader className="bg-mcf-amber/10 border-b border-mcf-amber/20">
               <CardTitle className="flex items-center justify-center gap-2 text-2xl text-mcf-orange-dark">
@@ -153,7 +147,6 @@ const StartAdventure = () => {
           </Card>
         </div>
 
-        {/* Lien pour voir un exemple */}
         <div className="text-center animate-fade-in animation-delay-400">
           <Dialog>
             <DialogTrigger asChild>
@@ -195,7 +188,6 @@ const StartAdventure = () => {
   );
 };
 
-// Composant pour les éléments de la liste des fonctionnalités
 const FeatureItem = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
   <li className="flex items-start gap-3">
     <div className="text-mcf-orange shrink-0 mt-0.5">

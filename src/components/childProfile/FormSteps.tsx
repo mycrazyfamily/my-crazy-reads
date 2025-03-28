@@ -8,6 +8,7 @@ import PetsForm from '@/components/childProfile/PetsForm';
 import ToysForm from '@/components/childProfile/ToysForm';
 import WorldsForm from '@/components/childProfile/WorldsForm';
 import FinalSummary from '@/components/childProfile/FinalSummary';
+import NavigationButtons from '@/components/childProfile/personality/NavigationButtons';
 
 type FormStepsProps = {
   isGiftMode?: boolean;

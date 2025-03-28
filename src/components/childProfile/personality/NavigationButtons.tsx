@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from 'lucide-react';
 
 type NavigationButtonsProps = {
   handlePreviousStep: () => void;
@@ -21,9 +22,9 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         type="button" 
         onClick={handlePreviousStep}
         variant="outline"
-        className="font-semibold"
+        className="font-semibold flex items-center gap-2"
       >
-        ← Retour
+        <ArrowLeft className="h-4 w-4" /> Retour
       </Button>
       
       <Button 
