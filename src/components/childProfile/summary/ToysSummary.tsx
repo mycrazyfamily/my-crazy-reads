@@ -7,9 +7,14 @@ type ToysSummaryProps = {
 };
 
 const ToysSummary: React.FC<ToysSummaryProps> = ({ data }) => {
-  const { toys } = data.toys;
+  // Check if data.toys exists before accessing its properties
+  if (!data.toys) {
+    return <p className="text-gray-500">Aucune information sur les doudous n'est disponible.</p>;
+  }
 
-  if (!data.toys.hasToys || !toys || toys.length === 0) {
+  const { toys, hasToys } = data.toys;
+
+  if (!hasToys || !toys || toys.length === 0) {
     return <p className="text-gray-500">Aucun doudou ou objet magique n'a été ajouté.</p>;
   }
 

@@ -24,13 +24,13 @@ const CreateChildProfile = () => {
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
       firstName: '',
-      nickname: { type: "none" }, // Doit être une valeur valide selon le type
-      birthDate: undefined, // Date de naissance
-      age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10", // L'âge sera calculé à partir de la date de naissance
+      nickname: { type: "none" },
+      birthDate: undefined,
+      age: undefined as unknown as "0-2" | "3-5" | "6-7" | "8-10",
       gender: undefined as unknown as "girl" | "boy" | "neutral",
-      skinColor: { type: "light" }, // Valeur valide requise pour le type
-      eyeColor: { type: "blue" }, // Valeur valide requise pour le type
-      hairColor: { type: "blonde" }, // Valeur valide requise pour le type
+      skinColor: { type: "light" },
+      eyeColor: { type: "blue" },
+      hairColor: { type: "blonde" },
       hairType: undefined as unknown as "straight" | "wavy" | "curly" | "coily",
       glasses: undefined,
       height: undefined as unknown as "small" | "medium" | "tall",
@@ -52,6 +52,8 @@ const CreateChildProfile = () => {
       worlds: {
         favoriteWorlds: [],
         discoveries: [],
+        customWorlds: {},
+        customDiscoveries: {},
       }
     },
   });

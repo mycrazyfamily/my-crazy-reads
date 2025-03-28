@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
@@ -7,6 +8,11 @@ type WorldsSummaryProps = {
 };
 
 const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
+  // Check if data.worlds exists before accessing its properties
+  if (!data.worlds) {
+    return <p className="text-gray-500">Aucune information sur les univers préférés n'est disponible.</p>;
+  }
+
   const { favoriteWorlds, discoveries, customWorlds, customDiscoveries } = data.worlds;
 
   return (
