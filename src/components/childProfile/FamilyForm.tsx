@@ -121,15 +121,8 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   };
 
   const handleFamilySectionContinue = () => {
-    // Vérifier si au moins un proche a été ajouté
-    const relatives = form.getValues().family?.relatives || [];
-    
-    if (relatives.length === 0) {
-      toast.error("Veuillez ajouter au moins un proche");
-      return;
-    }
-
-    // Passer à l'étape suivante (animaux de compagnie) au lieu de soumettre le formulaire
+    // Suppression de la vérification obligatoire des proches
+    // Le formulaire permet maintenant de continuer même sans ajouter de proche
     onSubmit();
   };
 
@@ -197,7 +190,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
                 onClick={handleFamilySectionContinue}
                 className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
-                Oui, j'ai ajouté tous les proches ! 🧡
+                {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches ! 🧡" : "Continuer sans ajouter de proches →"}
               </Button>
             </div>
           </div>
