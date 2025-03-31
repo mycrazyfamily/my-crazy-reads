@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { differenceInMonths, differenceInYears, format, isAfter, isBefore, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ChildProfileFormData } from '@/types/childProfile';
@@ -506,40 +507,29 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           control={form.control}
           name="glasses"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-3">
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
               </FormLabel>
+              <FormControl>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    checked={field.value || false}
+                    onCheckedChange={field.onChange}
+                    id="glasses-switch"
+                    className="data-[state=checked]:bg-mcf-orange"
+                  />
+                  <label 
+                    htmlFor="glasses-switch" 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {field.value ? 'Oui' : 'Non'}
+                  </label>
+                </div>
+              </FormControl>
               <FormDescription>
-                Sélectionnez Oui ou Non.
+                Sélectionnez si l'enfant porte des lunettes.
               </FormDescription>
-              <RadioGroup 
-                onValueChange={(value) => field.onChange(value === "true")} 
-                value={field.value ? "true" : "false"}
-                className="flex gap-4 mt-2"
-              >
-                <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                  field.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-                }`}>
-                  <FormItem className="flex items-center space-x-2 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="true" id="glasses-yes" className="peer h-5 w-5" />
-                    </FormControl>
-                    <FormLabel htmlFor="glasses-yes" className="cursor-pointer">Oui</FormLabel>
-                  </FormItem>
-                </div>
-                
-                <div className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-                  !field.value ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-                }`}>
-                  <FormItem className="flex items-center space-x-2 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="false" id="glasses-no" className="peer h-5 w-5" />
-                    </FormControl>
-                    <FormLabel htmlFor="glasses-no" className="cursor-pointer">Non</FormLabel>
-                  </FormItem>
-                </div>
-              </RadioGroup>
               <FormMessage />
             </FormItem>
           )}

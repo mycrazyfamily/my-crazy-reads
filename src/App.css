@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -214,4 +213,20 @@ button, .button {
   min-height: 100vh;
   border: 1px solid red;
   background-color: rgba(255, 0, 0, 0.05);
+}
+
+/* Styles spécifiques pour les composants Switch */
+.data-\[state\=checked\]\:bg-mcf-orange[data-state="checked"] {
+  background-color: #FB923C !important;
+}
+
+.data-\[state\=checked\]\:bg-primary[data-state="checked"] {
+  background-color: #FB923C !important;
+}
+
+/* Assurez-vous que les radios et interrupteurs sont bien visibles */
+[type="radio"]:checked,
+[role="switch"][data-state="checked"] {
+  border-color: #FB923C !important;
+  background-color: #FB923C !important;
 }

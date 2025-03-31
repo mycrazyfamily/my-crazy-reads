@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import type { RelativeGender } from '@/types/childProfile';
 
 type RelativeAppearanceSectionProps = {
@@ -157,50 +158,27 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         </div>
       </div>
       
-      {/* Lunettes - Fix for infinite update loop by using direct div onClick instead of RadioGroup onChange */}
-      <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">👓</span> {getGenderedText(
-            "Porte-t-il des lunettes ?",
-            "Porte-t-elle des lunettes ?",
-            "Porte-t-il/elle des lunettes ?"
-          )}
-        </label>
-        <div className="flex gap-4 mt-2">
-          <div 
-            className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-              glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-            }`}
-            onClick={() => setGlasses(true)}
-          >
-            <div className="flex items-center space-x-2">
-              <input 
-                type="radio" 
-                id="relative-glasses-yes"
-                checked={glasses} 
-                onChange={() => {}} // Empty onChange to avoid React warning about controlled component
-                className="h-5 w-5" 
-              />
-              <label htmlFor="relative-glasses-yes" className="cursor-pointer">Oui</label>
-            </div>
-          </div>
+      {/* Lunettes - Utilisation du composant Switch au lieu de RadioGroup */}
+      <div className="form-group mt-6">
+        <div className="flex flex-col gap-2">
+          <label className="text-lg font-semibold flex items-center gap-2">
+            <span className="text-xl">👓</span> {getGenderedText(
+              "Porte-t-il des lunettes ?",
+              "Porte-t-elle des lunettes ?",
+              "Porte-t-il/elle des lunettes ?"
+            )}
+          </label>
           
-          <div 
-            className={`px-6 py-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
-              !glasses ? "border-mcf-orange bg-mcf-amber/10" : "border-gray-200 hover:border-mcf-amber"
-            }`}
-            onClick={() => setGlasses(false)}
-          >
-            <div className="flex items-center space-x-2">
-              <input 
-                type="radio" 
-                id="relative-glasses-no" 
-                checked={!glasses} 
-                onChange={() => {}} // Empty onChange to avoid React warning about controlled component
-                className="h-5 w-5" 
-              />
-              <label htmlFor="relative-glasses-no" className="cursor-pointer">Non</label>
-            </div>
+          <div className="flex items-center space-x-4 mt-2">
+            <Switch
+              id="relative-glasses"
+              checked={glasses}
+              onCheckedChange={setGlasses}
+              className="data-[state=checked]:bg-mcf-orange"
+            />
+            <Label htmlFor="relative-glasses" className="cursor-pointer">
+              {glasses ? "Oui" : "Non"}
+            </Label>
           </div>
         </div>
       </div>
