@@ -1,13 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from 'sonner';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasActiveSubscription, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +33,42 @@ const Navbar: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Vous avez été déconnecté avec succès');
+  };
+
+  const getActionButton = () => {
+    if (!isAuthenticated) {
+      return (
+        <Link 
+          to="/creer-profil-enfant" 
+          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
+        >
+          Commencer
+        </Link>
+      );
+    } else if (!hasActiveSubscription) {
+      return (
+        <Link 
+          to="/offrir-livre" 
+          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
+        >
+          Offrir un livre
+        </Link>
+      );
+    } else {
+      return (
+        <Link 
+          to="/creer-profil-enfant" 
+          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
+        >
+          Commander un livre
+        </Link>
+      );
+    }
+  };
 
   return (
     <nav 
@@ -50,12 +96,15 @@ const Navbar: React.FC = () => {
             <Link to="/fonctionnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Comment ça marche
             </Link>
-            <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
-              Abonnement
-            </Link>
+            
+            {(isAuthenticated && !hasActiveSubscription) && (
+              <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
+                Abonnement
+              </Link>
+            )}
             
             {isAuthenticated ? (
-              <>
+              <div className="flex items-center gap-4">
                 <Link 
                   to="/espace-famille" 
                   className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-1 px-3 py-2"
@@ -63,13 +112,48 @@ const Navbar: React.FC = () => {
                   <User size={18} />
                   Espace famille
                 </Link>
-                <Link 
-                  to="/creer-profil-enfant" 
-                  className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-                >
-                  Commencer
-                </Link>
-              </>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="border-2 border-mcf-amber rounded-full p-0.5 hover:border-mcf-orange transition-colors">
+                      <Avatar className="h-8 w-8">
+                        {user?.avatarUrl ? (
+                          <AvatarImage src={user.avatarUrl} alt="Photo de profil" />
+                        ) : (
+                          <AvatarFallback className="bg-mcf-amber text-mcf-orange-dark">
+                            {user?.firstName?.charAt(0) ?? user?.email?.charAt(0).toUpperCase() ?? "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      {user?.firstName ?? user?.email ?? "Mon profil"}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/espace-famille" className="flex items-center gap-2 cursor-pointer">
+                        <User size={16} />
+                        <span>Espace famille</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    {hasActiveSubscription && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/abonnement" className="flex items-center gap-2 cursor-pointer">
+                          <Bell size={16} />
+                          <span>Gérer mon abonnement</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-red-500">
+                      <LogOut size={16} />
+                      <span>Déconnexion</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <>
                 <Link 
@@ -78,14 +162,9 @@ const Navbar: React.FC = () => {
                 >
                   Se connecter
                 </Link>
-                <Link 
-                  to="/creer-profil-enfant" 
-                  className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-                >
-                  Commencer
-                </Link>
               </>
             )}
+            {getActionButton()}
           </div>
 
           {/* Mobile Menu Button */}
@@ -124,26 +203,40 @@ const Navbar: React.FC = () => {
             >
               Comment ça marche
             </Link>
-            <Link 
-              to="/abonnement" 
-              className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Abonnement
-            </Link>
             
-            {isAuthenticated && (
+            {(isAuthenticated && !hasActiveSubscription) && (
               <Link 
-                to="/espace-famille" 
-                className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-2 px-2 py-2"
+                to="/abonnement" 
+                className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <User size={18} />
-                Espace famille
+                Abonnement
               </Link>
             )}
             
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to="/espace-famille" 
+                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-2 px-2 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User size={18} />
+                  Espace famille
+                </Link>
+                
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-2 px-2 py-2"
+                >
+                  <LogOut size={18} />
+                  Déconnexion
+                </button>
+              </>
+            ) : (
               <Link 
                 to="/authentification" 
                 className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors px-2 py-2"
@@ -153,13 +246,9 @@ const Navbar: React.FC = () => {
               </Link>
             )}
             
-            <Link 
-              to="/creer-profil-enfant" 
-              className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors text-center mt-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Commencer
-            </Link>
+            <div className="pt-2">
+              {getActionButton()}
+            </div>
           </div>
         </div>
       )}

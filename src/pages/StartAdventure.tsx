@@ -1,36 +1,49 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
-// Cela simule la page StartAdventure existante
-// Dans un vrai projet, vous devriez adapter le code existant pour inclure la redirection
 const StartAdventure = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasActiveSubscription } = useAuth();
   const [selectedOption, setSelectedOption] = useState<'monthly' | 'yearly'>('monthly');
+  
+  useEffect(() => {
+    // Si l'utilisateur est déjà abonné, le rediriger vers l'espace famille
+    if (isAuthenticated && hasActiveSubscription) {
+      toast.info("Vous êtes déjà abonné! Redirection vers votre espace famille.");
+      navigate('/espace-famille');
+    }
+  }, [isAuthenticated, hasActiveSubscription, navigate]);
   
   const handleContinue = () => {
     // Stocker l'option sélectionnée (mensuel ou annuel) dans localStorage
     localStorage.setItem('mcf_subscription_option', selectedOption);
     
-    // Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
     if (!isAuthenticated) {
+      // Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
       toast.info("Veuillez vous connecter ou créer un compte pour continuer");
       navigate('/authentification', { 
         state: { from: { pathname: '/finaliser-abonnement' } } 
       });
-    } else {
-      // Sinon, continuer vers la page de finalisation de l'abonnement
+    } else if (!hasActiveSubscription) {
+      // L'utilisateur est connecté mais n'a pas d'abonnement actif
       navigate('/finaliser-abonnement');
+    } else {
+      // L'utilisateur est déjà abonné, le rediriger vers l'espace famille
+      navigate('/espace-famille');
     }
   };
   
-  // Le reste de la page StartAdventure existante...
   return (
-    <div className="min-h-screen bg-mcf-cream">
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold text-center mb-8">Prêt à démarrer l'aventure</h1>
+    <div className="min-h-screen bg-mcf-cream flex flex-col">
+      <Navbar />
+      
+      <main className="flex-grow container mx-auto px-4 py-20">
+        <h1 className="text-3xl font-bold text-center mb-8 text-mcf-orange-dark">Prêt à démarrer l'aventure</h1>
         
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
           <div className="flex flex-col md:flex-row gap-6 mb-8">
@@ -79,7 +92,9 @@ const StartAdventure = () => {
             Continuer
           </button>
         </div>
-      </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 };

@@ -1,11 +1,17 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import BenefitCard from '../components/BenefitCard';
 import Footer from '../components/Footer';
+import { useAuth } from '@/hooks/useAuth';
+import { Card } from '@/components/ui/card';
+import { Book, Calendar, Gift, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Index: React.FC = () => {
+  const { isAuthenticated, hasActiveSubscription, user } = useAuth();
   const [heroError, setHeroError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -46,44 +52,138 @@ const Index: React.FC = () => {
     }
   ];
 
-  console.log("Index page rendering");
+  // Composant pour afficher le dashboard rapide pour les utilisateurs connectés
+  const QuickDashboard = () => {
+    return (
+      <div className="container mx-auto px-4 py-8 mt-24">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-mcf-orange-dark mb-6">
+            {`Bonjour ${user?.firstName || 'cher utilisateur'}`}
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <Card className="p-6 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-mcf-amber/20 p-2 rounded-full">
+                  <User className="h-6 w-6 text-mcf-orange" />
+                </div>
+                <h3 className="text-xl font-bold">Votre espace famille</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Accédez à vos profils d'enfants et gérez vos préférences personnelles.
+              </p>
+              <Button 
+                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white w-full"
+                asChild
+              >
+                <Link to="/espace-famille">Voir mon espace</Link>
+              </Button>
+            </Card>
+            
+            {hasActiveSubscription ? (
+              <Card className="p-6 shadow-md hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-mcf-amber/20 p-2 rounded-full">
+                    <Book className="h-6 w-6 text-mcf-orange" />
+                  </div>
+                  <h3 className="text-xl font-bold">Commander un livre</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Créez une nouvelle histoire personnalisée pour votre enfant.
+                </p>
+                <Button 
+                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white w-full"
+                  asChild
+                >
+                  <Link to="/creer-profil-enfant">Commander un livre</Link>
+                </Button>
+              </Card>
+            ) : (
+              <Card className="p-6 shadow-md hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-mcf-amber/20 p-2 rounded-full">
+                    <Calendar className="h-6 w-6 text-mcf-orange" />
+                  </div>
+                  <h3 className="text-xl font-bold">S'abonner</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Recevez un livre personnalisé chaque mois et profitez d'avantages exclusifs.
+                </p>
+                <Button 
+                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white w-full"
+                  asChild
+                >
+                  <Link to="/abonnement">Découvrir nos abonnements</Link>
+                </Button>
+              </Card>
+            )}
+          </div>
+          
+          <Card className="p-6 shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="bg-mcf-amber/20 p-2 rounded-full">
+                <Gift className="h-6 w-6 text-mcf-orange" />
+              </div>
+              <h3 className="text-xl font-bold">Offrir un livre personnalisé</h3>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Faites plaisir à un enfant en lui offrant une aventure unique à son image.
+            </p>
+            <Button 
+              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white"
+              asChild
+            >
+              <Link to="/offrir-livre">Offrir un livre</Link>
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-mcf-cream">
       <Navbar />
       
       <main className="flex-grow">
-        {heroError ? (
-          <div className="min-h-screen flex items-center justify-center pt-16 pb-10 hero-gradient">
-            <div className="container mx-auto px-4 md:px-6 text-center">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mcf-orange-dark leading-tight mb-4">
-                Bienvenue dans My Crazy Family
-              </h1>
-              <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
-                Chaque mois, une nouvelle histoire imprimée personnalisée, pour vivre des aventures magiques en famille.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-                <Link 
-                  to="/creer-profil-enfant" 
-                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
-                >
-                  Commencer l'aventure
-                </Link>
-                <Link 
-                  to="/offrir-livre" 
-                  className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
-                >
-                  Offrir un livre
-                </Link>
-              </div>
-            </div>
-          </div>
+        {/* Affichage conditionnel selon l'état de l'utilisateur */}
+        {isAuthenticated ? (
+          <QuickDashboard />
         ) : (
-          <React.Suspense fallback={<div>Chargement...</div>}>
-            <ErrorBoundary onError={() => setHeroError(true)}>
-              <Hero />
-            </ErrorBoundary>
-          </React.Suspense>
+          <>
+            {heroError ? (
+              <div className="min-h-screen flex items-center justify-center pt-16 pb-10 hero-gradient">
+                <div className="container mx-auto px-4 md:px-6 text-center">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mcf-orange-dark leading-tight mb-4">
+                    Bienvenue dans My Crazy Family
+                  </h1>
+                  <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+                    Chaque mois, une nouvelle histoire imprimée personnalisée, pour vivre des aventures magiques en famille.
+                  </p>
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                    <Link 
+                      to="/creer-profil-enfant" 
+                      className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+                    >
+                      Commencer l'aventure
+                    </Link>
+                    <Link 
+                      to="/offrir-livre" 
+                      className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+                    >
+                      Offrir un livre
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <React.Suspense fallback={<div>Chargement...</div>}>
+                <ErrorBoundary onError={() => setHeroError(true)}>
+                  <Hero />
+                </ErrorBoundary>
+              </React.Suspense>
+            )}
+          </>
         )}
         
         <section className="py-20 px-4 bg-white">
@@ -109,28 +209,83 @@ const Index: React.FC = () => {
           </div>
         </section>
         
+        {/* Section d'appel à l'action conditionnelle selon l'état de l'utilisateur */}
         <section className="py-20 px-4 hero-gradient">
           <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
-              Commencez votre voyage littéraire aujourd'hui
-            </h2>
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in animation-delay-100">
-              Rejoignez des milliers de familles qui ont déjà embarqué pour cette aventure unique de lecture partagée et de découverte.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
-              <Link 
-                to="/creer-profil-enfant" 
-                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
-              >
-                Commencer l'aventure
-              </Link>
-              <Link 
-                to="/offrir-livre" 
-                className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
-              >
-                Offrir un livre
-              </Link>
-            </div>
+            {!isAuthenticated && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
+                  Commencez votre voyage littéraire aujourd'hui
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in animation-delay-100">
+                  Rejoignez des milliers de familles qui ont déjà embarqué pour cette aventure unique de lecture partagée et de découverte.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
+                  <Link 
+                    to="/creer-profil-enfant" 
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+                  >
+                    Commencer l'aventure
+                  </Link>
+                  <Link 
+                    to="/offrir-livre" 
+                    className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+                  >
+                    Offrir un livre
+                  </Link>
+                </div>
+              </>
+            )}
+            
+            {isAuthenticated && !hasActiveSubscription && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
+                  Profitez pleinement de l'expérience My Crazy Family
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in animation-delay-100">
+                  Abonnez-vous pour recevoir chaque mois une nouvelle histoire personnalisée pour votre enfant.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
+                  <Link 
+                    to="/abonnement" 
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+                  >
+                    Découvrir les abonnements
+                  </Link>
+                  <Link 
+                    to="/offrir-livre" 
+                    className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+                  >
+                    Offrir un livre
+                  </Link>
+                </div>
+              </>
+            )}
+            
+            {isAuthenticated && hasActiveSubscription && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark mb-6 opacity-0 animate-fade-in">
+                  Votre prochaine histoire est en préparation
+                </h2>
+                <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in animation-delay-100">
+                  Chaque mois, une nouvelle aventure personnalisée arrive chez vous. Et si vous partagiez cette magie avec vos proches ?
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4 opacity-0 animate-fade-in animation-delay-200">
+                  <Link 
+                    to="/espace-famille" 
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
+                  >
+                    Mon espace famille
+                  </Link>
+                  <Link 
+                    to="/offrir-livre" 
+                    className="bg-white hover:bg-mcf-amber text-mcf-orange-dark font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg border-2 border-mcf-orange text-lg"
+                  >
+                    Offrir un livre
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </section>
 

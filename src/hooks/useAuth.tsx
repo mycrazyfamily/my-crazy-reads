@@ -1,18 +1,34 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
+type SubscriptionStatus = 'none' | 'active' | 'expired' | 'pending';
+
+type Subscription = {
+  status: SubscriptionStatus;
+  type?: 'monthly' | 'yearly';
+  startDate?: string;
+  nextPaymentDate?: string;
+};
+
 type User = {
   email: string;
+  firstName?: string;
+  lastName?: string;
   isAuthenticated: boolean;
   isTemporary?: boolean;
+  subscription?: Subscription;
+  avatarUrl?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isTemporaryUser: boolean;
+  hasActiveSubscription: boolean;
   login: (userData: User) => void;
   logout: () => void;
+  updateUserSubscription: (subscription: Subscription) => void;
+  updateUserProfile: (userData: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +58,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem('mcf_user');
   };
+
+  const updateUserSubscription = (subscription: Subscription) => {
+    if (user) {
+      const updatedUser = { ...user, subscription };
+      setUser(updatedUser);
+      localStorage.setItem('mcf_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  const updateUserProfile = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('mcf_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  const hasActiveSubscription = !!user?.subscription?.status === 'active';
   
   return (
     <AuthContext.Provider 
@@ -49,8 +83,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated: !!user?.isAuthenticated,
         isTemporaryUser: !!user?.isTemporary,
+        hasActiveSubscription,
         login,
-        logout
+        logout,
+        updateUserSubscription,
+        updateUserProfile
       }}
     >
       {children}

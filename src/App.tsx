@@ -4,6 +4,8 @@ import './App.css'
 import { Toaster } from "sonner"
 import { AuthProvider } from './hooks/useAuth'
 import AuthGuard from './components/AuthGuard'
+import RouteGuard from './components/RouteGuard'
+import SubscriptionGuard from './components/SubscriptionGuard'
 
 // Pages
 import Index from './pages/Index'
@@ -32,9 +34,19 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/creer-profil-enfant" element={<CreateChildProfile />} />
             <Route path="/authentification" element={<Authentication />} />
-            <Route path="/abonnement" element={<Abonnement />} />
+            
+            {/* Routes nécessitant l'authentification mais pas d'abonnement */}
+            <Route path="/creer-profil-enfant" element={
+              <RouteGuard>
+                <CreateChildProfile />
+              </RouteGuard>
+            } />
+            <Route path="/abonnement" element={
+              <RouteGuard>
+                <Abonnement />
+              </RouteGuard>
+            } />
             
             {/* Semi-protected routes - will redirect to auth before payment */}
             <Route path="/start-adventure" element={<StartAdventure />} />
@@ -71,6 +83,13 @@ function App() {
               <AuthGuard>
                 <OffrirConfirmation />
               </AuthGuard>
+            } />
+            
+            {/* Routes nécessitant un abonnement actif */}
+            <Route path="/mon-abonnement" element={
+              <SubscriptionGuard>
+                <Abonnement />
+              </SubscriptionGuard>
             } />
             
             <Route path="*" element={<NotFound />} />

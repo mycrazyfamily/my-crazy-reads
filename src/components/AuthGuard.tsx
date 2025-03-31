@@ -1,22 +1,19 @@
 
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import RouteGuard from './RouteGuard';
 
 type AuthGuardProps = {
   children: React.ReactNode;
 };
 
+// AuthGuard est maintenant un simple wrapper autour de RouteGuard
+// pour maintenir la rétrocompatibilité
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
-  
-  if (!isAuthenticated) {
-    // Redirect to login page while saving the attempted URL
-    return <Navigate to="/authentification" state={{ from: location }} replace />;
-  }
-  
-  return <>{children}</>;
+  return (
+    <RouteGuard requireAuth={true} requireSubscription={false}>
+      {children}
+    </RouteGuard>
+  );
 };
 
 export default AuthGuard;
