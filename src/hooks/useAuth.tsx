@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const hasActiveSubscription = !!user?.subscription?.status === 'active';
+  const hasActiveSubscription = user?.subscription?.status === 'active' || false;
   
   return (
     <AuthContext.Provider 
