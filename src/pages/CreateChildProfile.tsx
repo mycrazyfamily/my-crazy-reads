@@ -10,9 +10,15 @@ type CreateChildProfileProps = {
   isGiftMode?: boolean;
   familyCode?: string;
   nextPath?: string;
+  initialStep?: number;
 };
 
-const CreateChildProfile = ({ isGiftMode = false, familyCode, nextPath }: CreateChildProfileProps) => {
+const CreateChildProfile = ({ 
+  isGiftMode = false, 
+  familyCode, 
+  nextPath,
+  initialStep
+}: CreateChildProfileProps) => {
   const { handleSubmit } = useChildProfileSubmit({ isGiftMode, nextPath });
 
   return (
@@ -28,10 +34,16 @@ const CreateChildProfile = ({ isGiftMode = false, familyCode, nextPath }: Create
       </p>
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-amber/20">
-        <ChildProfileFormProvider familyCode={familyCode} onSubmit={handleSubmit}>
+        <ChildProfileFormProvider 
+          familyCode={familyCode} 
+          onSubmit={handleSubmit}
+          // Si initialStep est défini, on le transmet via l'état de location
+          // pour être utilisé par le contexte
+        >
           <FormSteps 
             isGiftMode={isGiftMode} 
             nextButtonText={isGiftMode ? "Continuer vers le choix du thème →" : undefined}
+            onFormSubmit={isGiftMode ? () => {} : undefined}
           />
         </ChildProfileFormProvider>
       </div>

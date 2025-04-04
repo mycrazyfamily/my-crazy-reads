@@ -29,8 +29,11 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
       toast.success(`Navigation vers l'étape ${step + 1}`);
     } else {
       // Si nous ne sommes pas dans le contexte du formulaire, naviguer vers la page de création de profil
-      navigate('/creer-profil-enfant');
-      toast.info("Navigation vers la page de création de profil");
+      // avec un paramètre d'état pour indiquer l'étape souhaitée
+      navigate('/creer-profil-enfant', { 
+        state: { targetStep: step } 
+      });
+      toast.info(`Redirection vers l'étape ${step + 1}...`);
     }
   };
 

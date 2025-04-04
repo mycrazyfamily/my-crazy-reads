@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from "sonner";
+import { useLocation } from 'react-router-dom';
 import type { ChildProfileFormData } from '@/types/childProfile';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
@@ -21,7 +21,7 @@ type ChildProfileFormContextType = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
-  handleSubmitForm: () => void; // Ajout de la fonction qui manquait dans le type
+  handleSubmitForm: () => void;
 };
 
 const ChildProfileFormContext = createContext<ChildProfileFormContextType | undefined>(undefined);
@@ -37,7 +37,12 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   familyCode,
   onSubmit
 }) => {
-  const [formStep, setFormStep] = useState(0);
+  const location = useLocation();
+  const [formStep, setFormStep] = useState(() => {
+    const locationState = location.state as { targetStep?: number } | null;
+    return locationState?.targetStep !== undefined ? locationState.targetStep : 0;
+  });
+  
   const [selectedNickname, setSelectedNickname] = useState<string>("");
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>("");
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
@@ -90,7 +95,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         try {
           const parsedState = JSON.parse(savedState);
           
-          if (parsedState.formStep !== undefined) {
+          const locationState = location.state as { targetStep?: number } | null;
+          if (locationState?.targetStep === undefined && parsedState.formStep !== undefined) {
             setFormStep(parsedState.formStep);
           }
           
@@ -110,7 +116,12 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         }
       }
     }
-  }, [form, familyCode]);
+    
+    const locationState = location.state as { targetStep?: number } | null;
+    if (locationState?.targetStep !== undefined) {
+      toast.success(`Navigation vers l'étape ${locationState.targetStep + 1}`);
+    }
+  }, [form, familyCode, location.state]);
 
   useEffect(() => {
     const saveFormState = () => {
