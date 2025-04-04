@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
@@ -31,6 +32,8 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     setSelectedHairColor,
     handleSubmitForm
   } = useChildProfileForm();
+
+  console.log("Current form step:", formStep);
 
   // Fonction pour gérer la soumission finale du formulaire
   const handleFinalSubmit = () => {

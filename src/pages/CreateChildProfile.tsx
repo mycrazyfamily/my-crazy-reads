@@ -5,6 +5,7 @@ import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
+import { useLocation } from 'react-router-dom';
 
 type CreateChildProfileProps = {
   isGiftMode?: boolean;
@@ -20,6 +21,13 @@ const CreateChildProfile = ({
   initialStep
 }: CreateChildProfileProps) => {
   const { handleSubmit } = useChildProfileSubmit({ isGiftMode, nextPath });
+  const location = useLocation();
+  const locationState = location.state as { targetStep?: number } | null;
+  
+  // Use either the prop or the location state
+  const effectiveInitialStep = initialStep !== undefined ? initialStep : locationState?.targetStep;
+  
+  console.log("CreateChildProfile - effectiveInitialStep:", effectiveInitialStep);
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:max-w-4xl">
@@ -37,8 +45,7 @@ const CreateChildProfile = ({
         <ChildProfileFormProvider 
           familyCode={familyCode} 
           onSubmit={handleSubmit}
-          // Si initialStep est défini, on le transmet via l'état de location
-          // pour être utilisé par le contexte
+          initialStep={effectiveInitialStep}
         >
           <FormSteps 
             isGiftMode={isGiftMode} 

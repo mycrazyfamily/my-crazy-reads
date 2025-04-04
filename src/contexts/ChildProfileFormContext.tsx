@@ -30,17 +30,26 @@ export type ChildProfileFormProviderProps = {
   children: React.ReactNode;
   familyCode?: string;
   onSubmit: (data: ChildProfileFormData) => void;
+  initialStep?: number;
 };
 
 export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> = ({ 
   children, 
   familyCode,
-  onSubmit
+  onSubmit,
+  initialStep
 }) => {
   const location = useLocation();
+  const locationState = location.state as { targetStep?: number } | null;
+  
   const [formStep, setFormStep] = useState(() => {
-    const locationState = location.state as { targetStep?: number } | null;
-    return locationState?.targetStep !== undefined ? locationState.targetStep : 0;
+    if (initialStep !== undefined) {
+      return initialStep;
+    } else if (locationState?.targetStep !== undefined) {
+      return locationState.targetStep;
+    } else {
+      return 0;
+    }
   });
   
   const [selectedNickname, setSelectedNickname] = useState<string>("");
@@ -95,8 +104,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         try {
           const parsedState = JSON.parse(savedState);
           
-          const locationState = location.state as { targetStep?: number } | null;
-          if (locationState?.targetStep === undefined && parsedState.formStep !== undefined) {
+          if (initialStep === undefined && locationState?.targetStep === undefined && parsedState.formStep !== undefined) {
             setFormStep(parsedState.formStep);
           }
           
@@ -117,11 +125,14 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       }
     }
     
-    const locationState = location.state as { targetStep?: number } | null;
-    if (locationState?.targetStep !== undefined) {
+    if (initialStep !== undefined) {
+      console.log(`Navigation vers l'étape ${initialStep + 1} via initialStep`);
+      toast.success(`Navigation vers l'étape ${initialStep + 1}`);
+    } else if (locationState?.targetStep !== undefined) {
+      console.log(`Navigation vers l'étape ${locationState.targetStep + 1} via locationState`);
       toast.success(`Navigation vers l'étape ${locationState.targetStep + 1}`);
     }
-  }, [form, familyCode, location.state]);
+  }, [form, familyCode, initialStep, locationState]);
 
   useEffect(() => {
     const saveFormState = () => {
@@ -161,6 +172,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   };
 
   const handleGoToStep = (step: number) => {
+    console.log(`Navigating to step ${step}`);
     setFormStep(step);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

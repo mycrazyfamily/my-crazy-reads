@@ -25,11 +25,12 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
   
   const goToStep = (step: number) => {
     if (childProfileFormContext) {
+      // Si nous sommes déjà dans le contexte du formulaire, utiliser la fonction directe
       childProfileFormContext.handleGoToStep(step);
       toast.success(`Navigation vers l'étape ${step + 1}`);
     } else {
-      // Si nous ne sommes pas dans le contexte du formulaire, naviguer vers la page de création de profil
-      // avec un paramètre d'état pour indiquer l'étape souhaitée
+      // Si nous ne sommes pas dans le contexte du formulaire, naviguer vers la page appropriée
+      console.log(`Navigating to /creer-profil-enfant with targetStep: ${step}`);
       navigate('/creer-profil-enfant', { 
         state: { targetStep: step } 
       });

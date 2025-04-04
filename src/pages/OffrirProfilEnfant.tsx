@@ -10,12 +10,13 @@ const OffrirProfilEnfant = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const familyCode = location.state?.familyCode;
-  // Préserver targetStep s'il existe dans l'état de navigation
   const targetStep = location.state?.targetStep;
 
   const handleGoBack = () => {
     navigate('/offrir-livre');
   };
+
+  console.log("OffrirProfilEnfant - targetStep:", targetStep);
 
   return (
     <div>
@@ -33,7 +34,6 @@ const OffrirProfilEnfant = () => {
         isGiftMode={true} 
         familyCode={familyCode} 
         nextPath="/offrir/theme"
-        // Transmettre le targetStep s'il existe
         initialStep={targetStep}
       />
     </div>
