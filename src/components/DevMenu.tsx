@@ -1,0 +1,54 @@
+
+import React from 'react';
+import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+
+type DevMenuProps = {
+  visible?: boolean;
+};
+
+const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
+  const { handleGoToStep } = useChildProfileForm();
+  
+  if (!visible) return null;
+  
+  const goToStep = (step: number) => {
+    handleGoToStep(step);
+    toast.success(`Navigation vers l'étape ${step}`);
+  };
+  
+  return (
+    <Card className="fixed bottom-4 right-4 z-50 shadow-lg border-2 border-mcf-amber bg-white/90 backdrop-blur-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium">Menu Développeur</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0 grid grid-cols-2 gap-2">
+        <Button size="sm" variant="outline" onClick={() => goToStep(0)}>
+          1. Infos de base
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(1)}>
+          2. Personnalité
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(2)}>
+          3. Famille
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(3)}>
+          4. Animaux
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(4)} className="bg-mcf-amber/20">
+          5. Doudous
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(5)}>
+          6. Mondes
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => goToStep(6)}>
+          7. Résumé
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default DevMenu;

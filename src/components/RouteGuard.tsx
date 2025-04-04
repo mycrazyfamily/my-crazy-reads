@@ -10,6 +10,7 @@ type RouteGuardProps = {
   requireSubscription?: boolean;
   redirectTo?: string;
   notSubscribedRedirectTo?: string;
+  bypassProtection?: boolean; // Nouvelle prop pour le mode développement
 };
 
 const RouteGuard = ({ 
@@ -17,19 +18,24 @@ const RouteGuard = ({
   requireAuth = true, 
   requireSubscription = false,
   redirectTo = '/authentification',
-  notSubscribedRedirectTo = '/abonnement'
+  notSubscribedRedirectTo = '/abonnement',
+  bypassProtection = false // Par défaut, les protections sont actives
 }: RouteGuardProps) => {
   const { isAuthenticated, hasActiveSubscription, user } = useAuth();
   const location = useLocation();
   
+  // Si le mode développement est activé ou si bypassProtection est à true, on désactive les protections
+  const isDev = process.env.NODE_ENV === 'development';
+  const bypassDevMode = isDev && bypassProtection;
+  
   // Protection de base pour l'authentification
-  if (requireAuth && !isAuthenticated) {
+  if (requireAuth && !isAuthenticated && !bypassDevMode) {
     toast.info("Vous devez être connecté pour accéder à cette page");
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
   
   // Protection pour les pages nécessitant un abonnement
-  if (requireAuth && isAuthenticated && requireSubscription && !hasActiveSubscription) {
+  if (requireAuth && isAuthenticated && requireSubscription && !hasActiveSubscription && !bypassDevMode) {
     toast.info("Cette fonctionnalité nécessite un abonnement actif");
     return <Navigate to={notSubscribedRedirectTo} state={{ from: location }} replace />;
   }
