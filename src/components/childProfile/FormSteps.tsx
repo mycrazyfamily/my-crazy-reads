@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
@@ -9,7 +8,6 @@ import ToysForm from '@/components/childProfile/ToysForm';
 import WorldsForm from '@/components/childProfile/WorldsForm';
 import FinalSummary from '@/components/childProfile/FinalSummary';
 import NavigationButtons from '@/components/childProfile/personality/NavigationButtons';
-import DevMenu from '@/components/DevMenu';
 
 type FormStepsProps = {
   isGiftMode?: boolean;
@@ -42,9 +40,6 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
       onFormSubmit();
     }
   };
-
-  // Détermine si nous sommes en mode développement
-  const isDev = process.env.NODE_ENV === 'development' || true; // Force à true pour le moment
 
   return (
     <>
@@ -106,9 +101,6 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
           nextButtonText={nextButtonText}
         />
       )}
-
-      {/* Menu développeur pour naviguer facilement entre les étapes */}
-      {isDev && <DevMenu />}
     </>
   );
 };

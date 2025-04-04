@@ -6,6 +6,7 @@ import { AuthProvider } from './hooks/useAuth'
 import AuthGuard from './components/AuthGuard'
 import RouteGuard from './components/RouteGuard'
 import SubscriptionGuard from './components/SubscriptionGuard'
+import DevMenu from './components/DevMenu'
 
 // Pages
 import Index from './pages/Index'
@@ -101,6 +102,10 @@ function App() {
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          
+          {/* Afficher le menu développeur sur toutes les pages en mode développement */}
+          {isDev && <DevMenu />}
+          
           <Toaster 
             richColors 
             position="top-center"
