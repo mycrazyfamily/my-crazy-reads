@@ -27,12 +27,17 @@ const DebugSupabase: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
+      console.log('Fetching user profiles...');
+      console.log('Authentication status:', isAuthenticated ? 'Authenticated' : 'Not authenticated');
+      console.log('Current user:', user);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*');
       
       if (error) {
         console.error('Error fetching user profiles:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         setError(error.message);
         toast.error(`Erreur lors de la récupération des profils : ${error.message}`);
       } else {
@@ -42,12 +47,22 @@ const DebugSupabase: React.FC = () => {
       }
     } catch (err) {
       console.error('Unexpected error:', err);
+      console.error('Error details:', err instanceof Error ? err.stack : JSON.stringify(err));
       setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue');
       toast.error('Une erreur inattendue est survenue');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Log initial authentication state on component mount
+    console.log('Initial auth state:', { 
+      isAuthenticated, 
+      user,
+      supabaseUrl: supabase.supabaseUrl
+    });
+  }, [isAuthenticated, user]);
 
   return (
     <div className="container mx-auto px-4 py-20">
@@ -83,6 +98,7 @@ const DebugSupabase: React.FC = () => {
               <div className="p-4 border border-red-200 rounded-md bg-red-50 text-red-800">
                 <h3 className="font-medium mb-2">Erreur :</h3>
                 <p>{error}</p>
+                <p className="mt-2 text-xs">Vérifiez la console pour plus de détails.</p>
               </div>
             )}
 
