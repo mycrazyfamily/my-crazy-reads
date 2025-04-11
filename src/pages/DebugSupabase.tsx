@@ -60,8 +60,8 @@ const DebugSupabase: React.FC = () => {
     console.log('Initial auth state:', { 
       isAuthenticated, 
       user,
-      // Use the Supabase URL from the environment or directly
-      supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://rjbmhcoctpwmlqndzybm.supabase.co'
+      // Use the Supabase project URL directly
+      supabaseUrl: 'https://rjbmhcoctpwmlqndzybm.supabase.co'
     });
   }, [isAuthenticated, user]);
 
