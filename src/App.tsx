@@ -18,6 +18,7 @@ import ConfirmationPage from './pages/ConfirmationPage'
 import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
+import DebugSupabase from './pages/DebugSupabase'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
@@ -70,6 +71,13 @@ function App() {
             <Route path="/espace-famille" element={
               <AuthGuard>
                 <FamilyDashboard />
+              </AuthGuard>
+            } />
+
+            {/* Debug route for testing Supabase */}
+            <Route path="/debug-supabase" element={
+              <AuthGuard>
+                <DebugSupabase />
               </AuthGuard>
             } />
 

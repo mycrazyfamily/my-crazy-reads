@@ -610,7 +610,7 @@ export type Database = {
           created_at?: string | null
           family_id: string
           first_name?: string | null
-          id?: string
+          id: string
           role?: string | null
         }
         Update: {

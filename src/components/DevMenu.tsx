@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Database } from "lucide-react";
 
 type DevMenuProps = {
   visible?: boolean;
@@ -14,6 +14,7 @@ type DevMenuProps = {
 const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
   
   // Try to load the last menu state from localStorage
   useEffect(() => {
@@ -21,12 +22,22 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
     if (savedState !== null) {
       setIsOpen(savedState === 'true');
     }
+    
+    const savedVisibility = localStorage.getItem('devMenuVisible');
+    if (savedVisibility !== null) {
+      setIsVisible(savedVisibility === 'true');
+    }
   }, []);
   
   // Save menu state when it changes
   useEffect(() => {
     localStorage.setItem('devMenuOpen', isOpen.toString());
   }, [isOpen]);
+  
+  // Save visibility state when it changes
+  useEffect(() => {
+    localStorage.setItem('devMenuVisible', isVisible.toString());
+  }, [isVisible]);
   
   // On utilise try/catch car useChildProfileForm lance une erreur si on n'est pas dans le contexte
   let childProfileFormContext = null;
@@ -40,6 +51,10 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
   
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+  
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
   };
   
   const goToStep = (step: number) => {
@@ -62,16 +77,41 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
     toast.success(`Navigation vers ${label}`);
   };
   
+  // Si le menu n'est pas visible, afficher seulement un bouton pour le faire apparaître
+  if (!isVisible) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button 
+          size="sm" 
+          className="shadow-md"
+          onClick={toggleVisibility}
+        >
+          Afficher Menu Dev
+        </Button>
+      </div>
+    );
+  }
+  
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <Button 
-        size="sm" 
-        className="mb-2 ml-auto block shadow-md"
-        onClick={toggleMenu}
-      >
-        {isOpen ? <ChevronDown className="mr-1" /> : <ChevronUp className="mr-1" />}
-        Menu Dev
-      </Button>
+      <div className="flex mb-2 gap-2 justify-end">
+        <Button 
+          size="sm" 
+          className="shadow-md"
+          onClick={toggleVisibility}
+          variant="outline"
+        >
+          Masquer
+        </Button>
+        <Button 
+          size="sm" 
+          className="shadow-md"
+          onClick={toggleMenu}
+        >
+          {isOpen ? <ChevronDown className="mr-1" /> : <ChevronUp className="mr-1" />}
+          Menu Dev
+        </Button>
+      </div>
       
       {isOpen && (
         <Card className="shadow-lg border-2 border-mcf-amber bg-white/95 backdrop-blur-sm">
@@ -105,6 +145,16 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
             </Button>
             <Button size="sm" variant="outline" onClick={() => goToStep(6)}>
               7. Résumé
+            </Button>
+            
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => goToPage('/debug-supabase', 'Debug Supabase')} 
+              className="col-span-2 bg-blue-100 hover:bg-blue-200 flex items-center gap-2"
+            >
+              <Database size={16} />
+              Test Supabase
             </Button>
           </CardContent>
         </Card>
