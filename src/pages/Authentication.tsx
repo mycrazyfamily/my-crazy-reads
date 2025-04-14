@@ -10,10 +10,13 @@ import { toast } from "sonner";
 import { Mail, Lock, ArrowLeft, LogIn, UserPlus } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Authentication: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const { from } = location.state || { from: { pathname: '/espace-famille' } };
   
   const [formData, setFormData] = useState({
@@ -33,14 +36,42 @@ const Authentication: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulating API call
-    setTimeout(() => {
+    try {
+      // Connexion réelle avec Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      if (error) {
+        console.error('Erreur de connexion:', error);
+        toast.error(error.message || "Erreur lors de la connexion");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Logs de diagnostic
+      console.log('auth.user', await supabase.auth.getUser());
+      console.log('auth.session', await supabase.auth.getSession());
+      
+      // Mise à jour du contexte Auth avec les données utilisateur
+      if (data.user) {
+        login({
+          email: data.user.email || formData.email,
+          isAuthenticated: true,
+        });
+        
+        toast.success("Connexion réussie !");
+        
+        // Redirection vers la page de debug Supabase
+        navigate('/debug-supabase');
+      }
+    } catch (err) {
+      console.error('Erreur inattendue:', err);
+      toast.error("Une erreur inattendue est survenue");
+    } finally {
       setIsLoading(false);
-      // Fake successful login for demonstration
-      toast.success("Connexion réussie !");
-      localStorage.setItem('mcf_user', JSON.stringify({ email: formData.email, isAuthenticated: true }));
-      navigate(from);
-    }, 1500);
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -53,14 +84,45 @@ const Authentication: React.FC = () => {
     
     setIsLoading(true);
     
-    // Simulating API call
-    setTimeout(() => {
+    try {
+      // Inscription réelle avec Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin + '/auth/callback',
+        }
+      });
+      
+      if (error) {
+        console.error('Erreur d\'inscription:', error);
+        toast.error(error.message || "Erreur lors de l'inscription");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Logs de diagnostic
+      console.log('auth.user', await supabase.auth.getUser());
+      console.log('auth.session', await supabase.auth.getSession());
+      
+      // Mise à jour du contexte Auth avec les données utilisateur
+      if (data.user) {
+        login({
+          email: data.user.email || formData.email,
+          isAuthenticated: true,
+        });
+        
+        toast.success("Compte créé avec succès !");
+        
+        // Redirection vers la page de debug Supabase
+        navigate('/debug-supabase');
+      }
+    } catch (err) {
+      console.error('Erreur inattendue:', err);
+      toast.error("Une erreur inattendue est survenue");
+    } finally {
       setIsLoading(false);
-      // Fake successful registration for demonstration
-      toast.success("Compte créé avec succès !");
-      localStorage.setItem('mcf_user', JSON.stringify({ email: formData.email, isAuthenticated: true }));
-      navigate(from);
-    }, 1500);
+    }
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {
@@ -73,18 +135,39 @@ const Authentication: React.FC = () => {
     
     setIsLoading(true);
     
-    // Simulating API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: formData.email,
+        options: {
+          emailRedirectTo: window.location.origin + '/auth/callback',
+        }
+      });
+      
+      if (error) {
+        console.error('Erreur d\'envoi du lien magique:', error);
+        toast.error(error.message || "Erreur lors de l'envoi du lien magique");
+        setIsLoading(false);
+        return;
+      }
+      
       setMagicLinkSent(true);
       toast.success("Un lien de connexion a été envoyé à votre adresse email.");
-    }, 1500);
+    } catch (err) {
+      console.error('Erreur inattendue:', err);
+      toast.error("Une erreur inattendue est survenue");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSkip = () => {
-    localStorage.setItem('mcf_user', JSON.stringify({ email: 'guest', isAuthenticated: true, isTemporary: true }));
+    login({
+      email: 'guest',
+      isAuthenticated: true,
+      isTemporary: true
+    });
     toast.success("Compte temporaire créé. Vous pourrez le sauvegarder plus tard.");
-    navigate(from);
+    navigate('/debug-supabase');
   };
 
   const handleGoBack = () => {

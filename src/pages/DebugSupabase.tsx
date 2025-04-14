@@ -21,6 +21,8 @@ const DebugSupabase: React.FC = () => {
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [supabaseAuthUser, setSupabaseAuthUser] = useState<any | null>(null);
+  const [supabaseSession, setSupabaseSession] = useState<any | null>(null);
 
   const fetchUserProfiles = async () => {
     try {
@@ -30,6 +32,16 @@ const DebugSupabase: React.FC = () => {
       console.log('Fetching user profiles...');
       console.log('Authentication status:', isAuthenticated ? 'Authenticated' : 'Not authenticated');
       console.log('Current user:', user);
+      
+      // Récupérer et afficher les informations d'authentification Supabase actuelles
+      const { data: userData } = await supabase.auth.getUser();
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      console.log('Supabase auth user:', userData);
+      console.log('Supabase session:', sessionData);
+      
+      setSupabaseAuthUser(userData?.user || null);
+      setSupabaseSession(sessionData?.session || null);
       
       const { data, error } = await supabase
         .from('user_profiles')
@@ -63,6 +75,20 @@ const DebugSupabase: React.FC = () => {
       // Use the Supabase project URL directly
       supabaseUrl: 'https://rjbmhcoctpwmlqndzybm.supabase.co'
     });
+    
+    // Fetch auth state immediately on component mount
+    const fetchAuthState = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      setSupabaseAuthUser(userData?.user || null);
+      setSupabaseSession(sessionData?.session || null);
+      
+      console.log('Component mount - Supabase auth user:', userData);
+      console.log('Component mount - Supabase session:', sessionData);
+    };
+    
+    fetchAuthState();
   }, [isAuthenticated, user]);
 
   return (
@@ -85,6 +111,19 @@ const DebugSupabase: React.FC = () => {
                   ? `Connecté en tant que : ${user?.email || 'Utilisateur inconnu'}`
                   : 'Non connecté'}
               </p>
+            </div>
+            
+            <div className="p-4 border rounded-md bg-gray-50">
+              <h3 className="font-medium mb-2">Statut d'authentification Supabase :</h3>
+              {supabaseAuthUser ? (
+                <div>
+                  <p><strong>Email:</strong> {supabaseAuthUser.email}</p>
+                  <p><strong>ID:</strong> {supabaseAuthUser.id}</p>
+                  <p><strong>Session active:</strong> {supabaseSession ? 'Oui' : 'Non'}</p>
+                </div>
+              ) : (
+                <p>Aucune session Supabase active</p>
+              )}
             </div>
 
             <Button 

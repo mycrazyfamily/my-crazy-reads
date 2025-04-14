@@ -1,5 +1,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Session } from '@supabase/supabase-js';
 
 type SubscriptionStatus = 'none' | 'active' | 'expired' | 'pending';
 
@@ -29,24 +31,91 @@ type AuthContextType = {
   logout: () => void;
   updateUserSubscription: (subscription: Subscription) => void;
   updateUserProfile: (userData: Partial<User>) => void;
+  supabaseSession: Session | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [supabaseSession, setSupabaseSession] = useState<Session | null>(null);
   
   useEffect(() => {
-    // Check if user exists in localStorage
-    const storedUser = localStorage.getItem('mcf_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem('mcf_user');
+    // Configurer l'écouteur d'événements d'authentification Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event, session);
+        setSupabaseSession(session);
+        
+        // Ne pas appeler d'autres fonctions Supabase directement ici pour éviter les deadlocks
+        // Si une session est active, mettre à jour l'état utilisateur
+        if (session?.user) {
+          const email = session.user.email || '';
+          // Mise à jour de l'état utilisateur local
+          setUser(prev => ({
+            ...(prev || {}),
+            email,
+            isAuthenticated: true
+          }));
+          
+          // Enregistrer l'utilisateur dans localStorage
+          const storedUser = localStorage.getItem('mcf_user');
+          if (storedUser) {
+            try {
+              const parsedUser = JSON.parse(storedUser);
+              localStorage.setItem('mcf_user', JSON.stringify({
+                ...parsedUser,
+                email,
+                isAuthenticated: true
+              }));
+            } catch (error) {
+              console.error('Failed to parse stored user:', error);
+              localStorage.setItem('mcf_user', JSON.stringify({
+                email,
+                isAuthenticated: true
+              }));
+            }
+          } else {
+            localStorage.setItem('mcf_user', JSON.stringify({
+              email,
+              isAuthenticated: true
+            }));
+          }
+        }
       }
-    }
+    );
+    
+    // Vérifier s'il existe une session au chargement
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session);
+      setSupabaseSession(session);
+      
+      if (session?.user) {
+        // Si l'utilisateur est déjà connecté via Supabase
+        const email = session.user.email || '';
+        setUser(prev => ({
+          ...(prev || {}),
+          email,
+          isAuthenticated: true
+        }));
+      } else {
+        // Sinon, vérifier si l'utilisateur existe dans localStorage
+        const storedUser = localStorage.getItem('mcf_user');
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+          } catch (error) {
+            console.error('Failed to parse stored user:', error);
+            localStorage.removeItem('mcf_user');
+          }
+        }
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
   
   const login = (userData: User) => {
@@ -54,8 +123,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('mcf_user', JSON.stringify(userData));
   };
   
-  const logout = () => {
+  const logout = async () => {
+    // Déconnexion de Supabase
+    await supabase.auth.signOut();
+    
+    // Réinitialiser l'état local
     setUser(null);
+    setSupabaseSession(null);
     localStorage.removeItem('mcf_user');
   };
 
@@ -87,7 +161,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         updateUserSubscription,
-        updateUserProfile
+        updateUserProfile,
+        supabaseSession
       }}
     >
       {children}
