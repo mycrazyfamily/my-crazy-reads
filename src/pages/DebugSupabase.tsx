@@ -12,7 +12,7 @@ type UserProfile = {
   id: string;
   first_name: string | null;
   created_at: string;
-  family_id: string;
+  family_id: string | null;
   role: string | null;
 }
 
@@ -72,7 +72,6 @@ const DebugSupabase: React.FC = () => {
     console.log('Initial auth state:', { 
       isAuthenticated, 
       user,
-      // Use the Supabase project URL directly
       supabaseUrl: 'https://rjbmhcoctpwmlqndzybm.supabase.co'
     });
     
@@ -162,7 +161,7 @@ const DebugSupabase: React.FC = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{profile.id}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">{profile.first_name || '-'}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">{profile.role || '-'}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{profile.family_id}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{profile.family_id || '-'}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">{new Date(profile.created_at).toLocaleString()}</td>
                         </tr>
                       ))}
