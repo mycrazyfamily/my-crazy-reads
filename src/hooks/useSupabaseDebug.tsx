@@ -53,6 +53,126 @@ export const useSupabaseDebug = () => {
     }
   };
 
+  const createUserProfile = async (firstName: string, role: string, familyId: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!supabaseAuthUser) {
+        throw new Error('Vous devez être connecté pour créer un profil');
+      }
+      
+      const { data, error: insertError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: supabaseAuthUser.id,
+          first_name: firstName,
+          role: role,
+          family_id: familyId
+        })
+        .select();
+      
+      if (insertError) {
+        console.error('Error creating user profile:', insertError);
+        setError(insertError.message);
+        toast.error(`Erreur lors de la création du profil : ${insertError.message}`);
+        return null;
+      } else {
+        console.log('User profile created successfully:', data);
+        toast.success('Profil créé avec succès');
+        
+        // Rafraîchir la liste des profils
+        await fetchUserProfiles();
+        return data;
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue');
+      toast.error('Une erreur inattendue est survenue');
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateUserProfile = async (id: string, firstName: string, role: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!supabaseAuthUser) {
+        throw new Error('Vous devez être connecté pour modifier un profil');
+      }
+      
+      const { data, error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          first_name: firstName,
+          role: role
+        })
+        .eq('id', id)
+        .select();
+      
+      if (updateError) {
+        console.error('Error updating user profile:', updateError);
+        setError(updateError.message);
+        toast.error(`Erreur lors de la mise à jour du profil : ${updateError.message}`);
+        return null;
+      } else {
+        console.log('User profile updated successfully:', data);
+        toast.success('Profil mis à jour avec succès');
+        
+        // Rafraîchir la liste des profils
+        await fetchUserProfiles();
+        return data;
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue');
+      toast.error('Une erreur inattendue est survenue');
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteUserProfile = async (id: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!supabaseAuthUser) {
+        throw new Error('Vous devez être connecté pour supprimer un profil');
+      }
+      
+      const { error: deleteError } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', id);
+      
+      if (deleteError) {
+        console.error('Error deleting user profile:', deleteError);
+        setError(deleteError.message);
+        toast.error(`Erreur lors de la suppression du profil : ${deleteError.message}`);
+        return false;
+      } else {
+        console.log('User profile deleted successfully');
+        toast.success('Profil supprimé avec succès');
+        
+        // Rafraîchir la liste des profils
+        await fetchUserProfiles();
+        return true;
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue');
+      toast.error('Une erreur inattendue est survenue');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     console.log('Initial auth state:', { 
       isAuthenticated, 
@@ -80,6 +200,9 @@ export const useSupabaseDebug = () => {
     error,
     supabaseAuthUser,
     supabaseSession,
-    fetchUserProfiles
+    fetchUserProfiles,
+    createUserProfile,
+    updateUserProfile,
+    deleteUserProfile
   };
 };
