@@ -36,7 +36,6 @@ const Authentication: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Connexion réelle avec Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -49,11 +48,9 @@ const Authentication: React.FC = () => {
         return;
       }
       
-      // Logs de diagnostic
       console.log('auth.user', await supabase.auth.getUser());
       console.log('auth.session', await supabase.auth.getSession());
       
-      // Mise à jour du contexte Auth avec les données utilisateur
       if (data.user) {
         login({
           email: data.user.email || formData.email,
@@ -62,7 +59,6 @@ const Authentication: React.FC = () => {
         
         toast.success("Connexion réussie !");
         
-        // Redirection vers la page de debug Supabase
         navigate('/debug-supabase');
       }
     } catch (err) {
@@ -86,7 +82,6 @@ const Authentication: React.FC = () => {
     try {
       console.log('[Signup] Tentative d\'inscription avec email:', formData.email);
       
-      // Inscription réelle avec Supabase
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -101,7 +96,6 @@ const Authentication: React.FC = () => {
       if (error) {
         console.error('[Signup] Erreur d\'inscription:', error);
         
-        // Message d'erreur plus clair et détaillé
         let errorMessage = "Erreur lors de l'inscription";
         
         if (error.message) {
@@ -117,11 +111,9 @@ const Authentication: React.FC = () => {
         return;
       }
       
-      // Logs de diagnostic
       console.log('[Signup] auth.user après inscription:', await supabase.auth.getUser());
       console.log('[Signup] auth.session après inscription:', await supabase.auth.getSession());
       
-      // Mise à jour du contexte Auth avec les données utilisateur
       if (data.user) {
         login({
           email: data.user.email || formData.email,
@@ -130,11 +122,8 @@ const Authentication: React.FC = () => {
         
         toast.success("Compte créé avec succès !");
         
-        // Redirection vers la page de debug Supabase
         navigate('/debug-supabase');
       } else {
-        // Si data.user est null mais qu'il n'y a pas d'erreur, c'est probablement
-        // que l'email de confirmation a été envoyé
         toast.success("Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception.");
       }
     } catch (err) {
