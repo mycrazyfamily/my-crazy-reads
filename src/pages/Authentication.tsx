@@ -12,6 +12,20 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+/**
+ * TODO: Important - Authentication Flow
+ * --------------------------------------
+ * The Supabase trigger 'on_auth_user_created' and function 'handle_new_user()' 
+ * are temporarily disabled to debug signup issues.
+ * 
+ * Once signup flow is stable:
+ * 1. Review and fix handle_new_user() function
+ * 2. Re-enable the trigger
+ * 3. Test full authentication flow including user_profiles creation
+ * 
+ * Current modification: family_id is set using gen_random_uuid()
+ */
+
 const Authentication: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
