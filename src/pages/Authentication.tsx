@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -85,6 +84,8 @@ const Authentication: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log('[Signup] Tentative d\'inscription avec email:', formData.email);
+      
       // Inscription réelle avec Supabase
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -94,16 +95,31 @@ const Authentication: React.FC = () => {
         }
       });
       
+      console.log('[Signup] data:', data);
+      console.log('[Signup] error:', error);
+      
       if (error) {
-        console.error('Erreur d\'inscription:', error);
-        toast.error(error.message || "Erreur lors de l'inscription");
+        console.error('[Signup] Erreur d\'inscription:', error);
+        
+        // Message d'erreur plus clair et détaillé
+        let errorMessage = "Erreur lors de l'inscription";
+        
+        if (error.message) {
+          if (error.message.includes("Database error")) {
+            errorMessage = "Erreur de base de données lors de la création du compte. Merci de contacter le support technique.";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+        
+        toast.error(errorMessage);
         setIsLoading(false);
         return;
       }
       
       // Logs de diagnostic
-      console.log('auth.user', await supabase.auth.getUser());
-      console.log('auth.session', await supabase.auth.getSession());
+      console.log('[Signup] auth.user après inscription:', await supabase.auth.getUser());
+      console.log('[Signup] auth.session après inscription:', await supabase.auth.getSession());
       
       // Mise à jour du contexte Auth avec les données utilisateur
       if (data.user) {
@@ -116,10 +132,14 @@ const Authentication: React.FC = () => {
         
         // Redirection vers la page de debug Supabase
         navigate('/debug-supabase');
+      } else {
+        // Si data.user est null mais qu'il n'y a pas d'erreur, c'est probablement
+        // que l'email de confirmation a été envoyé
+        toast.success("Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception.");
       }
     } catch (err) {
-      console.error('Erreur inattendue:', err);
-      toast.error("Une erreur inattendue est survenue");
+      console.error('[Signup] Erreur inattendue:', err);
+      toast.error("Une erreur inattendue est survenue lors de l'inscription");
     } finally {
       setIsLoading(false);
     }
