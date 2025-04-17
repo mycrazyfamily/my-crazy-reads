@@ -14,15 +14,17 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 /**
  * TODO: Important - Authentication Flow
  * --------------------------------------
- * The Supabase trigger 'on_auth_user_created' and function 'handle_new_user()' 
- * are temporarily disabled to debug signup issues.
+ * Le trigger 'on_auth_user_created' et la fonction 'handle_new_user()' sont temporairement 
+ * désactivés pour déboguer les problèmes d'inscription.
  * 
- * Once signup flow is stable:
- * 1. Review and fix handle_new_user() function
- * 2. Re-enable the trigger
- * 3. Test full authentication flow including user_profiles creation
+ * L'inscription est maintenant gérée dans le code client avec la création manuelle 
+ * du profil utilisateur dans la table user_profiles et la génération d'un family_id
+ * via crypto.randomUUID().
  * 
- * Current modification: family_id is set using gen_random_uuid()
+ * Une fois le flux d'inscription stable :
+ * 1. Revoir et corriger la fonction handle_new_user()
+ * 2. Réactiver le trigger
+ * 3. Tester le flux d'authentification complet avec création du profil utilisateur
  */
 
 const Authentication: React.FC = () => {

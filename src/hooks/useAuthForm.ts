@@ -76,7 +76,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     try {
       console.log('[Signup] Tentative d\'inscription avec email:', formData.email);
       
-      const { data, error } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -84,37 +84,41 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         }
       });
       
-      if (error) {
-        console.error('[Signup] Erreur d\'inscription:', error);
-        
-        let errorMessage = "Erreur lors de l'inscription";
-        
-        if (error.message) {
-          if (error.message.includes("Database error")) {
-            errorMessage = "Erreur de base de données lors de la création du compte. Merci de contacter le support technique.";
-          } else {
-            errorMessage = error.message;
-          }
-        }
-        
-        toast.error(errorMessage);
+      if (signUpError) {
+        console.error('[Signup] Erreur d\'inscription:', signUpError);
+        toast.error(`Erreur d'inscription : ${signUpError.message}`);
         return;
       }
       
-      console.log('[Signup] auth.user après inscription:', await supabase.auth.getUser());
-      console.log('[Signup] auth.session après inscription:', await supabase.auth.getSession());
+      const user = signUpData?.user;
       
-      if (data.user) {
-        login({
-          email: data.user.email || formData.email,
-          isAuthenticated: true,
-        });
-        
-        toast.success("Compte créé avec succès !");
-        navigate('/debug-supabase');
-      } else {
-        toast.success("Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception.");
+      if (!user) {
+        toast.error("Utilisateur non récupéré après l'inscription.");
+        return;
       }
+      
+      // Insertion manuelle du profil dans Supabase
+      const { error: insertError } = await supabase.from('user_profiles').insert({
+        id: user.id,
+        created_at: new Date().toISOString(),
+        family_id: crypto.randomUUID(), // Génère un UUID côté client
+      });
+      
+      if (insertError) {
+        console.error('Erreur insertion user_profiles :', insertError);
+        toast.error('Erreur lors de la création du profil utilisateur');
+        return;
+      }
+      
+      console.log('[Signup] Profil utilisateur créé avec succès');
+      
+      login({
+        email: user.email || formData.email,
+        isAuthenticated: true,
+      });
+      
+      toast.success('Compte et profil créés avec succès ✅');
+      navigate('/debug-supabase');
     } catch (err) {
       console.error('[Signup] Erreur inattendue:', err);
       toast.error("Une erreur inattendue est survenue lors de l'inscription");
