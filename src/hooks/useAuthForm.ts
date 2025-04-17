@@ -1,14 +1,25 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
 
-interface AuthFormData {
-  email: string;
-  password: string;
-  confirmPassword?: string;
-}
+const mapSupabaseSignupError = (errorMessage: string) => {
+  const errorMap: { [key: string]: string } = {
+    'User already exists': 'Un compte existe déjà avec cette adresse email.',
+    'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
+    'invalid_email': 'Adresse email invalide. Veuillez vérifier votre saisie.',
+    'rate_limit': 'Trop de tentatives. Veuillez réessayer plus tard.',
+    'Invalid login credentials': 'Les identifiants sont invalides.',
+  };
+
+  for (const [key, message] of Object.entries(errorMap)) {
+    if (errorMessage.includes(key)) return message;
+  }
+
+  return `Une erreur inattendue est survenue : ${errorMessage}`;
+};
 
 export const useAuthForm = (redirectPath = '/espace-famille') => {
   const navigate = useNavigate();
@@ -88,14 +99,15 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       
       if (signUpError) {
         console.error('[Signup] Erreur d\'inscription:', signUpError);
-        toast.error(`Erreur d'inscription : ${signUpError.message}`);
+        const userFriendlyMessage = mapSupabaseSignupError(signUpError.message);
+        toast.error(userFriendlyMessage);
         return;
       }
       
       const user = signUpData?.user;
       
       if (!user) {
-        toast.error("Utilisateur non récupéré après l'inscription.");
+        toast.error("Un problème est survenu lors de la création de votre compte. Veuillez réessayer.");
         return;
       }
       
@@ -107,7 +119,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       
       if (insertError) {
         console.error('Erreur insertion user_profiles :', insertError);
-        toast.error('Erreur lors de la création du profil utilisateur');
+        toast.error('Erreur lors de la création de votre profil. Veuillez contacter le support.');
         return;
       }
       
