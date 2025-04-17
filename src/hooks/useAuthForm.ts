@@ -5,6 +5,13 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
 
+// Define the missing interface
+interface AuthFormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const mapSupabaseSignupError = (errorMessage: string) => {
   const errorMap: { [key: string]: string } = {
     'User already exists': 'Un compte existe déjà avec cette adresse email.',
