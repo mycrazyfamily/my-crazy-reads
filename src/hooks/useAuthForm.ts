@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -84,6 +83,9 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         }
       });
       
+      console.log('[Signup] Data retournées par signUp:', JSON.stringify(signUpData, null, 2));
+      console.log('[Signup] Erreur retournée par signUp:', JSON.stringify(signUpError, null, 2));
+      
       if (signUpError) {
         console.error('[Signup] Erreur d\'inscription:', signUpError);
         toast.error(`Erreur d'inscription : ${signUpError.message}`);
@@ -97,7 +99,6 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
       
-      // Insertion manuelle du profil dans Supabase
       const { error: insertError } = await supabase.from('user_profiles').insert({
         id: user.id,
         created_at: new Date().toISOString(),
