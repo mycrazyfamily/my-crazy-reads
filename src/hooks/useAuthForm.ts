@@ -78,22 +78,36 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     }
   };
 
-  const handleRegister = async (email: string, password: string) => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
     try {
+      if (formData.password !== formData.confirmPassword) {
+        toast.error("Les mots de passe ne correspondent pas.");
+        setIsLoading(false);
+        return;
+      }
+      
       const cleanedEmail = String(formData.email).trim().toLowerCase().replace(/^"+|"+$/g, '');
 
       const { data, error } = await supabase.auth.signUp({
         email: cleanedEmail,
-        password
+        password: formData.password
       });
 
       if (error) {
-        throw error;
+        const errorMessage = mapSupabaseSignupError(error.message);
+        toast.error(errorMessage);
+        setIsLoading(false);
+        return;
       }
 
       const userId = data?.user?.id;
       if (!userId) {
-        throw new Error("L'ID utilisateur est introuvable après inscription.");
+        toast.error("L'ID utilisateur est introuvable après inscription.");
+        setIsLoading(false);
+        return;
       }
 
       const { error: insertError } = await supabase.from('user_profiles').insert([
@@ -106,12 +120,24 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       ]);
 
       if (insertError) {
-        throw insertError;
+        toast.error(`Erreur lors de la création du profil: ${insertError.message}`);
+        setIsLoading(false);
+        return;
       }
 
+      toast.success("Compte créé avec succès! Veuillez vous connecter.");
       console.log('✅ Utilisateur créé avec succès.');
+      
+      setFormData({
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
     } catch (err) {
       console.error('❌ Erreur inscription ou création user profile :', err);
+      toast.error("Une erreur inattendue est survenue lors de l'inscription.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
