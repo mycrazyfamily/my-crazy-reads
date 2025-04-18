@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -90,13 +89,10 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
       
-const rawEmail = formData.email;
-console.log('[Debug] formData.email:', rawEmail);
-
-const cleanedEmail = typeof rawEmail === 'string'
-  ? rawEmail.trim().toLowerCase().replace(/^"+|"+$/g, '')
-  : '';
-console.log('[Debug] cleanedEmail:', cleanedEmail);
+      const rawEmail = formData.email;
+      const cleanedEmail = typeof rawEmail === 'string'
+        ? rawEmail.trim().toLowerCase().replace(/^"+|"+$/g, '')
+        : '';
 
       const { data, error } = await supabase.auth.signUp({
         email: cleanedEmail,
@@ -110,49 +106,16 @@ console.log('[Debug] cleanedEmail:', cleanedEmail);
         return;
       }
 
-// ✅ Attendre que la session soit prête
-const { data: sessionData } = await supabase.auth.getSession();
-if (!sessionData?.session) {
-  toast.error("L'utilisateur n'est pas authentifié.");
-  setIsLoading(false);
-  return;
-}
-
-// Récupération de l'utilisateur connecté
-const { data: userData, error: userError } = await supabase.auth.getUser();
-if (userError || !userData?.user?.id) {
-  toast.error("Impossible de récupérer l'utilisateur.");
-  setIsLoading(false);
-  return;
-}
-
-const userId = userData.user.id;
-
-      const { error: insertError } = await supabase.from('user_profiles').insert([
-        {
-          id: userId,
-          family_id: null,
-          role: 'Parent',
-          created_at: new Date().toISOString()
-        }
-      ]);
-
-      if (insertError) {
-        toast.error(`Erreur lors de la création du profil: ${insertError.message}`);
-        setIsLoading(false);
-        return;
-      }
-
-      navigate('/debug-supabase');
-      toast.success("🎉 Bienvenue ! Votre compte a été créé avec succès.");
-
+      navigate('/check-email');
+      toast.success("Un email de confirmation vous a été envoyé.");
+      
       setFormData({
         email: '',
         password: '',
         confirmPassword: ''
       });
     } catch (err) {
-      console.error('❌ Erreur inscription ou création user profile :', err);
+      console.error('❌ Erreur inscription:', err);
       toast.error("Une erreur inattendue est survenue lors de l'inscription.");
     } finally {
       setIsLoading(false);

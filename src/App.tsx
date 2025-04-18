@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import { Toaster } from "sonner"
@@ -19,6 +18,7 @@ import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import DebugSupabase from './pages/DebugSupabase'
+import CheckEmail from './pages/CheckEmail'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
@@ -29,8 +29,7 @@ import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
 
 function App() {
-  // Définit si on est en mode développement
-  const isDev = process.env.NODE_ENV === 'development' || true; // Forcé à true pour le moment
+  const isDev = process.env.NODE_ENV === 'development' || true;
 
   return (
     <AuthProvider>
@@ -40,6 +39,7 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/authentification" element={<Authentication />} />
+            <Route path="/check-email" element={<CheckEmail />} />
             
             {/* Routes nécessitant l'authentification mais pas d'abonnement */}
             <Route path="/creer-profil-enfant" element={
@@ -111,7 +111,6 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           
-          {/* Afficher le menu développeur sur toutes les pages en mode développement */}
           {isDev && <DevMenu />}
           
           <Toaster 
