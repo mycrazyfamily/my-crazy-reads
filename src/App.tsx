@@ -108,6 +108,9 @@ function App() {
               </SubscriptionGuard>
             } />
             
+            {/* Auth routes */}
+            <Route path="/auth/callback" element={<Callback />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
           
