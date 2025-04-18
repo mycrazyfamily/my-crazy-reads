@@ -80,72 +80,42 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas.");
-      return;
+  const handleRegister = async (email: string, password: string) => {
+  try {
+    const cleanedEmail = email.trim().toLowerCase().replace(/^"+|"+$/g, '');
+
+    const { data, error } = await supabase.auth.signUp({
+      email: cleanedEmail,
+      password
+    });
+
+    if (error) {
+      throw error;
     }
-    
-    setIsLoading(true);
-    
-    try {
-      console.log('[Signup] Tentative d\'inscription avec email:', formData.email);
-      
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: window.location.origin + '/auth/callback',
-        }
-      });
-      
-      console.log('[Signup] Data retournées par signUp:', JSON.stringify(signUpData, null, 2));
-      console.log('[Signup] Erreur retournée par signUp:', JSON.stringify(signUpError, null, 2));
-      
-      if (signUpError) {
-        console.error('[Signup] Erreur d\'inscription:', signUpError);
-        const userFriendlyMessage = mapSupabaseSignupError(signUpError.message);
-        toast.error(userFriendlyMessage);
-        return;
-      }
-      
-      const user = signUpData?.user;
-      
-      if (!user) {
-        toast.error("Un problème est survenu lors de la création de votre compte. Veuillez réessayer.");
-        return;
-      }
-      
-      const { error: insertError } = await supabase.from('user_profiles').insert({
-        id: user.id,
-        created_at: new Date().toISOString(),
-        family_id: crypto.randomUUID(), // Génère un UUID côté client
-      });
-      
-      if (insertError) {
-        console.error('Erreur insertion user_profiles :', insertError);
-        toast.error('Erreur lors de la création de votre profil. Veuillez contacter le support.');
-        return;
-      }
-      
-      console.log('[Signup] Profil utilisateur créé avec succès');
-      
-      login({
-        email: user.email || formData.email,
-        isAuthenticated: true,
-      });
-      
-      toast.success('Compte et profil créés avec succès ✅');
-      navigate('/debug-supabase');
-    } catch (err) {
-      console.error('[Signup] Erreur inattendue:', err);
-      toast.error("Une erreur inattendue est survenue lors de l'inscription");
-    } finally {
-      setIsLoading(false);
+
+    const userId = data?.user?.id;
+    if (!userId) {
+      throw new Error("L'ID utilisateur est introuvable après inscription.");
     }
-  };
+
+    const { error: insertError } = await supabase.from('user_profiles').insert([
+      {
+        id: userId,
+        family_id: null,
+        role: 'Parent',
+        created_at: new Date().toISOString()
+      }
+    ]);
+
+    if (insertError) {
+      throw insertError;
+    }
+
+    console.log('✅ Utilisateur créé avec succès.');
+  } catch (err) {
+    console.error('❌ Erreur inscription ou création user profile :', err);
+  }
+};
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
