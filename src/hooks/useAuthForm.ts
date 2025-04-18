@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -125,9 +126,9 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
 
-      toast.success("Compte créé avec succès! Veuillez vous connecter.");
-      console.log('✅ Utilisateur créé avec succès.');
-      
+      navigate('/debug-supabase');
+      toast.success("🎉 Bienvenue ! Votre compte a été créé avec succès.");
+
       setFormData({
         email: '',
         password: '',
