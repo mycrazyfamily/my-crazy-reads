@@ -601,21 +601,21 @@ export type Database = {
       user_profiles: {
         Row: {
           created_at: string | null
-          family_id: string
+          family_id: string | null
           first_name: string | null
           id: string
           role: string | null
         }
         Insert: {
           created_at?: string | null
-          family_id: string
+          family_id?: string | null
           first_name?: string | null
           id: string
           role?: string | null
         }
         Update: {
           created_at?: string | null
-          family_id?: string
+          family_id?: string | null
           first_name?: string | null
           id?: string
           role?: string | null

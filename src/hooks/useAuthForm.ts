@@ -1,11 +1,9 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
 
-// Define the missing interface
 interface AuthFormData {
   email: string;
   password: string;
@@ -81,41 +79,41 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
   };
 
   const handleRegister = async (email: string, password: string) => {
-  try {
-    const cleanedEmail = email.trim().toLowerCase().replace(/^"+|"+$/g, '');
+    try {
+      const cleanedEmail = String(formData.email).trim().toLowerCase().replace(/^"+|"+$/g, '');
 
-    const { data, error } = await supabase.auth.signUp({
-      email: cleanedEmail,
-      password
-    });
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanedEmail,
+        password
+      });
 
-    if (error) {
-      throw error;
-    }
-
-    const userId = data?.user?.id;
-    if (!userId) {
-      throw new Error("L'ID utilisateur est introuvable après inscription.");
-    }
-
-    const { error: insertError } = await supabase.from('user_profiles').insert([
-      {
-        id: userId,
-        family_id: null,
-        role: 'Parent',
-        created_at: new Date().toISOString()
+      if (error) {
+        throw error;
       }
-    ]);
 
-    if (insertError) {
-      throw insertError;
+      const userId = data?.user?.id;
+      if (!userId) {
+        throw new Error("L'ID utilisateur est introuvable après inscription.");
+      }
+
+      const { error: insertError } = await supabase.from('user_profiles').insert([
+        {
+          id: userId,
+          family_id: null,
+          role: 'Parent',
+          created_at: new Date().toISOString()
+        }
+      ]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      console.log('✅ Utilisateur créé avec succès.');
+    } catch (err) {
+      console.error('❌ Erreur inscription ou création user profile :', err);
     }
-
-    console.log('✅ Utilisateur créé avec succès.');
-  } catch (err) {
-    console.error('❌ Erreur inscription ou création user profile :', err);
-  }
-};
+  };
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
