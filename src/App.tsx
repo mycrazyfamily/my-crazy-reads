@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import { Toaster } from "sonner"
@@ -19,6 +20,7 @@ import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import DebugSupabase from './pages/DebugSupabase'
 import CheckEmail from './pages/CheckEmail'
+import Callback from './pages/auth/Callback'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
