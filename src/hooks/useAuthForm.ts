@@ -110,12 +110,20 @@ console.log('[Debug] cleanedEmail:', cleanedEmail);
         return;
       }
 
-      const userId = data?.user?.id;
-      if (!userId) {
-        toast.error("L'ID utilisateur est introuvable après inscription.");
-        setIsLoading(false);
-        return;
-      }
+     await supabase.auth.getSession(); // Force la récupération du token
+
+const {
+  data: userData,
+  error: userError
+} = await supabase.auth.getUser();
+
+if (userError || !userData?.user?.id) {
+  toast.error("L'utilisateur n'est pas authentifié.");
+  setIsLoading(false);
+  return;
+}
+
+const userId = userData.user.id;
 
       const { error: insertError } = await supabase.from('user_profiles').insert([
         {
