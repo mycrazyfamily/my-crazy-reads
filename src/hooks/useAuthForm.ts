@@ -118,9 +118,10 @@ if (!sessionData?.session) {
   return;
 }
 
-const userId = data?.user?.id;
-if (!userId) {
-  toast.error("L'ID utilisateur est introuvable après inscription.");
+// Récupération de l'utilisateur connecté
+const { data: userData, error: userError } = await supabase.auth.getUser();
+if (userError || !userData?.user?.id) {
+  toast.error("Impossible de récupérer l'utilisateur.");
   setIsLoading(false);
   return;
 }
