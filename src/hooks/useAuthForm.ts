@@ -110,15 +110,17 @@ console.log('[Debug] cleanedEmail:', cleanedEmail);
         return;
       }
 
-     await supabase.auth.getSession(); // Force la récupération du token
-
-const {
-  data: userData,
-  error: userError
-} = await supabase.auth.getUser();
-
-if (userError || !userData?.user?.id) {
+// ✅ Attendre que la session soit prête
+const { data: sessionData } = await supabase.auth.getSession();
+if (!sessionData?.session) {
   toast.error("L'utilisateur n'est pas authentifié.");
+  setIsLoading(false);
+  return;
+}
+
+const userId = data?.user?.id;
+if (!userId) {
+  toast.error("L'ID utilisateur est introuvable après inscription.");
   setIsLoading(false);
   return;
 }
