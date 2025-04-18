@@ -90,7 +90,13 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
       
-      const cleanedEmail = String(formData.email).trim().toLowerCase().replace(/^"+|"+$/g, '');
+const rawEmail = formData.email;
+console.log('[Debug] formData.email:', rawEmail);
+
+const cleanedEmail = typeof rawEmail === 'string'
+  ? rawEmail.trim().toLowerCase().replace(/^"+|"+$/g, '')
+  : '';
+console.log('[Debug] cleanedEmail:', cleanedEmail);
 
       const { data, error } = await supabase.auth.signUp({
         email: cleanedEmail,
