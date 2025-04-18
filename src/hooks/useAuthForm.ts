@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -98,7 +99,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         email: cleanedEmail,
         password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
         }
       });
 
@@ -139,7 +140,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       const { error } = await supabase.auth.signInWithOtp({
         email: formData.email,
         options: {
-          emailRedirectTo: window.location.origin + '/auth/callback',
+          emailRedirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
         }
       });
       
