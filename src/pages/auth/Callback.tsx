@@ -4,14 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import AuthLoader from '@/components/AuthLoader';
 
 const Callback = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "Connexion en cours - MyCrazyFamily";
+    
     const handleCallback = async () => {
       try {
         // Get session after email confirmation
@@ -22,9 +24,7 @@ const Callback = () => {
         }
 
         if (!session?.user) {
-          toast.error("Erreur : utilisateur non connecté.");
-          navigate('/authentification');
-          return;
+          throw new Error("Utilisateur non connecté.");
         }
 
         // Check if user profile already exists
@@ -62,10 +62,10 @@ const Callback = () => {
         navigate('/espace-famille');
       } catch (error) {
         console.error('Error in auth callback:', error);
-        toast.error("Une erreur est survenue lors de la confirmation.");
+        const message = error instanceof Error ? error.message : "Une erreur est survenue. Veuillez réessayer.";
+        setError(message);
+        toast.error(message);
         navigate('/authentification');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -73,16 +73,15 @@ const Callback = () => {
   }, [login, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-mcf-cream">
-      <div className="p-8 rounded-lg bg-white shadow-md text-center">
-        {isLoading ? (
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-mcf-orange" />
-            <p className="text-gray-600">Confirmation de votre compte en cours...</p>
-          </div>
-        ) : null}
-      </div>
-    </div>
+    <>
+      <head>
+        <meta name="description" content="Confirmation de votre compte MyCrazyFamily en cours..." />
+      </head>
+
+      <AuthLoader 
+        message={error || "Connexion en cours..."}
+      />
+    </>
   );
 };
 
