@@ -96,7 +96,10 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
 
       const { data, error } = await supabase.auth.signUp({
         email: cleanedEmail,
-        password: formData.password
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
       });
 
       if (error) {
