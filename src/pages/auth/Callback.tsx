@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import LoadingCallback from '@/components/LoadingCallback';
+import LoadingCallback from '@/components/auth/LoadingCallback';
 
 const Callback = () => {
-  console.log('Callback page component loaded');
+  console.log('Callback page component RECREATED and loaded');
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -18,15 +18,20 @@ const Callback = () => {
     
     const handleCallback = async () => {
       try {
+        console.log('Starting auth callback process');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
+          console.error('Session error:', sessionError);
           throw new Error(sessionError.message);
         }
 
         if (!session?.user) {
+          console.error('No user in session');
           throw new Error("Utilisateur non connecté.");
         }
+
+        console.log('User authenticated:', session.user.email);
 
         // Check if user profile already exists
         const { data: existingProfile } = await supabase
@@ -37,6 +42,7 @@ const Callback = () => {
 
         // Only create profile if it doesn't exist
         if (!existingProfile) {
+          console.log('Creating new user profile');
           const { error: insertError } = await supabase
             .from('user_profiles')
             .insert([
@@ -49,6 +55,7 @@ const Callback = () => {
             ]);
 
           if (insertError) {
+            console.error('Profile creation error:', insertError);
             throw new Error(insertError.message);
           }
         }
@@ -59,6 +66,7 @@ const Callback = () => {
           isAuthenticated: true,
         });
 
+        console.log('Authentication successful - redirecting to family dashboard');
         toast.success("Bienvenue dans l'aventure !");
         navigate('/espace-famille');
       } catch (error) {

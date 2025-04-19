@@ -20,7 +20,10 @@ import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import DebugSupabase from './pages/DebugSupabase'
 import CheckEmail from './pages/CheckEmail'
+
+// Auth Components
 import Callback from './pages/auth/Callback'
+import LoadingCallback from './components/auth/LoadingCallback'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
@@ -30,12 +33,13 @@ import OffrirMessage from './pages/OffrirMessage'
 import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
 
-// Force component imports to ensure they're included in the build
-import LoadingCallback from './components/LoadingCallback'
-
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;
-  console.log('App loaded, LoadingCallback and Callback components available:', !!LoadingCallback, !!Callback);
+  console.log('App loaded, Auth components available:', 
+    !!LoadingCallback, 
+    !!Callback, 
+    'LoadingCallback path:', LoadingCallback ? 'components/auth/LoadingCallback' : 'not found'
+  );
 
   return (
     <AuthProvider>
@@ -46,6 +50,9 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/authentification" element={<Authentication />} />
             <Route path="/check-email" element={<CheckEmail />} />
+            
+            {/* Auth callback route - explicitly defined early in the routes */}
+            <Route path="/auth/callback" element={<Callback />} />
             
             {/* Routes nécessitant l'authentification mais pas d'abonnement */}
             <Route path="/creer-profil-enfant" element={
@@ -114,9 +121,6 @@ function App() {
               </SubscriptionGuard>
             } />
             
-            {/* Auth routes */}
-            <Route path="/auth/callback" element={<Callback />} />
-            
             <Route path="*" element={<NotFound />} />
           </Routes>
           
@@ -134,4 +138,3 @@ function App() {
 }
 
 export default App
-
