@@ -3,6 +3,8 @@ import React from 'react';
 import { Loader2, Mail } from 'lucide-react';
 
 const LoadingCallback = () => {
+  console.log('LoadingCallback component rendered');
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mcf-cream to-mcf-beige">
       <div className="p-8 rounded-xl bg-white/80 backdrop-blur-sm shadow-lg text-center max-w-md mx-4">

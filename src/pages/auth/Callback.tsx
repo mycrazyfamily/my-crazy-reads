@@ -7,12 +7,14 @@ import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/LoadingCallback';
 
 const Callback = () => {
+  console.log('Callback page component loaded');
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "Bienvenue - MyCrazyFamily";
+    console.log('Callback page effect running');
     
     const handleCallback = async () => {
       try {

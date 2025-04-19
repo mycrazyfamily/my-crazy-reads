@@ -30,8 +30,12 @@ import OffrirMessage from './pages/OffrirMessage'
 import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
 
+// Force component imports to ensure they're included in the build
+import LoadingCallback from './components/LoadingCallback'
+
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;
+  console.log('App loaded, LoadingCallback and Callback components available:', !!LoadingCallback, !!Callback);
 
   return (
     <AuthProvider>
