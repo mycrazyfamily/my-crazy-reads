@@ -48,13 +48,13 @@ function App() {
       <Router>
         <div>
           <Routes>
+            {/* Auth callback route - explicitly defined FIRST in the routes for priority */}
+            <Route path="/auth/callback" element={<Callback />} />
+            
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/authentification" element={<Authentication />} />
             <Route path="/check-email" element={<CheckEmail />} />
-            
-            {/* Auth callback route - explicitly defined early in the routes */}
-            <Route path="/auth/callback" element={<Callback />} />
             
             {/* Routes nécessitant l'authentification mais pas d'abonnement */}
             <Route path="/creer-profil-enfant" element={
