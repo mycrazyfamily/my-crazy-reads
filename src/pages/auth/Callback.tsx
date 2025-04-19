@@ -85,7 +85,12 @@ const Callback = () => {
     return null;
   }
 
-  return <LoadingCallback />;
+  return (
+  <>
+    {console.log("✅ Callback.tsx: le composant est bien monté")}
+    <LoadingCallback />
+  </>
+);
 };
 
 export default Callback;
