@@ -23,6 +23,8 @@ import CheckEmail from './pages/CheckEmail'
 
 // Auth Components
 import Callback from './pages/auth/Callback'
+// 🔧 Force Callback.tsx inclusion
+console.log("✅ App.tsx: Callback component forcé dans le bundle");
 import LoadingCallback from './components/auth/LoadingCallback'
 
 // Gift Flow Pages

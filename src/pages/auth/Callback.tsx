@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
 
+console.log('🔥 Callback.tsx: composant importé avec succès');
+
 const Callback = () => {
   console.log('Callback page component RECREATED and loaded');
   const navigate = useNavigate();
@@ -14,20 +16,22 @@ const Callback = () => {
 
   useEffect(() => {
     document.title = "Bienvenue - MyCrazyFamily";
-    console.log('Callback page effect running');
+    console.log('🚀 Callback.tsx: useEffect lancé');
     
     const handleCallback = async () => {
+      console.log('📡 Callback.tsx: Début handleCallback');
       try {
         console.log('Starting auth callback process');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('✅ Session récupérée', session);
         
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          console.error('❌ Erreur session', sessionError.message);
           throw new Error(sessionError.message);
         }
 
         if (!session?.user) {
-          console.error('No user in session');
+          console.warn('⚠️ Pas de user dans la session');
           throw new Error("Utilisateur non connecté.");
         }
 
@@ -39,6 +43,8 @@ const Callback = () => {
           .select()
           .eq('id', session.user.id)
           .single();
+          
+        console.log('📄 Profil existant ?', existingProfile);
 
         // Only create profile if it doesn't exist
         if (!existingProfile) {
@@ -55,9 +61,11 @@ const Callback = () => {
             ]);
 
           if (insertError) {
-            console.error('Profile creation error:', insertError);
+            console.error('❌ Erreur insert user_profiles', insertError.message);
             throw new Error(insertError.message);
           }
+          
+          console.log('✅ Profil utilisateur créé !');
         }
 
         // Update auth context
@@ -87,7 +95,7 @@ const Callback = () => {
 
   return (
   <>
-    {console.log("✅ Callback.tsx: le composant est bien monté")}
+    {console.log("✅ Callback.tsx: le composant est bien monté (return)")}
     <LoadingCallback />
   </>
 );
