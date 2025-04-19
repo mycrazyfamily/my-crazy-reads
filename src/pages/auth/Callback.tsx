@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import AuthLoader from '@/components/AuthLoader';
+import LoadingCallback from '@/components/LoadingCallback';
 
 const Callback = () => {
   const navigate = useNavigate();
@@ -12,11 +12,10 @@ const Callback = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Connexion en cours - MyCrazyFamily";
+    document.title = "Bienvenue - MyCrazyFamily";
     
     const handleCallback = async () => {
       try {
-        // Get session after email confirmation
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -72,17 +71,11 @@ const Callback = () => {
     handleCallback();
   }, [login, navigate]);
 
-  return (
-    <>
-      <head>
-        <meta name="description" content="Confirmation de votre compte MyCrazyFamily en cours..." />
-      </head>
+  if (error) {
+    return null;
+  }
 
-      <AuthLoader 
-        message={error || "Connexion en cours..."}
-      />
-    </>
-  );
+  return <LoadingCallback />;
 };
 
 export default Callback;
