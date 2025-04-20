@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import { Toaster } from "sonner"
@@ -13,6 +12,7 @@ import Callback from './pages/auth/Callback'
 // 🔧 Force Callback.tsx inclusion
 console.log("✅ App.tsx: Callback component forcé dans le bundle");
 import LoadingCallback from './components/auth/LoadingCallback'
+import CallbackDummy from './pages/debug/CallbackDummy'
 
 // Pages
 import Index from './pages/Index'
@@ -50,6 +50,9 @@ function App() {
           <Routes>
             {/* Auth callback route - explicitly defined FIRST in the routes for priority */}
             <Route path="/auth/callback" element={<Callback />} />
+            
+            {/* Debug route for testing Callback component */}
+            <Route path="/debug/callback" element={<CallbackDummy />} />
             
             {/* Public routes */}
             <Route path="/" element={<Index />} />
