@@ -8,6 +8,12 @@ import RouteGuard from './components/RouteGuard'
 import SubscriptionGuard from './components/SubscriptionGuard'
 import DevMenu from './components/DevMenu'
 
+// Auth Components - Import at the TOP LEVEL to ensure bundling
+import Callback from './pages/auth/Callback'
+// 🔧 Force Callback.tsx inclusion
+console.log("✅ App.tsx: Callback component forcé dans le bundle");
+import LoadingCallback from './components/auth/LoadingCallback'
+
 // Pages
 import Index from './pages/Index'
 import NotFound from './pages/NotFound'
@@ -20,12 +26,6 @@ import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import DebugSupabase from './pages/DebugSupabase'
 import CheckEmail from './pages/CheckEmail'
-
-// Auth Components
-import Callback from './pages/auth/Callback'
-// 🔧 Force Callback.tsx inclusion
-console.log("✅ App.tsx: Callback component forcé dans le bundle");
-import LoadingCallback from './components/auth/LoadingCallback'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
