@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
 
 console.log('🔥 Callback.tsx: composant importé avec succès');
+console.log('🛠️ Forcing push of Callback.tsx');
 
 const Callback = () => {
   console.log('Callback page component RECREATED and loaded');
