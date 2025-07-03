@@ -9,7 +9,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
-const ResetPasswordForm: React.FC = () => {
+interface ResetPasswordFormProps {
+  accessToken: string | null;
+  refreshToken: string | null;
+}
+
+const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ accessToken, refreshToken }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +46,24 @@ const ResetPasswordForm: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // First, set the session with the recovery tokens
+      if (!accessToken || !refreshToken) {
+        toast.error("Lien de réinitialisation invalide");
+        return;
+      }
+
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (sessionError) {
+        console.error('Erreur lors de la configuration de la session:', sessionError);
+        toast.error("Lien de réinitialisation invalide ou expiré");
+        return;
+      }
+
+      // Now update the password
       const { error } = await supabase.auth.updateUser({
         password: formData.password
       });

@@ -32,17 +32,7 @@ const Callback = () => {
         
         if (type === 'recovery' && accessToken && refreshToken) {
           console.log('🔑 Password reset callback detected');
-          // Set the session with the tokens from URL
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
-          
-          if (sessionError) {
-            console.error('❌ Erreur session reset:', sessionError.message);
-            throw new Error(sessionError.message);
-          }
-          
+          // Store tokens for the reset form to use, but don't set session yet
           setIsPasswordReset(true);
           return;
         }
@@ -120,7 +110,10 @@ const Callback = () => {
   }
 
   if (isPasswordReset) {
-    return <ResetPasswordForm />;
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('access_token');
+    const refreshToken = urlParams.get('refresh_token');
+    return <ResetPasswordForm accessToken={accessToken} refreshToken={refreshToken} />;
   }
 
   return (
