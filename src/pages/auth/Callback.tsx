@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
+import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 
 console.log('🔥 Callback.tsx: composant importé avec succès');
 console.log('🛠️ Forcing push of Callback.tsx');
@@ -14,6 +15,7 @@ const Callback = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   useEffect(() => {
     document.title = "Bienvenue - MyCrazyFamily";
@@ -22,6 +24,29 @@ const Callback = () => {
     const handleCallback = async () => {
       console.log('📡 Callback.tsx: Début handleCallback');
       try {
+        // Check if this is a password reset callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        const type = urlParams.get('type');
+        
+        if (type === 'recovery' && accessToken && refreshToken) {
+          console.log('🔑 Password reset callback detected');
+          // Set the session with the tokens from URL
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error('❌ Erreur session reset:', sessionError.message);
+            throw new Error(sessionError.message);
+          }
+          
+          setIsPasswordReset(true);
+          return;
+        }
+        
         console.log('Starting auth callback process');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         console.log('✅ Session récupérée', session);
@@ -92,6 +117,10 @@ const Callback = () => {
 
   if (error) {
     return null;
+  }
+
+  if (isPasswordReset) {
+    return <ResetPasswordForm />;
   }
 
   return (
