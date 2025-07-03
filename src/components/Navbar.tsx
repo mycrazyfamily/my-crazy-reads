@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
+import NotificationsBell from './NotificationsBell';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -105,6 +106,7 @@ const Navbar: React.FC = () => {
             
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
+                <NotificationsBell />
                 <Link 
                   to="/espace-famille" 
                   className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-1 px-3 py-2"
@@ -216,6 +218,9 @@ const Navbar: React.FC = () => {
             
             {isAuthenticated ? (
               <>
+                <div className="px-2 py-2">
+                  <NotificationsBell />
+                </div>
                 <Link 
                   to="/espace-famille" 
                   className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-2 px-2 py-2"

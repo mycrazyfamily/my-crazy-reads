@@ -9,6 +9,139 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      book_requests: {
+        Row: {
+          child_id: string | null
+          created_at: string | null
+          created_by: string | null
+          family_id: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          family_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          family_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_requests_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      book_themes: {
+        Row: {
+          book_id: string | null
+          created_at: string | null
+          id: string
+          theme_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          book_id?: string | null
+          created_at?: string | null
+          id?: string
+          theme_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          book_id?: string | null
+          created_at?: string | null
+          id?: string
+          theme_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_themes_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_themes_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          status: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          status?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          status?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           created_at: string | null
@@ -398,60 +531,171 @@ export type Database = {
       comforters: {
         Row: {
           created_at: string | null
+          created_by: string | null
           emoji: string | null
           id: string
+          is_active: boolean | null
           label: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       discoveries: {
         Row: {
           created_at: string | null
+          created_by: string | null
           emoji: string | null
           id: string
+          is_active: boolean | null
           label: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label?: string
+          updated_at?: string | null
         }
         Relationships: []
+      }
+      drafts: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          data: Json
+          id: string
+          is_visible: boolean | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          data: Json
+          id?: string
+          is_visible?: boolean | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          data?: Json
+          id?: string
+          is_visible?: boolean | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          child_id: string | null
+          created_at: string | null
+          created_by: string | null
+          date: string
+          description: string | null
+          emoji: string | null
+          id: string
+          is_visible: boolean | null
+          label: string
+          updated_at: string | null
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label: string
+          updated_at?: string | null
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       families: {
         Row: {
           created_at: string | null
+          created_by: string | null
           id: string
+          is_active: boolean | null
           name: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
+          is_active?: boolean | null
           name: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -500,24 +744,135 @@ export type Database = {
           },
         ]
       }
+      gift_orders: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          book_id: string | null
+          created_at: string | null
+          created_by: string | null
+          delivered_as: string | null
+          family_code_used: string | null
+          id: string
+          message: string | null
+          recipient_email: string
+          sent_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          book_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          delivered_as?: string | null
+          family_code_used?: string | null
+          id?: string
+          message?: string | null
+          recipient_email: string
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          book_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          delivered_as?: string | null
+          family_code_used?: string | null
+          id?: string
+          message?: string | null
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_orders_activated_by_fkey"
+            columns: ["activated_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_orders_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_orders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       passions: {
         Row: {
           created_at: string | null
+          created_by: string | null
           emoji: string | null
           id: string
           label: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
           label: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
           label?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -556,45 +911,120 @@ export type Database = {
           },
         ]
       }
-      traits: {
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          start_date: string
+          status: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          start_date: string
+          status?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          start_date?: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      themes: {
         Row: {
           created_at: string | null
           emoji: string | null
           id: string
           label: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           emoji?: string | null
           id?: string
           label: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           emoji?: string | null
           id?: string
           label?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      traits: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          emoji: string | null
+          id: string
+          label: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          emoji?: string | null
+          id?: string
+          label: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          emoji?: string | null
+          id?: string
+          label?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       universes: {
         Row: {
           created_at: string | null
+          created_by: string | null
           emoji: string | null
           id: string
+          is_active: boolean | null
           label: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           emoji?: string | null
           id?: string
+          is_active?: boolean | null
           label?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
