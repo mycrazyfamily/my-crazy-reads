@@ -15,6 +15,7 @@ interface LoginFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onMagicLink: (e: React.FormEvent) => void;
+  onResetPassword: (e: React.FormEvent) => void;
   onSkip: () => void;
 }
 
@@ -24,6 +25,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onInputChange,
   onSubmit,
   onMagicLink,
+  onResetPassword,
   onSkip
 }) => {
   return (
@@ -53,7 +55,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Mot de passe</Label>
+              <button
+                type="button"
+                onClick={onResetPassword}
+                className="text-sm text-mcf-orange hover:text-mcf-orange-dark transition-colors"
+                disabled={isLoading}
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input 

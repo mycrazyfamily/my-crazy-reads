@@ -160,6 +160,36 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error("Veuillez saisir une adresse email valide.");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
+      });
+      
+      if (error) {
+        console.error('Erreur de réinitialisation:', error);
+        toast.error(error.message || "Erreur lors de l'envoi du lien de réinitialisation");
+        return;
+      }
+      
+      toast.success("Un lien de réinitialisation a été envoyé à votre adresse email.");
+    } catch (err) {
+      console.error('Erreur inattendue:', err);
+      toast.error("Une erreur inattendue est survenue");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSkip = () => {
     login({
       email: 'guest',
@@ -179,6 +209,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     handleLogin,
     handleRegister,
     handleMagicLink,
+    handleResetPassword,
     handleSkip
   };
 };

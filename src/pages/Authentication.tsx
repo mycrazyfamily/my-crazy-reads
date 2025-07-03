@@ -38,6 +38,7 @@ const Authentication: React.FC = () => {
     handleLogin,
     handleRegister,
     handleMagicLink,
+    handleResetPassword,
     handleSkip
   } = useAuthForm();
 
@@ -86,6 +87,7 @@ const Authentication: React.FC = () => {
                   onInputChange={handleInputChange}
                   onSubmit={handleLogin}
                   onMagicLink={handleMagicLink}
+                  onResetPassword={handleResetPassword}
                   onSkip={handleSkip}
                 />
               </TabsContent>
