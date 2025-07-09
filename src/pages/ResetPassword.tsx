@@ -91,28 +91,48 @@ const ResetPassword = () => {
         return;
       }
 
-      // Get the updated session after password change
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Erreur lors de la récupération de la session:', sessionError);
-        toast.error("Erreur lors de la connexion automatique");
-        navigate('/authentification');
-        return;
-      }
-      
-      if (session?.user) {
-        // Update auth context with the new session
-        login({
-          email: session.user.email || '',
-          isAuthenticated: true,
+      // Wait for the auth state to update before proceeding
+      const waitForSession = new Promise<boolean>((resolve) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+            if (session?.user) {
+              // Update auth context with the new session
+              login({
+                email: session.user.email || '',
+                isAuthenticated: true,
+              });
+              subscription.unsubscribe();
+              resolve(true);
+            }
+          }
         });
-        
+
+        // Fallback timeout after 3 seconds
+        setTimeout(() => {
+          subscription.unsubscribe();
+          resolve(false);
+        }, 3000);
+      });
+
+      const sessionEstablished = await waitForSession;
+
+      if (sessionEstablished) {
         toast.success("Mot de passe mis à jour avec succès ! Vous êtes maintenant connecté.");
         navigate('/espace-famille');
       } else {
-        toast.error("Erreur lors de la connexion automatique");
-        navigate('/authentification');
+        // Fallback: try to get the session directly
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          login({
+            email: session.user.email || '',
+            isAuthenticated: true,
+          });
+          toast.success("Mot de passe mis à jour avec succès ! Vous êtes maintenant connecté.");
+          navigate('/espace-famille');
+        } else {
+          toast.error("Mot de passe mis à jour mais connexion automatique échouée. Veuillez vous reconnecter.");
+          navigate('/authentification');
+        }
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
