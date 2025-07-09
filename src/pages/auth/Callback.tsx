@@ -25,12 +25,25 @@ const Callback = () => {
       console.log('📡 Callback.tsx: Début handleCallback');
       try {
         // Check if this is a password reset callback
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get('access_token');
-        const refreshToken = urlParams.get('refresh_token');
-        const type = urlParams.get('type');
+        console.log('🔍 Full URL:', window.location.href);
+        console.log('🔍 URL search:', window.location.search);
+        console.log('🔍 URL hash:', window.location.hash);
         
-        console.log('🔍 URL params detected:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+        // Check both query string and hash fragment for parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        let accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+        let refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+        let type = urlParams.get('type') || hashParams.get('type');
+        
+        console.log('🔍 URL params detected:', { 
+          type, 
+          accessToken: accessToken ? 'present' : 'missing',
+          refreshToken: refreshToken ? 'present' : 'missing',
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken 
+        });
         
         if (type === 'recovery' && accessToken && refreshToken) {
           console.log('🔑 Password reset callback detected - showing reset form');
@@ -114,8 +127,9 @@ const Callback = () => {
 
   if (isPasswordReset) {
     const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
-    const refreshToken = urlParams.get('refresh_token');
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+    const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
     return <ResetPasswordForm accessToken={accessToken} refreshToken={refreshToken} />;
   }
 
