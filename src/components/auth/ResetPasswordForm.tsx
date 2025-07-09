@@ -15,6 +15,8 @@ interface ResetPasswordFormProps {
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ accessToken, refreshToken }) => {
+  console.log('🔐 ResetPasswordForm: Component rendered with tokens:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+  
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);

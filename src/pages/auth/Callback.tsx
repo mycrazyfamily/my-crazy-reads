@@ -30,9 +30,12 @@ const Callback = () => {
         const refreshToken = urlParams.get('refresh_token');
         const type = urlParams.get('type');
         
+        console.log('🔍 URL params detected:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+        
         if (type === 'recovery' && accessToken && refreshToken) {
-          console.log('🔑 Password reset callback detected');
-          // Store tokens for the reset form to use, but don't set session yet
+          console.log('🔑 Password reset callback detected - showing reset form');
+          // Important: Don't call getSession() or setSession() here
+          // This would automatically log the user in
           setIsPasswordReset(true);
           return;
         }
