@@ -16,8 +16,17 @@ const Callback = () => {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isPasswordReset, setIsPasswordReset] = useState(false);
+  const [resetTokens, setResetTokens] = useState<{ accessToken: string | null; refreshToken: string | null }>({
+    accessToken: null,
+    refreshToken: null
+  });
 
   useEffect(() => {
+    // Don't run auth logic if we already detected a password reset
+    if (isPasswordReset) {
+      return;
+    }
+    
     document.title = "Bienvenue - MyCrazyFamily";
     console.log('🚀 Callback.tsx: useEffect lancé');
     
@@ -47,8 +56,8 @@ const Callback = () => {
         
         if (type === 'recovery' && accessToken && refreshToken) {
           console.log('🔑 Password reset callback detected - showing reset form');
-          // Important: Don't call getSession() or setSession() here
-          // This would automatically log the user in
+          // Store tokens to prevent losing them when URL changes
+          setResetTokens({ accessToken, refreshToken });
           setIsPasswordReset(true);
           return;
         }
@@ -119,18 +128,14 @@ const Callback = () => {
     };
 
     handleCallback();
-  }, [login, navigate]);
+  }, [login, navigate, isPasswordReset]);
 
   if (error) {
     return null;
   }
 
   if (isPasswordReset) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
-    const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
-    return <ResetPasswordForm accessToken={accessToken} refreshToken={refreshToken} />;
+    return <ResetPasswordForm accessToken={resetTokens.accessToken} refreshToken={resetTokens.refreshToken} />;
   }
 
   return (
