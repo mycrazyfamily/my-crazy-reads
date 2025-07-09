@@ -91,18 +91,29 @@ const ResetPassword = () => {
         return;
       }
 
-      // Get the current session to update auth context
-      const { data: { session } } = await supabase.auth.getSession();
+      // Get the updated session after password change
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Erreur lors de la récupération de la session:', sessionError);
+        toast.error("Erreur lors de la connexion automatique");
+        navigate('/authentification');
+        return;
+      }
       
       if (session?.user) {
+        // Update auth context with the new session
         login({
           email: session.user.email || '',
           isAuthenticated: true,
         });
+        
+        toast.success("Mot de passe mis à jour avec succès ! Vous êtes maintenant connecté.");
+        navigate('/espace-famille');
+      } else {
+        toast.error("Erreur lors de la connexion automatique");
+        navigate('/authentification');
       }
-
-      toast.success("Mot de passe mis à jour avec succès !");
-      navigate('/espace-famille');
     } catch (err) {
       console.error('Erreur inattendue:', err);
       toast.error("Une erreur inattendue est survenue");
