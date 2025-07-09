@@ -172,7 +172,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-        redirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       
       if (error) {

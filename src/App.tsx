@@ -27,6 +27,7 @@ import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import DebugSupabase from './pages/DebugSupabase'
 import CheckEmail from './pages/CheckEmail'
+import ResetPassword from './pages/ResetPassword'
 
 // Gift Flow Pages
 import OffrirLivre from './pages/OffrirLivre'
@@ -59,6 +60,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/authentification" element={<Authentication />} />
             <Route path="/check-email" element={<CheckEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             {/* Routes nécessitant l'authentification mais pas d'abonnement */}
             <Route path="/creer-profil-enfant" element={
