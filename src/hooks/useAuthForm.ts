@@ -69,7 +69,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         });
         
         toast.success("Connexion réussie !");
-        navigate('/debug-supabase');
+        navigate('/espace-famille');
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -164,7 +164,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       isTemporary: true
     });
     toast.success("Compte temporaire créé. Vous pourrez le sauvegarder plus tard.");
-    navigate('/debug-supabase');
+    navigate('/espace-famille');
   };
 
   return {
