@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ChevronUp, ChevronDown, Database } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 type DevMenuProps = {
   visible?: boolean;
@@ -147,15 +147,6 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
               7. Résumé
             </Button>
             
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => goToPage('/debug-supabase', 'Debug Supabase')} 
-              className="col-span-2 bg-blue-100 hover:bg-blue-200 flex items-center gap-2"
-            >
-              <Database size={16} />
-              Test Supabase
-            </Button>
           </CardContent>
         </Card>
       )}
