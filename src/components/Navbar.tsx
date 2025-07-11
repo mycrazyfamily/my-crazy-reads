@@ -114,47 +114,6 @@ const Navbar: React.FC = () => {
                   <User size={18} />
                   Espace famille
                 </Link>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="border-2 border-mcf-amber rounded-full p-0.5 hover:border-mcf-orange transition-colors">
-                      <Avatar className="h-8 w-8">
-                        {user?.avatarUrl ? (
-                          <AvatarImage src={user.avatarUrl} alt="Photo de profil" />
-                        ) : (
-                          <AvatarFallback className="bg-mcf-amber text-mcf-orange-dark">
-                            {user?.firstName?.charAt(0) ?? user?.email?.charAt(0).toUpperCase() ?? "👨‍👩‍👧‍👦"}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>
-                      {user?.firstName ?? user?.email ?? "Ma famille"}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/espace-famille" className="flex items-center gap-2 cursor-pointer">
-                        <User size={16} />
-                        <span>Espace famille</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    {hasActiveSubscription && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/abonnement" className="flex items-center gap-2 cursor-pointer">
-                          <Bell size={16} />
-                          <span>Gérer mon abonnement</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-red-500">
-                      <LogOut size={16} />
-                      <span>Déconnexion</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             ) : (
               <>

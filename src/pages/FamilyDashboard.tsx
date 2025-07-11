@@ -68,11 +68,46 @@ const FamilyDashboard: React.FC = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-20 max-w-5xl">
-        <div className="flex items-center gap-3 mb-8 mt-10">
-          <div className="bg-mcf-amber/20 p-2.5 rounded-full">
-            <Home className="h-7 w-7 text-mcf-orange" />
+        <div className="flex items-center justify-between mb-8 mt-10">
+          <div className="flex items-center gap-3">
+            <div className="bg-mcf-amber/20 p-2.5 rounded-full">
+              <Home className="h-7 w-7 text-mcf-orange" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark">Mon Espace Famille</h1>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark">Mon Espace Famille</h1>
+          
+          {/* Menu Paramètres */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80">
+              <SheetHeader>
+                <SheetTitle className="text-mcf-orange-dark">Paramètres</SheetTitle>
+                <SheetDescription>
+                  Gérez votre compte et vos préférences
+                </SheetDescription>
+              </SheetHeader>
+              
+              <div className="mt-6 space-y-4">
+                <div className="p-4 bg-mcf-cream/50 rounded-lg">
+                  <div className="text-sm font-medium text-mcf-orange-dark mb-1">Adresse email</div>
+                  <div className="text-sm text-gray-600 select-text">{user?.email || "Ma famille"}</div>
+                </div>
+                
+                <Button 
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="w-full justify-start gap-2 border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
         
         <div className="grid gap-8">
