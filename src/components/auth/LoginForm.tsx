@@ -14,7 +14,6 @@ interface LoginFormProps {
   isLoading: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onMagicLink: (e: React.FormEvent) => void;
   onResetPassword: (e: React.FormEvent) => void;
   onSkip: () => void;
 }
@@ -24,7 +23,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   isLoading,
   onInputChange,
   onSubmit,
-  onMagicLink,
   onResetPassword,
   onSkip
 }) => {
@@ -91,25 +89,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </form>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
-        <div className="relative w-full">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-gray-500">Ou</span>
-          </div>
-        </div>
-        
-        <Button 
-          onClick={onMagicLink} 
-          variant="outline" 
-          className="w-full"
-          disabled={isLoading}
-        >
-          Connexion par lien magique
-          <Mail className="ml-2 h-4 w-4" />
-        </Button>
-        
         <Button 
           onClick={onSkip} 
           variant="ghost" 

@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-import { MagicLinkSent } from '@/components/auth/MagicLinkSent';
+
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 /**
@@ -32,12 +32,9 @@ const Authentication: React.FC = () => {
   const {
     formData,
     isLoading,
-    magicLinkSent,
-    setMagicLinkSent,
     handleInputChange,
     handleLogin,
     handleRegister,
-    handleMagicLink,
     handleResetPassword,
     handleSkip
   } = useAuthForm();
@@ -67,44 +64,35 @@ const Authentication: React.FC = () => {
           Connectez-vous ou créez un compte pour accéder à votre espace famille
         </p>
         
-        {magicLinkSent ? (
-          <MagicLinkSent 
-            email={formData.email}
-            onBack={() => setMagicLinkSent(false)}
-          />
-        ) : (
-          <div className="mx-auto max-w-md">
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="login">Se connecter</TabsTrigger>
-                <TabsTrigger value="register">Créer un compte</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <LoginForm
-                  formData={formData}
-                  isLoading={isLoading}
-                  onInputChange={handleInputChange}
-                  onSubmit={handleLogin}
-                  onMagicLink={handleMagicLink}
-                  onResetPassword={handleResetPassword}
-                  onSkip={handleSkip}
-                />
-              </TabsContent>
-              
-              <TabsContent value="register">
-                <RegisterForm
-                  formData={formData}
-                  isLoading={isLoading}
-                  onInputChange={handleInputChange}
-                  onSubmit={handleRegister}
-                  onMagicLink={handleMagicLink}
-                  onSkip={handleSkip}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
+        <div className="mx-auto max-w-md">
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login">Se connecter</TabsTrigger>
+              <TabsTrigger value="register">Créer un compte</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <LoginForm
+                formData={formData}
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onSubmit={handleLogin}
+                onResetPassword={handleResetPassword}
+                onSkip={handleSkip}
+              />
+            </TabsContent>
+            
+            <TabsContent value="register">
+              <RegisterForm
+                formData={formData}
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onSubmit={handleRegister}
+                onSkip={handleSkip}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
       </main>
       
       <Footer />

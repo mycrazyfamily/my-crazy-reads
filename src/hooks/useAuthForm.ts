@@ -36,7 +36,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     password: '',
     confirmPassword: ''
   });
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -126,39 +126,6 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     }
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-      toast.error("Veuillez saisir une adresse email valide.");
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: {
-          emailRedirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
-        }
-      });
-      
-      if (error) {
-        console.error('Erreur d\'envoi du lien magique:', error);
-        toast.error(error.message || "Erreur lors de l'envoi du lien magique");
-        return;
-      }
-      
-      setMagicLinkSent(true);
-      toast.success("Un lien de connexion a été envoyé à votre adresse email.");
-    } catch (err) {
-      console.error('Erreur inattendue:', err);
-      toast.error("Une erreur inattendue est survenue");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,12 +170,9 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
   return {
     formData,
     isLoading,
-    magicLinkSent,
-    setMagicLinkSent,
     handleInputChange,
     handleLogin,
     handleRegister,
-    handleMagicLink,
     handleResetPassword,
     handleSkip
   };
