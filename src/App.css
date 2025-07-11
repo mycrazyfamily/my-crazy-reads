@@ -208,12 +208,7 @@ button, .button {
   opacity: 1 !important;
 }
 
-/* Classe de débogage temporaire */
-.debug {
-  min-height: 100vh;
-  border: 1px solid red;
-  background-color: rgba(255, 0, 0, 0.05);
-}
+/* Code de debug supprimé */
 
 /* Styles spécifiques pour les composants Switch */
 .data-\[state\=checked\]\:bg-mcf-orange[data-state="checked"] {
