@@ -159,7 +159,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
 
   const handleSkip = () => {
     login({
-      email: 'guest',
+      email: 'Ma famille',
       isAuthenticated: true,
       isTemporary: true
     });

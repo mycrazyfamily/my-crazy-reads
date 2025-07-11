@@ -123,7 +123,7 @@ const Navbar: React.FC = () => {
                           <AvatarImage src={user.avatarUrl} alt="Photo de profil" />
                         ) : (
                           <AvatarFallback className="bg-mcf-amber text-mcf-orange-dark">
-                            {user?.firstName?.charAt(0) ?? user?.email?.charAt(0).toUpperCase() ?? "U"}
+                            {user?.firstName?.charAt(0) ?? user?.email?.charAt(0).toUpperCase() ?? "👨‍👩‍👧‍👦"}
                           </AvatarFallback>
                         )}
                       </Avatar>
@@ -131,7 +131,7 @@ const Navbar: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>
-                      {user?.firstName ?? user?.email ?? "Mon profil"}
+                      {user?.firstName ?? user?.email ?? "Ma famille"}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
