@@ -116,8 +116,13 @@ const Callback = () => {
         });
 
         console.log('Authentication successful - redirecting to family dashboard');
-        toast.success("Bienvenue dans l'aventure !");
-        navigate('/espace-famille');
+        toast.success("Connexion réussie ✅");
+        
+        // Petite delay pour s'assurer que l'état d'auth est mis à jour
+        setTimeout(() => {
+          console.log('🚀 Redirection vers /espace-famille');
+          navigate('/espace-famille');
+        }, 100);
       } catch (error) {
         console.error('Error in auth callback:', error);
         const message = error instanceof Error ? error.message : "Une erreur est survenue. Veuillez réessayer.";

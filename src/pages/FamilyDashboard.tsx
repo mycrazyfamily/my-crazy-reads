@@ -63,6 +63,7 @@ const FamilyDashboard: React.FC = () => {
     navigate('/');
   };
   
+  console.log('🏠 FamilyDashboard: Composant chargé pour user:', user);
   return (
     <div className="min-h-screen bg-gradient-to-b from-mcf-cream via-mcf-cream to-white">
       <Navbar />

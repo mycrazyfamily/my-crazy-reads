@@ -30,6 +30,7 @@ const RouteGuard = ({
   
   // Protection de base pour l'authentification
   if (requireAuth && !isAuthenticated && !bypassDevMode) {
+    console.log('🔒 RouteGuard: Redirection vers auth - isAuthenticated:', isAuthenticated, 'user:', user);
     toast.info("Vous devez être connecté pour accéder à cette page");
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
