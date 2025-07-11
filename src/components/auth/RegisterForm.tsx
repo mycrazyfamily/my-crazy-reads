@@ -15,15 +15,13 @@ interface RegisterFormProps {
   isLoading: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onSkip: () => void;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   formData,
   isLoading,
   onInputChange,
-  onSubmit,
-  onSkip
+  onSubmit
 }) => {
   return (
     <Card>
@@ -92,15 +90,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col space-y-4">
-        <Button 
-          onClick={onSkip} 
-          variant="ghost" 
-          className="w-full text-gray-500"
-        >
-          Continuer sans compte
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

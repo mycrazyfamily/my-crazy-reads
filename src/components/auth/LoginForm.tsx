@@ -15,7 +15,6 @@ interface LoginFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onResetPassword: (e: React.FormEvent) => void;
-  onSkip: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -23,8 +22,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   isLoading,
   onInputChange,
   onSubmit,
-  onResetPassword,
-  onSkip
+  onResetPassword
 }) => {
   return (
     <Card>
@@ -88,15 +86,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col space-y-4">
-        <Button 
-          onClick={onSkip} 
-          variant="ghost" 
-          className="w-full text-gray-500"
-        >
-          Continuer sans compte
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
