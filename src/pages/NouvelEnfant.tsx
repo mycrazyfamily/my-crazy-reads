@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import CreateChildProfile from './CreateChildProfile';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
+import CreateChildProfile from './CreateChildProfile';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const NouvelEnfant = () => {
+const NouvelEnfant: React.FC = () => {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
