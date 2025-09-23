@@ -154,10 +154,10 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     return () => clearTimeout(timeoutId);
   }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor]);
 
-  const handleNextStep = () => {
-    const isValid = form.formState.isValid;
-    
-    if (isValid) {
+  const handleNextStep = async () => {
+    // Ensure latest values are validated before moving to next step
+    const isValidNow = await form.trigger();
+    if (isValidNow) {
       setFormStep(prev => prev + 1);
       toast.success("Section complétée !");
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -165,7 +165,6 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       toast.error("Veuillez compléter tous les champs requis");
     }
   };
-
   const handlePreviousStep = () => {
     setFormStep(prev => prev - 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });

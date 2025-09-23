@@ -523,7 +523,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                         ? "border-mcf-orange bg-mcf-amber/10"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
-                    onClick={() => field.onChange(option.value)}
+                    onClick={() => form.setValue("glasses", option.value as boolean, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
                   >
                     {option.label}
                   </div>
