@@ -1,22 +1,16 @@
-
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CreateChildProfile from './CreateChildProfile';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const OffrirProfilEnfant = () => {
-  const location = useLocation();
+const NouvelEnfant = () => {
   const navigate = useNavigate();
-  const familyCode = location.state?.familyCode;
-  const targetStep = location.state?.targetStep;
 
   const handleGoBack = () => {
-    navigate('/offrir-livre');
+    navigate('/espace-famille');
   };
-
-  console.log("OffrirProfilEnfant - targetStep:", targetStep);
 
   return (
     <div>
@@ -31,13 +25,12 @@ const OffrirProfilEnfant = () => {
         </Button>
       </div>
       <CreateChildProfile 
-        isGiftMode={true} 
-        familyCode={familyCode} 
-        nextPath="/offrir/theme"
+        isGiftMode={false} 
+        nextPath="/start-adventure"
         initialStep={0}
       />
     </div>
   );
 };
 
-export default OffrirProfilEnfant;
+export default NouvelEnfant;

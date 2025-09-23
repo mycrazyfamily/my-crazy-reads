@@ -19,6 +19,7 @@ import CallbackDummy from './pages/debug/CallbackDummy'
 import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import CreateChildProfile from './pages/CreateChildProfile'
+import NouvelEnfant from './pages/NouvelEnfant'
 import StartAdventure from './pages/StartAdventure'
 import FinishSubscription from './pages/FinishSubscription'
 import ConfirmationPage from './pages/ConfirmationPage'
@@ -65,7 +66,7 @@ function App() {
             {/* Routes nécessitant l'authentification mais pas d'abonnement */}
             <Route path="/creer-profil-enfant" element={
               <RouteGuard bypassProtection={isDev}>
-                <CreateChildProfile />
+                <NouvelEnfant />
               </RouteGuard>
             } />
             <Route path="/abonnement" element={
