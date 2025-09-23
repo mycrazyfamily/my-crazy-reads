@@ -511,22 +511,24 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
               </FormLabel>
-              <FormControl>
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    checked={field.value || false}
-                    onCheckedChange={field.onChange}
-                    id="glasses-switch"
-                    className="data-[state=checked]:bg-mcf-orange"
-                  />
-                  <label 
-                    htmlFor="glasses-switch" 
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {[
+                  { value: true, label: "Oui" },
+                  { value: false, label: "Non" },
+                ].map((option) => (
+                  <div
+                    key={option.value.toString()}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                      field.value === option.value
+                        ? "border-mcf-orange bg-mcf-amber/10"
+                        : "border-gray-200 hover:border-mcf-amber"
+                    }`}
+                    onClick={() => field.onChange(option.value)}
                   >
-                    {field.value ? 'Oui' : 'Non'}
-                  </label>
-                </div>
-              </FormControl>
+                    {option.label}
+                  </div>
+                ))}
+              </div>
               <FormDescription>
                 Sélectionnez si l'enfant porte des lunettes.
               </FormDescription>
