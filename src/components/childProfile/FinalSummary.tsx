@@ -37,7 +37,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-mcf-orange-dark mb-2">
+        <h2 className="text-3xl font-bold text-mcf-primary-dark mb-2">
           {isGiftMode 
             ? "Parfait ! Le profil est prêt ✨"
             : "C'est prêt ! Voici le profil de votre enfant ✨"
@@ -54,7 +54,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
       <div className="space-y-6">
         <SummaryBlock 
           title="L'enfant"
-          icon={<Baby className="h-6 w-6 text-mcf-orange" />}
+          icon={<Baby className="h-6 w-6 text-mcf-primary" />}
           onEdit={() => handleGoToStep(0)}
         >
           <BasicInfoSummary data={formData} />
@@ -62,7 +62,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
 
         <SummaryBlock 
           title="Personnalité & passions" 
-          icon={<Brain className="h-6 w-6 text-mcf-orange" />}
+          icon={<Brain className="h-6 w-6 text-mcf-primary" />}
           onEdit={() => handleGoToStep(1)}
         >
           <PersonalitySummary data={formData} />
@@ -70,7 +70,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
 
         <SummaryBlock 
           title="Famille & entourage" 
-          icon={<Users className="h-6 w-6 text-mcf-orange" />}
+          icon={<Users className="h-6 w-6 text-mcf-primary" />}
           onEdit={() => handleGoToStep(2)}
         >
           <FamilySummary data={formData} />
@@ -79,7 +79,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {formData.pets && formData.pets.hasPets && (
           <SummaryBlock 
             title="Animaux de compagnie" 
-            icon={<Cat className="h-6 w-6 text-mcf-orange" />}
+            icon={<Cat className="h-6 w-6 text-mcf-primary" />}
             onEdit={() => handleGoToStep(3)}
           >
             <PetsSummary data={formData} />
@@ -89,7 +89,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {formData.toys && formData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
-            icon={<Sparkles className="h-6 w-6 text-mcf-orange" />}
+            icon={<Sparkles className="h-6 w-6 text-mcf-primary" />}
             onEdit={() => handleGoToStep(4)}
           >
             <ToysSummary data={formData} />
@@ -98,7 +98,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
 
         <SummaryBlock 
           title="Univers préféré & culture" 
-          icon={<Globe className="h-6 w-6 text-mcf-orange" />}
+          icon={<Globe className="h-6 w-6 text-mcf-primary" />}
           onEdit={() => handleGoToStep(5)}
         >
           <WorldsSummary data={formData} />
@@ -109,7 +109,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         <Button 
           type="submit"
           onClick={handleStartAdventure}
-          className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2"
+          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2"
         >
           {isGiftMode ? <Gift className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
           {nextButtonText || (isGiftMode 

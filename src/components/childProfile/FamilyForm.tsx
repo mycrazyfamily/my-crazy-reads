@@ -148,7 +148,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
         <span className="text-2xl">👨‍👩‍👦‍👦</span> Famille et entourage <span className="text-2xl">💞</span>
       </h2>
       
@@ -188,7 +188,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               <Button 
                 type="button" 
                 onClick={handleFamilySectionContinue}
-                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
                 {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches ! 🧡" : "Continuer sans ajouter de proches →"}
               </Button>

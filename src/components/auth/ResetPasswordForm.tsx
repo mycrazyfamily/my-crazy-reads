@@ -159,7 +159,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ accessToken, refr
             
             <Button 
               type="submit" 
-              className="w-full bg-mcf-orange hover:bg-mcf-orange-dark"
+              className="w-full bg-mcf-primary hover:bg-mcf-primary-dark"
               disabled={isLoading}
             >
               {isLoading ? "Mise à jour..." : "Mettre à jour le mot de passe"}

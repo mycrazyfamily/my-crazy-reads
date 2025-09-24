@@ -57,7 +57,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               <button
                 type="button"
                 onClick={onResetPassword}
-                className="text-sm text-mcf-orange hover:text-mcf-orange-dark transition-colors"
+                className="text-sm text-mcf-primary hover:text-mcf-primary-dark transition-colors"
                 disabled={isLoading}
               >
                 Mot de passe oublié ?
@@ -86,7 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full bg-mcf-orange hover:bg-mcf-orange-dark"
+            className="w-full bg-mcf-primary hover:bg-mcf-primary-dark"
             disabled={isLoading}
           >
             {isLoading ? "Connexion en cours..." : "Se connecter"}

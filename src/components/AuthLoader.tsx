@@ -12,14 +12,14 @@ const AuthLoader = ({ message = "Connexion en cours..." }: AuthLoaderProps) => {
       <div className="p-8 rounded-lg bg-white/80 backdrop-blur-sm shadow-lg text-center max-w-md mx-auto">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
-            <Loader2 className="h-12 w-12 text-mcf-orange animate-spin" />
+            <Loader2 className="h-12 w-12 text-mcf-primary animate-spin" />
             <div className="absolute inset-0 animate-ping opacity-50">
-              <div className="h-12 w-12 rounded-full bg-mcf-orange/20" />
+              <div className="h-12 w-12 rounded-full bg-mcf-primary/20" />
             </div>
           </div>
           
           <div className="space-y-2">
-            <p className="text-lg font-medium text-mcf-orange-dark">
+            <p className="text-lg font-medium text-mcf-primary-dark">
               {message}
             </p>
             <p className="text-sm text-gray-500">

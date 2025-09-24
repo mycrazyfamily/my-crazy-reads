@@ -98,7 +98,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           
           <Button 
             type="submit" 
-            className="w-full bg-mcf-orange hover:bg-mcf-orange-dark"
+            className="w-full bg-mcf-primary hover:bg-mcf-primary-dark"
             disabled={isLoading}
           >
             {isLoading ? "Création en cours..." : "Créer mon compte"}

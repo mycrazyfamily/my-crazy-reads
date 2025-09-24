@@ -67,61 +67,62 @@ button, .button {
 }
 
 /* Styles pour les éléments orangés - Utilisation de couleurs en hexadécimal avec !important */
-.bg-mcf-orange, .bg-crazy-orange {
-  background-color: #FB923C !important;
+/* Nouvelle palette pastel moderne MCF - Bleu/Vert élégant */
+.bg-mcf-primary, .bg-mcf-orange, .bg-crazy-orange {
+  background-color: #4A90E2 !important;
 }
 
-.bg-orange, .text-mcf-orange, .text-crazy-orange {
-  color: #FB923C !important;
+.text-mcf-primary, .bg-orange, .text-mcf-orange, .text-crazy-orange {
+  color: #4A90E2 !important;
 }
 
-.text-mcf-orange-dark, .text-crazy-orange-dark {
-  color: #F97316 !important;
+.text-mcf-primary-dark, .text-mcf-orange-dark, .text-crazy-orange-dark {
+  color: #3A7BC8 !important;
 }
 
-.border-orange, .border-mcf-orange, .border-crazy-orange {
-  border-color: #FB923C !important;
+.border-mcf-primary, .border-orange, .border-mcf-orange, .border-crazy-orange {
+  border-color: #4A90E2 !important;
 }
 
-.bg-mcf-orange-dark, .bg-crazy-orange-dark {
-  background-color: #F97316 !important;
+.bg-mcf-primary-dark, .bg-mcf-orange-dark, .bg-crazy-orange-dark {
+  background-color: #3A7BC8 !important;
 }
 
-.bg-mcf-amber, .bg-crazy-amber {
-  background-color: #FCD34D !important;
+.bg-mcf-secondary, .bg-mcf-amber, .bg-crazy-amber {
+  background-color: #7BC5AE !important;
 }
 
-.bg-mcf-amber-dark {
-  background-color: #F59E0B !important;
+.bg-mcf-secondary-light, .bg-mcf-amber-dark {
+  background-color: #A8D5C4 !important;
 }
 
 .bg-mcf-cream, .bg-crazy-cream {
-  background-color: #FFFBEB !important;
+  background-color: #FDFDFD !important;
 }
 
 .bg-mcf-beige {
-  background-color: #FEF3C7 !important;
+  background-color: #E3F0FF !important;
 }
 
 /* Style supplémentaire pour forcer l'affichage des couleurs */
 [class*="text-mcf-orange"] {
-  color: #FB923C !important;
+  color: #4A90E2 !important;
 }
 
 [class*="text-mcf-orange-dark"] {
-  color: #F97316 !important;
+  color: #3A7BC8 !important;
 }
 
 [class*="bg-mcf-orange"] {
-  background-color: #FB923C !important;
+  background-color: #4A90E2 !important;
 }
 
 [class*="bg-mcf-orange-dark"] {
-  background-color: #F97316 !important;
+  background-color: #3A7BC8 !important;
 }
 
 [class*="border-mcf-orange"] {
-  border-color: #FB923C !important;
+  border-color: #4A90E2 !important;
 }
 
 /* Réglage spécifique pour assurer que les éléments prennent toute la hauteur */
@@ -200,7 +201,7 @@ button, .button {
 
 /* Shadow pour les cartes */
 .card-shadow {
-  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1), 0 8px 10px -6px rgba(249, 115, 22, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(74, 144, 226, 0.1), 0 8px 10px -6px rgba(74, 144, 226, 0.05);
 }
 
 /* Forcer la visibilité des éléments avec animation */
@@ -212,16 +213,16 @@ button, .button {
 
 /* Styles spécifiques pour les composants Switch */
 .data-\[state\=checked\]\:bg-mcf-orange[data-state="checked"] {
-  background-color: #FB923C !important;
+  background-color: #4A90E2 !important;
 }
 
 .data-\[state\=checked\]\:bg-primary[data-state="checked"] {
-  background-color: #FB923C !important;
+  background-color: #4A90E2 !important;
 }
 
 /* Assurez-vous que les radios et interrupteurs sont bien visibles */
 [type="radio"]:checked,
 [role="switch"][data-state="checked"] {
-  border-color: #FB923C !important;
-  background-color: #FB923C !important;
+  border-color: #4A90E2 !important;
+  background-color: #4A90E2 !important;
 }
