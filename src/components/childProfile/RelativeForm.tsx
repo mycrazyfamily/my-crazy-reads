@@ -91,7 +91,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h3 className="text-xl font-bold text-mcf-orange">
+        <h3 className="text-xl font-bold text-mcf-primary">
           {formData.id ? 'Modifier un proche' : 'Ajouter un proche'}
         </h3>
       </div>
@@ -171,7 +171,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           Annuler
         </Button>
         <Button 
-          className="bg-mcf-orange hover:bg-mcf-orange-dark text-white"
+          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
           onClick={handleSaveClick}
         >
           Enregistrer

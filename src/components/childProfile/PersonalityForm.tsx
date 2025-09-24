@@ -49,7 +49,7 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
         <span className="text-2xl">🎭</span> Personnalité et passions <span className="text-2xl">🚀</span>
       </h2>
       

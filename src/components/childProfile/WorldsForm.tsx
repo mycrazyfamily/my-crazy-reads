@@ -143,7 +143,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
         <span className="text-2xl">🌍</span> Univers préféré & ouverture culturelle <span className="text-2xl">✨</span>
       </h2>
       
@@ -166,7 +166,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                 <div 
                   key={world.value}
                   className={`flex items-center p-2 rounded-md border cursor-pointer transition-colors ${
-                    isSelected ? 'border-mcf-orange bg-mcf-amber/10' : 'border-gray-200 hover:bg-gray-50'
+                    isSelected ? 'border-mcf-primary bg-mcf-secondary-light/50' : 'border-gray-200 hover:bg-gray-50'
                   } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                   onClick={() => !isDisabled && handleFavoriteWorldToggle(world.value as FavoriteWorldType)}
@@ -243,7 +243,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                 <div 
                   key={discovery.value}
                   className={`flex items-center p-2 rounded-md border cursor-pointer transition-colors ${
-                    isSelected ? 'border-mcf-orange bg-mcf-amber/10' : 'border-gray-200 hover:bg-gray-50'
+                    isSelected ? 'border-mcf-primary bg-mcf-secondary-light/50' : 'border-gray-200 hover:bg-gray-50'
                   } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                   onClick={() => !isDisabled && handleDiscoveryToggle(discovery.value as DiscoveryType)}
@@ -316,7 +316,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           <Button 
             type="button" 
             onClick={handleSubmit}
-            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
             Voir le récapitulatif →
           </Button>

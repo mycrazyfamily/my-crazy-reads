@@ -147,7 +147,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   return (
     <Card className="overflow-hidden border border-mcf-amber/30 hover:shadow-md transition-shadow">
       <div className="bg-mcf-amber/10 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold text-mcf-orange-dark">
+        <div className="flex items-center gap-2 font-semibold text-mcf-primary-dark">
           {icon}
           <h3>{title}</h3>
         </div>
@@ -155,7 +155,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           variant="ghost" 
           size="sm" 
           onClick={onEdit}
-          className="flex items-center gap-1 text-xs text-gray-600 hover:text-mcf-orange"
+          className="flex items-center gap-1 text-xs text-gray-600 hover:text-mcf-primary"
         >
           <Pencil className="h-3 w-3" /> 
           Modifier

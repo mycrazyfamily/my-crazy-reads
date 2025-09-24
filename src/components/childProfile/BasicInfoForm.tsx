@@ -240,7 +240,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               )}
               {ageDisplay && !ageError && (
                 <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
-                  <p className="text-sm font-medium text-mcf-orange-dark">
+                  <p className="text-sm font-medium text-mcf-primary-dark">
                     Votre enfant a {ageDisplay}
                   </p>
                 </div>
@@ -270,7 +270,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       selectedNickname === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => {
@@ -324,7 +324,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       selectedSkinColor === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => {
@@ -379,7 +379,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       selectedEyeColor === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => {
@@ -435,7 +435,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       selectedHairColor === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => {
@@ -489,7 +489,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       field.value === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => form.setValue("hairType", option.value as any)}
@@ -520,7 +520,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     key={option.value.toString()}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                       field.value === option.value
-                        ? "border-mcf-orange bg-mcf-amber/10"
+                        ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
                     onClick={() => form.setValue("glasses", option.value as boolean, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
@@ -542,7 +542,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             type="button" 
             onClick={handleNextStep}
             disabled={!!ageError}
-            className={`bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
+            className={`bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
               ageError ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

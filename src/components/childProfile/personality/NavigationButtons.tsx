@@ -30,7 +30,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       <Button 
         type={isSubmitButton ? "submit" : "button"}
         onClick={handleContinue}
-        className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+        className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
       >
         {continueButtonText || "Continuer l'aventure →"}
       </Button>

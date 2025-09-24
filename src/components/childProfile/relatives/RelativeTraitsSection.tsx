@@ -68,7 +68,7 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
               <div 
                 className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
                   isChecked 
-                    ? "border-mcf-orange bg-mcf-amber/10" 
+                    ? "border-mcf-primary bg-mcf-secondary-light/50" 
                     : "border-gray-200 hover:border-mcf-amber"
                 }`}
                 onClick={() => handleTraitToggle(option.value)}

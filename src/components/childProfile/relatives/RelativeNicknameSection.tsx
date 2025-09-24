@@ -102,8 +102,8 @@ const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
               key={option.value}
               className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                 selectedNickname === option.value
-                  ? "border-mcf-orange bg-mcf-amber/10"
-                  : "border-gray-200 hover:border-mcf-amber"
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
               }`}
               onClick={() => setSelectedNickname(option.value)}
             >
@@ -122,7 +122,7 @@ const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
             value={nicknameCustomValue || ''} 
             onChange={(e) => setNicknameCustomValue(e.target.value)}
             placeholder="Son surnom personnalisé" 
-            className="border-mcf-amber"
+            className="border-mcf-primary/50"
           />
         </div>
       )}

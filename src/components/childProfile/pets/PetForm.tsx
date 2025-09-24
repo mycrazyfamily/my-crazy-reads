@@ -106,7 +106,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
-      <h3 className="text-xl font-bold text-center mb-4 text-mcf-orange">
+      <h3 className="text-xl font-bold text-center mb-4 text-mcf-primary">
         {pet ? 'Modifier' : 'Ajouter'} un animal de compagnie
       </h3>
 
@@ -136,9 +136,9 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
               type="button"
               onClick={() => setType(option.value as PetType)}
               className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${
-                type === option.value 
-                  ? 'bg-mcf-orange/10 border-mcf-orange shadow-sm' 
-                  : 'border-gray-200 hover:border-mcf-orange/50'
+                 type === option.value 
+                  ? 'bg-mcf-secondary-light/50 border-mcf-primary shadow-sm' 
+                  : 'border-gray-200 hover:border-mcf-primary/50'
               }`}
             >
               <span className="text-2xl mb-1">{option.icon}</span>
@@ -180,10 +180,10 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
                   disabled={isDisabled}
                   className={`flex items-center justify-start p-2 rounded-lg border gap-2 transition-all w-full
                     ${isTraitSelected 
-                      ? 'bg-mcf-amber/10 border-mcf-amber shadow-sm' 
+                      ? 'bg-mcf-secondary-light/50 border-mcf-primary shadow-sm' 
                       : isDisabled
                         ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'border-gray-200 hover:border-mcf-amber/50'
+                        : 'border-gray-200 hover:border-mcf-primary/50'
                     }`}
                 >
                   <span className="text-xl">{trait.icon}</span>
@@ -217,7 +217,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
         
         <Button 
           type="submit"
-          className="bg-mcf-orange hover:bg-mcf-orange-dark text-white"
+          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
         >
           {pet ? 'Enregistrer les modifications' : 'Ajouter cet animal'}
         </Button>

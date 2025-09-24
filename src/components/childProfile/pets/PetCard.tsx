@@ -22,15 +22,15 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onEdit, onDelete }) => {
   const getPetIcon = () => {
     switch (pet.type) {
       case 'dog':
-        return <Dog className="h-10 w-10 text-mcf-orange" />;
+        return <Dog className="h-10 w-10 text-mcf-primary" />;
       case 'cat':
-        return <Cat className="h-10 w-10 text-mcf-orange" />;
+        return <Cat className="h-10 w-10 text-mcf-primary" />;
       case 'rabbit':
-        return <Rabbit className="h-10 w-10 text-mcf-orange" />;
+        return <Rabbit className="h-10 w-10 text-mcf-primary" />;
       case 'bird':
-        return <Bird className="h-10 w-10 text-mcf-orange" />;
+        return <Bird className="h-10 w-10 text-mcf-primary" />;
       case 'fish':
-        return <Fish className="h-10 w-10 text-mcf-orange" />;
+        return <Fish className="h-10 w-10 text-mcf-primary" />;
       default:
         return <span className="text-4xl">{PET_TYPE_OPTIONS.find(option => option.value === pet.type)?.icon}</span>;
     }

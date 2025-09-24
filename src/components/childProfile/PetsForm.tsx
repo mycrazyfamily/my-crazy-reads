@@ -90,7 +90,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-orange flex items-center justify-center gap-2">
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
         <span className="text-2xl">🐾</span> Animaux de compagnie <span className="text-2xl">🐱</span>
       </h2>
       
@@ -125,7 +125,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
               <Button
                 type="button"
                 onClick={handleAddPet}
-                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-semibold"
+                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
               >
                 Ajouter un animal +
               </Button>
@@ -152,7 +152,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
             <Button 
               type="button" 
               onClick={handlePetsSectionContinue}
-              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
             >
               Passer à l'étape suivante →
             </Button>

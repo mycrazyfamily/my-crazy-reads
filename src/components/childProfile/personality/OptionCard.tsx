@@ -20,10 +20,10 @@ const OptionCard: React.FC<OptionCardProps> = ({
     <div 
       className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
         isSelected 
-          ? "border-mcf-orange bg-mcf-amber/10" 
+          ? "border-mcf-primary bg-mcf-secondary-light/50" 
           : isDisabled 
             ? "border-gray-200 opacity-60 cursor-not-allowed"
-            : "border-gray-200 hover:border-mcf-amber"
+            : "border-gray-200 hover:border-mcf-primary/50"
       }`}
       onClick={onClick}
     >

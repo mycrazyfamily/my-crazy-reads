@@ -61,8 +61,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
               key={option.value}
               className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                 selectedSkinColor === option.value
-                  ? "border-mcf-orange bg-mcf-amber/10"
-                  : "border-gray-200 hover:border-mcf-amber"
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
               }`}
               onClick={() => setSelectedSkinColor(option.value)}
             >
@@ -82,7 +82,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
             value={skinColorCustomValue || ''} 
             onChange={(e) => setSkinColorCustomValue(e.target.value)}
             placeholder="Description de la couleur de peau" 
-            className="border-mcf-amber"
+            className="border-mcf-primary/50"
           />
         </div>
       )}
@@ -105,8 +105,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
               key={option.value}
               className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                 selectedHairColor === option.value
-                  ? "border-mcf-orange bg-mcf-amber/10"
-                  : "border-gray-200 hover:border-mcf-amber"
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
               }`}
               onClick={() => setSelectedHairColor(option.value)}
             >
@@ -126,7 +126,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
             value={hairColorCustomValue || ''} 
             onChange={(e) => setHairColorCustomValue(e.target.value)}
             placeholder="Description de la couleur des cheveux" 
-            className="border-mcf-amber"
+            className="border-mcf-primary/50"
           />
         </div>
       )}
@@ -147,8 +147,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
               key={option.value}
               className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
                 hairType === option.value
-                  ? "border-mcf-orange bg-mcf-amber/10"
-                  : "border-gray-200 hover:border-mcf-amber"
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
               }`}
               onClick={() => setHairType(option.value)}
             >
@@ -174,7 +174,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
               id="relative-glasses"
               checked={glasses}
               onCheckedChange={setGlasses}
-              className="data-[state=checked]:bg-mcf-orange"
+              className="data-[state=checked]:bg-mcf-primary"
             />
             <Label htmlFor="relative-glasses" className="cursor-pointer">
               {glasses ? "Oui" : "Non"}

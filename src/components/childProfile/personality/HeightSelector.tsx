@@ -26,8 +26,8 @@ const HeightSelector = () => {
                 key={option.value}
                 className={`p-4 rounded-lg border-2 cursor-pointer text-center transition-all ${
                   field.value === option.value
-                    ? "border-mcf-orange bg-mcf-amber/10"
-                    : "border-gray-200 hover:border-mcf-amber"
+                    ? "border-mcf-primary bg-mcf-secondary-light/50"
+                    : "border-gray-200 hover:border-mcf-primary/50"
                 }`}
                 onClick={() => form.setValue("height", option.value as any)}
               >
