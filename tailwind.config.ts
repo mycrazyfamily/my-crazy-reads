@@ -53,18 +53,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Utilisation de couleurs directes sans aucune variable CSS
-        'mcf-orange': '#FB923C',
-        'mcf-orange-dark': '#F97316',
-        'mcf-amber': '#FCD34D',
-        'mcf-amber-dark': '#F59E0B',
-        'mcf-cream': '#FFFBEB',
-        'mcf-beige': '#FEF3C7',
-        // Ajouter des alternatives nommées différemment pour éviter tout conflit
-        'crazy-orange': '#FB923C',
-        'crazy-orange-dark': '#F97316',
-        'crazy-amber': '#FCD34D',
-        'crazy-cream': '#FFFBEB',
+        // Nouvelle palette pastel moderne MCF
+        'mcf-orange': '#FF865E',        // Orange corail
+        'mcf-orange-dark': '#FF6B40',   // Orange corail foncé
+        'mcf-amber': '#FFD97D',         // Jaune pastel
+        'mcf-amber-dark': '#FFC947',    // Jaune pastel foncé
+        'mcf-cream': '#FFF8F0',         // Beige clair
+        'mcf-beige': '#FEF3E2',         // Beige plus foncé
+        'mcf-mint': '#A8E6CF',          // Menthe pastel
+        'mcf-mint-dark': '#8FD4B3',     // Menthe pastel foncé
+        'mcf-text': '#333333',          // Typographie noire douce
       },
       borderRadius: {
         lg: "var(--radius)",

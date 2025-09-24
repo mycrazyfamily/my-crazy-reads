@@ -41,34 +41,14 @@ const Navbar: React.FC = () => {
   };
 
   const getActionButton = () => {
-    if (!isAuthenticated) {
-      return (
-        <Link 
-          to="/creer-profil-enfant" 
-          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-        >
-          Commencer
-        </Link>
-      );
-    } else if (!hasActiveSubscription) {
-      return (
-        <Link 
-          to="/offrir-livre" 
-          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-        >
-          Offrir un livre
-        </Link>
-      );
-    } else {
-      return (
-        <Link 
-          to="/creer-profil-enfant" 
-          className="bg-mcf-orange text-white font-medium px-6 py-2 rounded-full hover:bg-mcf-orange-dark transition-colors"
-        >
-          Commander un livre
-        </Link>
-      );
-    }
+    return (
+      <Link 
+        to="/creer-profil-enfant" 
+        className="bg-mcf-orange text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-orange-dark transition-all duration-300 transform hover:scale-105 shadow-lg"
+      >
+        Commencer l'aventure
+      </Link>
+    );
   };
 
   return (
@@ -94,15 +74,10 @@ const Navbar: React.FC = () => {
             <Link to="/histoires" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
               Nos Histoires
             </Link>
-            <Link to="/fonctionnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
-              Comment ça marche
+            <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
+              Abonnement
             </Link>
             
-            {(isAuthenticated && !hasActiveSubscription) && (
-              <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
-                Abonnement
-              </Link>
-            )}
             
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
@@ -158,22 +133,13 @@ const Navbar: React.FC = () => {
               Nos Histoires
             </Link>
             <Link 
-              to="/fonctionnement" 
+              to="/abonnement" 
               className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Comment ça marche
+              Abonnement
             </Link>
             
-            {(isAuthenticated && !hasActiveSubscription) && (
-              <Link 
-                to="/abonnement" 
-                className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Abonnement
-              </Link>
-            )}
             
             {isAuthenticated ? (
               <>

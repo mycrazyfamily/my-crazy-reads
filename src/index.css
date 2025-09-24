@@ -88,7 +88,12 @@
 
 /* Hero Section Gradient */
 .hero-gradient {
-  background: linear-gradient(135deg, #fff8eb 0%, #ffefcc 100%);
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFD97D 100%);
+}
+
+/* New MCF Gradient */
+.mcf-gradient {
+  background: linear-gradient(135deg, #FFF8F0 0%, #A8E6CF 50%, #FFD97D 100%);
 }
 
 /* Glassmorphism Card */
