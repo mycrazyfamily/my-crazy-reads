@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
     return (
       <Link 
         to="/creer-profil-enfant" 
-        className="bg-mcf-orange text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-orange-dark transition-all duration-300 transform hover:scale-105 shadow-lg"
+        className="bg-mcf-primary text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-lg"
       >
         Commencer l'aventure
       </Link>
@@ -65,7 +65,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
-            className="text-2xl font-display font-bold text-mcf-orange-dark tracking-tight"
+            className="text-2xl font-display font-bold text-mcf-primary tracking-tight"
             onClick={handleHomeClick}
           >
             My Crazy Family
@@ -73,13 +73,13 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4 items-center">
-            <Link to="/" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2" onClick={handleHomeClick}>
+            <Link to="/" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2" onClick={handleHomeClick}>
               Accueil
             </Link>
-            <Link to="/histoires" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
+            <Link to="/histoires" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
               Nos Histoires
             </Link>
-            <Link to="/abonnement" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
+            <Link to="/abonnement" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
               Abonnement
             </Link>
             
@@ -89,7 +89,7 @@ const Navbar: React.FC = () => {
                 <NotificationsBell />
                 <Link 
                   to="/espace-famille" 
-                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-1 px-3 py-2"
+                  className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors flex items-center gap-1 px-3 py-2"
                 >
                   <User size={18} />
                   Espace famille
@@ -99,7 +99,7 @@ const Navbar: React.FC = () => {
               <>
                 <Link 
                   to="/authentification" 
-                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors px-3 py-2"
+                  className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors px-3 py-2"
                 >
                   Se connecter
                 </Link>
@@ -109,11 +109,11 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden text-mcf-orange-dark" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          >
+      <button 
+        className="md:hidden text-mcf-primary" 
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+      >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -125,7 +125,7 @@ const Navbar: React.FC = () => {
           <div className="flex flex-col space-y-2">
             <Link 
               to="/" 
-              className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
+              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => {
                 handleHomeClick();
                 setIsMenuOpen(false);
@@ -135,14 +135,14 @@ const Navbar: React.FC = () => {
             </Link>
             <Link 
               to="/histoires" 
-              className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
+              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Nos Histoires
             </Link>
             <Link 
               to="/abonnement" 
-              className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
+              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Abonnement
@@ -156,7 +156,7 @@ const Navbar: React.FC = () => {
                 </div>
                 <Link 
                   to="/espace-famille" 
-                  className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors flex items-center gap-2 px-2 py-2"
+                  className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors flex items-center gap-2 px-2 py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User size={18} />
@@ -177,7 +177,7 @@ const Navbar: React.FC = () => {
             ) : (
               <Link 
                 to="/authentification" 
-                className="font-medium text-mcf-orange-dark hover:text-mcf-orange transition-colors px-2 py-2"
+                className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors px-2 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Se connecter

@@ -40,12 +40,12 @@ const HowItWorks: React.FC = () => {
             <div key={index} className="text-center group">
               {/* Numéro de l'étape */}
               <div className="relative mb-6">
-                <div className="w-20 h-20 mx-auto bg-mcf-orange text-white text-2xl font-bold rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-20 h-20 mx-auto bg-mcf-primary text-white text-2xl font-bold rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                   {step.number}
                 </div>
                 {/* Ligne de connexion (sauf pour le dernier) */}
                 {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-10 left-1/2 w-32 h-0.5 bg-mcf-amber transform translate-x-full"></div>
+                  <div className="hidden md:block absolute top-10 left-1/2 w-32 h-0.5 bg-mcf-secondary transform translate-x-full"></div>
                 )}
               </div>
               
@@ -69,7 +69,7 @@ const HowItWorks: React.FC = () => {
         <div className="text-center">
           <Link 
             to="/creer-profil-enfant" 
-            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
+            className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
           >
             Abonner mon enfant
           </Link>

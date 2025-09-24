@@ -86,14 +86,14 @@
   to { opacity: 1; }
 }
 
-/* Hero Section Gradient */
+/* Hero Section Gradient - Nouvelle charte bleu/vert pastel */
 .hero-gradient {
-  background: linear-gradient(135deg, #FFF8F0 0%, #FFD97D 100%);
+  background: linear-gradient(135deg, #D7F5E9 0%, #E3F0FF 100%);
 }
 
-/* New MCF Gradient */
+/* New MCF Gradient - Élégant bleu/vert pastel */
 .mcf-gradient {
-  background: linear-gradient(135deg, #FFF8F0 0%, #A8E6CF 50%, #FFD97D 100%);
+  background: linear-gradient(135deg, #FDFDFD 0%, #D7F5E9 50%, #E3F0FF 100%);
 }
 
 /* Glassmorphism Card */
@@ -105,7 +105,7 @@
 }
 
 .card-shadow {
-  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1), 0 8px 10px -6px rgba(249, 115, 22, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(74, 144, 226, 0.1), 0 8px 10px -6px rgba(74, 144, 226, 0.05);
 }
 
 /* Animation Delays */
@@ -135,7 +135,7 @@
   50% { transform: translateY(-5px); }
 }
 
-/* Date Picker Custom Styles */
+/* Date Picker Custom Styles - Nouvelle charte bleu/vert pastel */
 .react-datepicker-wrapper {
   width: 100%;
 }
@@ -148,19 +148,19 @@
 }
 
 .react-datepicker__header {
-  background-color: #ffefd1 !important;
-  border-bottom: 1px solid #ffce7a !important;
+  background-color: #E3F0FF !important;
+  border-bottom: 1px solid #4A90E2 !important;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #ff9934 !important;
+  background-color: #4A90E2 !important;
   border-radius: 0.5rem !important;
   color: white !important;
 }
 
 .react-datepicker__day:hover {
-  background-color: #ffce7a !important;
+  background-color: #7BC5AE !important;
   border-radius: 0.5rem !important;
 }
 
@@ -174,12 +174,12 @@
 }
 
 .react-datepicker__current-month {
-  color: #ff7800 !important;
+  color: #4A90E2 !important;
   font-weight: bold !important;
 }
 
 .react-datepicker__day-name {
-  color: #ff7800 !important;
+  color: #4A90E2 !important;
 }
 
 .react-datepicker__triangle {
@@ -200,7 +200,7 @@
 
 .react-datepicker__year-option:hover,
 .react-datepicker__month-option:hover {
-  background-color: #ffce7a !important;
+  background-color: #7BC5AE !important;
 }
 
 .react-datepicker__navigation {

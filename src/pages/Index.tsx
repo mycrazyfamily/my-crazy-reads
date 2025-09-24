@@ -9,10 +9,10 @@ import Footer from '../components/Footer';
 const NewIndex: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.body.classList.add('bg-mcf-cream');
+    document.body.classList.add('bg-mcf-background');
     
     return () => {
-      document.body.classList.remove('bg-mcf-cream');
+      document.body.classList.remove('bg-mcf-background');
     };
   }, []);
 
@@ -55,7 +55,7 @@ const NewIndex: React.FC = () => {
         <HowItWorks />
         
         {/* Pourquoi choisir MCF */}
-        <section className="py-20 px-4 bg-mcf-cream/50">
+        <section className="py-20 px-4 bg-mcf-gradient-start/30">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-mcf-text mb-6">
               Pourquoi choisir My Crazy Family ?
@@ -92,14 +92,14 @@ const NewIndex: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-6">
                 <Link 
                   to="/creer-profil-enfant" 
-                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
+                  className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
                 >
                   Commencer l'aventure
                 </Link>
                 
                 <Link 
                   to="/offrir-livre" 
-                  className="bg-white hover:bg-mcf-mint/20 text-mcf-text font-medium py-4 px-10 rounded-full border-2 border-mcf-mint hover:border-mcf-mint-dark transition-all duration-300 transform hover:scale-105 text-lg"
+                  className="bg-white hover:bg-mcf-gradient-start/20 text-mcf-text font-medium py-4 px-10 rounded-full border-2 border-mcf-secondary hover:border-mcf-primary transition-all duration-300 transform hover:scale-105 text-lg"
                 >
                   Offrir un livre
                 </Link>
@@ -107,10 +107,10 @@ const NewIndex: React.FC = () => {
               
               {/* Éléments décoratifs */}
               <div className="mt-16 relative">
-                <div className="absolute -top-8 -left-8 w-24 h-24 bg-mcf-amber/30 rounded-full animate-float"></div>
-                <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-mcf-mint/40 rounded-full animate-float animation-delay-300"></div>
+                <div className="absolute -top-8 -left-8 w-24 h-24 bg-mcf-secondary/30 rounded-full animate-float"></div>
+                <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-mcf-gradient-end/40 rounded-full animate-float animation-delay-300"></div>
                 
-                <div className="relative bg-gradient-to-br from-mcf-cream to-mcf-mint/20 rounded-2xl p-8 md:p-12 shadow-lg">
+                <div className="relative bg-gradient-to-br from-mcf-gradient-start to-mcf-gradient-end/20 rounded-2xl p-8 md:p-12 shadow-lg">
                   <div className="text-6xl mb-6">📖✨</div>
                   <p className="text-xl md:text-2xl font-medium text-mcf-text">
                     Embarquez dans cette aventure familiale exceptionnelle !

@@ -53,16 +53,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Nouvelle palette pastel moderne MCF
-        'mcf-orange': '#FF865E',        // Orange corail
-        'mcf-orange-dark': '#FF6B40',   // Orange corail foncé
-        'mcf-amber': '#FFD97D',         // Jaune pastel
-        'mcf-amber-dark': '#FFC947',    // Jaune pastel foncé
-        'mcf-cream': '#FFF8F0',         // Beige clair
-        'mcf-beige': '#FEF3E2',         // Beige plus foncé
-        'mcf-mint': '#A8E6CF',          // Menthe pastel
-        'mcf-mint-dark': '#8FD4B3',     // Menthe pastel foncé
-        'mcf-text': '#333333',          // Typographie noire douce
+        // Nouvelle palette pastel moderne MCF - Bleu/Vert élégant
+        'mcf-primary': '#4A90E2',       // Bleu pastel soutenu (principal)
+        'mcf-primary-dark': '#3A7BC8',  // Bleu pastel foncé
+        'mcf-secondary': '#7BC5AE',     // Vert pastel foncé (secondaire)
+        'mcf-secondary-light': '#A8D5C4', // Vert pastel clair
+        'mcf-background': '#FDFDFD',    // Blanc cassé
+        'mcf-gradient-start': '#D7F5E9', // Vert pastel dégradé début
+        'mcf-gradient-end': '#E3F0FF',  // Bleu ciel clair dégradé fin
+        'mcf-mint': '#D7F5E9',          // Vert pastel (compatible ancien)
+        'mcf-text': '#333333',          // Typographie gris foncé
       },
       borderRadius: {
         lg: "var(--radius)",
