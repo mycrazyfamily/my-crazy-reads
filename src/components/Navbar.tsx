@@ -40,6 +40,10 @@ const Navbar: React.FC = () => {
     toast.success('Vous avez été déconnecté avec succès');
   };
 
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const getActionButton = () => {
     return (
       <Link 
@@ -62,13 +66,14 @@ const Navbar: React.FC = () => {
           <Link 
             to="/" 
             className="text-2xl font-display font-bold text-mcf-orange-dark tracking-tight"
+            onClick={handleHomeClick}
           >
             My Crazy Family
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4 items-center">
-            <Link to="/" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
+            <Link to="/" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2" onClick={handleHomeClick}>
               Accueil
             </Link>
             <Link to="/histoires" className="font-medium hover:text-mcf-orange transition-colors px-3 py-2">
@@ -121,7 +126,10 @@ const Navbar: React.FC = () => {
             <Link 
               to="/" 
               className="font-medium hover:text-mcf-orange transition-colors px-2 py-2"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={() => {
+                handleHomeClick();
+                setIsMenuOpen(false);
+              }}
             >
               Accueil
             </Link>
