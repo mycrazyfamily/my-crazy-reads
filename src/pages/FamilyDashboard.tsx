@@ -88,19 +88,51 @@ const FamilyDashboard: React.FC = () => {
           {/* Quick action buttons */}
           <section className="animate-fade-in">
             <div className="flex flex-wrap gap-3 mb-6">
+              {/* 1. Ajouter un nouvel enfant - toujours visible */}
               <Button 
                 className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
                 onClick={() => navigate('/creer-profil-enfant')}
               >
-                <Plus className="h-4 w-4" /> Nouvel enfant
+                <Plus className="h-4 w-4" /> Ajouter un nouvel enfant
               </Button>
               
-              <Button 
-                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
-                onClick={() => navigate('/offrir/profil-enfant')}
-              >
-                <ShoppingBag className="h-4 w-4" /> Offrir un nouveau livre
-              </Button>
+              {/* 2. Ajouter un proche - désactivé si pas d'enfant */}
+              <div className="relative">
+                <Button 
+                  className={`gap-2 ${children.length === 0 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
+                    : 'bg-mcf-primary hover:bg-mcf-primary/90 text-white'
+                  }`}
+                  onClick={children.length > 0 ? () => navigate('/ajouter-proche') : undefined}
+                  disabled={children.length === 0}
+                >
+                  <User className="h-4 w-4" /> Ajouter un proche
+                </Button>
+                {children.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1 absolute whitespace-nowrap">
+                    Ajoutez d'abord un enfant pour pouvoir renseigner ses proches.
+                  </p>
+                )}
+              </div>
+              
+              {/* 3. Offrir un nouveau livre - désactivé si pas d'enfant */}
+              <div className="relative">
+                <Button 
+                  className={`gap-2 ${children.length === 0 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
+                    : 'bg-mcf-secondary hover:bg-mcf-secondary/90 text-white'
+                  }`}
+                  onClick={children.length > 0 ? () => navigate('/offrir/profil-enfant') : undefined}
+                  disabled={children.length === 0}
+                >
+                  <ShoppingBag className="h-4 w-4" /> Offrir un nouveau livre
+                </Button>
+                {children.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1 absolute whitespace-nowrap">
+                    Créez d'abord le profil d'un enfant pour lui offrir un livre personnalisé.
+                  </p>
+                )}
+              </div>
             </div>
           </section>
           
