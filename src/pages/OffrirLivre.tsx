@@ -13,7 +13,12 @@ const OffrirLivre = () => {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    navigate('/');
+    // Try to go back to previous page, fallback to home if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
   };
 
   const handleNoCodeContinue = () => {

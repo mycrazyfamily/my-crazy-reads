@@ -9,7 +9,12 @@ const NouvelEnfant: React.FC = () => {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    navigate('/espace-famille');
+    // Try to go back to previous page, fallback to family dashboard if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/espace-famille');
+    }
   };
 
   return (

@@ -13,7 +13,12 @@ const OffrirProfilEnfant = () => {
   const targetStep = location.state?.targetStep;
 
   const handleGoBack = () => {
-    navigate('/offrir-livre');
+    // Try to go back to previous page, fallback to gift flow if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/offrir-livre');
+    }
   };
 
   console.log("OffrirProfilEnfant - targetStep:", targetStep);

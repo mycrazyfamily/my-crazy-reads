@@ -22,11 +22,18 @@ const CheckEmail = () => {
         <div className="max-w-md w-full space-y-8">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/')}
+            onClick={() => {
+              // Try to go back to previous page, fallback to home if no history
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/');
+              }
+            }}
             className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10"
           >
             <ArrowLeft className="h-4 w-4" />
-            Revenir à l'accueil
+            Retour
           </Button>
           
           <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-none">
