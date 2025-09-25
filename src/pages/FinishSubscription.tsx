@@ -47,7 +47,7 @@ const FinishSubscription = () => {
   // Pour cette démo, nous utilisons simplement un bouton qui simule un paiement réussi
   
   return (
-    <div className="min-h-screen bg-mcf-cream flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-20">

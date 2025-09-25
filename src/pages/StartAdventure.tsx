@@ -39,7 +39,7 @@ const StartAdventure = () => {
   };
   
   return (
-    <div className="min-h-screen bg-mcf-cream flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-20">

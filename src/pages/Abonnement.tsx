@@ -7,7 +7,7 @@ const Abonnement: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-mcf-background">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-12 px-4">

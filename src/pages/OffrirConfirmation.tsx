@@ -39,7 +39,7 @@ const OffrirConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
+    <div className="min-h-screen bg-white py-12">
       <Confetti
         width={width}
         height={height}

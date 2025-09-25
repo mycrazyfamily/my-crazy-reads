@@ -43,7 +43,7 @@ const Authentication: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-mcf-cream">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-24 max-w-4xl">

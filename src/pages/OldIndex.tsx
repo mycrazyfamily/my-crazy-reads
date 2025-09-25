@@ -17,11 +17,11 @@ const Index: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     // Ajouter une classe au body pour s'assurer que la couleur de fond est appliquée
-    document.body.classList.add('bg-mcf-cream');
+    document.body.classList.add('bg-white');
     
     // Nettoyer l'effet lorsque le composant est démonté
     return () => {
-      document.body.classList.remove('bg-mcf-cream');
+      document.body.classList.remove('bg-white');
     };
   }, []);
 
@@ -142,7 +142,7 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-mcf-cream">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       
       <main className="flex-grow">

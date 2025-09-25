@@ -30,7 +30,7 @@ const OffrirMessage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mcf-cream to-white py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="container px-4 mx-auto max-w-3xl">
         {/* En-tête */}
         <div className="mb-8">

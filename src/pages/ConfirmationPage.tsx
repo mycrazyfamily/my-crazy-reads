@@ -32,7 +32,7 @@ const ConfirmationPage = () => {
   }, [toast]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mcf-cream via-mcf-cream to-white py-12">
+    <div className="min-h-screen bg-white py-12">
       {/* Animation de confettis */}
       <Confetti
         width={width}

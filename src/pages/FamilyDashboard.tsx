@@ -38,7 +38,7 @@ const FamilyDashboard: React.FC = () => {
   
   console.log('🏠 FamilyDashboard: Composant chargé pour user:', user);
   return (
-    <div className="min-h-screen bg-gradient-to-b from-mcf-cream via-mcf-cream to-white">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
       <main className="container mx-auto px-4 py-20 max-w-5xl">

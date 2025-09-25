@@ -9,10 +9,10 @@ import Footer from '../components/Footer';
 const NewIndex: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.body.classList.add('bg-mcf-background');
+    document.body.classList.add('bg-white');
     
     return () => {
-      document.body.classList.remove('bg-mcf-background');
+      document.body.classList.remove('bg-white');
     };
   }, []);
 

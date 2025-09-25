@@ -18,7 +18,7 @@ const CheckEmail = () => {
         <meta name="description" content="Vérifie ton email pour activer ton compte MyCrazyFamily et commencer l'aventure avec ta famille." />
       </head>
       
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-mcf-cream to-mcf-beige p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <div className="max-w-md w-full space-y-8">
           <Button 
             variant="ghost" 
