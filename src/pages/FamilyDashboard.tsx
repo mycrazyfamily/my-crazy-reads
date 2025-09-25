@@ -24,38 +24,11 @@ const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   
-  // Example data - in a real application, this would come from an API
-  const mockChildren = [
-    {
-      id: "child1",
-      firstName: "Thomas",
-      age: "7",
-      avatar: null,
-      personalityEmoji: "🦸‍♂️",
-      relatives: 3,
-      hasToys: true,
-      hasPets: 2
-    },
-    {
-      id: "child2",
-      firstName: "Léa",
-      age: "5",
-      avatar: null,
-      personalityEmoji: "🧚",
-      relatives: 2,
-      hasToys: true,
-      hasPets: 1
-    }
-  ];
-
-  const mockFamilyCode = "MCF-THOMAS";
-  
-  const mockSubscription = {
-    type: "Mensuel",
-    price: "9,90€/mois",
-    nextPayment: "15/06/2024",
-    address: "123 Rue de la Magie, 75001 Paris"
-  };
+  // Real data - will be fetched from API in production
+  const children = []; // Empty for new users
+  const books = []; // Empty for new users
+  const familyCode = null; // Will be generated when first child is added
+  const subscription = null; // Will be set when user subscribes
   
   const handleLogout = () => {
     logout();
@@ -137,18 +110,44 @@ const FamilyDashboard: React.FC = () => {
               <Baby className="h-6 w-6" /> Mes enfants
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              {mockChildren.map((child) => (
-                <ChildProfileCard key={child.id} child={child} />
-              ))}
-            </div>
-            
-            <Button 
-              className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2 mt-2"
-              onClick={() => navigate('/creer-profil-enfant')}
-            >
-              <Plus className="h-4 w-4" /> Ajouter un nouvel enfant
-            </Button>
+            {children.length > 0 ? (
+              <>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  {children.map((child) => (
+                    <ChildProfileCard key={child.id} child={child} />
+                  ))}
+                </div>
+                
+                <Button 
+                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2 mt-2"
+                  onClick={() => navigate('/creer-profil-enfant')}
+                >
+                  <Plus className="h-4 w-4" /> Ajouter un nouvel enfant
+                </Button>
+              </>
+            ) : (
+              <Card className="p-8 text-center bg-gradient-to-br from-mcf-mint/10 to-mcf-cream/50 border-mcf-mint/20">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="bg-mcf-mint/20 p-4 rounded-full">
+                    <Baby className="h-8 w-8 text-mcf-primary" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-mcf-orange-dark">
+                      Vous n'avez encore ajouté aucun enfant.
+                    </p>
+                    <p className="text-gray-600">
+                      Cliquez sur le bouton ci-dessous pour commencer.
+                    </p>
+                  </div>
+                  <Button 
+                    className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 text-lg px-6 py-3 mt-2"
+                    onClick={() => navigate('/creer-profil-enfant')}
+                  >
+                    <Plus className="h-5 w-5" /> Ajouter mon premier enfant
+                  </Button>
+                </div>
+              </Card>
+            )}
           </section>
           
           {/* Section 2: Books */}
@@ -157,7 +156,33 @@ const FamilyDashboard: React.FC = () => {
               <Book className="h-6 w-6" /> Mes livres MCF
             </h2>
             
-            <BookTimeline />
+            {books.length > 0 ? (
+              <BookTimeline />
+            ) : (
+              <Card className="p-8 text-center bg-gradient-to-br from-mcf-secondary/10 to-mcf-cream/50 border-mcf-secondary/20">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="bg-mcf-secondary/20 p-4 rounded-full">
+                    <Book className="h-8 w-8 text-mcf-secondary" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-mcf-orange-dark">
+                      Aucune histoire n'a encore été créée pour vos enfants.
+                    </p>
+                    <p className="text-gray-600">
+                      Les histoires que vous lirez avec vos enfants apparaîtront ici.
+                    </p>
+                  </div>
+                  {children.length > 0 && (
+                    <Button 
+                      className="bg-mcf-secondary hover:bg-mcf-secondary/90 text-white gap-2 text-lg px-6 py-3 mt-2"
+                      onClick={() => navigate('/personnaliser-histoire')}
+                    >
+                      <MessageSquarePlus className="h-5 w-5" /> Créer ma première histoire
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            )}
           </section>
           
           {/* Section 3: Family Code Sharing */}
@@ -166,26 +191,51 @@ const FamilyDashboard: React.FC = () => {
               <Gift className="h-6 w-6" /> Offrir un livre avec mon code famille
             </h2>
             
-            <FamilyCodeShare familyCode={mockFamilyCode} />
+            {familyCode ? (
+              <FamilyCodeShare familyCode={familyCode} />
+            ) : (
+              <Card className={`p-8 text-center bg-gradient-to-br from-mcf-amber/10 to-mcf-cream/50 border-mcf-amber/20 ${children.length === 0 ? 'opacity-60' : ''}`}>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="bg-mcf-amber/20 p-4 rounded-full">
+                    <Gift className="h-8 w-8 text-mcf-orange" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-mcf-orange-dark">
+                      {children.length === 0 
+                        ? "Ajoutez un enfant pour générer votre code famille et offrir un livre à vos proches."
+                        : "Votre code famille sera généré automatiquement."
+                      }
+                    </p>
+                    <p className="text-gray-600">
+                      Partagez la magie des histoires personnalisées avec votre famille.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
           </section>
           
-          {/* Section 4: Story Customization */}
-          <section className="animate-fade-in animation-delay-300">
-            <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-              <MessageSquarePlus className="h-6 w-6" /> Personnaliser encore plus les prochaines histoires
-            </h2>
-            
-            <StoryCustomizationForm />
-          </section>
+          {/* Section 4: Story Customization - Only show if user has children */}
+          {children.length > 0 && (
+            <section className="animate-fade-in animation-delay-300">
+              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
+                <MessageSquarePlus className="h-6 w-6" /> Personnaliser encore plus les prochaines histoires
+              </h2>
+              
+              <StoryCustomizationForm />
+            </section>
+          )}
           
           {/* Section 5: Subscription Management */}
-          <section className="animate-fade-in animation-delay-400">
-            <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-              <Settings className="h-6 w-6" /> Mon abonnement
-            </h2>
-            
-            <SubscriptionSummary subscription={mockSubscription} />
-          </section>
+          {subscription && (
+            <section className="animate-fade-in animation-delay-400">
+              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
+                <Settings className="h-6 w-6" /> Mon abonnement
+              </h2>
+              
+              <SubscriptionSummary subscription={subscription} />
+            </section>
+          )}
         </div>
         
         {/* Footer Actions */}
