@@ -38,7 +38,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div className="space-y-2">
             <Label htmlFor="register-email">Adresse email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
                 id="register-email" 
                 name="email"
@@ -54,7 +54,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div className="space-y-2">
             <Label htmlFor="register-password">Mot de passe</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
                 id="register-password" 
                 name="password"
@@ -67,7 +67,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -76,7 +76,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div className="space-y-2">
             <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
                 id="confirm-password" 
                 name="confirmPassword"
@@ -89,7 +89,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
               >
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

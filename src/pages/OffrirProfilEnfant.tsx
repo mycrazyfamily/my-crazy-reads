@@ -24,7 +24,7 @@ const OffrirProfilEnfant = () => {
         <Button 
           variant="ghost" 
           onClick={handleGoBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10 mb-4"
+          className="flex items-center gap-2 text-muted-foreground hover:text-mcf-primary hover:bg-mcf-mint/10 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour

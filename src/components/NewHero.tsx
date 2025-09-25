@@ -36,7 +36,7 @@ const NewHero: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in animation-delay-300">
                   <Link 
                     to="/creer-profil-enfant" 
-                    className="bg-[#4A90E2] hover:bg-[#357ABD] text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-base shadow-lg"
+                    className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-base shadow-lg"
                   >
                     Commencer l'aventure
                   </Link>

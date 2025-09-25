@@ -168,7 +168,7 @@ const Navbar: React.FC = () => {
                     handleLogout();
                     setIsMenuOpen(false);
                   }}
-                  className="font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-2 px-2 py-2"
+                  className="font-medium text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2 px-2 py-2"
                 >
                   <LogOut size={18} />
                   Déconnexion

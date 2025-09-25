@@ -7,7 +7,7 @@ const LoadingCallback = () => {
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mcf-cream to-mcf-beige">
-      <div className="p-8 rounded-xl bg-white/80 backdrop-blur-sm shadow-lg text-center max-w-md mx-4">
+      <div className="p-8 rounded-xl bg-card backdrop-blur-sm shadow-lg text-center max-w-md mx-4">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <Loader2 className="h-12 w-12 text-mcf-primary animate-spin" />
@@ -21,7 +21,7 @@ const LoadingCallback = () => {
             <h1 className="text-2xl font-bold text-mcf-primary">
               Bienvenue dans l'aventure !
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Nous finalisons ton inscription... Quelques secondes de patience ⏳
             </p>
           </div>

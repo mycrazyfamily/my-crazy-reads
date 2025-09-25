@@ -53,16 +53,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Nouvelle palette pastel moderne MCF - Bleu/Vert élégant
-        'mcf-primary': '#4A90E2',       // Bleu pastel soutenu (principal)
-        'mcf-primary-dark': '#3A7BC8',  // Bleu pastel foncé
-        'mcf-secondary': '#7BC5AE',     // Vert pastel foncé (secondaire)
-        'mcf-secondary-light': '#A8D5C4', // Vert pastel clair
-        'mcf-background': '#FDFDFD',    // Blanc cassé
-        'mcf-gradient-start': '#D7F5E9', // Vert pastel dégradé début
-        'mcf-gradient-end': '#E3F0FF',  // Bleu ciel clair dégradé fin
-        'mcf-mint': '#D7F5E9',          // Vert pastel (compatible ancien)
-        'mcf-text': '#333333',          // Typographie gris foncé
+        // MCF Design System - Utilisation des tokens HSL sémantiques
+        'mcf-primary': 'hsl(var(--mcf-primary))',
+        'mcf-primary-dark': 'hsl(var(--mcf-primary-dark))',
+        'mcf-secondary': 'hsl(var(--mcf-secondary))',
+        'mcf-secondary-light': 'hsl(var(--mcf-secondary-light))',
+        'mcf-background': 'hsl(var(--mcf-background))',
+        'mcf-gradient-start': 'hsl(var(--mcf-gradient-start))',
+        'mcf-gradient-end': 'hsl(var(--mcf-gradient-end))',
+        'mcf-mint': 'hsl(var(--mcf-mint))',
+        'mcf-text': 'hsl(var(--mcf-text))',
       },
       borderRadius: {
         lg: "var(--radius)",

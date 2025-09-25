@@ -14,11 +14,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 213 91% 59%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 162 39% 64%;
+    --secondary-foreground: 0 0% 0%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -31,7 +31,18 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 213 91% 59%;
+
+    /* MCF Design System - Nouvelle palette bleu/vert pastel */
+    --mcf-primary: 213 91% 59%;           /* Bleu MCF principal #4A90E2 */
+    --mcf-primary-dark: 213 91% 54%;      /* Bleu MCF foncé #3A7BC8 */
+    --mcf-secondary: 162 39% 64%;         /* Vert MCF #7BC5AE */
+    --mcf-secondary-light: 162 39% 74%;   /* Vert MCF clair #A8D5C4 */
+    --mcf-background: 0 0% 99%;           /* Blanc cassé #FDFDFD */
+    --mcf-gradient-start: 148 65% 90%;    /* Vert pastel #D7F5E9 */
+    --mcf-gradient-end: 213 100% 94%;     /* Bleu ciel #E3F0FF */
+    --mcf-mint: 148 65% 90%;              /* Vert mint #D7F5E9 */
+    --mcf-text: 0 0% 20%;                 /* Gris foncé #333333 */
 
     --radius: 0.5rem;
   }
@@ -88,12 +99,12 @@
 
 /* Hero Section Gradient - Nouvelle charte bleu/vert pastel */
 .hero-gradient {
-  background: linear-gradient(135deg, #D7F5E9 0%, #E3F0FF 100%);
+  background: linear-gradient(135deg, hsl(var(--mcf-gradient-start)) 0%, hsl(var(--mcf-gradient-end)) 100%);
 }
 
 /* New MCF Gradient - Élégant bleu/vert pastel */
 .mcf-gradient {
-  background: linear-gradient(135deg, #FDFDFD 0%, #D7F5E9 50%, #E3F0FF 100%);
+  background: linear-gradient(135deg, hsl(var(--mcf-background)) 0%, hsl(var(--mcf-gradient-start)) 50%, hsl(var(--mcf-gradient-end)) 100%);
 }
 
 /* Glassmorphism Card */
@@ -105,7 +116,7 @@
 }
 
 .card-shadow {
-  box-shadow: 0 10px 25px -5px rgba(74, 144, 226, 0.1), 0 8px 10px -6px rgba(74, 144, 226, 0.05);
+  box-shadow: 0 10px 25px -5px hsl(var(--mcf-primary) / 0.1), 0 8px 10px -6px hsl(var(--mcf-primary) / 0.05);
 }
 
 /* Animation Delays */
@@ -143,30 +154,30 @@
 .react-datepicker {
   font-family: inherit !important;
   border-radius: 0.5rem !important;
-  border-color: #eee !important;
+  border-color: hsl(var(--border)) !important;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
 }
 
 .react-datepicker__header {
-  background-color: #E3F0FF !important;
-  border-bottom: 1px solid #4A90E2 !important;
+  background-color: hsl(var(--mcf-gradient-end)) !important;
+  border-bottom: 1px solid hsl(var(--mcf-primary)) !important;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #4A90E2 !important;
+  background-color: hsl(var(--mcf-primary)) !important;
   border-radius: 0.5rem !important;
   color: white !important;
 }
 
 .react-datepicker__day:hover {
-  background-color: #7BC5AE !important;
+  background-color: hsl(var(--mcf-secondary)) !important;
   border-radius: 0.5rem !important;
 }
 
 .react-datepicker__year-dropdown,
 .react-datepicker__month-dropdown {
-  background-color: white !important;
+  background-color: hsl(var(--background)) !important;
   border-radius: 0.5rem !important;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
   max-height: 300px !important;
@@ -174,12 +185,12 @@
 }
 
 .react-datepicker__current-month {
-  color: #4A90E2 !important;
+  color: hsl(var(--mcf-primary)) !important;
   font-weight: bold !important;
 }
 
 .react-datepicker__day-name {
-  color: #4A90E2 !important;
+  color: hsl(var(--mcf-primary)) !important;
 }
 
 .react-datepicker__triangle {
@@ -195,12 +206,12 @@
 .react-datepicker__year-select {
   padding: 0.25rem !important;
   border-radius: 0.25rem !important;
-  border: 1px solid #ddd !important;
+  border: 1px solid hsl(var(--border)) !important;
 }
 
 .react-datepicker__year-option:hover,
 .react-datepicker__month-option:hover {
-  background-color: #7BC5AE !important;
+  background-color: hsl(var(--mcf-secondary)) !important;
 }
 
 .react-datepicker__navigation {

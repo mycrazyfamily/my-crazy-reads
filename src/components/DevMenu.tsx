@@ -114,7 +114,7 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
       </div>
       
       {isOpen && (
-        <Card className="shadow-lg border-2 border-mcf-amber bg-white/95 backdrop-blur-sm">
+        <Card className="shadow-lg border-2 border-mcf-mint bg-white/95 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Menu Développeur</CardTitle>
           </CardHeader>
@@ -137,7 +137,7 @@ const DevMenu: React.FC<DevMenuProps> = ({ visible = true }) => {
             <Button size="sm" variant="outline" onClick={() => goToStep(3)}>
               4. Animaux
             </Button>
-            <Button size="sm" variant="outline" onClick={() => goToStep(4)} className="bg-mcf-amber/20">
+            <Button size="sm" variant="outline" onClick={() => goToStep(4)} className="bg-mcf-mint/20">
               5. Doudous
             </Button>
             <Button size="sm" variant="outline" onClick={() => goToStep(5)}>
