@@ -10,7 +10,7 @@ const Abonnement: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-mcf-background">
       <Navbar />
       
-      <main className="flex-grow py-12 px-4">
+      <main className="flex-grow pt-24 pb-12 px-4">
         <div className="container mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-mcf-primary animate-fade-in">
             Nos formules d'abonnement
