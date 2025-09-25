@@ -23,7 +23,7 @@ interface ChildProfileCardProps {
 
 const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
   return (
-    <Card className="overflow-hidden border-mcf-amber/30 animate-fade-in">
+    <Card className="overflow-hidden border-mcf-mint animate-fade-in">
       <CardHeader className="bg-gradient-to-br from-mcf-amber/20 to-transparent p-4 flex flex-row items-center gap-4">
         <Avatar className="h-16 w-16 border-2 border-mcf-orange">
           <AvatarImage src={child.avatar || undefined} alt={child.firstName} />
@@ -71,11 +71,11 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-amber/20">
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-mint/30">
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center gap-1 w-full border-mcf-amber/30 hover:bg-mcf-amber/10"
+          className="flex items-center gap-1 w-full border-mcf-mint hover:bg-mcf-mint/10"
           asChild
         >
           <Link to={`/modifier-enfant/${child.id}`}>

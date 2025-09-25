@@ -126,7 +126,7 @@ const FamilyDashboard: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <Card className="p-8 text-center bg-gradient-to-br from-mcf-mint/10 to-mcf-cream/50 border-mcf-mint/20">
+              <Card className="p-8 text-center bg-gradient-to-br from-mcf-mint/10 to-mcf-cream/50 border-mcf-mint">
                 <div className="flex flex-col items-center gap-4">
                   <div className="bg-mcf-mint/20 p-4 rounded-full">
                     <Baby className="h-8 w-8 text-mcf-primary" />
@@ -159,7 +159,7 @@ const FamilyDashboard: React.FC = () => {
             {books.length > 0 ? (
               <BookTimeline />
             ) : (
-              <Card className="p-8 text-center bg-gradient-to-br from-mcf-secondary/10 to-mcf-cream/50 border-mcf-secondary/20">
+              <Card className="p-8 text-center bg-gradient-to-br from-mcf-secondary/10 to-mcf-cream/50 border-mcf-secondary">
                 <div className="flex flex-col items-center gap-4">
                   <div className="bg-mcf-secondary/20 p-4 rounded-full">
                     <Book className="h-8 w-8 text-mcf-secondary" />
@@ -194,7 +194,7 @@ const FamilyDashboard: React.FC = () => {
             {familyCode ? (
               <FamilyCodeShare familyCode={familyCode} />
             ) : (
-              <Card className={`p-8 text-center bg-gradient-to-br from-mcf-amber/10 to-mcf-cream/50 border-mcf-amber/20 ${children.length === 0 ? 'opacity-60' : ''}`}>
+              <Card className={`p-8 text-center bg-gradient-to-br from-mcf-amber/10 to-mcf-cream/50 border-mcf-mint ${children.length === 0 ? 'opacity-60' : ''}`}>
                 <div className="flex flex-col items-center gap-4">
                   <div className="bg-mcf-amber/20 p-4 rounded-full">
                     <Gift className="h-8 w-8 text-mcf-orange" />

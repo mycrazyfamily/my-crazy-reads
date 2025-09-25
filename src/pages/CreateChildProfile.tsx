@@ -41,7 +41,7 @@ const CreateChildProfile = ({
         }
       </p>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-amber/20">
+      <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
         <ChildProfileFormProvider 
           familyCode={familyCode} 
           onSubmit={handleSubmit}
