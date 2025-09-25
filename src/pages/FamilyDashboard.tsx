@@ -88,7 +88,7 @@ const FamilyDashboard: React.FC = () => {
         <div className="grid gap-8">
           {/* Quick action buttons */}
           <section className="animate-fade-in">
-            <TooltipProvider>
+            <TooltipProvider delayDuration={0}>
               <div className="flex flex-wrap gap-3 mb-6">
                 {/* 1. Ajouter un nouvel enfant - toujours visible */}
                 <Button 
