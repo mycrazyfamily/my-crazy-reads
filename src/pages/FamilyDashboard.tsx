@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,11 @@ import SubscriptionSummary from '@/components/familyDashboard/SubscriptionSummar
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  
+  // Scroll vers le haut au montage du composant
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Real data - will be fetched from API in production
   const children = []; // Empty for new users
