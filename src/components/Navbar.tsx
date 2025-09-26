@@ -45,9 +45,10 @@ const Navbar: React.FC = () => {
   };
 
   const getActionButton = () => {
+    const destinationPath = isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
     return (
       <Link 
-        to="/creer-profil-enfant" 
+        to={destinationPath} 
         className="bg-mcf-primary text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-lg"
       >
         Commencer l'aventure

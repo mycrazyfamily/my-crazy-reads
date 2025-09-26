@@ -7,7 +7,7 @@ const NewHero: React.FC = () => {
 
   // Détermine la destination selon l'état de connexion
   const getDestinationPath = () => {
-    return user ? '/famille-dashboard' : '/creer-profil-enfant';
+    return user ? '/espace-famille' : '/creer-profil-enfant';
   };
 
   return (
