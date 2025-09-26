@@ -10,6 +10,11 @@ const NewHero: React.FC = () => {
     return user ? '/espace-famille' : '/creer-profil-enfant';
   };
 
+  // Détermine le texte du bouton selon l'état de connexion
+  const getButtonText = () => {
+    return user ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
+  };
+
   return (
     <section className="bg-white">
       {/* Image hero avec texte superposé */}
@@ -46,7 +51,7 @@ const NewHero: React.FC = () => {
                     to={getDestinationPath()} 
                     className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-base shadow-lg"
                   >
-                    Commencer l'aventure
+                    {getButtonText()}
                   </Link>
                   
                   <Link 
