@@ -10,6 +10,11 @@ const HowItWorks: React.FC = () => {
     return user ? '/espace-famille' : '/creer-profil-enfant';
   };
 
+  // Détermine le texte du bouton selon l'état de connexion
+  const getButtonText = () => {
+    return user ? 'Gérer mon abonnement' : 'J\'abonne ma famille';
+  };
+
   const steps = [
     {
       number: "1",
@@ -79,7 +84,7 @@ const HowItWorks: React.FC = () => {
             to={getDestinationPath()} 
             className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
           >
-            Abonner mon enfant
+            {getButtonText()}
           </Link>
         </div>
       </div>
