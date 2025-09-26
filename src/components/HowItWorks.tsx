@@ -1,7 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const HowItWorks: React.FC = () => {
+  const { user } = useAuth();
+
+  // Détermine la destination selon l'état de connexion
+  const getDestinationPath = () => {
+    return user ? '/famille-dashboard' : '/creer-profil-enfant';
+  };
+
   const steps = [
     {
       number: "1",
@@ -68,7 +76,7 @@ const HowItWorks: React.FC = () => {
         {/* CTA final */}
         <div className="text-center">
           <Link 
-            to="/creer-profil-enfant" 
+            to={getDestinationPath()} 
             className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
           >
             Abonner mon enfant

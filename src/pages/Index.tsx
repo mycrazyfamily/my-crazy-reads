@@ -5,8 +5,11 @@ import NewHero from '../components/NewHero';
 import HowItWorks from '../components/HowItWorks';
 import BenefitCard from '../components/BenefitCard';
 import Footer from '../components/Footer';
+import { useAuth } from '../hooks/useAuth';
 
 const NewIndex: React.FC = () => {
+  const { user } = useAuth();
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.body.classList.add('bg-white');
@@ -15,6 +18,11 @@ const NewIndex: React.FC = () => {
       document.body.classList.remove('bg-white');
     };
   }, []);
+
+  // Détermine la destination selon l'état de connexion
+  const getDestinationPath = () => {
+    return user ? '/famille-dashboard' : '/creer-profil-enfant';
+  };
 
   const benefits = [
     {
@@ -91,7 +99,7 @@ const NewIndex: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row justify-center gap-6">
                 <Link 
-                  to="/creer-profil-enfant" 
+                  to={getDestinationPath()} 
                   className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
                 >
                   Commencer l'aventure
