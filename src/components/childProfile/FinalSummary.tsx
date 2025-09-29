@@ -51,27 +51,30 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <SummaryBlock 
           title="L'enfant"
-          icon={<Baby className="h-6 w-6 text-mcf-primary" />}
+          icon={<Baby className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(0)}
+          className="lg:col-span-1"
         >
           <BasicInfoSummary data={formData} />
         </SummaryBlock>
 
         <SummaryBlock 
           title="Personnalité & passions" 
-          icon={<Brain className="h-6 w-6 text-mcf-primary" />}
+          icon={<Brain className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(1)}
+          className="lg:col-span-1"
         >
           <PersonalitySummary data={formData} />
         </SummaryBlock>
 
         <SummaryBlock 
           title="Famille & entourage" 
-          icon={<Users className="h-6 w-6 text-mcf-primary" />}
+          icon={<Users className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(2)}
+          className="lg:col-span-1"
         >
           <FamilySummary data={formData} />
         </SummaryBlock>
@@ -79,8 +82,9 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {formData.pets && formData.pets.hasPets && (
           <SummaryBlock 
             title="Animaux de compagnie" 
-            icon={<Cat className="h-6 w-6 text-mcf-primary" />}
+            icon={<Cat className="h-5 w-5 text-mcf-primary" />}
             onEdit={() => handleGoToStep(3)}
+            className="lg:col-span-1"
           >
             <PetsSummary data={formData} />
           </SummaryBlock>
@@ -89,8 +93,9 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {formData.toys && formData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
-            icon={<Sparkles className="h-6 w-6 text-mcf-primary" />}
+            icon={<Sparkles className="h-5 w-5 text-mcf-primary" />}
             onEdit={() => handleGoToStep(4)}
+            className="lg:col-span-1"
           >
             <ToysSummary data={formData} />
           </SummaryBlock>
@@ -98,8 +103,9 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
 
         <SummaryBlock 
           title="Univers préféré & culture" 
-          icon={<Globe className="h-6 w-6 text-mcf-primary" />}
+          icon={<Globe className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(5)}
+          className={`${(!formData.pets?.hasPets && !formData.toys?.hasToys) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
         >
           <WorldsSummary data={formData} />
         </SummaryBlock>
@@ -136,32 +142,34 @@ type SummaryBlockProps = {
   icon: React.ReactNode;
   children: React.ReactNode;
   onEdit: () => void;
+  className?: string;
 };
 
 const SummaryBlock: React.FC<SummaryBlockProps> = ({ 
   title, 
   icon, 
   children, 
-  onEdit 
+  onEdit,
+  className 
 }) => {
   return (
-    <Card className="overflow-hidden border border-mcf-amber/30 hover:shadow-md transition-shadow">
-      <div className="bg-mcf-amber/10 px-4 py-3 flex items-center justify-between">
+    <Card className={`overflow-hidden border border-mcf-amber/30 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] animate-fade-in h-fit ${className || ''}`}>
+      <div className="bg-gradient-to-r from-mcf-amber/10 to-mcf-amber/5 px-3 py-2.5 flex items-center justify-between border-b border-mcf-amber/20">
         <div className="flex items-center gap-2 font-semibold text-mcf-primary-dark">
           {icon}
-          <h3>{title}</h3>
+          <h3 className="text-sm font-bold">{title}</h3>
         </div>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onEdit}
-          className="flex items-center gap-1 text-xs text-gray-600 hover:text-mcf-primary"
+          className="flex items-center gap-1 text-xs text-gray-500 hover:text-mcf-primary hover:bg-mcf-amber/10 h-7 px-2 rounded-md transition-colors"
         >
           <Pencil className="h-3 w-3" /> 
           Modifier
         </Button>
       </div>
-      <div className="p-4">
+      <div className="p-3">
         {children}
       </div>
     </Card>

@@ -15,12 +15,10 @@ const FamilySummary: React.FC<FamilySummaryProps> = ({ data }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-        {relatives.map((relative) => (
-          <RelativeSummaryItem key={relative.id} relative={relative} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {relatives.map((relative) => (
+        <RelativeSummaryItem key={relative.id} relative={relative} />
+      ))}
     </div>
   );
 };
@@ -64,15 +62,15 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
   const avatarBgColor = getAvatarColor(relative.type);
 
   return (
-    <div className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 hover:bg-gray-50">
-      <Avatar className={`h-10 w-10 ${avatarBgColor} text-white`}>
+    <div className="flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors">
+      <Avatar className={`h-9 w-9 ${avatarBgColor} text-white text-sm flex-shrink-0`}>
         <AvatarFallback>{getInitial()}</AvatarFallback>
       </Avatar>
-      <div>
-        <div className="font-medium">{relative.firstName}</div>
-        <div className="text-xs text-gray-500 flex flex-wrap gap-1">
+      <div className="min-w-0 flex-1">
+        <div className="font-medium text-sm text-gray-700 truncate">{relative.firstName}</div>
+        <div className="text-xs text-gray-500 flex items-center gap-1">
           <span>{getRelationshipLabel(relative.type)}</span>
-          {getNickname() && <span>({getNickname()})</span>}
+          {getNickname() && <span className="text-mcf-orange-dark">· {getNickname()}</span>}
         </div>
       </div>
     </div>

@@ -53,20 +53,20 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
   };
 
   return (
-    <div className="space-y-3">
-      <div>
-        <h4 className="font-medium text-gray-600 mb-1">Taille:</h4>
-        <p>{getHeightLabel()}</p>
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-gray-500">Taille:</span>
+        <span className="text-sm text-gray-700">{getHeightLabel()}</span>
       </div>
       
       {data.superpowers && data.superpowers.length > 0 && (
         <div>
-          <h4 className="font-medium text-gray-600 mb-1">Super-pouvoirs:</h4>
-          <div className="flex flex-wrap gap-2">
+          <h4 className="text-xs font-medium text-gray-500 mb-1.5">Super-pouvoirs:</h4>
+          <div className="flex flex-wrap gap-1.5">
             {data.superpowers.map((power, index) => (
               <span 
                 key={index} 
-                className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
+                className="bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full text-xs font-medium"
               >
                 {getLabelFromValue(power, SUPERPOWERS_OPTIONS)}
               </span>
@@ -77,12 +77,12 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
       
       {data.passions && data.passions.length > 0 && (
         <div>
-          <h4 className="font-medium text-gray-600 mb-1">Centres d'intérêt:</h4>
-          <div className="flex flex-wrap gap-2">
+          <h4 className="text-xs font-medium text-gray-500 mb-1.5">Centres d'intérêt:</h4>
+          <div className="flex flex-wrap gap-1.5">
             {data.passions.map((passion, index) => (
               <span 
                 key={index} 
-                className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
+                className="bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full text-xs font-medium"
               >
                 {getLabelFromValue(passion, PASSIONS_OPTIONS)}
               </span>
@@ -93,12 +93,12 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
       
       {data.challenges && data.challenges.length > 0 && (
         <div>
-          <h4 className="font-medium text-gray-600 mb-1">Défis personnels:</h4>
-          <div className="flex flex-wrap gap-2">
+          <h4 className="text-xs font-medium text-gray-500 mb-1.5">Défis personnels:</h4>
+          <div className="flex flex-wrap gap-1.5">
             {data.challenges.map((challenge, index) => (
               <span 
                 key={index} 
-                className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm"
+                className="bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full text-xs font-medium"
               >
                 {getLabelFromValue(challenge, CHALLENGES_OPTIONS)}
               </span>

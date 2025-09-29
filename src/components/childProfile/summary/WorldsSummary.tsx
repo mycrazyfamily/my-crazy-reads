@@ -16,14 +16,14 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
   const { favoriteWorlds, discoveries, customWorlds, customDiscoveries } = data.worlds;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {/* Univers préférés */}
       <div>
-        <h4 className="font-medium text-gray-600 mb-2">Univers préférés:</h4>
+        <h4 className="text-xs font-medium text-gray-500 mb-1.5">Univers préférés:</h4>
         {(!favoriteWorlds || favoriteWorlds.length === 0) ? (
-          <p className="text-gray-500">Aucun univers préféré n'a été sélectionné.</p>
+          <p className="text-xs text-gray-400">Aucun univers sélectionné</p>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {favoriteWorlds.map((world) => {
               // Pour les options personnalisées
               if (world === 'other1' || world === 'other2') {
@@ -58,11 +58,11 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
       
       {/* Découvertes */}
       <div>
-        <h4 className="font-medium text-gray-600 mb-2">Découvertes:</h4>
+        <h4 className="text-xs font-medium text-gray-500 mb-1.5">Découvertes:</h4>
         {(!discoveries || discoveries.length === 0) ? (
-          <p className="text-gray-500">Aucune découverte n'a été sélectionnée.</p>
+          <p className="text-xs text-gray-400">Aucune découverte sélectionnée</p>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {discoveries.map((discovery) => {
               // Pour les options personnalisées
               if (discovery === 'other1' || discovery === 'other2') {
@@ -86,7 +86,7 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
                 return (
                   <WorldTag 
                     key={discovery} 
-                    label="Pas de préférence particulière"
+                    label="Pas de préférence"
                     icon="🤔"
                   />
                 );
@@ -116,8 +116,8 @@ type WorldTagProps = {
 
 const WorldTag: React.FC<WorldTagProps> = ({ label, icon }) => {
   return (
-    <span className="bg-mcf-amber/10 text-mcf-orange-dark px-3 py-1 rounded-full text-sm flex items-center gap-1">
-      {icon && <span>{icon}</span>}
+    <span className="bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1">
+      {icon && <span className="text-xs">{icon}</span>}
       <span>{label}</span>
     </span>
   );

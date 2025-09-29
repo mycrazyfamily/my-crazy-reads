@@ -39,50 +39,53 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
-      <Avatar className="h-20 w-20 bg-mcf-amber/20 text-mcf-orange-dark text-2xl font-bold">
+    <div className="flex flex-col sm:flex-row gap-3 items-start">
+      <Avatar className="h-14 w-14 bg-mcf-amber/20 text-mcf-orange-dark text-xl font-bold flex-shrink-0">
         <AvatarFallback>{getInitial()}</AvatarFallback>
       </Avatar>
       
-      <div className="space-y-2 text-center sm:text-left">
-        <h4 className="text-xl font-bold">{data.firstName}</h4>
+      <div className="space-y-2 flex-1 min-w-0">
+        <h4 className="text-lg font-bold text-mcf-primary-dark">{data.firstName}</h4>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-          <div>
-            <span className="font-medium text-gray-600">Surnom:</span>{' '}
-            <span>{getNickname()}</span>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+          <div className="flex gap-1">
+            <span className="font-medium text-gray-500">Surnom:</span>
+            <span className="text-gray-700">{getNickname()}</span>
           </div>
           
-          <div>
-            <span className="font-medium text-gray-600">Genre:</span>{' '}
-            <span>{getGenderLabel()}</span>
+          <div className="flex gap-1">
+            <span className="font-medium text-gray-500">Genre:</span>
+            <span className="text-gray-700">{getGenderLabel()}</span>
           </div>
           
-          <div>
-            <span className="font-medium text-gray-600">Date de naissance:</span>{' '}
-            <span>{formatBirthDate()}</span>
+          <div className="flex gap-1 col-span-2">
+            <span className="font-medium text-gray-500">Né(e) le:</span>
+            <span className="text-gray-700">{formatBirthDate()}</span>
           </div>
           
-          <div>
-            <span className="font-medium text-gray-600">Tranche d'âge:</span>{' '}
-            <span>{data.age || 'Non spécifiée'}</span>
+          <div className="flex gap-1">
+            <span className="font-medium text-gray-500">Âge:</span>
+            <span className="text-gray-700">{data.age || 'Non spécifié'}</span>
           </div>
         </div>
 
-        <div className="pt-2">
-          <p className="text-sm"><span className="font-medium text-gray-600">Apparence:</span>{' '}
-            {data.hairType && <>Cheveux {getHairTypeLabel(data.hairType)} </>}
-            {data.hairColor && <>
-              {data.hairColor.type === 'custom' && data.hairColor.custom 
-                ? data.hairColor.custom 
-                : getHairColorLabel(data.hairColor.type)}
-            </>}
-            {data.skinColor && <>, peau {
-              data.skinColor.type === 'custom' && data.skinColor.custom 
-                ? data.skinColor.custom 
-                : getSkinColorLabel(data.skinColor.type)}
-            </>}
-            {data.glasses && <>, porte des lunettes</>}
+        <div className="pt-1">
+          <p className="text-xs leading-relaxed">
+            <span className="font-medium text-gray-500">Apparence:</span>{' '}
+            <span className="text-gray-700">
+              {data.hairType && <>Cheveux {getHairTypeLabel(data.hairType)} </>}
+              {data.hairColor && <>
+                {data.hairColor.type === 'custom' && data.hairColor.custom 
+                  ? data.hairColor.custom 
+                  : getHairColorLabel(data.hairColor.type)}
+              </>}
+              {data.skinColor && <>, peau {
+                data.skinColor.type === 'custom' && data.skinColor.custom 
+                  ? data.skinColor.custom 
+                  : getSkinColorLabel(data.skinColor.type)}
+              </>}
+              {data.glasses && <>, porte des lunettes</>}
+            </span>
           </p>
         </div>
       </div>
