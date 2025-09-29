@@ -95,7 +95,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
       </h2>
       
       {!isAddingPet ? (
-        <form className="space-y-8">
+        <div className="space-y-8">
           {/* Question sur la présence d'animaux */}
           <div className="space-y-4">
             <Label className="text-base font-medium">
@@ -157,7 +157,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
               Passer à l'étape suivante →
             </Button>
           </div>
-        </form>
+        </div>
       ) : (
         <PetForm 
           pet={currentPet || undefined} 
