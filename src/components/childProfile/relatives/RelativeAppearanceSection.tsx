@@ -181,28 +181,32 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         </div>
       )}
       
-      {/* Lunettes - Utilisation du composant Switch au lieu de RadioGroup */}
+      {/* Lunettes */}
       <div className="form-group mt-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-lg font-semibold flex items-center gap-2">
-            <span className="text-xl">👓</span> {getGenderedText(
-              "Porte-t-il des lunettes ?",
-              "Porte-t-elle des lunettes ?",
-              "Porte-t-il/elle des lunettes ?"
-            )}
-          </label>
-          
-          <div className="flex items-center space-x-4 mt-2">
-            <Switch
-              id="relative-glasses"
-              checked={glasses}
-              onCheckedChange={setGlasses}
-              className="data-[state=checked]:bg-mcf-primary"
-            />
-            <Label htmlFor="relative-glasses" className="cursor-pointer">
-              {glasses ? "Oui" : "Non"}
-            </Label>
-          </div>
+        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
+          <span className="text-xl">👓</span> {getGenderedText(
+            "Porte-t-il des lunettes ?",
+            "Porte-t-elle des lunettes ?",
+            "Porte-t-il/elle des lunettes ?"
+          )}
+        </label>
+        <div className="grid grid-cols-2 gap-3 mt-2">
+          {[
+            { value: true, label: "Oui" },
+            { value: false, label: "Non" },
+          ].map((option) => (
+            <div
+              key={option.value.toString()}
+              className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                glasses === option.value
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
+              }`}
+              onClick={() => setGlasses(option.value)}
+            >
+              {option.label}
+            </div>
+          ))}
         </div>
       </div>
     </>
