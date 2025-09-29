@@ -45,7 +45,7 @@ export type RelativeData = {
     custom?: string;
   };
   hairColor: {
-    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "custom";
+    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom";
     custom?: string;
   };
   hairType: "straight" | "wavy" | "curly" | "coily";
@@ -153,7 +153,7 @@ export type ChildProfileFormData = {
     custom?: string;
   };
   hairColor: {
-    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "custom";
+    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom";
     custom?: string;
   };
   hairType: "straight" | "wavy" | "curly" | "coily";

@@ -422,13 +422,14 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">💇</span> Quelle est la couleur de ses cheveux ?
               </FormLabel>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
                 {[
                   { value: "blonde", label: "Blonds" },
                   { value: "chestnut", label: "Châtains" },
                   { value: "brown", label: "Bruns" },
                   { value: "red", label: "Roux" },
                   { value: "black", label: "Noirs" },
+                  { value: "bald", label: "Chauve" },
                   { value: "custom", label: "Autre" },
                 ].map((option) => (
                   <div
@@ -440,7 +441,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedHairColor(option.value);
-                      form.setValue("hairColor.type", option.value as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom");
+                      form.setValue("hairColor.type", option.value as "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom");
                     }}
                   >
                     {option.label}
