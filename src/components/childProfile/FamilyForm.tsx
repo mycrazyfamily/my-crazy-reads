@@ -148,9 +148,14 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">👨‍👩‍👦‍👦</span> Famille et entourage <span className="text-2xl">💞</span>
-      </h2>
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-mcf-primary flex items-center justify-center gap-2 mb-2">
+          <span className="text-2xl">👨‍👩‍👦‍👦</span> Famille et entourage <span className="text-2xl">💞</span>
+        </h2>
+        <p className="text-sm text-gray-600 italic">
+          Vous pourrez toujours ajouter d'autres membres de la famille plus tard si vous le souhaitez
+        </p>
+      </div>
       
       {!isEditingRelative ? (
         <form className="space-y-8">
@@ -168,11 +173,15 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           
           {/* Section de confirmation et bouton de finalisation */}
           <div className="mt-10 space-y-6">
-            <div className="bg-mcf-amber/10 p-4 rounded-lg border border-mcf-amber/30">
-              <p className="text-center text-gray-700">
-                Avez-vous ajouté tous les personnages importants pour votre enfant ?<br />
-                <span className="text-sm italic">Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille 😉</span>
-              </p>
+            <div className="bg-gradient-to-r from-mcf-mint/20 to-mcf-amber/20 p-6 rounded-xl border-2 border-mcf-primary/20 shadow-lg">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-mcf-primary mb-2">
+                  Avez-vous ajouté tous les personnages importants pour votre enfant ?
+                </h3>
+                <p className="text-mcf-orange-dark font-medium">
+                  Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille 😉
+                </p>
+              </div>
             </div>
             
             <div className="pt-4 flex justify-between items-center">
