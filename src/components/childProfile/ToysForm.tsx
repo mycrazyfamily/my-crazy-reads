@@ -95,7 +95,7 @@ const ToysForm: React.FC<ToysFormProps> = ({
       </h2>
       
       {!isAddingToy ? (
-        <form className="space-y-8">
+        <div className="space-y-8">
           {/* Question sur la présence de doudous */}
           <div className="space-y-4">
             <Label className="text-base font-medium">
@@ -157,7 +157,7 @@ const ToysForm: React.FC<ToysFormProps> = ({
               Passer à l'étape suivante →
             </Button>
           </div>
-        </form>
+        </div>
       ) : (
         <ToyForm 
           toy={currentToy || undefined} 

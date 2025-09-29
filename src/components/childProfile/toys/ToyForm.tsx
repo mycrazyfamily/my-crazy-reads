@@ -59,8 +59,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
     });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     
     if (!toyName.trim()) {
       return;
@@ -99,7 +98,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div className="bg-mcf-amber/10 p-6 rounded-lg border border-mcf-amber/30">
         <h3 className="text-xl font-bold text-center mb-6 text-mcf-orange-dark">
           {isEditing ? "Modifier le doudou" : "Ajouter un doudou"}
@@ -274,7 +273,8 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
           Annuler
         </Button>
         <Button 
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold"
           disabled={!toyName.trim() || (toyType === 'other' && !otherType.trim()) || 
             (selectedRoles.includes('otherRole1') && !customRole1.trim()) || 
@@ -283,7 +283,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
           {isEditing ? "Enregistrer les modifications" : "Ajouter le doudou"}
         </Button>
       </div>
-    </form>
+    </div>
   );
 };
 
