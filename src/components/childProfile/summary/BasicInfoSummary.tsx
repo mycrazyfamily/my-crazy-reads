@@ -67,11 +67,9 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
             <span className="font-medium text-gray-500">Âge:</span>
             <span className="text-gray-700">{data.age || 'Non spécifié'}</span>
           </div>
-        </div>
 
-        <div>
-          <p className="text-xs leading-relaxed">
-            <span className="font-medium text-gray-500">Apparence:</span>{' '}
+          <div className="flex gap-1 col-span-2">
+            <span className="font-medium text-gray-500">Apparence:</span>
             <span className="text-gray-700">
               {data.hairType && <>Cheveux {getHairTypeLabel(data.hairType)} </>}
               {data.hairColor && <>
@@ -86,7 +84,7 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
               </>}
               {data.glasses && <>, porte des lunettes</>}
             </span>
-          </p>
+          </div>
         </div>
       </div>
     </div>
