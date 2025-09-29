@@ -56,16 +56,16 @@ const RelativeCard: React.FC<RelativeCardProps> = ({
     <Card className="relative">
       <CardContent className="p-4">
         <div className="flex flex-col items-center text-center">
-          <Avatar className={`w-16 h-16 mb-2 ${getHairColorForAvatar(relative.hairColor.type)}`}>
-            <AvatarFallback className={getSkinColorForAvatar(relative.skinColor.type)}>
-              {getInitials(relative.firstName)}
+          <Avatar className="w-16 h-16 mb-2 bg-mcf-amber/20">
+            <AvatarFallback className="text-3xl bg-transparent">
+              {getRelativeTypeIcon(relative.type)}
             </AvatarFallback>
           </Avatar>
           
           <h3 className="font-bold text-lg">{relative.firstName}</h3>
           
           <p className="text-sm text-gray-500 mb-1">
-            {getRelativeTypeIcon(relative.type)} {relative.type === 'other' && relative.otherTypeName 
+            {relative.type === 'other' && relative.otherTypeName 
               ? relative.otherTypeName 
               : getRelativeTypeLabel(relative.type)}
           </p>

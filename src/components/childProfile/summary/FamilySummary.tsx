@@ -28,9 +28,23 @@ type RelativeSummaryItemProps = {
 };
 
 const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) => {
-  // Obtenir l'initiale du prénom
-  const getInitial = () => {
-    return relative.firstName ? relative.firstName.charAt(0).toUpperCase() : '?';
+  // Obtenir l'emoji du type de relation
+  const getRelativeTypeIcon = (type: RelativeType) => {
+    const icons: Record<RelativeType, string> = {
+      mother: '👩',
+      father: '👨',
+      otherParent: '🧑',
+      sister: '👧',
+      brother: '👦',
+      grandmother: '👵',
+      grandfather: '👴',
+      femaleCousin: '👧',
+      maleCousin: '👦',
+      femaleFriend: '👧',
+      maleFriend: '👦',
+      other: '👤'
+    };
+    return icons[type] || '👤';
   };
 
   // Obtenir le libellé du type de relation
@@ -63,8 +77,8 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
 
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors">
-      <Avatar className={`h-9 w-9 ${avatarBgColor} text-white text-sm flex-shrink-0`}>
-        <AvatarFallback>{getInitial()}</AvatarFallback>
+      <Avatar className="h-9 w-9 bg-mcf-amber/20 text-lg flex-shrink-0">
+        <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(relative.type)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
         <div className="font-medium text-sm text-gray-700 truncate">{relative.firstName}</div>
