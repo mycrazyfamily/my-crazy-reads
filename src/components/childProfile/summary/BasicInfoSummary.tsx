@@ -69,7 +69,7 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
           </div>
         </div>
 
-        <div className="pt-1">
+        <div>
           <p className="text-xs leading-relaxed">
             <span className="font-medium text-gray-500">Apparence:</span>{' '}
             <span className="text-gray-700">
