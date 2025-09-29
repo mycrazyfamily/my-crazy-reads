@@ -1,9 +1,14 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
+import { differenceInMonths, differenceInYears, isAfter } from "date-fns";
+import { fr } from 'date-fns/locale';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { cn } from "@/lib/utils";
 
 type RelativeBasicInfoSectionProps = {
   type: RelativeType;
@@ -14,6 +19,8 @@ type RelativeBasicInfoSectionProps = {
   setOtherTypeName: (name: string) => void;
   age: string;
   setAge: (age: string) => void;
+  birthDate?: Date;
+  setBirthDate: (date: Date | undefined) => void;
   job: string;
   setJob: (job: string) => void;
   gender: RelativeGender;
@@ -39,11 +46,55 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   setOtherTypeName,
   age,
   setAge,
+  birthDate,
+  setBirthDate,
   job,
   setJob,
   gender,
   setGender
 }) => {
+  const [ageDisplay, setAgeDisplay] = useState<string>("");
+
+  useEffect(() => {
+    if (birthDate) {
+      calculateExactAge(birthDate);
+    } else {
+      setAgeDisplay("");
+      setAge("");
+    }
+  }, [birthDate]);
+
+  const calculateExactAge = (birthDate: Date) => {
+    const today = new Date();
+    const years = differenceInYears(today, birthDate);
+    
+    const monthDiff = differenceInMonths(today, birthDate) % 12;
+    
+    let ageString = "";
+    
+    if (years > 0) {
+      ageString += `${years} an${years > 1 ? 's' : ''}`;
+      
+      if (monthDiff > 0) {
+        ageString += ` et ${monthDiff} mois`;
+      }
+    } else if (monthDiff > 0) {
+      ageString = `${monthDiff} mois`;
+    } else {
+      ageString = "moins d'un mois";
+    }
+    
+    setAgeDisplay(ageString);
+    setAge(ageString);
+  };
+
+  const handleDateChange = (date: Date | null) => {
+    if (date && !isAfter(date, new Date())) {
+      setBirthDate(date);
+    } else {
+      setBirthDate(undefined);
+    }
+  };
   // Update gender whenever the type changes
   useEffect(() => {
     const newGender = getRelativeGender(type);
@@ -110,17 +161,38 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         />
       </div>
       
-      {/* Âge */}
+      {/* Date de naissance */}
       <div className="form-group">
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">🎂</span> Âge (facultatif)
+          <span className="text-xl">🎂</span> Date de naissance (facultatif)
         </label>
-        <Input 
-          value={age} 
-          onChange={(e) => setAge(e.target.value)}
-          placeholder="Ex: 35" 
-          className="border-mcf-amber"
-        />
+        <div className="relative">
+          <DatePicker
+            selected={birthDate}
+            onChange={handleDateChange}
+            showYearDropdown
+            showMonthDropdown
+            dropdownMode="select"
+            dateFormat="dd/MM/yyyy"
+            placeholderText="JJ/MM/AAAA"
+            locale={fr}
+            maxDate={new Date()}
+            yearDropdownItemNumber={50}
+            customInput={
+              <Input 
+                className="border-mcf-amber"
+              />
+            }
+            className="z-50"
+          />
+        </div>
+        {ageDisplay && (
+          <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
+            <p className="text-sm font-medium text-mcf-primary-dark">
+              Âge: {ageDisplay}
+            </p>
+          </div>
+        )}
       </div>
       
       {/* Métier */}

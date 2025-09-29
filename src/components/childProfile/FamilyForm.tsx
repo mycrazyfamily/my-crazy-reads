@@ -39,6 +39,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
         type: "none"
       },
       age: '',
+      birthDate: undefined,
       job: '',
       skinColor: {
         type: "light"

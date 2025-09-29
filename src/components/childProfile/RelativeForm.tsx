@@ -106,6 +106,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setOtherTypeName={(value) => updateFormData('otherTypeName', value)}
           age={formData.age}
           setAge={(value) => updateFormData('age', value)}
+          birthDate={formData.birthDate}
+          setBirthDate={(value) => updateFormData('birthDate', value)}
           job={formData.job}
           setJob={(value) => updateFormData('job', value)}
           gender={formData.gender}

@@ -38,6 +38,7 @@ export type RelativeData = {
     custom?: string;
   };
   age: string;
+  birthDate?: Date;
   job: string;
   skinColor: {
     type: "light" | "medium" | "dark" | "custom";
