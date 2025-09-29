@@ -39,11 +39,17 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
     
     let adaptedLabel = label;
     
-    // Si le label contient un point (ex: "Aventurier.e"), on adapte selon le genre
+    // Si le label contient un point (ex: "Aventurier.e" ou "Curieux.se"), on adapte selon le genre
     if (label.includes('.')) {
       if (gender === 'girl') {
-        // Pour le féminin, on remplace ".e" par "e", ".se" par "se", etc.
-        adaptedLabel = label.replace(/\.\w+/g, match => match.substring(1));
+        // Pour le féminin
+        if (label.includes('.se')) {
+          // Cas spécial pour les adjectifs en -eux/-euse (Curieux.se -> Curieuse)
+          adaptedLabel = label.replace(/x\.se/g, 'se');
+        } else {
+          // Cas général: on ajoute ce qui suit le point (Aventurier.e -> Aventurière)
+          adaptedLabel = label.replace(/\.(\w+)/g, '$1');
+        }
       } else if (gender === 'boy') {
         // Pour le masculin, on supprime tout ce qui suit le point
         adaptedLabel = label.replace(/\.\w+/g, '');
