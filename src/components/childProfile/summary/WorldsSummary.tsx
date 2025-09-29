@@ -23,7 +23,7 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
         {(!favoriteWorlds || favoriteWorlds.length === 0) ? (
           <p className="text-xs text-gray-400">Aucun univers sélectionné</p>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {favoriteWorlds.map((world) => {
               // Pour les options personnalisées
               if (world === 'other1' || world === 'other2') {
@@ -62,7 +62,7 @@ const WorldsSummary: React.FC<WorldsSummaryProps> = ({ data }) => {
         {(!discoveries || discoveries.length === 0) ? (
           <p className="text-xs text-gray-400">Aucune découverte sélectionnée</p>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {discoveries.map((discovery) => {
               // Pour les options personnalisées
               if (discovery === 'other1' || discovery === 'other2') {
