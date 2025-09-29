@@ -164,7 +164,7 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       {/* Date de naissance */}
       <div className="form-group">
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">🎂</span> Date de naissance (facultatif)
+          <span className="text-xl">🎂</span> Date de naissance
         </label>
         <div className="relative">
           <DatePicker
