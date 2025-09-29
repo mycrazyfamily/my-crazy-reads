@@ -45,44 +45,46 @@ const ToyCard: React.FC<ToyCardProps> = ({ toy }) => {
     return labels[type] || type;
   };
 
-  // Obtenir le libellé du rôle du doudou
-  const getToyRoleLabel = (role: ToyRole) => {
-    const labels: Record<ToyRole, string> = {
-      sleepGuardian: 'Gardien du sommeil',
-      invisibleFriend: 'Ami invisible',
-      magicProtector: 'Protecteur magique',
-      secretHero: 'Héros secret',
-      playmate: 'Compagnon de jeu',
-      noSpecificRole: 'Pas de rôle particulier',
-      otherRole1: toy.customRoles?.otherRole1 || 'Autre rôle 1',
-      otherRole2: toy.customRoles?.otherRole2 || 'Autre rôle 2'
+  // Obtenir le libellé du rôle du doudou avec son emoji
+  const getToyRoleLabelWithIcon = (role: ToyRole): { label: string; icon: string } => {
+    const roleData: Record<ToyRole, { label: string; icon: string }> = {
+      sleepGuardian: { label: 'Gardien du sommeil', icon: '🌙' },
+      invisibleFriend: { label: 'Ami invisible', icon: '👻' },
+      magicProtector: { label: 'Protecteur magique', icon: '🛡️' },
+      secretHero: { label: 'Héros secret', icon: '🦸' },
+      playmate: { label: 'Compagnon de jeu', icon: '🎮' },
+      noSpecificRole: { label: 'Pas de rôle particulier', icon: '✨' },
+      otherRole1: { label: toy.customRoles?.otherRole1 || 'Autre rôle 1', icon: '✏️' },
+      otherRole2: { label: toy.customRoles?.otherRole2 || 'Autre rôle 2', icon: '✏️' }
     };
-    return labels[role] || role;
+    return roleData[role] || { label: role, icon: '❓' };
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-mcf-amber/5">
-      <div className="flex justify-between items-start">
-        <div>
-          <h4 className="font-semibold">{toy.name}</h4>
-          <p className="text-sm text-gray-600">{getToyTypeLabel(toy.type)}</p>
-        </div>
+    <div className="p-4 border rounded-lg bg-mcf-amber/5 text-center">
+      <div>
+        <h4 className="font-semibold">{toy.name}</h4>
+        <p className="text-sm text-gray-600">{getToyTypeLabel(toy.type)}</p>
       </div>
       
-      <p className="mt-2 text-sm">{toy.appearance}</p>
+      <p className="mt-2 text-sm text-gray-700">{toy.appearance}</p>
       
       {toy.roles && toy.roles.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs font-medium text-gray-500 mb-1">Rôles imaginaires:</p>
-          <div className="flex flex-wrap gap-1">
-            {toy.roles.map((role, index) => (
-              <span 
-                key={index} 
-                className="inline-flex text-xs bg-mcf-amber/15 text-gray-700 px-2 py-0.5 rounded-full"
-              >
-                {getToyRoleLabel(role)}
-              </span>
-            ))}
+          <p className="text-xs font-medium text-gray-500 mb-1.5">Rôles imaginaires:</p>
+          <div className="flex flex-wrap gap-1.5 justify-center">
+            {toy.roles.map((role, index) => {
+              const { label, icon } = getToyRoleLabelWithIcon(role);
+              return (
+                <span 
+                  key={index} 
+                  className="inline-flex items-center gap-1 text-xs bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full font-medium"
+                >
+                  <span>{icon}</span>
+                  <span>{label}</span>
+                </span>
+              );
+            })}
           </div>
         </div>
       )}

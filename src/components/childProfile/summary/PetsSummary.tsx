@@ -50,22 +50,22 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
     return labels[type] || type;
   };
 
-  // Obtenir une traduction du trait
-  const getPetTraitLabel = (trait: PetTrait) => {
-    const labels: Record<PetTrait, string> = {
-      playful: 'Joueur',
-      lazy: 'Paresseux',
-      protective: 'Protecteur',
-      clingy: 'Câlin',
-      clever: 'Intelligent',
-      grumpy: 'Grognon',
-      gentle: 'Doux',
-      noisy: 'Bruyant',
-      talkative: 'Bavard',
-      other: pet.customTraits?.other || 'Autre',
-      other2: pet.customTraits?.other2 || 'Autre'
+  // Obtenir une traduction du trait avec son emoji
+  const getPetTraitLabelWithIcon = (trait: PetTrait): { label: string; icon: string } => {
+    const traitData: Record<PetTrait, { label: string; icon: string }> = {
+      playful: { label: 'Joueur', icon: '🎾' },
+      lazy: { label: 'Paresseux', icon: '😴' },
+      protective: { label: 'Protecteur', icon: '🛡️' },
+      clingy: { label: 'Câlin', icon: '🤗' },
+      clever: { label: 'Intelligent', icon: '🧠' },
+      grumpy: { label: 'Grognon', icon: '😾' },
+      gentle: { label: 'Doux', icon: '💕' },
+      noisy: { label: 'Bruyant', icon: '📢' },
+      talkative: { label: 'Bavard', icon: '💬' },
+      other: { label: pet.customTraits?.other || 'Autre', icon: '✨' },
+      other2: { label: pet.customTraits?.other2 || 'Autre', icon: '✨' }
     };
-    return labels[trait] || trait;
+    return traitData[trait] || { label: trait, icon: '❓' };
   };
 
   // Obtenir l'icône en fonction du type d'animal
@@ -87,26 +87,30 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
   };
 
   return (
-    <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
+    <div className="flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
       <Avatar className="h-12 w-12 bg-mcf-amber/20 text-mcf-orange">
         <AvatarFallback className="flex items-center justify-center">
           {getPetIcon()}
         </AvatarFallback>
       </Avatar>
-      <div>
+      <div className="text-center w-full">
         <div className="font-medium">{pet.name}</div>
         <div className="text-xs text-gray-600">{getPetTypeLabel(pet.type)}</div>
         
         {pet.traits && pet.traits.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1">
-            {pet.traits.map((trait, index) => (
-              <span 
-                key={index} 
-                className="inline-flex text-xs bg-mcf-amber/10 text-gray-700 px-2 py-0.5 rounded-full"
-              >
-                {getPetTraitLabel(trait)}
-              </span>
-            ))}
+          <div className="flex flex-wrap gap-1.5 mt-2 justify-center">
+            {pet.traits.map((trait, index) => {
+              const { label, icon } = getPetTraitLabelWithIcon(trait);
+              return (
+                <span 
+                  key={index} 
+                  className="inline-flex items-center gap-1 text-xs bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full font-medium"
+                >
+                  <span>{icon}</span>
+                  <span>{label}</span>
+                </span>
+              );
+            })}
           </div>
         )}
       </div>
