@@ -96,13 +96,14 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">💇</span> Couleur des cheveux
         </label>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
           {[
             { value: "blonde", label: "Blonds" },
             { value: "chestnut", label: "Châtains" },
             { value: "brown", label: "Bruns" },
             { value: "red", label: "Roux" },
             { value: "black", label: "Noirs" },
+            { value: "white", label: "Blancs" },
             { value: "custom", label: "Autre" },
           ].map((option) => (
             <div

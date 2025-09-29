@@ -71,7 +71,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         custom: selectedSkinColor === 'custom' ? formData.skinColor.custom : undefined
       },
       hairColor: {
-        type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom",
+        type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "white" | "custom",
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
       },
       customTraits: customTraits
