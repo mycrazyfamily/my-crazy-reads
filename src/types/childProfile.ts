@@ -45,13 +45,14 @@ export type RelativeData = {
     custom?: string;
   };
   hairColor: {
-    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom";
+    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "custom";
     custom?: string;
   };
-  hairType: "straight" | "wavy" | "curly" | "coily";
+  hairType: "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom";
   glasses: boolean;
   traits: string[];
   customTraits?: Record<string, string>;
+  hairTypeCustom?: string;
   otherTypeName?: string;
 };
 
@@ -153,10 +154,11 @@ export type ChildProfileFormData = {
     custom?: string;
   };
   hairColor: {
-    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom";
+    type: "blonde" | "chestnut" | "brown" | "red" | "black" | "custom";
     custom?: string;
   };
-  hairType: "straight" | "wavy" | "curly" | "coily";
+  hairType: "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom";
+  hairTypeCustom?: string;
   glasses: boolean;
   
   height: "small" | "medium" | "tall";

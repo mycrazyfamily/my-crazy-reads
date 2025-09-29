@@ -16,6 +16,8 @@ type RelativeAppearanceSectionProps = {
   setHairColorCustomValue: (value: string) => void;
   hairType: string;
   setHairType: (type: string) => void;
+  hairTypeCustom?: string;
+  setHairTypeCustom: (value: string) => void;
   glasses: boolean;
   setGlasses: (hasGlasses: boolean) => void;
   gender: RelativeGender;
@@ -32,6 +34,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
   setHairColorCustomValue,
   hairType,
   setHairType,
+  hairTypeCustom,
+  setHairTypeCustom,
   glasses,
   setGlasses,
   gender
@@ -92,14 +96,13 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">💇</span> Couleur des cheveux
         </label>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
           {[
             { value: "blonde", label: "Blonds" },
             { value: "chestnut", label: "Châtains" },
             { value: "brown", label: "Bruns" },
             { value: "red", label: "Roux" },
             { value: "black", label: "Noirs" },
-            { value: "bald", label: "Chauve" },
             { value: "custom", label: "Autre" },
           ].map((option) => (
             <div
@@ -143,6 +146,9 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
             { value: "wavy", label: "Ondulés" },
             { value: "curly", label: "Bouclés" },
             { value: "coily", label: "Frisés" },
+            { value: "bald", label: "Chauve" },
+            { value: "ponytail", label: "Queue de cheval" },
+            { value: "custom", label: "Autre" },
           ].map((option) => (
             <div
               key={option.value}
@@ -158,6 +164,21 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           ))}
         </div>
       </div>
+      
+      {/* Type de cheveux personnalisé */}
+      {hairType === "custom" && (
+        <div className="form-group">
+          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
+            <span className="text-xl">✨</span> Type de cheveux personnalisé
+          </label>
+          <Input 
+            value={hairTypeCustom || ''} 
+            onChange={(e) => setHairTypeCustom(e.target.value)}
+            placeholder="Description du type de cheveux" 
+            className="border-mcf-primary/50"
+          />
+        </div>
+      )}
       
       {/* Lunettes - Utilisation du composant Switch au lieu de RadioGroup */}
       <div className="form-group mt-6">

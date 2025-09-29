@@ -71,7 +71,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         custom: selectedSkinColor === 'custom' ? formData.skinColor.custom : undefined
       },
       hairColor: {
-        type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom",
+        type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom",
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
       },
       customTraits: customTraits
@@ -150,7 +150,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
             }
           }))}
           hairType={formData.hairType}
-          setHairType={(value) => updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily")}
+          setHairType={(value) => updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom")}
+          hairTypeCustom={formData.hairTypeCustom}
+          setHairTypeCustom={(value) => updateFormData('hairTypeCustom', value)}
           glasses={formData.glasses}
           setGlasses={(value) => updateFormData('glasses', value)}
           gender={formData.gender}

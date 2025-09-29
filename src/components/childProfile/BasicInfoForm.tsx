@@ -422,14 +422,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormLabel className="text-lg font-semibold flex items-center gap-2">
                 <span className="text-xl">💇</span> Quelle est la couleur de ses cheveux ?
               </FormLabel>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-2">
                 {[
                   { value: "blonde", label: "Blonds" },
                   { value: "chestnut", label: "Châtains" },
                   { value: "brown", label: "Bruns" },
                   { value: "red", label: "Roux" },
                   { value: "black", label: "Noirs" },
-                  { value: "bald", label: "Chauve" },
                   { value: "custom", label: "Autre" },
                 ].map((option) => (
                   <div
@@ -441,7 +440,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     }`}
                     onClick={() => {
                       setSelectedHairColor(option.value);
-                      form.setValue("hairColor.type", option.value as "blonde" | "chestnut" | "brown" | "red" | "black" | "bald" | "custom");
+                      form.setValue("hairColor.type", option.value as "blonde" | "chestnut" | "brown" | "red" | "black" | "custom");
                     }}
                   >
                     {option.label}
@@ -485,6 +484,9 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   { value: "wavy", label: "Ondulés" },
                   { value: "curly", label: "Bouclés" },
                   { value: "coily", label: "Frisés" },
+                  { value: "bald", label: "Chauve" },
+                  { value: "ponytail", label: "Queue de cheval" },
+                  { value: "custom", label: "Autre" },
                 ].map((option) => (
                   <div
                     key={option.value}
@@ -493,7 +495,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                         ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
-                    onClick={() => form.setValue("hairType", option.value as any)}
+                    onClick={() => form.setValue("hairType", option.value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom")}
                   >
                     {option.label}
                   </div>
@@ -503,6 +505,24 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             </FormItem>
           )}
         />
+
+        {form.watch("hairType") === "custom" && (
+          <FormField
+            control={form.control}
+            name="hairTypeCustom"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-xl">✨</span> Type de cheveux personnalisé
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Description personnalisée" {...field} className="border-mcf-amber" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
