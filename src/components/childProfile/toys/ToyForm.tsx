@@ -39,13 +39,22 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
   const handleRoleToggle = useCallback((role: ToyRole) => {
     setSelectedRoles(prev => {
       if (prev.includes(role)) {
+        // Si on désélectionne, simplement retirer le rôle
         return prev.filter(r => r !== role);
       } else {
-        // Limiter à 2 rôles maximum
-        if (prev.length < 2) {
-          return [...prev, role];
+        // Si on sélectionne "Aucun rôle particulier", vider toute la sélection et ne garder que celui-ci
+        if (role === 'noSpecificRole') {
+          return [role];
         }
-        return prev;
+        
+        // Si on sélectionne un autre rôle alors que "Aucun rôle particulier" était sélectionné, le retirer
+        const filteredPrev = prev.filter(r => r !== 'noSpecificRole');
+        
+        // Limiter à 2 rôles maximum (hors "Aucun rôle particulier")
+        if (filteredPrev.length < 2) {
+          return [...filteredPrev, role];
+        }
+        return filteredPrev;
       }
     });
   }, []);
@@ -76,11 +85,18 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
   // Vérifie si un rôle a déjà été sélectionné
   const isRoleSelected = (role: ToyRole) => selectedRoles.includes(role);
   
-  // Vérifie si on a atteint la limite de sélection (2 rôles max)
-  const isMaxRolesReached = selectedRoles.length >= 2;
+  // Vérifie si on a atteint la limite de sélection (2 rôles max, sauf pour "noSpecificRole")
+  const isMaxRolesReached = selectedRoles.length >= 2 && !selectedRoles.includes('noSpecificRole');
   
-  // Détermine si un rôle est désactivé (max atteint mais pas déjà sélectionné)
-  const isRoleDisabled = (role: ToyRole) => isMaxRolesReached && !isRoleSelected(role);
+  // Détermine si un rôle est désactivé
+  const isRoleDisabled = (role: ToyRole) => {
+    // Si "Aucun rôle particulier" est sélectionné, désactiver tous les autres rôles
+    if (selectedRoles.includes('noSpecificRole') && role !== 'noSpecificRole') {
+      return true;
+    }
+    // Sinon, désactiver si le max est atteint et le rôle n'est pas déjà sélectionné
+    return isMaxRolesReached && !isRoleSelected(role);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
