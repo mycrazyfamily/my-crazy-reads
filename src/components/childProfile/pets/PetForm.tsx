@@ -69,9 +69,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = () => {
     if (!name.trim()) {
       toast.error("Le prénom de l'animal est requis");
       return;
@@ -105,7 +103,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <h3 className="text-xl font-bold text-center mb-4 text-mcf-primary">
         {pet ? 'Modifier' : 'Ajouter'} un animal de compagnie
       </h3>
@@ -216,13 +214,14 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
         </Button>
         
         <Button 
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
         >
           {pet ? 'Enregistrer les modifications' : 'Ajouter cet animal'}
         </Button>
       </div>
-    </form>
+    </div>
   );
 };
 
