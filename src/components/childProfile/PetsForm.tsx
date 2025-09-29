@@ -72,9 +72,6 @@ const PetsForm: React.FC<PetsFormProps> = ({
       ? "Animal modifié avec succès" 
       : "Animal ajouté avec succès"
     );
-
-    // Avancer automatiquement à l'étape suivante après l'ajout/modification
-    handleNextStep();
   };
 
   const handleCancelPetForm = () => {
