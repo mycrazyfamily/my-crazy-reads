@@ -354,7 +354,7 @@ const FamilyDashboard: React.FC = () => {
                 className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
                 onClick={() => navigate('/ajouter-proche')}
               >
-                <Plus className="h-4 w-4" /> Ajouter un nouveau proche
+                <Plus className="h-4 w-4" /> Ajouter un proche
               </Button>
             </section>
           )}
