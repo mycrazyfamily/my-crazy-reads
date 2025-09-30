@@ -69,12 +69,14 @@ const CreateChildProfile = ({
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:max-w-4xl">
       <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-mcf-orange-dark">
-        {isGiftMode ? "Profil de l'enfant pour son livre cadeau 🎁" : "Créer le profil de l'enfant"}
+        {editMode ? "Modifier le profil de l'enfant" : (isGiftMode ? "Profil de l'enfant pour son livre cadeau 🎁" : "Créer le profil de l'enfant")}
       </h1>
       <p className="text-center text-gray-600 mb-8">
-        {isGiftMode 
-          ? "Pour offrir une histoire vraiment personnalisée, remplissez ces informations sur l'enfant"
-          : "Personnalisez l'aventure magique de votre enfant en nous parlant de lui/elle"
+        {editMode 
+          ? "Modifiez les informations de votre enfant pour mettre à jour son profil"
+          : (isGiftMode 
+            ? "Pour offrir une histoire vraiment personnalisée, remplissez ces informations sur l'enfant"
+            : "Personnalisez l'aventure magique de votre enfant en nous parlant de lui/elle")
         }
       </p>
 

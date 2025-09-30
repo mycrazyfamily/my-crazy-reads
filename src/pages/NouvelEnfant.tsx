@@ -11,11 +11,16 @@ const NouvelEnfant: React.FC = () => {
   const editChildId = searchParams.get('edit');
 
   const handleGoBack = () => {
-    // Try to go back to previous page, fallback to family dashboard if no history
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
+    // Si on est en mode édition, toujours retourner à l'espace famille
+    if (editChildId) {
       navigate('/espace-famille');
+    } else {
+      // Sinon, essayer de revenir en arrière ou aller à l'espace famille
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate('/espace-famille');
+      }
     }
   };
 

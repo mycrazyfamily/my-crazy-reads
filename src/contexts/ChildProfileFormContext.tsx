@@ -125,16 +125,16 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             
             // Restaurer les états UI
             if (profileData.nickname?.type === 'custom') {
-              setSelectedNickname(profileData.nickname.value || '');
+              setSelectedNickname(profileData.nickname.custom || '');
             }
             if (profileData.skinColor?.type === 'custom') {
-              setSelectedSkinColor(profileData.skinColor.value || '');
+              setSelectedSkinColor(profileData.skinColor.custom || '');
             }
             if (profileData.eyeColor?.type === 'custom') {
-              setSelectedEyeColor(profileData.eyeColor.value || '');
+              setSelectedEyeColor(profileData.eyeColor.custom || '');
             }
             if (profileData.hairColor?.type === 'custom') {
-              setSelectedHairColor(profileData.hairColor.value || '');
+              setSelectedHairColor(profileData.hairColor.custom || '');
             }
           }
         } catch (error) {
