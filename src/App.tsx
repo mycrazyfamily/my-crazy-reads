@@ -39,6 +39,7 @@ import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
 import ModifierProche from './pages/ModifierProche'
 import ModifierAnimal from './pages/ModifierAnimal'
+import AjouterAnimal from './pages/AjouterAnimal'
 
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;

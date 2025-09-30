@@ -218,6 +218,35 @@ const FamilyDashboard: React.FC = () => {
                   )}
                 </Tooltip>
                 
+                {/* 2.5 Ajouter un animal - désactivé si pas d'enfant */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        className={`gap-2 ${children.length === 0 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
+                          : 'bg-mcf-mint hover:bg-mcf-mint/90 text-white'
+                        }`}
+                        onClick={children.length > 0 ? () => {
+                          if (children.length === 1) {
+                            navigate(`/ajouter-animal/${children[0].id}`);
+                          } else {
+                            navigate('/ajouter-animal');
+                          }
+                        } : undefined}
+                        disabled={children.length === 0}
+                      >
+                        <Plus className="h-4 w-4" /> Ajouter un animal
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {children.length === 0 && (
+                    <TooltipContent>
+                      <p>Ajoutez d'abord un enfant pour pouvoir renseigner ses animaux de compagnie.</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+                
                 {/* 3. Offrir un nouveau livre - désactivé si pas d'enfant */}
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -359,6 +388,24 @@ const FamilyDashboard: React.FC = () => {
                     </div>
                   );
                 })}
+                
+                {/* Bouton pour ajouter un animal */}
+                {children.length > 0 && (
+                  <div className="flex justify-center mt-6">
+                    <Button 
+                      className="bg-mcf-mint hover:bg-mcf-mint/90 text-white gap-2"
+                      onClick={() => {
+                        if (children.length === 1) {
+                          navigate(`/ajouter-animal/${children[0].id}`);
+                        } else {
+                          navigate('/ajouter-animal');
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4" /> Ajouter un animal
+                    </Button>
+                  </div>
+                )}
               </div>
             </section>
           )}
