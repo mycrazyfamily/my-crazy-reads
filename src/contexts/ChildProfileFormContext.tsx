@@ -111,33 +111,36 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             .select('data')
             .eq('id', editChildId)
             .eq('type', 'child_profile')
-            .single();
+            .maybeSingle();
 
           if (error) throw error;
 
           const profileData = data?.data as any;
-          if (profileData) {
-            // Convertir la date de naissance
-            if (profileData.birthDate) {
-              profileData.birthDate = new Date(profileData.birthDate);
-            }
-            
-            // Charger toutes les données du profil
-            form.reset(profileData);
-            
-            // Restaurer les états UI
-            if (profileData.nickname?.type === 'custom') {
-              setSelectedNickname(profileData.nickname.custom || '');
-            }
-            if (profileData.skinColor?.type === 'custom') {
-              setSelectedSkinColor(profileData.skinColor.custom || '');
-            }
-            if (profileData.eyeColor?.type === 'custom') {
-              setSelectedEyeColor(profileData.eyeColor.custom || '');
-            }
-            if (profileData.hairColor?.type === 'custom') {
-              setSelectedHairColor(profileData.hairColor.custom || '');
-            }
+          if (!profileData) {
+            toast.error("Aucune donnée trouvée pour cet enfant");
+            return;
+          }
+
+          // Convertir la date de naissance
+          if (profileData.birthDate) {
+            profileData.birthDate = new Date(profileData.birthDate);
+          }
+          
+          // Charger toutes les données du profil
+          form.reset(profileData);
+          
+          // Restaurer les états UI basés sur les types sélectionnés
+          if (profileData.nickname?.type) {
+            setSelectedNickname(profileData.nickname.type);
+          }
+          if (profileData.skinColor?.type) {
+            setSelectedSkinColor(profileData.skinColor.type);
+          }
+          if (profileData.eyeColor?.type) {
+            setSelectedEyeColor(profileData.eyeColor.type);
+          }
+          if (profileData.hairColor?.type) {
+            setSelectedHairColor(profileData.hairColor.type);
           }
         } catch (error) {
           console.error('Error loading child data for editing:', error);

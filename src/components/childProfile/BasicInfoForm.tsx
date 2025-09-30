@@ -164,7 +164,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 <span className="text-xl">🧑‍🍼</span> Quel est son genre ?
               </FormLabel>
               <RadioGroup 
-                defaultValue={field.value} 
+                value={field.value} 
                 onValueChange={field.onChange} 
                 className="flex flex-col space-y-1"
               >
