@@ -10,9 +10,13 @@ type BasicInfoSummaryProps = {
 };
 
 const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
-  // Fonction pour obtenir l'initiale du prénom
-  const getInitial = () => {
-    return data.firstName ? data.firstName.charAt(0).toUpperCase() : '?';
+  // Fonction pour obtenir l'emoji en fonction du genre
+  const getGenderEmoji = () => {
+    switch (data.gender) {
+      case 'boy': return '👦';
+      case 'girl': return '👧';
+      default: return '🧒';
+    }
   };
 
   // Fonction pour formater la date de naissance
@@ -40,8 +44,8 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 items-start">
-      <Avatar className="h-14 w-14 bg-mcf-amber/20 text-mcf-orange-dark text-xl font-bold flex-shrink-0">
-        <AvatarFallback>{getInitial()}</AvatarFallback>
+      <Avatar className="h-14 w-14 bg-mcf-amber/20 text-3xl flex-shrink-0">
+        <AvatarFallback>{getGenderEmoji()}</AvatarFallback>
       </Avatar>
       
       <div className="space-y-2 flex-1 min-w-0">

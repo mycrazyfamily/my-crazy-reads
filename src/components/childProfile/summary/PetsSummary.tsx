@@ -68,29 +68,24 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
     return traitData[trait] || { label: trait, icon: '❓' };
   };
 
-  // Obtenir l'icône en fonction du type d'animal
-  const getPetIcon = () => {
+  // Obtenir l'emoji en fonction du type d'animal
+  const getPetEmoji = () => {
     switch (pet.type) {
-      case 'dog':
-        return <Dog className="h-5 w-5" />;
-      case 'cat':
-        return <Cat className="h-5 w-5" />;
-      case 'rabbit':
-        return <Rabbit className="h-5 w-5" />;
-      case 'bird':
-        return <Bird className="h-5 w-5" />;
-      case 'fish':
-        return <Fish className="h-5 w-5" />;
-      default:
-        return <HelpCircle className="h-5 w-5" />;
+      case 'dog': return '🐶';
+      case 'cat': return '🐱';
+      case 'rabbit': return '🐰';
+      case 'bird': return '🦜';
+      case 'fish': return '🐟';
+      case 'reptile': return '🐍';
+      default: return '🐾';
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
-      <Avatar className="h-12 w-12 bg-mcf-amber/20 text-mcf-orange">
+      <Avatar className="h-12 w-12 bg-mcf-amber/20 text-2xl">
         <AvatarFallback className="flex items-center justify-center">
-          {getPetIcon()}
+          {getPetEmoji()}
         </AvatarFallback>
       </Avatar>
       <div className="text-center w-full">
