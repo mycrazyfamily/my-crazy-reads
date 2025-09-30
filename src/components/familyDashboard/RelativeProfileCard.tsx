@@ -13,6 +13,7 @@ interface RelativeProfileCardProps {
     nickname?: { custom?: string; type?: string };
     traits?: string[];
     appearance?: any;
+    age?: string;
   };
   childId: string;
   childName: string;
@@ -57,6 +58,9 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
           
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-lg text-mcf-orange-dark truncate">{relative.firstName}</h3>
+            {relative.age && (
+              <p className="text-sm font-medium text-mcf-primary mb-1">{relative.age}</p>
+            )}
             <p className="text-sm text-gray-600 mb-1">{nickname}</p>
             <p className="text-xs text-gray-500">Proche de {childName}</p>
           </div>
