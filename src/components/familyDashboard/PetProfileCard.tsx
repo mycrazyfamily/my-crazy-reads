@@ -35,11 +35,25 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
       fish: 'Poisson',
       hamster: 'Hamster',
       rabbit: 'Lapin',
-      turtle: 'Tortue',
-      snake: 'Serpent',
-      other: 'Autre'
+      reptile: 'Reptile'
     };
-    return labelMap[type] || type;
+    // Si le type n'est pas dans la map, retourner le type tel quel (ex: "Tigre")
+    return labelMap[type.toLowerCase()] || type;
+  };
+
+  const getTraitLabel = (trait: string) => {
+    const traitMap: Record<string, string> = {
+      playful: 'Joueur',
+      lazy: 'Paresseux',
+      protective: 'Protecteur',
+      clingy: 'Collant',
+      clever: 'Malin',
+      grumpy: 'Grognon',
+      gentle: 'Doux',
+      noisy: 'Bruyant',
+      talkative: 'Bavard'
+    };
+    return traitMap[trait] || trait;
   };
 
   return (
@@ -57,24 +71,18 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
       </CardHeader>
       
       <CardContent className="p-4">
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">
-            Animal de compagnie de <span className="font-semibold text-mcf-orange-dark">{childName}</span>
-          </p>
-          
-          {pet.traits && pet.traits.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {pet.traits.slice(0, 3).map((trait, idx) => (
-                <span 
-                  key={idx}
-                  className="text-xs bg-mcf-mint/20 text-mcf-primary px-2 py-1 rounded-full"
-                >
-                  {trait}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        {pet.traits && pet.traits.length > 0 && (
+          <div className="flex flex-wrap gap-1 justify-center mb-4">
+            {pet.traits.slice(0, 3).map((trait, idx) => (
+              <span 
+                key={idx}
+                className="text-xs bg-mcf-mint/20 text-mcf-primary px-2 py-1 rounded-full"
+              >
+                {getTraitLabel(trait)}
+              </span>
+            ))}
+          </div>
+        )}
         
         <Button
           variant="outline"
