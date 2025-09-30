@@ -71,11 +71,11 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-mint/30">
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-primary/30">
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center gap-1 w-full border-mcf-mint hover:bg-mcf-mint/10"
+          className="flex items-center gap-1 w-full border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
           asChild
         >
           <Link to={`/creer-profil-enfant?edit=${child.id}`}>

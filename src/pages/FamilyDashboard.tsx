@@ -207,7 +207,7 @@ const FamilyDashboard: React.FC = () => {
                         onClick={children.length > 0 ? () => navigate('/ajouter-proche') : undefined}
                         disabled={children.length === 0}
                       >
-                        <User className="h-4 w-4" /> Ajouter un proche
+                        <Plus className="h-4 w-4" /> Ajouter un proche
                       </Button>
                     </div>
                   </TooltipTrigger>
@@ -225,7 +225,7 @@ const FamilyDashboard: React.FC = () => {
                       <Button 
                         className={`gap-2 ${children.length === 0 
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
-                          : 'bg-mcf-mint hover:bg-mcf-mint/90 text-white'
+                          : 'bg-mcf-primary hover:bg-mcf-primary/90 text-white'
                         }`}
                         onClick={children.length > 0 ? () => {
                           if (children.length === 1) {
@@ -393,7 +393,7 @@ const FamilyDashboard: React.FC = () => {
                 {children.length > 0 && (
                   <div className="flex justify-center mt-6">
                     <Button 
-                      className="bg-mcf-mint hover:bg-mcf-mint/90 text-white gap-2"
+                      className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2"
                       onClick={() => {
                         if (children.length === 1) {
                           navigate(`/ajouter-animal/${children[0].id}`);

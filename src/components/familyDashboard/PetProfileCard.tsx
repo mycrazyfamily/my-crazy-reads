@@ -57,8 +57,8 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
   };
 
   return (
-    <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
-      <CardHeader className="bg-gradient-to-br from-mcf-amber/10 to-transparent p-4">
+    <Card className="overflow-hidden border-mcf-primary hover:shadow-md transition-shadow">
+      <CardHeader className="bg-gradient-to-br from-mcf-primary/10 to-transparent p-4">
         <div className="flex items-center gap-3">
           <div className="text-4xl">
             {getPetTypeEmoji(pet.type)}
@@ -78,7 +78,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
             {pet.traits.slice(0, 3).map((trait, idx) => (
               <span 
                 key={idx}
-                className="text-xs bg-mcf-mint/20 text-mcf-primary px-2 py-1 rounded-full"
+                className="text-xs text-gray-700 px-2 py-1"
               >
                 {getTraitLabel(trait)}
               </span>
@@ -89,7 +89,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
         <Button
           variant="outline"
           size="sm"
-          className="w-full mt-4 border-mcf-mint hover:bg-mcf-mint/10"
+          className="w-full mt-4 border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
           asChild
         >
           <Link to={`/modifier-animal/${childId}/${pet.id}`}>
