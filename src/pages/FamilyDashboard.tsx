@@ -21,6 +21,7 @@ import BookTimeline from '@/components/familyDashboard/BookTimeline';
 import FamilyCodeShare from '@/components/familyDashboard/FamilyCodeShare';
 import StoryCustomizationForm from '@/components/familyDashboard/StoryCustomizationForm';
 import SubscriptionSummary from '@/components/familyDashboard/SubscriptionSummary';
+import RelativeProfileCard from '@/components/familyDashboard/RelativeProfileCard';
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -262,49 +263,36 @@ const FamilyDashboard: React.FC = () => {
                 <Heart className="h-6 w-6" /> Ma famille et mes proches
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {children.map((child) => {
                   if (!child.relatives || child.relatives.length === 0) return null;
                   
                   return (
-                    <Card key={child.id} className="p-4 border-mcf-mint">
-                      <h3 className="text-lg font-semibold text-mcf-orange-dark mb-3">
+                    <div key={child.id} className="space-y-3">
+                      <h3 className="text-lg font-semibold text-mcf-orange-dark">
                         Les proches de {child.firstName}
                       </h3>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {child.relatives.map((relative: any, idx: number) => (
-                          <div key={idx} className="flex items-center gap-3 p-3 bg-mcf-cream/30 rounded-lg">
-                            <Avatar className="h-10 w-10 bg-mcf-amber/20">
-                              <AvatarFallback className="text-lg">
-                                {relative.type === 'father' ? '👨' : 
-                                 relative.type === 'mother' ? '👩' :
-                                 relative.type === 'brother' ? '👦' :
-                                 relative.type === 'sister' ? '👧' :
-                                 relative.type === 'grandfather' ? '👴' :
-                                 relative.type === 'grandmother' ? '👵' : '👤'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-mcf-orange-dark truncate">
-                                {relative.firstName}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {relative.nickname?.custom || relative.nickname?.type || 
-                                 (relative.type === 'father' ? 'Papa' :
-                                  relative.type === 'mother' ? 'Maman' :
-                                  relative.type === 'brother' ? 'Frère' :
-                                  relative.type === 'sister' ? 'Sœur' :
-                                  relative.type === 'grandfather' ? 'Grand-père' :
-                                  relative.type === 'grandmother' ? 'Grand-mère' : 'Proche')}
-                              </p>
-                            </div>
-                          </div>
+                          <RelativeProfileCard 
+                            key={idx}
+                            relative={relative}
+                            childId={child.id}
+                            childName={child.firstName}
+                          />
                         ))}
                       </div>
-                    </Card>
+                    </div>
                   );
                 })}
               </div>
+              
+              <Button 
+                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                onClick={() => navigate('/ajouter-proche')}
+              >
+                <Plus className="h-4 w-4" /> Ajouter un nouveau proche
+              </Button>
             </section>
           )}
           

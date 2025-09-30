@@ -37,6 +37,7 @@ import OffrirTheme from './pages/OffrirTheme'
 import OffrirMessage from './pages/OffrirMessage'
 import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
+import ModifierProche from './pages/ModifierProche'
 
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;
@@ -93,6 +94,11 @@ function App() {
             <Route path="/espace-famille" element={
               <AuthGuard>
                 <FamilyDashboard />
+              </AuthGuard>
+            } />
+            <Route path="/modifier-proche/:childId/:relativeId" element={
+              <AuthGuard>
+                <ModifierProche />
               </AuthGuard>
             } />
 
