@@ -65,7 +65,9 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-mcf-orange-dark">{pet.name}</h3>
-            <p className="text-sm text-gray-600">{getPetTypeLabel(pet.type)}</p>
+            <p className="text-sm text-gray-600">
+              {pet.type === 'other' && pet.otherType ? pet.otherType : getPetTypeLabel(pet.type)}
+            </p>
           </div>
         </div>
       </CardHeader>
