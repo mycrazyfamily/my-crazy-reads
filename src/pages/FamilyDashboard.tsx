@@ -22,6 +22,7 @@ import FamilyCodeShare from '@/components/familyDashboard/FamilyCodeShare';
 import StoryCustomizationForm from '@/components/familyDashboard/StoryCustomizationForm';
 import SubscriptionSummary from '@/components/familyDashboard/SubscriptionSummary';
 import RelativeProfileCard from '@/components/familyDashboard/RelativeProfileCard';
+import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const FamilyDashboard: React.FC = () => {
     avatar: string | null;
     personalityEmoji: string;
     relatives?: any[];
+    pets?: any[];
     hasToys?: boolean;
     hasPets?: number;
   }>>([]);
@@ -102,6 +104,7 @@ const FamilyDashboard: React.FC = () => {
           avatar: null,
           personalityEmoji: '🧒',
           relatives: row.data?.family?.relatives || [],
+          pets: row.data?.pets?.pets || [],
           hasToys: !!row.data?.toys?.hasToys,
           hasPets: row.data?.pets?.pets ? row.data.pets.pets.length : 0,
         }));
@@ -324,6 +327,39 @@ const FamilyDashboard: React.FC = () => {
               >
                 <Plus className="h-4 w-4" /> Ajouter un nouveau proche
               </Button>
+            </section>
+          )}
+
+          {/* Section: Animaux de compagnie */}
+          {children.length > 0 && children.some(child => child.pets && child.pets.length > 0) && (
+            <section className="animate-fade-in animation-delay-75">
+              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
+                <span className="text-2xl">🐾</span> Nos animaux de compagnie
+              </h2>
+              
+              <div className="space-y-6">
+                {children.map((child) => {
+                  if (!child.pets || child.pets.length === 0) return null;
+                  
+                  return (
+                    <div key={child.id} className="space-y-3">
+                      <h3 className="text-lg font-semibold text-mcf-orange-dark">
+                        Les animaux de {child.firstName}
+                      </h3>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {child.pets.map((pet: any, idx: number) => (
+                          <PetProfileCard 
+                            key={idx}
+                            pet={pet}
+                            childId={child.id}
+                            childName={child.firstName}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </section>
           )}
           

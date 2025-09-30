@@ -14,9 +14,10 @@ type FormStepsProps = {
   isGiftMode?: boolean;
   nextButtonText?: string;
   onFormSubmit?: () => void; // Rendu optionnel
+  editMode?: boolean;
 };
 
-const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonText, onFormSubmit }) => {
+const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonText, onFormSubmit, editMode = false }) => {
   const { 
     formStep, 
     handleNextStep, 
@@ -67,14 +68,14 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
         />
       )}
 
-      {formStep === 2 && (
+      {formStep === 2 && !editMode && (
         <FamilyForm
           handlePreviousStep={handlePreviousStep}
           onSubmit={() => handleNextStep()}
         />
       )}
 
-      {formStep === 3 && (
+      {formStep === 3 && !editMode && (
         <PetsForm
           handleNextStep={handleNextStep}
           handlePreviousStep={handlePreviousStep}

@@ -38,6 +38,7 @@ import OffrirMessage from './pages/OffrirMessage'
 import OffrirLivraison from './pages/OffrirLivraison'
 import OffrirConfirmation from './pages/OffrirConfirmation'
 import ModifierProche from './pages/ModifierProche'
+import ModifierAnimal from './pages/ModifierAnimal'
 
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;
@@ -99,6 +100,11 @@ function App() {
             <Route path="/modifier-proche/:childId/:relativeId" element={
               <AuthGuard>
                 <ModifierProche />
+              </AuthGuard>
+            } />
+            <Route path="/modifier-animal/:childId/:petId" element={
+              <AuthGuard>
+                <ModifierAnimal />
               </AuthGuard>
             } />
 

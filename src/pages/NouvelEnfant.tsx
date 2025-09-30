@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import CreateChildProfile from './CreateChildProfile';
@@ -7,6 +7,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const NouvelEnfant: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editChildId = searchParams.get('edit');
 
   const handleGoBack = () => {
     // Try to go back to previous page, fallback to family dashboard if no history
@@ -31,8 +33,10 @@ const NouvelEnfant: React.FC = () => {
       </div>
       <CreateChildProfile 
         isGiftMode={false} 
-        nextPath="/start-adventure"
+        nextPath="/espace-famille"
         initialStep={0}
+        editMode={!!editChildId}
+        editChildId={editChildId || undefined}
       />
     </div>
   );

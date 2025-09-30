@@ -22,6 +22,7 @@ type ChildProfileFormContextType = {
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
   handleSubmitForm: () => void;
+  editMode: boolean;
 };
 
 const ChildProfileFormContext = createContext<ChildProfileFormContextType | undefined>(undefined);
@@ -31,13 +32,17 @@ export type ChildProfileFormProviderProps = {
   familyCode?: string;
   onSubmit: (data: ChildProfileFormData) => void;
   initialStep?: number;
+  editMode?: boolean;
+  editChildId?: string;
 };
 
 export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> = ({ 
   children, 
   familyCode,
   onSubmit,
-  initialStep
+  initialStep,
+  editMode = false,
+  editChildId
 }) => {
   const location = useLocation();
   const locationState = location.state as { targetStep?: number } | null;
@@ -96,10 +101,58 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   });
 
   useEffect(() => {
+    const loadEditData = async () => {
+      if (editMode && editChildId) {
+        try {
+          const { data, error } = await (await import('@/integrations/supabase/client')).supabase
+            .from('drafts')
+            .select('data')
+            .eq('id', editChildId)
+            .eq('type', 'child_profile')
+            .single();
+
+          if (error) throw error;
+
+          const profileData = data?.data as any;
+          if (profileData) {
+            // Convertir la date de naissance
+            if (profileData.birthDate) {
+              profileData.birthDate = new Date(profileData.birthDate);
+            }
+            
+            // Charger toutes les données du profil
+            form.reset(profileData);
+            
+            // Restaurer les états UI
+            if (profileData.nickname?.type === 'custom') {
+              setSelectedNickname(profileData.nickname.value || '');
+            }
+            if (profileData.skinColor?.type === 'custom') {
+              setSelectedSkinColor(profileData.skinColor.value || '');
+            }
+            if (profileData.eyeColor?.type === 'custom') {
+              setSelectedEyeColor(profileData.eyeColor.value || '');
+            }
+            if (profileData.hairColor?.type === 'custom') {
+              setSelectedHairColor(profileData.hairColor.value || '');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading child data for editing:', error);
+          toast.error("Erreur lors du chargement des données");
+        }
+      }
+    };
+
+    loadEditData();
+  }, [editMode, editChildId, form]);
+
+  useEffect(() => {
     if (familyCode) {
       toast.info(`Code famille utilisé: ${familyCode}`);
       form.setValue("firstName", "Enfant pré-rempli");
-    } else {
+    } else if (!editMode) {
+      // Ne charger le localStorage que si on n'est pas en mode édition
       const savedState = localStorage.getItem(FORM_STORAGE_KEY);
       if (savedState) {
         try {
@@ -133,7 +186,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       console.log(`Navigation vers l'étape ${locationState.targetStep + 1} via locationState`);
       toast.success(`Navigation vers l'étape ${locationState.targetStep + 1}`);
     }
-  }, [form, familyCode, initialStep, locationState]);
+  }, [form, familyCode, initialStep, locationState, editMode]);
 
   useEffect(() => {
     const saveFormState = () => {
@@ -159,15 +212,34 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     // Ensure latest values are validated before moving to next step
     const isValidNow = await form.trigger();
     if (isValidNow) {
-      setFormStep(prev => prev + 1);
+      let nextStep = formStep + 1;
+      
+      // En mode édition, skip les étapes 2 (famille) et 3 (pets)
+      if (editMode) {
+        if (formStep === 1) {
+          nextStep = 4; // De Personalité (1) à Toys (4)
+        }
+      }
+      
+      setFormStep(nextStep);
       toast.success("Section complétée !");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       toast.error("Veuillez compléter tous les champs requis");
     }
   };
+  
   const handlePreviousStep = () => {
-    setFormStep(prev => prev - 1);
+    let prevStep = formStep - 1;
+    
+    // En mode édition, skip les étapes 2 (famille) et 3 (pets)
+    if (editMode) {
+      if (formStep === 4) {
+        prevStep = 1; // De Toys (4) à Personalité (1)
+      }
+    }
+    
+    setFormStep(prevStep);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -198,7 +270,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     handleNextStep,
     handlePreviousStep, 
     handleGoToStep,
-    handleSubmitForm
+    handleSubmitForm,
+    editMode
   };
 
   return (
