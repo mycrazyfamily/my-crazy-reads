@@ -12,7 +12,7 @@ interface Child {
   age: string;
   avatar: string | null;
   personalityEmoji: string;
-  relatives?: number;
+  relatives?: any[];
   hasToys?: boolean;
   hasPets?: number;
 }
@@ -39,10 +39,10 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
       
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
-          {child.relatives && (
+          {child.relatives && child.relatives.length > 0 && (
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-mcf-orange" />
-              <span>{child.relatives} proches</span>
+              <span>{child.relatives.length} proche{child.relatives.length > 1 ? 's' : ''}</span>
             </div>
           )}
           
@@ -78,7 +78,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           className="flex items-center gap-1 w-full border-mcf-mint hover:bg-mcf-mint/10"
           asChild
         >
-          <Link to={`/modifier-enfant/${child.id}`}>
+          <Link to={`/creer-profil-enfant?edit=${child.id}`}>
             <Edit className="h-3.5 w-3.5" />
             <span>Modifier</span>
           </Link>

@@ -38,7 +38,7 @@ const FamilyDashboard: React.FC = () => {
     age: string;
     avatar: string | null;
     personalityEmoji: string;
-    relatives?: number;
+    relatives?: any[];
     hasToys?: boolean;
     hasPets?: number;
   }>>([]);
@@ -69,11 +69,23 @@ const FamilyDashboard: React.FC = () => {
           age: mapAge(row.data?.age),
           avatar: null,
           personalityEmoji: '🧒',
-          relatives: row.data?.family?.relatives?.length || 0,
+          relatives: row.data?.family?.relatives || [],
           hasToys: !!row.data?.toys?.hasToys,
           hasPets: row.data?.pets?.pets ? row.data.pets.pets.length : 0,
         }));
-        setChildren(mapped);
+        
+        // Déduplication des enfants par prénom + date de naissance
+        const seen = new Map();
+        const deduped = mapped.filter((child: any) => {
+          const key = `${child.firstName}-${child.age}`;
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.set(key, true);
+          return true;
+        });
+        
+        setChildren(deduped);
       } catch (e) {
         console.error('Unexpected error loading children:', e);
       }
@@ -242,6 +254,59 @@ const FamilyDashboard: React.FC = () => {
               </Card>
             )}
           </section>
+
+          {/* Section: Ma famille - Affichage des proches */}
+          {children.length > 0 && children.some(child => child.relatives && child.relatives.length > 0) && (
+            <section className="animate-fade-in animation-delay-50">
+              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
+                <Heart className="h-6 w-6" /> Ma famille
+              </h2>
+              
+              <div className="space-y-4">
+                {children.map((child) => {
+                  if (!child.relatives || child.relatives.length === 0) return null;
+                  
+                  return (
+                    <Card key={child.id} className="p-4 border-mcf-mint">
+                      <h3 className="text-lg font-semibold text-mcf-orange-dark mb-3">
+                        Les proches de {child.firstName}
+                      </h3>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {child.relatives.map((relative: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-mcf-cream/30 rounded-lg">
+                            <Avatar className="h-10 w-10 bg-mcf-amber/20">
+                              <AvatarFallback className="text-lg">
+                                {relative.type === 'father' ? '👨' : 
+                                 relative.type === 'mother' ? '👩' :
+                                 relative.type === 'brother' ? '👦' :
+                                 relative.type === 'sister' ? '👧' :
+                                 relative.type === 'grandfather' ? '👴' :
+                                 relative.type === 'grandmother' ? '👵' : '👤'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-mcf-orange-dark truncate">
+                                {relative.firstName}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {relative.nickname?.custom || relative.nickname?.type || 
+                                 (relative.type === 'father' ? 'Papa' :
+                                  relative.type === 'mother' ? 'Maman' :
+                                  relative.type === 'brother' ? 'Frère' :
+                                  relative.type === 'sister' ? 'Sœur' :
+                                  relative.type === 'grandfather' ? 'Grand-père' :
+                                  relative.type === 'grandmother' ? 'Grand-mère' : 'Proche')}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+          )}
           
           {/* Section 2: Books */}
           <section className="animate-fade-in animation-delay-100">
