@@ -2,6 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ChildProfileFormData } from '@/types/childProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
@@ -10,24 +12,44 @@ type UseChildProfileSubmitProps = {
 
 export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChildProfileSubmitProps) => {
   const navigate = useNavigate();
+  const { supabaseSession } = useAuth();
   const FORM_STORAGE_KEY = 'child-profile-form-state';
 
-  const handleSubmit = (data: ChildProfileFormData) => {
+  const handleSubmit = async (data: ChildProfileFormData) => {
     console.log("Handling form submission with data:", data);
-    
-    // Clear stored form data
-    localStorage.removeItem(FORM_STORAGE_KEY);
-    
-    // Show success message
-    toast.success(isGiftMode 
-      ? "Profil créé avec succès !" 
-      : "L'aventure de votre enfant commence maintenant !");
-    
+
+    const userId = supabaseSession?.user?.id;
+    if (!userId) {
+      console.warn('No authenticated user found. Skipping server save.');
+      toast.error("Veuillez vous connecter pour sauvegarder le profil.");
+    } else {
+      const { error } = await (supabase as any)
+        .from('drafts')
+        .insert([
+          {
+            type: 'child_profile',
+            data,
+            created_by: userId,
+          }
+        ]);
+
+      if (error) {
+        console.error('Error saving child profile draft:', error);
+        toast.error("Impossible d'enregistrer le profil. Réessayez.");
+      } else {
+        toast.success(isGiftMode
+          ? "Profil créé et sauvegardé !"
+          : "Profil enregistré, l'aventure peut commencer !");
+        // Clear stored form data only after a successful save
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
+    }
+
     // Définir la destination en fonction du mode
     const destination = isGiftMode && nextPath ? nextPath : '/start-adventure';
     console.log("Will redirect to:", destination);
-    
-    // Force immediate timeout to ensure we handle this after the current synchronous code
+
+    // Navigate after a short delay so the toast is visible
     setTimeout(() => {
       console.log("Executing navigation to:", destination);
       if (isGiftMode && nextPath) {
@@ -35,7 +57,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       } else {
         navigate('/start-adventure', { state: { childProfile: data } });
       }
-    }, 1500); // 1.5 seconds timeout to ensure redirection happens after toast is visible
+    }, 1000);
   };
 
   return { handleSubmit };
