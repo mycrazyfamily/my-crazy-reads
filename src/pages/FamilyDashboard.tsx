@@ -88,16 +88,11 @@ const FamilyDashboard: React.FC = () => {
 
     const loadChildren = async () => {
       try {
-        console.log('🔍 Loading children from drafts...');
         const { data, error } = await (supabase as any)
           .from('drafts')
           .select('id, data')
           .eq('type', 'child_profile')
           .order('created_at', { ascending: false });
-        
-        console.log('📊 Raw data from Supabase:', data);
-        console.log('❌ Error:', error);
-        
         if (error) {
           console.error('Failed to load child profiles from drafts:', error);
           return;
@@ -114,21 +109,17 @@ const FamilyDashboard: React.FC = () => {
           hasPets: row.data?.pets?.pets ? row.data.pets.pets.length : 0,
         }));
         
-        console.log('📝 Mapped children:', mapped);
-        
         // Déduplication des enfants par prénom + date de naissance
         const seen = new Map();
         const deduped = mapped.filter((child: any) => {
           const key = `${child.firstName}-${child.age}`;
           if (seen.has(key)) {
-            console.log('⚠️ Duplicate found:', key);
             return false;
           }
           seen.set(key, true);
           return true;
         });
         
-        console.log('✅ Final children after deduplication:', deduped);
         setChildren(deduped);
       } catch (e) {
         console.error('Unexpected error loading children:', e);
