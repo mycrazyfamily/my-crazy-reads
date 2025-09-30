@@ -71,7 +71,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-mcf-primary/30">
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2">
         <Button 
           variant="outline" 
           size="sm" 
