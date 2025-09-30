@@ -54,31 +54,29 @@ const FamilyDashboard: React.FC = () => {
       const today = new Date();
       const birth = new Date(birthDate);
       
-      const years = today.getFullYear() - birth.getFullYear();
-      const monthDiff = today.getMonth() - birth.getMonth();
-      const dayDiff = today.getDate() - birth.getDate();
+      let years = today.getFullYear() - birth.getFullYear();
+      let months = today.getMonth() - birth.getMonth();
+      const days = today.getDate() - birth.getDate();
       
-      // Ajuster l'année si l'anniversaire n'est pas encore passé
-      let finalYears = years;
-      let finalMonths = monthDiff;
-      
-      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-        finalYears--;
-        finalMonths = 12 + monthDiff;
+      // Si le jour du mois actuel est avant le jour de naissance, soustraire un mois
+      if (days < 0) {
+        months--;
       }
       
-      if (dayDiff < 0) {
-        finalMonths--;
+      // Si le mois est négatif, soustraire une année et ajuster les mois
+      if (months < 0) {
+        years--;
+        months += 12;
       }
       
       let ageString = "";
-      if (finalYears > 0) {
-        ageString += `${finalYears} an${finalYears > 1 ? 's' : ''}`;
-        if (finalMonths > 0) {
-          ageString += ` et ${finalMonths} mois`;
+      if (years > 0) {
+        ageString += `${years} an${years > 1 ? 's' : ''}`;
+        if (months > 0) {
+          ageString += ` et ${months} mois`;
         }
-      } else if (finalMonths > 0) {
-        ageString = `${finalMonths} mois`;
+      } else if (months > 0) {
+        ageString = `${months} mois`;
       } else {
         ageString = "moins d'un mois";
       }
