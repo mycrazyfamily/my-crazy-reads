@@ -15,6 +15,7 @@ type CreateChildProfileProps = {
   initialStep?: number;
   editMode?: boolean;
   editChildId?: string;
+  useSavedDraft?: boolean;
 };
 
 const CreateChildProfile = ({ 
@@ -23,7 +24,8 @@ const CreateChildProfile = ({
   nextPath,
   initialStep,
   editMode = false,
-  editChildId
+  editChildId,
+  useSavedDraft = true,
 }: CreateChildProfileProps) => {
   const navigate = useNavigate();
   const { handleSubmit } = useChildProfileSubmit({ isGiftMode, nextPath });
@@ -87,6 +89,7 @@ const CreateChildProfile = ({
           initialStep={effectiveInitialStep}
           editMode={editMode}
           editChildId={editChildId}
+          useSavedDraft={useSavedDraft}
         >
           <FormSteps 
             isGiftMode={isGiftMode} 

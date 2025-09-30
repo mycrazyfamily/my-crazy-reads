@@ -47,11 +47,13 @@ const NouvelEnfant: React.FC = () => {
         </Button>
       </div>
       <CreateChildProfile 
+        key={editChildId ? `edit-${editChildId}` : 'create-new'}
         isGiftMode={false} 
         nextPath="/espace-famille"
         initialStep={0}
         editMode={!!editChildId}
         editChildId={editChildId || undefined}
+        useSavedDraft={false}
       />
     </div>
   );

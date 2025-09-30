@@ -34,6 +34,7 @@ export type ChildProfileFormProviderProps = {
   initialStep?: number;
   editMode?: boolean;
   editChildId?: string;
+  useSavedDraft?: boolean; // contrôle l'utilisation du localStorage pour pré-remplir
 };
 
 export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> = ({ 
@@ -42,7 +43,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   onSubmit,
   initialStep,
   editMode = false,
-  editChildId
+  editChildId,
+  useSavedDraft = true,
 }) => {
   const location = useLocation();
   const locationState = location.state as { targetStep?: number } | null;
@@ -156,8 +158,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     if (familyCode) {
       toast.info(`Code famille utilisé: ${familyCode}`);
       form.setValue("firstName", "Enfant pré-rempli");
-    } else {
-      // En mode création normale (pas d'édition), charger le localStorage
+    } else if (useSavedDraft) {
+      // En mode création normale (pas d'édition), charger le localStorage si demandé
       const savedState = localStorage.getItem(FORM_STORAGE_KEY);
       if (savedState) {
         try {
@@ -191,11 +193,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       console.log(`Navigation vers l'étape ${locationState.targetStep + 1} via locationState`);
       toast.success(`Navigation vers l'étape ${locationState.targetStep + 1}`);
     }
-  }, [form, familyCode, initialStep, locationState, editMode]);
+  }, [form, familyCode, initialStep, locationState, editMode, useSavedDraft]);
 
   useEffect(() => {
-    // Ne sauvegarder dans le localStorage QUE si on n'est pas en mode édition
-    if (editMode) {
+    // Ne sauvegarder dans le localStorage QUE si on n'est pas en mode édition et si on souhaite utiliser le brouillon
+    if (editMode || !useSavedDraft) {
       return;
     }
     
@@ -216,7 +218,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     const timeoutId = setTimeout(saveFormState, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor, editMode]);
+  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor, editMode, useSavedDraft]);
 
   const handleNextStep = async () => {
     // Ensure latest values are validated before moving to next step
