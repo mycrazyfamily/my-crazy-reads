@@ -192,7 +192,7 @@ const FamilyDashboard: React.FC = () => {
                   className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
                   onClick={() => navigate('/creer-profil-enfant')}
                 >
-                  <Plus className="h-4 w-4" /> Ajouter un nouvel enfant
+                  <Plus className="h-4 w-4" /> Ajouter un enfant
                 </Button>
                 
                 {/* 2. Ajouter un proche - désactivé si pas d'enfant */}
