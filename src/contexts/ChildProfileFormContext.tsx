@@ -148,11 +148,16 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   }, [editMode, editChildId, form]);
 
   useEffect(() => {
+    if (editMode) {
+      // En mode édition, on ne touche PAS au localStorage
+      return;
+    }
+    
     if (familyCode) {
       toast.info(`Code famille utilisé: ${familyCode}`);
       form.setValue("firstName", "Enfant pré-rempli");
-    } else if (!editMode) {
-      // Ne charger le localStorage que si on n'est pas en mode édition
+    } else {
+      // En mode création normale (pas d'édition), charger le localStorage
       const savedState = localStorage.getItem(FORM_STORAGE_KEY);
       if (savedState) {
         try {
@@ -189,6 +194,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   }, [form, familyCode, initialStep, locationState, editMode]);
 
   useEffect(() => {
+    // Ne sauvegarder dans le localStorage QUE si on n'est pas en mode édition
+    if (editMode) {
+      return;
+    }
+    
     const saveFormState = () => {
       const formValues = form.getValues();
       const stateToSave = {
@@ -206,7 +216,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     const timeoutId = setTimeout(saveFormState, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor]);
+  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor, editMode]);
 
   const handleNextStep = async () => {
     // Ensure latest values are validated before moving to next step

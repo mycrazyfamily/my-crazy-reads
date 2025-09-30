@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import CreateChildProfile from './CreateChildProfile';
 import 'react-datepicker/dist/react-datepicker.css';
 
+const FORM_STORAGE_KEY = 'child-profile-form-state';
+
 const NouvelEnfant: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editChildId = searchParams.get('edit');
+
+  // Vider le localStorage quand on arrive sur la page de création (pas édition)
+  useEffect(() => {
+    if (!editChildId) {
+      // C'est une création, on vide le localStorage pour repartir de zéro
+      localStorage.removeItem(FORM_STORAGE_KEY);
+    }
+  }, [editChildId]);
 
   const handleGoBack = () => {
     // Si on est en mode édition, toujours retourner à l'espace famille
