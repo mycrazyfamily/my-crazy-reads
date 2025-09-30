@@ -42,16 +42,16 @@ const StartAdventure = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-20">
+      <main className="flex-grow container mx-auto px-4 py-24 mt-16">
         <h1 className="text-3xl font-bold text-center mb-8 text-mcf-orange-dark">Prêt à démarrer l'aventure</h1>
         
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
           <div className="flex flex-col md:flex-row gap-6 mb-8">
             <div 
-              className={`flex-1 border rounded-lg p-6 cursor-pointer transition-all ${
+              className={`flex-1 rounded-lg p-6 cursor-pointer transition-all ${
                 selectedOption === 'monthly' 
-                  ? 'border-mcf-orange bg-mcf-orange/10' 
-                  : 'border-gray-200 hover:border-mcf-amber'
+                  ? 'border-2 border-mcf-orange shadow-lg bg-white' 
+                  : 'border border-gray-200 hover:border-mcf-amber hover:shadow-md bg-white'
               }`}
               onClick={() => setSelectedOption('monthly')}
             >
@@ -67,10 +67,10 @@ const StartAdventure = () => {
             <div className="text-center font-bold text-xl self-center">ou</div>
             
             <div 
-              className={`flex-1 border rounded-lg p-6 cursor-pointer transition-all ${
+              className={`flex-1 rounded-lg p-6 cursor-pointer transition-all ${
                 selectedOption === 'yearly' 
-                  ? 'border-mcf-orange bg-mcf-orange/10' 
-                  : 'border-gray-200 hover:border-mcf-amber'
+                  ? 'border-2 border-mcf-orange shadow-lg bg-white' 
+                  : 'border border-gray-200 hover:border-mcf-amber hover:shadow-md bg-white'
               }`}
               onClick={() => setSelectedOption('yearly')}
             >
