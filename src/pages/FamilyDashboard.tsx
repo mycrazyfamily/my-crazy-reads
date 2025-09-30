@@ -48,11 +48,44 @@ const FamilyDashboard: React.FC = () => {
   const subscription = null; // Will be set when user subscribes
 
   useEffect(() => {
-    const mapAge = (age: string | undefined) => {
-      if (!age) return '';
-      // Already a string range like "3-5"
-      return age;
+    const calculateExactAge = (birthDate: string | Date) => {
+      if (!birthDate) return '';
+      
+      const today = new Date();
+      const birth = new Date(birthDate);
+      
+      const years = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      const dayDiff = today.getDate() - birth.getDate();
+      
+      // Ajuster l'année si l'anniversaire n'est pas encore passé
+      let finalYears = years;
+      let finalMonths = monthDiff;
+      
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        finalYears--;
+        finalMonths = 12 + monthDiff;
+      }
+      
+      if (dayDiff < 0) {
+        finalMonths--;
+      }
+      
+      let ageString = "";
+      if (finalYears > 0) {
+        ageString += `${finalYears} an${finalYears > 1 ? 's' : ''}`;
+        if (finalMonths > 0) {
+          ageString += ` et ${finalMonths} mois`;
+        }
+      } else if (finalMonths > 0) {
+        ageString = `${finalMonths} mois`;
+      } else {
+        ageString = "moins d'un mois";
+      }
+      
+      return ageString;
     };
+
     const loadChildren = async () => {
       try {
         const { data, error } = await (supabase as any)
@@ -67,7 +100,7 @@ const FamilyDashboard: React.FC = () => {
         const mapped = (data || []).map((row: any) => ({
           id: row.id,
           firstName: row.data?.firstName || 'Enfant',
-          age: mapAge(row.data?.age),
+          age: row.data?.birthDate ? calculateExactAge(row.data.birthDate) : (row.data?.age || ''),
           avatar: null,
           personalityEmoji: '🧒',
           relatives: row.data?.family?.relatives || [],

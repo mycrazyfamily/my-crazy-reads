@@ -33,7 +33,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         </Avatar>
         <div>
           <h3 className="text-xl font-bold text-mcf-orange-dark">{child.firstName}</h3>
-          <p className="text-gray-600">{child.age} ans</p>
+          <p className="text-gray-600">{child.age}</p>
         </div>
       </CardHeader>
       
