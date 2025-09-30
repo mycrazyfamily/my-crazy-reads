@@ -57,8 +57,8 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childId, childName
   };
 
   return (
-    <Card className="overflow-hidden border-mcf-primary hover:shadow-md transition-shadow">
-      <CardHeader className="bg-gradient-to-br from-mcf-primary/10 to-transparent p-4">
+    <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
+      <CardHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="text-4xl">
             {getPetTypeEmoji(pet.type)}
