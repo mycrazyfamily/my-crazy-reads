@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from "sonner";
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChildProfileCard from '@/components/familyDashboard/ChildProfileCard';
@@ -30,11 +31,55 @@ const FamilyDashboard: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
   
-  // Real data - will be fetched from API in production
-  const children = []; // Empty for new users
-  const books = []; // Empty for new users
+  // Data fetched from Supabase drafts (child profiles saved at the end of the form)
+  const [children, setChildren] = useState<Array<{
+    id: string;
+    firstName: string;
+    age: string;
+    avatar: string | null;
+    personalityEmoji: string;
+    relatives?: number;
+    hasToys?: boolean;
+    hasPets?: number;
+  }>>([]);
+  const books: any[] = []; // Empty for new users
   const familyCode = null; // Will be generated when first child is added
   const subscription = null; // Will be set when user subscribes
+
+  useEffect(() => {
+    const mapAge = (age: string | undefined) => {
+      if (!age) return '';
+      // Already a string range like "3-5"
+      return age;
+    };
+    const loadChildren = async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('drafts')
+          .select('id, data')
+          .eq('type', 'child_profile')
+          .order('created_at', { ascending: false });
+        if (error) {
+          console.error('Failed to load child profiles from drafts:', error);
+          return;
+        }
+        const mapped = (data || []).map((row: any) => ({
+          id: row.id,
+          firstName: row.data?.firstName || 'Enfant',
+          age: mapAge(row.data?.age),
+          avatar: null,
+          personalityEmoji: '🧒',
+          relatives: row.data?.family?.relatives?.length || 0,
+          hasToys: !!row.data?.toys?.hasToys,
+          hasPets: row.data?.pets?.pets ? row.data.pets.pets.length : 0,
+        }));
+        setChildren(mapped);
+      } catch (e) {
+        console.error('Unexpected error loading children:', e);
+      }
+    };
+    loadChildren();
+  }, []);
   
   const handleLogout = () => {
     logout();
