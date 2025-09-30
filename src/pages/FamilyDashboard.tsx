@@ -259,7 +259,7 @@ const FamilyDashboard: React.FC = () => {
           {children.length > 0 && children.some(child => child.relatives && child.relatives.length > 0) && (
             <section className="animate-fade-in animation-delay-50">
               <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <Heart className="h-6 w-6" /> Ma famille
+                <Heart className="h-6 w-6" /> Ma famille et mes proches
               </h2>
               
               <div className="space-y-4">
