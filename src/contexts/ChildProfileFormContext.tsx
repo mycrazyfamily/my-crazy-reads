@@ -84,6 +84,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       family: {
         selectedRelatives: [],
         relatives: [],
+        existingRelativeIds: [],
       },
       pets: {
         hasPets: false,

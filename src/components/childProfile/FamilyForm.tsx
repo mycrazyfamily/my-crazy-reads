@@ -52,23 +52,34 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           return;
         }
 
-        // Récupérer le family_id de l'utilisateur
+        // Récupérer le family_id de l'utilisateur (si disponible)
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('family_id')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (!profile?.family_id) {
-          setLoading(false);
-          return;
+        let familyMembers: any[] | null = null;
+        let error: any = null;
+
+        if (profile?.family_id) {
+          // Essayer d'abord par family_id
+          const byFamily = await supabase
+            .from('family_members')
+            .select('*')
+            .eq('family_id', profile.family_id);
+          familyMembers = byFamily.data;
+          error = byFamily.error;
         }
 
-        // Récupérer tous les family_members de cette famille
-        const { data: familyMembers, error } = await supabase
-          .from('family_members')
-          .select('*')
-          .eq('family_id', profile.family_id);
+        // Si pas de family_id ou aucun résultat, retomber sur tout ce que l'utilisateur a le droit de voir (RLS)
+        if (!familyMembers || familyMembers.length === 0) {
+          const anyAccessible = await supabase
+            .from('family_members')
+            .select('*');
+          if (!error) error = anyAccessible.error;
+          if (anyAccessible.data) familyMembers = anyAccessible.data;
+        }
 
         if (error) {
           console.error('Error loading family members:', error);
@@ -76,8 +87,15 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           return;
         }
 
-        if (familyMembers) {
-          setExistingRelatives(familyMembers.map(fm => ({
+        if (familyMembers && familyMembers.length > 0) {
+          // Dédupliquer par nom+role pour éviter les doublons visuels
+          const map = new Map<string, any>();
+          for (const fm of familyMembers) {
+            const key = `${fm.name || ''}-${fm.role || ''}`;
+            if (!map.has(key)) map.set(key, fm);
+          }
+          const unique = Array.from(map.values());
+          setExistingRelatives(unique.map((fm: any) => ({
             id: fm.id,
             name: fm.name || 'Sans nom',
             role: fm.role || 'Proche',
