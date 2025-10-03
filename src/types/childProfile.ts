@@ -83,6 +83,7 @@ export type PetData = {
 export type PetsData = {
   hasPets: boolean;
   pets: PetData[];
+  existingPetsData?: any[]; // Données des animaux existants sélectionnés
 };
 
 // Nouveaux types pour les doudous et objets magiques

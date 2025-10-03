@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import type { ChildProfileFormData, PetData } from '@/types/childProfile';
 import PetForm from './pets/PetForm';
 import PetsList from './pets/PetsList';
+import ExistingPetsList from './pets/ExistingPetsList';
 
 type PetsFormProps = {
   handleNextStep: () => void;
@@ -80,8 +81,10 @@ const PetsForm: React.FC<PetsFormProps> = ({
   };
 
   const handlePetsSectionContinue = () => {
-    if (hasPets && pets.length === 0) {
-      toast.error("Veuillez ajouter au moins un animal de compagnie ou sélectionner \"Non\"");
+    const existingPetsData = form.getValues().pets?.existingPetsData || [];
+    
+    if (hasPets && pets.length === 0 && existingPetsData.length === 0) {
+      toast.error("Veuillez ajouter ou sélectionner au moins un animal de compagnie");
       return;
     }
     
@@ -122,12 +125,27 @@ const PetsForm: React.FC<PetsFormProps> = ({
           {/* Section d'ajout d'animaux (visible uniquement si "Oui" est sélectionné) */}
           {hasPets && (
             <div className="space-y-6">
+              {/* Animaux existants */}
+              <ExistingPetsList disabled={false} />
+              
+              {/* Séparateur si des animaux existants sont disponibles */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-background px-4 text-muted-foreground">
+                    ou créer un nouvel animal
+                  </span>
+                </div>
+              </div>
+              
               <Button
                 type="button"
                 onClick={handleAddPet}
                 className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
               >
-                Ajouter un animal +
+                Ajouter un nouvel animal +
               </Button>
               
               <PetsList 

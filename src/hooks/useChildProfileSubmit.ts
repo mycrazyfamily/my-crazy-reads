@@ -182,6 +182,25 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
+        // 7. Gérer les animaux existants sélectionnés
+        if (data.pets?.existingPetsData && data.pets.existingPetsData.length > 0) {
+          const petLinks = data.pets.existingPetsData.map(pet => ({
+            child_id: childId,
+            pet_id: pet.id,
+            name: pet.name,
+            traits: '' // Peut être enrichi plus tard
+          }));
+
+          const { error: petLinkError } = await supabase
+            .from('child_pets')
+            .insert(petLinks);
+
+          if (petLinkError) {
+            console.error('Error linking existing pets:', petLinkError);
+            toast.warning("Profil créé mais erreur lors de l'association des animaux existants");
+          }
+        }
+
         toast.success(isGiftMode
           ? "Profil créé et sauvegardé !"
           : "Profil enregistré, l'aventure peut commencer !");
