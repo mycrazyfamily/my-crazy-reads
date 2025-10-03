@@ -38,6 +38,18 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
+
+  // Réinitialiser le formulaire quand on change de proche
+  useEffect(() => {
+    setFormData({
+      ...relative,
+      gender: relative.gender || getRelativeGender(relative.type)
+    });
+    setSelectedNickname(relative.nickname.type);
+    setSelectedSkinColor(relative.skinColor.type);
+    setSelectedHairColor(relative.hairColor.type);
+    setCustomTraits(relative.customTraits || {});
+  }, [relative.id]);
   
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));

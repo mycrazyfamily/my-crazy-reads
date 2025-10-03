@@ -26,9 +26,10 @@ export default function AjouterProche() {
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [relativeKey, setRelativeKey] = useState(0); // Pour forcer la réinitialisation du formulaire
 
-  // Formulaire vide pour un nouveau proche
-  const emptyRelative: RelativeData = {
+  // Fonction pour créer un formulaire vide pour un nouveau proche
+  const createEmptyRelative = (): RelativeData => ({
     id: uuidv4(),
     type: 'father',
     firstName: '',
@@ -42,7 +43,7 @@ export default function AjouterProche() {
     glasses: false,
     traits: [],
     customTraits: {}
-  };
+  });
 
   useEffect(() => {
     if (supabaseSession?.user) {
@@ -100,6 +101,7 @@ export default function AjouterProche() {
       toast.error('Veuillez sélectionner au moins un enfant');
       return;
     }
+    setRelativeKey(prev => prev + 1); // Force la réinitialisation du formulaire
     setShowForm(true);
   };
 
@@ -242,7 +244,8 @@ export default function AjouterProche() {
             </CardHeader>
             <CardContent>
               <RelativeForm 
-                relative={emptyRelative}
+                key={relativeKey}
+                relative={createEmptyRelative()}
                 onSave={handleAddRelative} 
                 onCancel={() => navigate('/espace-famille')} 
               />
