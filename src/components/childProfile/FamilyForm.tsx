@@ -52,47 +52,86 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           return;
         }
 
-        // Récupérer le family_id de l'utilisateur (si disponible)
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('family_id')
-          .eq('id', user.id)
-          .maybeSingle();
+        // Charger tous les drafts de l'utilisateur
+        const { data: drafts, error: draftsError } = await supabase
+          .from('drafts')
+          .select('id')
+          .eq('created_by', user.id)
+          .eq('type', 'child_profile');
 
-        let familyMembers: any[] | null = null;
-        let error: any = null;
-
-        if (profile?.family_id) {
-          // Essayer d'abord par family_id
-          const byFamily = await supabase
-            .from('family_members')
-            .select('*')
-            .eq('family_id', profile.family_id);
-          familyMembers = byFamily.data;
-          error = byFamily.error;
-        }
-
-        // Si pas de family_id ou aucun résultat, retomber sur tout ce que l'utilisateur a le droit de voir (RLS)
-        if (!familyMembers || familyMembers.length === 0) {
-          const anyAccessible = await supabase
-            .from('family_members')
-            .select('*');
-          if (!error) error = anyAccessible.error;
-          if (anyAccessible.data) familyMembers = anyAccessible.data;
-        }
-
-        if (error) {
-          console.error('Error loading family members:', error);
+        if (draftsError) {
+          console.error('Error loading drafts:', draftsError);
           setLoading(false);
           return;
         }
 
-        if (familyMembers && familyMembers.length > 0) {
-          // Dédupliquer par nom+role pour éviter les doublons visuels
+        if (!drafts || drafts.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Charger tous les child_family_members pour ces drafts
+        const childIds = drafts.map(d => d.id);
+        const { data: childFamilyMembers, error: cfmError } = await supabase
+          .from('child_family_members')
+          .select('family_member_id')
+          .in('child_id', childIds);
+
+        if (cfmError) {
+          console.error('Error loading child_family_members:', cfmError);
+          setLoading(false);
+          return;
+        }
+
+        if (!childFamilyMembers || childFamilyMembers.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Extraire les family_member_id uniques
+        const uniqueFamilyMemberIds = [...new Set(
+          childFamilyMembers
+            .map(cfm => cfm.family_member_id)
+            .filter(id => id !== null)
+        )];
+
+        if (uniqueFamilyMemberIds.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Charger les family_members correspondants (en utilisant le service role via RPC ou une fonction)
+        // Comme on ne peut pas contourner RLS directement, on va charger via child_family_members
+        const { data: familyMembersData, error: fmError } = await supabase
+          .from('child_family_members')
+          .select(`
+            family_member_id,
+            family_members (
+              id,
+              name,
+              role,
+              avatar,
+              family_id
+            )
+          `)
+          .in('child_id', childIds);
+
+        if (fmError) {
+          console.error('Error loading family_members:', fmError);
+          setLoading(false);
+          return;
+        }
+
+        if (familyMembersData && familyMembersData.length > 0) {
+          // Extraire et dédupliquer les family_members
           const map = new Map<string, any>();
-          for (const fm of familyMembers) {
-            const key = `${fm.name || ''}-${fm.role || ''}`;
-            if (!map.has(key)) map.set(key, fm);
+          for (const item of familyMembersData) {
+            const fm = (item as any).family_members;
+            if (fm && fm.id) {
+              if (!map.has(fm.id)) {
+                map.set(fm.id, fm);
+              }
+            }
           }
           const unique = Array.from(map.values());
           setExistingRelatives(unique.map((fm: any) => ({
