@@ -21,27 +21,27 @@ interface Child {
 
 export default function AjouterAnimal() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, supabaseSession } = useAuth();
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (supabaseSession?.user) {
       fetchChildren();
     }
-  }, [user]);
+  }, [supabaseSession]);
 
   const fetchChildren = async () => {
-    if (!user) return;
+    if (!supabaseSession?.user) return;
 
     try {
       const { data, error } = await supabase
         .from('drafts')
         .select('id, data')
         .eq('type', 'child_profile')
-        .eq('created_by', (user as any).id);
+        .eq('created_by', supabaseSession.user.id);
 
       if (error) throw error;
 
