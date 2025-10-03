@@ -40,6 +40,7 @@ import OffrirConfirmation from './pages/OffrirConfirmation'
 import ModifierProche from './pages/ModifierProche'
 import ModifierAnimal from './pages/ModifierAnimal'
 import AjouterAnimal from './pages/AjouterAnimal'
+import AjouterProche from './pages/AjouterProche'
 
 function App() {
   const isDev = process.env.NODE_ENV === 'development' || true;
@@ -106,6 +107,26 @@ function App() {
             <Route path="/modifier-animal/:childId/:petId" element={
               <AuthGuard>
                 <ModifierAnimal />
+              </AuthGuard>
+            } />
+            <Route path="/ajouter-proche" element={
+              <AuthGuard>
+                <AjouterProche />
+              </AuthGuard>
+            } />
+            <Route path="/ajouter-proche/:childId" element={
+              <AuthGuard>
+                <AjouterProche />
+              </AuthGuard>
+            } />
+            <Route path="/ajouter-animal" element={
+              <AuthGuard>
+                <AjouterAnimal />
+              </AuthGuard>
+            } />
+            <Route path="/ajouter-animal/:childId" element={
+              <AuthGuard>
+                <AjouterAnimal />
               </AuthGuard>
             } />
 

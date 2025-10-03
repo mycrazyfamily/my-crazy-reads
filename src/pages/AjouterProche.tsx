@@ -6,24 +6,41 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import PetForm from '@/components/childProfile/pets/PetForm';
-import type { PetData } from '@/types/childProfile';
+import RelativeForm from '@/components/childProfile/RelativeForm';
+import type { RelativeData } from '@/types/childProfile';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Child {
   id: string;
   firstName: string;
   lastName: string;
-  pets?: any[];
+  relatives?: any[];
 }
 
-
-export default function AjouterAnimal() {
+export default function AjouterProche() {
   const navigate = useNavigate();
   const { childId } = useParams();
   const { user } = useAuth();
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(childId || null);
   const [loading, setLoading] = useState(true);
+
+  // Formulaire vide pour un nouveau proche
+  const emptyRelative: RelativeData = {
+    id: uuidv4(),
+    type: 'father',
+    firstName: '',
+    age: '',
+    job: '',
+    gender: 'male',
+    nickname: { type: 'none' },
+    skinColor: { type: 'light' },
+    hairColor: { type: 'brown' },
+    hairType: 'straight',
+    glasses: false,
+    traits: [],
+    customTraits: {}
+  };
 
   useEffect(() => {
     fetchChildren();
@@ -45,14 +62,14 @@ export default function AjouterAnimal() {
         id: draft.id,
         firstName: draft.data?.firstName || 'Enfant',
         lastName: draft.data?.lastName || '',
-        pets: draft.data?.pets?.pets || []
+        relatives: draft.data?.family?.relatives || []
       }));
 
       setChildren(mappedChildren);
       
       // Si un seul enfant et pas de childId spécifique, le sélectionner automatiquement
-      if (data?.length === 1 && !childId) {
-        setSelectedChildId((data[0] as any).id);
+      if (mappedChildren.length === 1 && !childId) {
+        setSelectedChildId(mappedChildren[0].id);
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
@@ -62,7 +79,7 @@ export default function AjouterAnimal() {
     }
   };
 
-  const handleAddPet = async (petData: PetData) => {
+  const handleAddRelative = async (relativeData: RelativeData) => {
     if (!selectedChildId) {
       toast.error('Veuillez sélectionner un enfant');
       return;
@@ -79,10 +96,10 @@ export default function AjouterAnimal() {
       if (fetchError) throw fetchError;
 
       const childData = currentChild.data as any;
-      const currentPets = childData?.pets?.pets || [];
+      const currentRelatives = childData?.family?.relatives || [];
       
-      // Ajouter le nouvel animal aux animaux existants
-      const updatedPets = [...currentPets, petData];
+      // Ajouter le nouveau proche aux proches existants
+      const updatedRelatives = [...currentRelatives, relativeData];
 
       // Mettre à jour le profil enfant
       const { error: updateError } = await supabase
@@ -90,10 +107,9 @@ export default function AjouterAnimal() {
         .update({ 
           data: {
             ...childData,
-            pets: {
-              ...(childData?.pets || {}),
-              pets: updatedPets,
-              hasPets: true
+            family: {
+              ...(childData?.family || {}),
+              relatives: updatedRelatives
             }
           } as any
         })
@@ -101,11 +117,11 @@ export default function AjouterAnimal() {
 
       if (updateError) throw updateError;
 
-      toast.success('Animal ajouté avec succès !');
+      toast.success('Proche ajouté avec succès !');
       navigate('/espace-famille');
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de l\'animal:', error);
-      toast.error('Erreur lors de l\'ajout de l\'animal');
+      console.error('Erreur lors de l\'ajout du proche:', error);
+      toast.error('Erreur lors de l\'ajout du proche');
     }
   };
 
@@ -132,14 +148,14 @@ export default function AjouterAnimal() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un animal de compagnie</h1>
+          <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un proche</h1>
         </div>
 
         {/* Sélection de l'enfant si plusieurs enfants */}
         {children.length > 1 && !childId && (
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-mcf-orange-dark">Pour quel enfant souhaitez-vous ajouter un animal ?</CardTitle>
+              <CardTitle className="text-mcf-orange-dark">Pour quel enfant souhaitez-vous ajouter un proche ?</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3">
@@ -161,13 +177,13 @@ export default function AjouterAnimal() {
           </Card>
         )}
 
-        {/* Formulaire d'ajout d'animal */}
+        {/* Formulaire d'ajout de proche */}
         {selectedChildId && (
           <Card>
             <CardHeader>
               <CardTitle className="text-mcf-orange-dark flex items-center gap-2">
                 <Plus className="h-5 w-5" />
-                Nouvel animal de compagnie
+                Nouveau proche
                 {children.length === 1 && (
                   <span className="text-sm font-normal text-gray-600">
                     pour {children.find(c => c.id === selectedChildId)?.firstName}
@@ -176,7 +192,11 @@ export default function AjouterAnimal() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <PetForm onSave={handleAddPet} onCancel={() => navigate('/espace-famille')} />
+              <RelativeForm 
+                relative={emptyRelative}
+                onSave={handleAddRelative} 
+                onCancel={() => navigate('/espace-famille')} 
+              />
             </CardContent>
           </Card>
         )}
@@ -188,7 +208,7 @@ export default function AjouterAnimal() {
                 Aucun enfant trouvé
               </p>
               <p className="text-gray-600">
-                Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter des animaux de compagnie.
+                Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter des proches.
               </p>
               <Button 
                 className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
