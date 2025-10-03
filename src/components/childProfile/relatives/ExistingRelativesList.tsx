@@ -49,11 +49,14 @@ const ExistingRelativesList: React.FC<ExistingRelativesListProps> = ({
               onClick={() => onToggleRelative(relative.id)}
             >
               <CardContent className="p-4 flex items-center gap-3">
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => onToggleRelative(relative.id)}
-                  className="data-[state=checked]:bg-mcf-orange data-[state=checked]:border-mcf-orange"
-                />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => onToggleRelative(relative.id)}
+                    className="data-[state=checked]:bg-mcf-orange data-[state=checked]:border-mcf-orange"
+                    aria-label={`Sélectionner ${relative.name}`}
+                  />
+                </div>
                 <div className="text-3xl">{relative.avatar || '👤'}</div>
                 <div className="flex-1">
                   <p className="font-semibold text-mcf-orange-dark">
