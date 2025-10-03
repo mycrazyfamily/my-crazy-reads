@@ -113,7 +113,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-xl font-bold text-mcf-primary">
-          {formData.id ? 'Modifier un proche' : 'Nouveau proche'}
+          {relative.id ? 'Modifier un proche' : 'Ajouter un proche'}
         </h3>
       </div>
       
@@ -170,12 +170,12 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
               custom: value
             }
           }))}
-          hairType={formData.hairType}
-          setHairType={(value) => updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom")}
+          hairType={hairTypeUI}
+          setHairType={(value) => { setHairTypeUI(value); updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom"); }}
           hairTypeCustom={formData.hairTypeCustom}
           setHairTypeCustom={(value) => updateFormData('hairTypeCustom', value)}
-          glasses={formData.glasses}
-          setGlasses={(value) => updateFormData('glasses', value)}
+          glasses={glassesUI}
+          setGlasses={(value) => { setGlassesUI(value); updateFormData('glasses', value); }}
           gender={formData.gender}
         />
         

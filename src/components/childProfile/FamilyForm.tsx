@@ -164,7 +164,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
 
     // Créer un nouveau proche vide
     const newRelative: RelativeData = {
-      id: Date.now().toString(),
+      id: '', // vide pour signaler un nouveau proche (évite le mode "modifier")
       type: relativeType,
       gender: gender,
       firstName: '',
@@ -174,14 +174,15 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
       age: '',
       birthDate: undefined,
       job: '',
+      // Valeurs "custom" par défaut pour ne rien présélectionner dans l'UI
       skinColor: {
-        type: "light"
+        type: "custom"
       },
       hairColor: {
-        type: "blonde"
+        type: "custom"
       },
-      hairType: "straight",
-      glasses: false,
+      hairType: "custom",
+      glasses: false, // l'UI utilise un état séparé (null au départ)
       traits: []
     };
     setCurrentRelative(newRelative);
@@ -201,8 +202,19 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Récupérer la liste actuelle des proches
     const currentRelatives = form.getValues().family?.relatives || [];
 
+    // Déterminer s'il s'agit d'une mise à jour ou d'un ajout
+    const isUpdate = relative.id && currentRelatives.some(r => r.id === relative.id);
+
+    // Si ajout, générer un identifiant
+    const relativeToSave: RelativeData = {
+      ...relative,
+      id: isUpdate ? relative.id : Date.now().toString(),
+    } as RelativeData;
+
     // Ajouter ou mettre à jour le proche
-    const updatedRelatives = currentRelatives.some(r => r.id === relative.id) ? currentRelatives.map(r => r.id === relative.id ? relative : r) : [...currentRelatives, relative];
+    const updatedRelatives = isUpdate
+      ? currentRelatives.map(r => r.id === relativeToSave.id ? relativeToSave : r)
+      : [...currentRelatives, relativeToSave];
 
     // Mettre à jour le formulaire
     form.setValue("family.relatives", updatedRelatives);
@@ -213,7 +225,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Réinitialiser l'état
     setCurrentRelative(null);
     setIsEditingRelative(false);
-    toast.success(currentRelatives.some(r => r.id === relative.id) ? "Proche modifié avec succès !" : "Proche ajouté avec succès !");
+    toast.success(isUpdate ? "Proche modifié avec succès !" : "Proche ajouté avec succès !");
   };
   const handleEditRelative = (relative: RelativeData) => {
     // Ensure the relative has a gender property
