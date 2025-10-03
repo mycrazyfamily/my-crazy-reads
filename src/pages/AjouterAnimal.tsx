@@ -28,8 +28,10 @@ export default function AjouterAnimal() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchChildren();
-  }, []);
+    if (user) {
+      fetchChildren();
+    }
+  }, [user]);
 
   const fetchChildren = async () => {
     if (!user) return;

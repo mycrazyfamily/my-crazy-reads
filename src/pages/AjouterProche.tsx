@@ -45,8 +45,10 @@ export default function AjouterProche() {
   };
 
   useEffect(() => {
-    fetchChildren();
-  }, []);
+    if (user) {
+      fetchChildren();
+    }
+  }, [user]);
 
   const fetchChildren = async () => {
     if (!user) return;
