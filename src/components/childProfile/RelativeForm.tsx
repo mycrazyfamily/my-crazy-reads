@@ -32,23 +32,41 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     ...relative,
     gender: relative.gender || getRelativeGender(relative.type)
   });
-  const [selectedNickname, setSelectedNickname] = useState<string>(relative.nickname.type);
-  const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.skinColor.type);
-  const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.hairColor.type);
+
+  const [typeUI, setTypeUI] = useState<string>(relative.id ? relative.type : '');
+  const [selectedNickname, setSelectedNickname] = useState<string>(relative.id ? relative.nickname.type : '');
+  const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.id ? relative.skinColor.type : '');
+  const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.id ? relative.hairColor.type : '');
+  const [hairTypeUI, setHairTypeUI] = useState<string>(relative.id ? relative.hairType : '');
+  const [glassesUI, setGlassesUI] = useState<boolean | null>(relative.id ? relative.glasses : null);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
 
-  // Réinitialiser le formulaire quand on change de proche
+  // Réinitialiser le formulaire quand on change de proche (nouveau vs édition)
   useEffect(() => {
     setFormData({
       ...relative,
       gender: relative.gender || getRelativeGender(relative.type)
     });
-    setSelectedNickname(relative.nickname.type);
-    setSelectedSkinColor(relative.skinColor.type);
-    setSelectedHairColor(relative.hairColor.type);
-    setCustomTraits(relative.customTraits || {});
+
+    if (relative.id) {
+      setTypeUI(relative.type);
+      setSelectedNickname(relative.nickname.type);
+      setSelectedSkinColor(relative.skinColor.type);
+      setSelectedHairColor(relative.hairColor.type);
+      setHairTypeUI(relative.hairType);
+      setGlassesUI(relative.glasses);
+      setCustomTraits(relative.customTraits || {});
+    } else {
+      setTypeUI('');
+      setSelectedNickname('');
+      setSelectedSkinColor('');
+      setSelectedHairColor('');
+      setHairTypeUI('');
+      setGlassesUI(null);
+      setCustomTraits({});
+    }
   }, [relative.id]);
   
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {

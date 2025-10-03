@@ -30,7 +30,7 @@ export default function AjouterProche() {
 
   // Fonction pour créer un formulaire vide pour un nouveau proche
   const createEmptyRelative = (): RelativeData => ({
-    id: uuidv4(),
+    id: '',
     type: 'father',
     firstName: '',
     age: '',

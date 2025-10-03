@@ -18,7 +18,7 @@ type RelativeAppearanceSectionProps = {
   setHairType: (type: string) => void;
   hairTypeCustom?: string;
   setHairTypeCustom: (value: string) => void;
-  glasses: boolean;
+  glasses: boolean | null;
   setGlasses: (hasGlasses: boolean) => void;
   gender: RelativeGender;
 };
