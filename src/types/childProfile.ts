@@ -61,6 +61,7 @@ export type FamilyData = {
   relatives: RelativeData[];
   otherRelativeType?: string;
   existingRelativeIds?: string[]; // IDs des proches existants sélectionnés
+  existingRelativesData?: any[]; // Données complètes des proches existants sélectionnés
 };
 
 export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "other";

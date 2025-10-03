@@ -85,6 +85,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         selectedRelatives: [],
         relatives: [],
         existingRelativeIds: [],
+        existingRelativesData: [], // Données complètes des proches existants sélectionnés
       },
       pets: {
         hasPets: false,

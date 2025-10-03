@@ -27,6 +27,8 @@ type ExistingRelative = {
   role: string;
   avatar: string;
   family_id: string;
+  isFromDraft?: boolean;
+  relativeData?: any; // Données complètes du proche si il vient d'un draft
 };
 
 const FamilyForm: React.FC<FamilyFormProps> = ({
@@ -48,99 +50,94 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
+          console.log('No user found');
           setLoading(false);
           return;
         }
 
-        // Charger tous les drafts de l'utilisateur
-        const { data: drafts, error: draftsError } = await supabase
-          .from('drafts')
-          .select('id')
-          .eq('created_by', user.id)
-          .eq('type', 'child_profile');
+        // Charger le family_id de l'utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', user.id)
+          .maybeSingle();
 
-        if (draftsError) {
-          console.error('Error loading drafts:', draftsError);
+        if (profileError) {
+          console.error('Error loading user profile:', profileError);
           setLoading(false);
           return;
         }
 
-        if (!drafts || drafts.length === 0) {
-          setLoading(false);
-          return;
+        let relativesFromTable: ExistingRelative[] = [];
+
+        // Si l'utilisateur a un family_id, charger depuis family_members
+        if (profile?.family_id) {
+          console.log('Loading family_members for family_id:', profile.family_id);
+
+          const { data: familyMembers, error: fmError } = await supabase
+            .from('family_members')
+            .select('id, name, role, avatar, family_id')
+            .eq('family_id', profile.family_id);
+
+          if (fmError) {
+            console.error('Error loading family_members:', fmError);
+          } else if (familyMembers && familyMembers.length > 0) {
+            relativesFromTable = familyMembers.map((fm: any) => ({
+              id: fm.id,
+              name: fm.name || 'Sans nom',
+              role: fm.role || 'Proche',
+              avatar: fm.avatar || '👤',
+              family_id: fm.family_id || ''
+            }));
+            console.log('Loaded family_members:', relativesFromTable);
+          }
         }
 
-        // Charger tous les child_family_members pour ces drafts
-        const childIds = drafts.map(d => d.id);
-        const { data: childFamilyMembers, error: cfmError } = await supabase
-          .from('child_family_members')
-          .select('family_member_id')
-          .in('child_id', childIds);
+        // Si pas de proches dans family_members, charger depuis les drafts existants
+        if (relativesFromTable.length === 0) {
+          console.log('No family_members found, loading from drafts...');
+          
+          const { data: drafts, error: draftsError } = await supabase
+            .from('drafts')
+            .select('data')
+            .eq('created_by', user.id)
+            .eq('type', 'child_profile');
 
-        if (cfmError) {
-          console.error('Error loading child_family_members:', cfmError);
-          setLoading(false);
-          return;
-        }
-
-        if (!childFamilyMembers || childFamilyMembers.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        // Extraire les family_member_id uniques
-        const uniqueFamilyMemberIds = [...new Set(
-          childFamilyMembers
-            .map(cfm => cfm.family_member_id)
-            .filter(id => id !== null)
-        )];
-
-        if (uniqueFamilyMemberIds.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        // Charger les family_members correspondants (en utilisant le service role via RPC ou une fonction)
-        // Comme on ne peut pas contourner RLS directement, on va charger via child_family_members
-        const { data: familyMembersData, error: fmError } = await supabase
-          .from('child_family_members')
-          .select(`
-            family_member_id,
-            family_members (
-              id,
-              name,
-              role,
-              avatar,
-              family_id
-            )
-          `)
-          .in('child_id', childIds);
-
-        if (fmError) {
-          console.error('Error loading family_members:', fmError);
-          setLoading(false);
-          return;
-        }
-
-        if (familyMembersData && familyMembersData.length > 0) {
-          // Extraire et dédupliquer les family_members
-          const map = new Map<string, any>();
-          for (const item of familyMembersData) {
-            const fm = (item as any).family_members;
-            if (fm && fm.id) {
-              if (!map.has(fm.id)) {
-                map.set(fm.id, fm);
+          if (draftsError) {
+            console.error('Error loading drafts:', draftsError);
+          } else if (drafts && drafts.length > 0) {
+            // Extraire tous les proches des drafts et les dédupliquer par prénom+type
+            const relativesMap = new Map<string, ExistingRelative>();
+            
+            for (const draft of drafts) {
+              const draftData = draft.data as any;
+              if (draftData.family?.relatives) {
+                for (const relative of draftData.family.relatives) {
+                  const key = `${relative.firstName}-${relative.type}`;
+                  if (!relativesMap.has(key)) {
+                    relativesMap.set(key, {
+                      id: relative.id,
+                      name: relative.firstName,
+                      role: relative.type,
+                      avatar: '👤',
+                      family_id: '',
+                      isFromDraft: true,
+                      relativeData: relative // Stocker les données complètes
+                    });
+                  }
+                }
               }
             }
+            
+            relativesFromTable = Array.from(relativesMap.values());
+            console.log('Loaded relatives from drafts:', relativesFromTable);
           }
-          const unique = Array.from(map.values());
-          setExistingRelatives(unique.map((fm: any) => ({
-            id: fm.id,
-            name: fm.name || 'Sans nom',
-            role: fm.role || 'Proche',
-            avatar: fm.avatar || '👤',
-            family_id: fm.family_id || ''
-          })));
+        }
+
+        if (relativesFromTable.length > 0) {
+          setExistingRelatives(relativesFromTable);
+        } else {
+          console.log('No relatives found');
         }
       } catch (error) {
         console.error('Error loading existing relatives:', error);
@@ -243,8 +240,13 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     setIsEditingRelative(false);
   };
   const handleFamilySectionContinue = () => {
-    // Sauvegarder les IDs des proches existants sélectionnés dans le formulaire
+    // Sauvegarder les IDs et les données des proches existants sélectionnés
+    const selectedRelativesData = existingRelatives.filter(r => 
+      selectedExistingRelativeIds.includes(r.id)
+    );
+    
     form.setValue("family.existingRelativeIds", selectedExistingRelativeIds);
+    form.setValue("family.existingRelativesData", selectedRelativesData as any);
     
     // Suppression de la vérification obligatoire des proches
     // Le formulaire permet maintenant de continuer même sans ajouter de proche
