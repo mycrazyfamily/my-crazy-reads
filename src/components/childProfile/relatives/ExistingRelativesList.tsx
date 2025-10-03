@@ -16,6 +16,40 @@ type ExistingRelativesListProps = {
   onToggleRelative: (relativeId: string) => void;
 };
 
+// Fonction pour obtenir l'emoji selon le type de proche
+const getRelativeEmoji = (role: string): string => {
+  const emojiMap: Record<string, string> = {
+    'father': '👨',
+    'mother': '👩',
+    'brother': '👦',
+    'sister': '👧',
+    'grandfather': '👴',
+    'grandmother': '👵',
+    'maleCousin': '👦',
+    'femaleCousin': '👧',
+    'maleFriend': '🧒',
+    'femaleFriend': '🧒',
+  };
+  return emojiMap[role] || '👤';
+};
+
+// Fonction pour traduire le rôle en français
+const translateRole = (role: string): string => {
+  const translations: Record<string, string> = {
+    'father': 'Papa',
+    'mother': 'Maman',
+    'brother': 'Frère',
+    'sister': 'Sœur',
+    'grandfather': 'Grand-père',
+    'grandmother': 'Grand-mère',
+    'maleCousin': 'Cousin',
+    'femaleCousin': 'Cousine',
+    'maleFriend': 'Ami',
+    'femaleFriend': 'Amie',
+  };
+  return translations[role] || role;
+};
+
 const ExistingRelativesList: React.FC<ExistingRelativesListProps> = ({
   existingRelatives,
   selectedRelativeIds,
@@ -57,12 +91,12 @@ const ExistingRelativesList: React.FC<ExistingRelativesListProps> = ({
                     aria-label={`Sélectionner ${relative.name}`}
                   />
                 </div>
-                <div className="text-3xl">{relative.avatar || '👤'}</div>
+                <div className="text-3xl">{getRelativeEmoji(relative.role)}</div>
                 <div className="flex-1">
                   <p className="font-semibold text-mcf-orange-dark">
                     {relative.name}
                   </p>
-                  <p className="text-sm text-gray-600">{relative.role}</p>
+                  <p className="text-sm text-gray-600">{translateRole(relative.role)}</p>
                 </div>
               </CardContent>
             </Card>
