@@ -39,9 +39,10 @@ export default function AjouterAnimal() {
     try {
       const { data, error } = await supabase
         .from('drafts')
-        .select('id, data')
+        .select('id, data, created_at')
         .eq('type', 'child_profile')
-        .eq('created_by', supabaseSession.user.id);
+        .eq('created_by', supabaseSession.user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -53,7 +54,14 @@ export default function AjouterAnimal() {
         gender: draft.data?.gender
       }));
 
-      setChildren(mappedChildren);
+      // Dédupliquer par prénom + date de naissance, garder le plus récent
+      const uniqueChildren = mappedChildren.filter((child, index, self) => 
+        index === self.findIndex((c) => 
+          c.firstName === child.firstName && c.birthDate === child.birthDate
+        )
+      );
+
+      setChildren(uniqueChildren);
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
