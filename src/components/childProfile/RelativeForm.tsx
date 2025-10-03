@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import type { RelativeData, RelativeType, RelativeGender } from '@/types/childProfile';
 import RelativeBasicInfoSection from './relatives/RelativeBasicInfoSection';
 import RelativeNicknameSection from './relatives/RelativeNicknameSection';
@@ -112,17 +111,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onCancel}
-          className="mr-2"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+      <div className="mb-6">
         <h3 className="text-xl font-bold text-mcf-primary">
-          {formData.id ? 'Modifier un proche' : 'Ajouter un proche'}
+          {formData.id ? 'Modifier un proche' : 'Nouveau proche'}
         </h3>
       </div>
       
