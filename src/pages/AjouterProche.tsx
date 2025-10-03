@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import RelativeForm from '@/components/childProfile/RelativeForm';
+import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import type { RelativeData } from '@/types/childProfile';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Child {
   id: string;
   firstName: string;
-  lastName: string;
-  relatives?: any[];
+  lastName?: string;
+  birthDate?: string;
+  gender?: string;
 }
 
 export default function AjouterProche() {
   const navigate = useNavigate();
-  const { childId } = useParams();
   const { user } = useAuth();
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(childId || null);
+  const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
+  const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Formulaire vide pour un nouveau proche
@@ -62,15 +64,11 @@ export default function AjouterProche() {
         id: draft.id,
         firstName: draft.data?.firstName || 'Enfant',
         lastName: draft.data?.lastName || '',
-        relatives: draft.data?.family?.relatives || []
+        birthDate: draft.data?.birthDate,
+        gender: draft.data?.gender
       }));
 
       setChildren(mappedChildren);
-      
-      // Si un seul enfant et pas de childId spécifique, le sélectionner automatiquement
-      if (mappedChildren.length === 1 && !childId) {
-        setSelectedChildId(mappedChildren[0].id);
-      }
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -79,45 +77,56 @@ export default function AjouterProche() {
     }
   };
 
+  const toggleChildSelection = (childId: string) => {
+    setSelectedChildIds(prev => 
+      prev.includes(childId) 
+        ? prev.filter(id => id !== childId)
+        : [...prev, childId]
+    );
+  };
+
+  const handleContinue = () => {
+    if (selectedChildIds.length === 0) {
+      toast.error('Veuillez sélectionner au moins un enfant');
+      return;
+    }
+    setShowForm(true);
+  };
+
   const handleAddRelative = async (relativeData: RelativeData) => {
-    if (!selectedChildId) {
-      toast.error('Veuillez sélectionner un enfant');
+    if (selectedChildIds.length === 0) {
+      toast.error('Veuillez sélectionner au moins un enfant');
       return;
     }
 
     try {
-      // Récupérer le profil enfant actuel
-      const { data: currentChild, error: fetchError } = await supabase
-        .from('drafts')
-        .select('data')
-        .eq('id', selectedChildId)
+      // 1. Créer le membre de famille
+      const { data: familyMember, error: familyError } = await supabase
+        .from('family_members')
+        .insert({
+          name: relativeData.firstName,
+          role: relativeData.type,
+          avatar: null
+        })
+        .select()
         .single();
 
-      if (fetchError) throw fetchError;
+      if (familyError) throw familyError;
 
-      const childData = currentChild.data as any;
-      const currentRelatives = childData?.family?.relatives || [];
-      
-      // Ajouter le nouveau proche aux proches existants
-      const updatedRelatives = [...currentRelatives, relativeData];
+      // 2. Lier le proche à chaque enfant sélectionné
+      const childFamilyMemberRecords = selectedChildIds.map(childId => ({
+        child_id: childId,
+        family_member_id: familyMember.id,
+        relation_label: relativeData.type
+      }));
 
-      // Mettre à jour le profil enfant
-      const { error: updateError } = await supabase
-        .from('drafts')
-        .update({ 
-          data: {
-            ...childData,
-            family: {
-              ...(childData?.family || {}),
-              relatives: updatedRelatives
-            }
-          } as any
-        })
-        .eq('id', selectedChildId);
+      const { error: linkError } = await supabase
+        .from('child_family_members')
+        .insert(childFamilyMemberRecords);
 
-      if (updateError) throw updateError;
+      if (linkError) throw linkError;
 
-      toast.success('Proche ajouté avec succès !');
+      toast.success(`Proche ajouté avec succès pour ${selectedChildIds.length} enfant(s) !`);
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
@@ -143,7 +152,7 @@ export default function AjouterProche() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate('/espace-famille')}
+            onClick={() => showForm ? setShowForm(false) : navigate('/espace-famille')}
             className="border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -151,44 +160,74 @@ export default function AjouterProche() {
           <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un proche</h1>
         </div>
 
-        {/* Sélection de l'enfant si plusieurs enfants */}
-        {children.length > 1 && !childId && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-mcf-orange-dark">Pour quel enfant souhaitez-vous ajouter un proche ?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
-                {children.map((child) => (
-                  <Button
-                    key={child.id}
-                    variant={selectedChildId === child.id ? "default" : "outline"}
-                    className={`justify-start gap-2 ${selectedChildId === child.id 
-                      ? 'bg-mcf-orange hover:bg-mcf-orange-dark text-white' 
-                      : 'border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10'
-                    }`}
-                    onClick={() => setSelectedChildId(child.id)}
-                  >
-                    {child.firstName} {child.lastName}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {!showForm ? (
+          <>
+            {/* Sélection des enfants */}
+            {children.length > 0 && (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="text-mcf-orange-dark">
+                    Sélectionnez le(s) enfant(s) concerné(s)
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Vous pouvez sélectionner plusieurs enfants pour leur ajouter le même proche
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {children.map((child) => (
+                      <ChildSelectionCard
+                        key={child.id}
+                        child={child}
+                        selected={selectedChildIds.includes(child.id)}
+                        onToggle={toggleChildSelection}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-6 flex items-center justify-between">
+                    <p className="text-sm text-gray-600">
+                      {selectedChildIds.length} enfant(s) sélectionné(s)
+                    </p>
+                    <Button
+                      onClick={handleContinue}
+                      disabled={selectedChildIds.length === 0}
+                      className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
+                    >
+                      Continuer <CheckCircle2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Formulaire d'ajout de proche */}
-        {selectedChildId && (
+            {children.length === 0 && (
+              <Card className="p-8 text-center">
+                <div className="space-y-4">
+                  <p className="text-lg font-medium text-mcf-orange-dark">
+                    Aucun enfant trouvé
+                  </p>
+                  <p className="text-gray-600">
+                    Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter des proches.
+                  </p>
+                  <Button 
+                    className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
+                    onClick={() => navigate('/creer-profil-enfant')}
+                  >
+                    <Plus className="h-4 w-4" /> Créer le profil d'un enfant
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </>
+        ) : (
           <Card>
             <CardHeader>
               <CardTitle className="text-mcf-orange-dark flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Nouveau proche
-                {children.length === 1 && (
-                  <span className="text-sm font-normal text-gray-600">
-                    pour {children.find(c => c.id === selectedChildId)?.firstName}
-                  </span>
-                )}
+                <span className="text-sm font-normal text-gray-600">
+                  pour {selectedChildIds.map(id => children.find(c => c.id === id)?.firstName).join(', ')}
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -198,25 +237,6 @@ export default function AjouterProche() {
                 onCancel={() => navigate('/espace-famille')} 
               />
             </CardContent>
-          </Card>
-        )}
-
-        {children.length === 0 && (
-          <Card className="p-8 text-center">
-            <div className="space-y-4">
-              <p className="text-lg font-medium text-mcf-orange-dark">
-                Aucun enfant trouvé
-              </p>
-              <p className="text-gray-600">
-                Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter des proches.
-              </p>
-              <Button 
-                className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
-                onClick={() => navigate('/creer-profil-enfant')}
-              >
-                <Plus className="h-4 w-4" /> Créer le profil d'un enfant
-              </Button>
-            </div>
           </Card>
         )}
       </main>
