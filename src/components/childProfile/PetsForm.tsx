@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -9,10 +9,19 @@ import type { ChildProfileFormData, PetData } from '@/types/childProfile';
 import PetForm from './pets/PetForm';
 import PetsList from './pets/PetsList';
 import ExistingPetsList from './pets/ExistingPetsList';
+import { supabase } from "@/integrations/supabase/client";
 
 type PetsFormProps = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
+};
+
+type ExistingPet = {
+  id: string;
+  name: string;
+  type: string;
+  emoji: string;
+  family_id: string;
 };
 
 const PetsForm: React.FC<PetsFormProps> = ({
@@ -22,12 +31,136 @@ const PetsForm: React.FC<PetsFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [isAddingPet, setIsAddingPet] = useState(false);
   const [currentPet, setCurrentPet] = useState<PetData | null>(null);
+  const [existingPets, setExistingPets] = useState<ExistingPet[]>([]);
+  const [selectedExistingPetIds, setSelectedExistingPetIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Getter pour hasPets
   const hasPets = form.watch("pets.hasPets");
   
   // Getter pour la liste des animaux
   const pets = form.watch("pets.pets") || [];
+
+  // Charger les animaux existants de la famille
+  useEffect(() => {
+    const loadExistingPets = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.log('No user found');
+          setLoading(false);
+          return;
+        }
+
+        // Charger le family_id de l'utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error loading user profile:', profileError);
+          setLoading(false);
+          return;
+        }
+
+        let petsFromTable: ExistingPet[] = [];
+
+        // Si l'utilisateur a un family_id, charger depuis pets
+        if (profile?.family_id) {
+          console.log('Loading pets for family_id:', profile.family_id);
+
+          const { data: pets, error: petsError } = await supabase
+            .from('pets')
+            .select('id, name, type, emoji, family_id')
+            .eq('family_id', profile.family_id);
+
+          if (petsError) {
+            console.error('Error loading pets:', petsError);
+          } else if (pets && pets.length > 0) {
+            petsFromTable = pets.map((pet: any) => ({
+              id: pet.id,
+              name: pet.name || 'Sans nom',
+              type: pet.type || 'animal',
+              emoji: pet.emoji || '🐾',
+              family_id: pet.family_id || ''
+            }));
+            console.log('Loaded pets:', petsFromTable);
+          }
+        }
+
+        // Fallback: si pas de family_id, chercher la famille créée par l'utilisateur
+        if (!profile?.family_id && petsFromTable.length === 0) {
+          console.log('No family_id, trying to find family...');
+          
+          const { data: families, error: familiesError } = await supabase
+            .from('families')
+            .select('id')
+            .eq('created_by', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (familiesError) {
+            console.error('Error loading families:', familiesError);
+          } else if (families && families.length > 0) {
+            const familyId = families[0].id;
+            console.log('Found family:', familyId);
+            
+            // Mémoriser sur le profil
+            await supabase
+              .from('user_profiles')
+              .update({ family_id: familyId })
+              .eq('id', user.id);
+
+            // Charger les animaux de cette famille
+            const { data: pets, error: petsError } = await supabase
+              .from('pets')
+              .select('id, name, type, emoji, family_id')
+              .eq('family_id', familyId);
+
+            if (petsError) {
+              console.error('Error loading pets:', petsError);
+            } else if (pets && pets.length > 0) {
+              petsFromTable = pets.map((pet: any) => ({
+                id: pet.id,
+                name: pet.name || 'Sans nom',
+                type: pet.type || 'animal',
+                emoji: pet.emoji || '🐾',
+                family_id: pet.family_id || ''
+              }));
+              console.log('Loaded pets from fallback:', petsFromTable);
+            }
+          }
+        }
+
+        if (petsFromTable.length > 0) {
+          setExistingPets(petsFromTable);
+        } else {
+          console.log('No pets found');
+        }
+      } catch (error) {
+        console.error('Error loading existing pets:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExistingPets();
+  }, []);
+
+  // Gérer la sélection/désélection des animaux existants
+  const handleToggleExistingPet = (petId: string) => {
+    setSelectedExistingPetIds(prev => {
+      if (prev.includes(petId)) {
+        return prev.filter(id => id !== petId);
+      } else {
+        return [...prev, petId];
+      }
+    });
+  };
 
   const handleHasPetsChange = (value: string) => {
     const hasPetsValue = value === "true";
@@ -81,9 +214,14 @@ const PetsForm: React.FC<PetsFormProps> = ({
   };
 
   const handlePetsSectionContinue = () => {
-    const existingPetsData = form.getValues().pets?.existingPetsData || [];
+    // Sauvegarder les données des animaux existants sélectionnés
+    const selectedPetsData = existingPets.filter(p => 
+      selectedExistingPetIds.includes(p.id)
+    );
     
-    if (hasPets && pets.length === 0 && existingPetsData.length === 0) {
+    form.setValue("pets.existingPetsData", selectedPetsData as any);
+    
+    if (hasPets && pets.length === 0 && selectedExistingPetIds.length === 0) {
       toast.error("Veuillez ajouter ou sélectionner au moins un animal de compagnie");
       return;
     }
@@ -125,28 +263,25 @@ const PetsForm: React.FC<PetsFormProps> = ({
           {/* Section d'ajout d'animaux (visible uniquement si "Oui" est sélectionné) */}
           {hasPets && (
             <div className="space-y-6">
-              {/* Animaux existants */}
-              <ExistingPetsList disabled={false} />
-              
-              {/* Séparateur si des animaux existants sont disponibles */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-background px-4 text-muted-foreground">
-                    ou créer un nouvel animal
-                  </span>
-                </div>
+              {/* Liste des animaux existants à sélectionner */}
+              {!loading && existingPets.length > 0 && (
+                <ExistingPetsList 
+                  existingPets={existingPets}
+                  selectedPetIds={selectedExistingPetIds}
+                  onTogglePet={handleToggleExistingPet}
+                />
+              )}
+
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-semibold text-mcf-primary mb-4">Ajouter un nouvel animal</h3>
+                <Button
+                  type="button"
+                  onClick={handleAddPet}
+                  className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
+                >
+                  Ajouter un nouvel animal +
+                </Button>
               </div>
-              
-              <Button
-                type="button"
-                onClick={handleAddPet}
-                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
-              >
-                Ajouter un nouvel animal +
-              </Button>
               
               <PetsList 
                 pets={pets} 
