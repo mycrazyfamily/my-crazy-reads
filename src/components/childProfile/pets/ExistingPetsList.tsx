@@ -32,24 +32,51 @@ const ExistingPetsList: React.FC<ExistingPetsListProps> = ({ disabled = false })
       if (!supabaseSession?.user?.id) return;
 
       try {
-        // 1. Récupérer le family_id de l'utilisateur
+        // 1) Récupérer le family_id depuis user_profiles
         const { data: userProfile, error: profileError } = await supabase
           .from('user_profiles')
           .select('family_id')
           .eq('id', supabaseSession.user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !userProfile?.family_id) {
-          console.log('No family found for user');
+        let familyId = userProfile?.family_id as string | undefined;
+
+        // 2) Fallback: si family_id manquant, chercher la famille créée par l'utilisateur
+        if (!familyId) {
+          const { data: families, error: familiesError } = await supabase
+            .from('families')
+            .select('id')
+            .eq('created_by', supabaseSession.user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (familiesError) {
+            console.error('Error loading families:', familiesError);
+          }
+
+          familyId = families?.[0]?.id;
+
+          // Optionnel: mémoriser sur le profil pour la suite
+          if (familyId) {
+            await supabase
+              .from('user_profiles')
+              .update({ family_id: familyId })
+              .eq('id', supabaseSession.user.id);
+          }
+        }
+
+        if (!familyId) {
+          console.info('No family found for user');
+          setExistingPets([]);
           setIsLoading(false);
           return;
         }
 
-        // 2. Charger tous les animaux de la famille
+        // 3) Charger tous les animaux de cette famille
         const { data: pets, error: petsError } = await supabase
           .from('pets')
-          .select('*')
-          .eq('family_id', userProfile.family_id);
+          .select('id,name,type,emoji,family_id')
+          .eq('family_id', familyId);
 
         if (petsError) {
           console.error('Error loading existing pets:', petsError);
@@ -59,34 +86,34 @@ const ExistingPetsList: React.FC<ExistingPetsListProps> = ({ disabled = false })
         }
 
         setExistingPets(pets || []);
-        
-        // 3. Charger les animaux déjà sélectionnés depuis le formulaire
+
+        // 4) Pré-sélection depuis le formulaire (si l'utilisateur a déjà coché des animaux)
         const existingPetsData = form.getValues().pets?.existingPetsData || [];
-        setSelectedPetIds(existingPetsData.map(p => p.id));
-        
-        setIsLoading(false);
+        setSelectedPetIds(existingPetsData.map((p: ExistingPet) => p.id));
       } catch (error) {
         console.error('Error in loadExistingPets:', error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     loadExistingPets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabaseSession?.user?.id]);
 
   const handlePetToggle = (pet: ExistingPet, checked: boolean) => {
     let newSelectedIds: string[];
-    
+
     if (checked) {
       newSelectedIds = [...selectedPetIds, pet.id];
     } else {
-      newSelectedIds = selectedPetIds.filter(id => id !== pet.id);
+      newSelectedIds = selectedPetIds.filter((id) => id !== pet.id);
     }
-    
+
     setSelectedPetIds(newSelectedIds);
-    
+
     // Mettre à jour le formulaire avec les données complètes des animaux sélectionnés
-    const selectedPetsData = existingPets.filter(p => newSelectedIds.includes(p.id));
+    const selectedPetsData = existingPets.filter((p) => newSelectedIds.includes(p.id));
     form.setValue('pets.existingPetsData', selectedPetsData, { shouldDirty: true });
   };
 
@@ -99,7 +126,7 @@ const ExistingPetsList: React.FC<ExistingPetsListProps> = ({ disabled = false })
   }
 
   if (existingPets.length === 0) {
-    return null;
+    return null; // Pas d'animaux à afficher
   }
 
   return (
@@ -110,7 +137,7 @@ const ExistingPetsList: React.FC<ExistingPetsListProps> = ({ disabled = false })
           Associer un animal déjà existant à cet enfant
         </h3>
       </div>
-      
+
       <p className="text-sm text-muted-foreground">
         Sélectionnez les animaux de la famille qui appartiennent aussi à cet enfant :
       </p>
@@ -131,11 +158,9 @@ const ExistingPetsList: React.FC<ExistingPetsListProps> = ({ disabled = false })
               checked={selectedPetIds.includes(pet.id)}
               onCheckedChange={(checked) => handlePetToggle(pet, checked as boolean)}
               disabled={disabled}
+              className="border-2 border-mcf-primary bg-white data-[state=checked]:bg-mcf-primary data-[state=checked]:border-mcf-primary data-[state=checked]:text-white"
             />
-            <Label
-              htmlFor={`pet-${pet.id}`}
-              className="flex-1 flex items-center gap-2 cursor-pointer"
-            >
+            <Label htmlFor={`pet-${pet.id}`} className="flex-1 flex items-center gap-2 cursor-pointer">
               <span className="text-2xl">{pet.emoji || '🐾'}</span>
               <div>
                 <div className="font-medium">{pet.name}</div>
