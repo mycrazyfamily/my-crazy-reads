@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -6,6 +6,8 @@ import type { ChildProfileFormData, RelativeData, RelativeType, RelativeGender }
 import RelativeForm from './RelativeForm';
 import RelativeTypeSelection from './relatives/RelativeTypeSelection';
 import RelativesList from './relatives/RelativesList';
+import ExistingRelativesList from './relatives/ExistingRelativesList';
+import { supabase } from "@/integrations/supabase/client";
 type FamilyFormProps = {
   handlePreviousStep: () => void;
   onSubmit: () => void;
@@ -19,6 +21,14 @@ const getRelativeGender = (type: RelativeType): RelativeGender => {
   if (maleTypes.includes(type)) return "male";
   return "neutral";
 };
+type ExistingRelative = {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  family_id: string;
+};
+
 const FamilyForm: React.FC<FamilyFormProps> = ({
   handlePreviousStep,
   onSubmit
@@ -26,6 +36,75 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [currentRelative, setCurrentRelative] = useState<RelativeData | null>(null);
   const [isEditingRelative, setIsEditingRelative] = useState(false);
+  const [existingRelatives, setExistingRelatives] = useState<ExistingRelative[]>([]);
+  const [selectedExistingRelativeIds, setSelectedExistingRelativeIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Charger les proches existants de la famille
+  useEffect(() => {
+    const loadExistingRelatives = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        // Récupérer le family_id de l'utilisateur
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile?.family_id) {
+          setLoading(false);
+          return;
+        }
+
+        // Récupérer tous les family_members de cette famille
+        const { data: familyMembers, error } = await supabase
+          .from('family_members')
+          .select('*')
+          .eq('family_id', profile.family_id);
+
+        if (error) {
+          console.error('Error loading family members:', error);
+          setLoading(false);
+          return;
+        }
+
+        if (familyMembers) {
+          setExistingRelatives(familyMembers.map(fm => ({
+            id: fm.id,
+            name: fm.name || 'Sans nom',
+            role: fm.role || 'Proche',
+            avatar: fm.avatar || '👤',
+            family_id: fm.family_id || ''
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading existing relatives:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExistingRelatives();
+  }, []);
+
+  // Gérer la sélection/désélection des proches existants
+  const handleToggleExistingRelative = (relativeId: string) => {
+    setSelectedExistingRelativeIds(prev => {
+      if (prev.includes(relativeId)) {
+        return prev.filter(id => id !== relativeId);
+      } else {
+        return [...prev, relativeId];
+      }
+    });
+  };
   const handleAddRelative = (relativeType: RelativeType) => {
     const gender = getRelativeGender(relativeType);
 
@@ -107,6 +186,9 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     setIsEditingRelative(false);
   };
   const handleFamilySectionContinue = () => {
+    // Sauvegarder les IDs des proches existants sélectionnés dans le formulaire
+    form.setValue("family.existingRelativeIds", selectedExistingRelativeIds);
+    
     // Suppression de la vérification obligatoire des proches
     // Le formulaire permet maintenant de continuer même sans ajouter de proche
     onSubmit();
@@ -140,7 +222,19 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
       </div>
       
       {!isEditingRelative ? <form className="space-y-8">
-          <RelativeTypeSelection selectedRelatives={selectedRelatives} handleRelativeTypeToggle={handleRelativeTypeToggle} onAddRelative={handleAddRelative} />
+          {/* Liste des proches existants à sélectionner */}
+          {!loading && existingRelatives.length > 0 && (
+            <ExistingRelativesList 
+              existingRelatives={existingRelatives}
+              selectedRelativeIds={selectedExistingRelativeIds}
+              onToggleRelative={handleToggleExistingRelative}
+            />
+          )}
+
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold text-mcf-primary mb-4">Ajouter un nouveau proche</h3>
+            <RelativeTypeSelection selectedRelatives={selectedRelatives} handleRelativeTypeToggle={handleRelativeTypeToggle} onAddRelative={handleAddRelative} />
+          </div>
           
           <RelativesList relatives={relatives} onEditRelative={handleEditRelative} onDeleteRelative={handleDeleteRelative} />
           

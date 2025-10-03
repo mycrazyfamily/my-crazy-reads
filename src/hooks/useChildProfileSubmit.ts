@@ -23,20 +23,46 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       console.warn('No authenticated user found. Skipping server save.');
       toast.error("Veuillez vous connecter pour sauvegarder le profil.");
     } else {
-      const { error } = await (supabase as any)
+      // Serialiser les données (convertir Date en string)
+      const serializedData = JSON.parse(JSON.stringify(data));
+      
+      // D'abord créer le draft du profil enfant
+      const { data: draft, error: draftError } = await supabase
         .from('drafts')
         .insert([
           {
             type: 'child_profile',
-            data,
+            data: serializedData,
             created_by: userId,
           }
-        ]);
+        ])
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Error saving child profile draft:', error);
+      if (draftError) {
+        console.error('Error saving child profile draft:', draftError);
         toast.error("Impossible d'enregistrer le profil. Réessayez.");
       } else {
+        // Si des proches existants ont été sélectionnés, créer les liens
+        if (data.family?.existingRelativeIds && data.family.existingRelativeIds.length > 0 && draft) {
+          const childId = draft.id;
+          
+          // Créer les liens dans child_family_members
+          const familyMemberLinks = data.family.existingRelativeIds.map(familyMemberId => ({
+            child_id: childId,
+            family_member_id: familyMemberId
+          }));
+
+          const { error: linkError } = await supabase
+            .from('child_family_members')
+            .insert(familyMemberLinks);
+
+          if (linkError) {
+            console.error('Error linking existing family members:', linkError);
+            toast.warning("Profil créé mais erreur lors de l'association des proches existants");
+          }
+        }
+
         toast.success(isGiftMode
           ? "Profil créé et sauvegardé !"
           : "Profil enregistré, l'aventure peut commencer !");
