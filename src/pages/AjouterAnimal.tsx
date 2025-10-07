@@ -42,31 +42,40 @@ export default function AjouterAnimal() {
     if (!supabaseSession?.user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('drafts')
-        .select('id, data, created_at')
-        .eq('type', 'child_profile')
-        .eq('created_by', supabaseSession.user.id)
+      // Récupérer le family_id de l'utilisateur s'il existe
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('family_id')
+        .eq('id', supabaseSession.user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+      const familyId = profile?.family_id as string | null;
+
+      // Charger les enfants depuis child_profiles
+      let query = supabase
+        .from('child_profiles')
+        .select('id, first_name, birth_date, gender, family_id, user_id')
         .order('created_at', { ascending: false });
 
+      if (familyId) {
+        query = query.or(`user_id.eq.${supabaseSession.user.id},family_id.eq.${familyId}`);
+      } else {
+        query = query.eq('user_id', supabaseSession.user.id);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
 
-      const mappedChildren = (data || []).map((draft: any) => ({
-        id: draft.id,
-        firstName: draft.data?.firstName || 'Enfant',
-        lastName: draft.data?.lastName || '',
-        birthDate: draft.data?.birthDate,
-        gender: draft.data?.gender
+      const mappedChildren = (data || []).map((cp: any) => ({
+        id: cp.id,
+        firstName: cp.first_name || 'Enfant',
+        lastName: '',
+        birthDate: cp.birth_date,
+        gender: cp.gender
       }));
 
-      // Dédupliquer par prénom + date de naissance, garder le plus récent
-      const uniqueChildren = mappedChildren.filter((child, index, self) => 
-        index === self.findIndex((c) => 
-          c.firstName === child.firstName && c.birthDate === child.birthDate
-        )
-      );
-
-      setChildren(uniqueChildren);
+      setChildren(mappedChildren);
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -100,21 +109,16 @@ export default function AjouterAnimal() {
     try {
       let familyId: string | null = null;
 
-      // 1. D'abord, essayer de récupérer le family_id depuis un enfant existant
-      const { data: firstChildDraft, error: childError } = await supabase
-        .from('drafts')
-        .select('data')
+      // 1. D'abord, essayer de récupérer le family_id depuis le profil enfant (child_profiles)
+      const { data: childProfile, error: childError } = await supabase
+        .from('child_profiles')
+        .select('family_id')
         .eq('id', selectedChildIds[0])
-        .eq('type', 'child_profile')
         .maybeSingle();
 
-      if (!childError && firstChildDraft?.data) {
-        // Vérifier si l'enfant a un family_id dans ses données
-        const childData = firstChildDraft.data as any;
-        if (childData.family_id) {
-          familyId = childData.family_id;
-          console.log('family_id récupéré depuis l\'enfant:', familyId);
-        }
+      if (!childError && childProfile?.family_id) {
+        familyId = childProfile.family_id;
+        console.log('family_id récupéré depuis child_profiles:', familyId);
       }
 
       // 2. Si pas de family_id trouvé dans l'enfant, vérifier le user_profile
