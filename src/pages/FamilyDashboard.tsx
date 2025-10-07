@@ -37,7 +37,7 @@ const FamilyDashboard: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
   
-  // Data fetched from Supabase drafts (child profiles saved at the end of the form)
+  // Données chargées depuis child_profiles
   const [children, setChildren] = useState<Array<{
     id: string;
     firstName: string;

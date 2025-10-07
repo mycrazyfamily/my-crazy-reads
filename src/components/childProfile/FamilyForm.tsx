@@ -27,8 +27,6 @@ type ExistingRelative = {
   role: string;
   avatar: string;
   family_id: string;
-  isFromDraft?: boolean;
-  relativeData?: any; // Données complètes du proche si il vient d'un draft
 };
 
 const FamilyForm: React.FC<FamilyFormProps> = ({

@@ -183,33 +183,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         // 6. Gérer les proches existants sélectionnés
         if (data.family?.existingRelativesData && data.family.existingRelativesData.length > 0) {
-          const existingRelativesLinks: string[] = [];
-          
-          for (const existingRelative of data.family.existingRelativesData) {
-            // Vérifier si c'est un proche qui vient des drafts (ID temporaire)
-            if (existingRelative.isFromDraft && existingRelative.relativeData) {
-              // Créer ce proche dans family_members
-              const { data: newMember, error: memberError } = await supabase
-                .from('family_members')
-                .insert([{
-                  family_id: familyId,
-                  name: existingRelative.name,
-                  role: existingRelative.role,
-                  avatar: existingRelative.avatar || '👤',
-                }])
-                .select()
-                .single();
-
-              if (memberError) {
-                console.error('Error creating family member from draft:', memberError);
-              } else if (newMember) {
-                existingRelativesLinks.push(newMember.id);
-              }
-            } else {
-              // C'est un proche qui existe déjà dans family_members
-              existingRelativesLinks.push(existingRelative.id);
-            }
-          }
+          const existingRelativesLinks: string[] = data.family.existingRelativesData.map(
+            existingRelative => existingRelative.id
+          );
 
           // Créer les liens child_family_members pour tous les proches existants
           if (existingRelativesLinks.length > 0) {
