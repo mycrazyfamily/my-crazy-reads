@@ -101,16 +101,58 @@ const FamilyDashboard: React.FC = () => {
           console.error('Failed to load child profiles from drafts:', error);
           return;
         }
-        const mapped = (data || []).map((row: any) => ({
-          id: row.id,
-          firstName: row.data?.firstName || 'Enfant',
-          age: row.data?.birthDate ? calculateExactAge(row.data.birthDate) : (row.data?.age || ''),
-          avatar: null,
-          personalityEmoji: '🧒',
-          relatives: row.data?.family?.relatives || [],
-          pets: row.data?.pets?.pets || [],
-          hasToys: !!row.data?.toys?.hasToys,
-          hasPets: row.data?.pets?.pets ? row.data.pets.pets.length : 0,
+        
+        // Charger les profils d'enfants depuis child_profiles pour obtenir les IDs
+        const { data: childProfiles } = await supabase
+          .from('child_profiles')
+          .select('id, first_name, birth_date');
+        
+        const mapped = await Promise.all((data || []).map(async (row: any) => {
+          const draftData = row.data;
+          
+          // Trouver le child_profile correspondant
+          const childProfile = childProfiles?.find(
+            (cp: any) => cp.first_name === draftData?.firstName && 
+            cp.birth_date === draftData?.birthDate?.split('T')[0]
+          );
+          
+          // Charger les animaux depuis child_pets si on a trouvé le child_profile
+          let petsFromDb: any[] = [];
+          if (childProfile) {
+            const { data: childPets } = await supabase
+              .from('child_pets')
+              .select(`
+                name,
+                traits,
+                relation_label,
+                pets:pet_id (
+                  id,
+                  name,
+                  type,
+                  emoji
+                )
+              `)
+              .eq('child_id', childProfile.id);
+            
+            petsFromDb = (childPets || []).map((cp: any) => ({
+              name: cp.name || cp.pets?.name,
+              type: cp.relation_label || cp.pets?.type,
+              traits: cp.traits?.split(', ') || [],
+              emoji: cp.pets?.emoji
+            }));
+          }
+          
+          return {
+            id: row.id,
+            firstName: draftData?.firstName || 'Enfant',
+            age: draftData?.birthDate ? calculateExactAge(draftData.birthDate) : (draftData?.age || ''),
+            avatar: null,
+            personalityEmoji: '🧒',
+            relatives: draftData?.family?.relatives || [],
+            pets: petsFromDb.length > 0 ? petsFromDb : (draftData?.pets?.pets || []),
+            hasToys: !!draftData?.toys?.hasToys,
+            hasPets: petsFromDb.length > 0 ? petsFromDb.length : (draftData?.pets?.pets ? draftData.pets.pets.length : 0),
+          };
         }));
         
         // Déduplication des enfants par prénom + date de naissance
