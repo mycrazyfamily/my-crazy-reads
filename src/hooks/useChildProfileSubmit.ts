@@ -29,7 +29,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           .from('user_profiles')
           .select('family_id')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           console.error('Error loading user profile:', profileError);

@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from "sonner";
 import { useAuth } from '@/hooks/useAuth';
+import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -27,6 +28,9 @@ import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  
+  // Synchroniser automatiquement le family_id
+  useFamilyIdSync();
   
   // Scroll vers le haut au montage du composant
   useEffect(() => {

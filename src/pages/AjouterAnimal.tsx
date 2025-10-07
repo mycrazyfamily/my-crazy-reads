@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
@@ -22,6 +23,10 @@ interface Child {
 export default function AjouterAnimal() {
   const navigate = useNavigate();
   const { user, supabaseSession } = useAuth();
+  
+  // Synchroniser automatiquement le family_id
+  useFamilyIdSync();
+  
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -101,7 +106,7 @@ export default function AjouterAnimal() {
         .select('data')
         .eq('id', selectedChildIds[0])
         .eq('type', 'child_profile')
-        .single();
+        .maybeSingle();
 
       if (!childError && firstChildDraft?.data) {
         // Vérifier si l'enfant a un family_id dans ses données
@@ -118,7 +123,7 @@ export default function AjouterAnimal() {
           .from('user_profiles')
           .select('family_id')
           .eq('id', supabaseSession!.user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           toast.error('Impossible de récupérer les informations de famille');
@@ -155,7 +160,7 @@ export default function AjouterAnimal() {
         .from('user_profiles')
         .select('family_id')
         .eq('id', supabaseSession!.user.id)
-        .single();
+        .maybeSingle();
 
       if (currentProfile && currentProfile.family_id !== familyId) {
         const { error: updateProfileError } = await supabase

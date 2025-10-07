@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
 import RelativeForm from '@/components/childProfile/RelativeForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
@@ -22,6 +23,10 @@ interface Child {
 export default function AjouterProche() {
   const navigate = useNavigate();
   const { user, supabaseSession } = useAuth();
+  
+  // Synchroniser automatiquement le family_id
+  useFamilyIdSync();
+  
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
