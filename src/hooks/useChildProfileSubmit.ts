@@ -96,6 +96,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         // 3. Serialiser les données du draft (convertir Date en string)
         const serializedData = JSON.parse(JSON.stringify(data));
         
+        // Ajouter le family_id aux données de l'enfant pour référence future
+        serializedData.family_id = familyId;
+        
         // 4. Créer le draft du profil enfant
         const { data: draft, error: draftError } = await supabase
           .from('drafts')

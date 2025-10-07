@@ -93,21 +93,42 @@ export default function AjouterAnimal() {
     }
 
     try {
-      // 1. Récupérer le family_id de l'utilisateur
-      const { data: userProfile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('family_id')
-        .eq('id', supabaseSession!.user.id)
+      let familyId: string | null = null;
+
+      // 1. D'abord, essayer de récupérer le family_id depuis un enfant existant
+      const { data: firstChildDraft, error: childError } = await supabase
+        .from('drafts')
+        .select('data')
+        .eq('id', selectedChildIds[0])
+        .eq('type', 'child_profile')
         .single();
 
-      if (profileError) {
-        toast.error('Impossible de récupérer les informations de famille');
-        return;
+      if (!childError && firstChildDraft?.data) {
+        // Vérifier si l'enfant a un family_id dans ses données
+        const childData = firstChildDraft.data as any;
+        if (childData.family_id) {
+          familyId = childData.family_id;
+          console.log('family_id récupéré depuis l\'enfant:', familyId);
+        }
       }
 
-      let familyId = userProfile.family_id;
+      // 2. Si pas de family_id trouvé dans l'enfant, vérifier le user_profile
+      if (!familyId) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', supabaseSession!.user.id)
+          .single();
 
-      // Si pas de famille, en créer une
+        if (profileError) {
+          toast.error('Impossible de récupérer les informations de famille');
+          return;
+        }
+
+        familyId = userProfile.family_id;
+      }
+
+      // 3. Si toujours pas de family_id, en créer une nouvelle (cas rare)
       if (!familyId) {
         console.log('Aucune famille trouvée, création en cours...');
         const { data: newFamily, error: familyError } = await supabase
@@ -126,8 +147,17 @@ export default function AjouterAnimal() {
         }
 
         familyId = newFamily.id;
+        console.log('Famille créée avec succès:', familyId);
+      }
 
-        // Mettre à jour le user profile avec le family_id
+      // 4. Synchroniser user_profiles.family_id si nécessaire
+      const { data: currentProfile } = await supabase
+        .from('user_profiles')
+        .select('family_id')
+        .eq('id', supabaseSession!.user.id)
+        .single();
+
+      if (currentProfile && currentProfile.family_id !== familyId) {
         const { error: updateProfileError } = await supabase
           .from('user_profiles')
           .update({ family_id: familyId })
@@ -135,11 +165,9 @@ export default function AjouterAnimal() {
 
         if (updateProfileError) {
           console.error('Error updating user profile:', updateProfileError);
-          toast.error('Erreur lors de la mise à jour du profil');
-          return;
+        } else {
+          console.log('user_profiles.family_id synchronisé avec:', familyId);
         }
-
-        console.log('Famille créée avec succès:', familyId);
       }
 
       // 2. Créer l'animal dans la table pets avec le family_id
