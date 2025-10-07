@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
-import type { PetData } from '@/types/childProfile';
+import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
@@ -48,9 +48,8 @@ const ModifierAnimal: React.FC = () => {
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
-          type: data.relation_label || data.pets.type,
-          traits: data.traits ? data.traits.split(', ') : [],
-          emoji: data.pets.emoji
+          type: (data.relation_label || data.pets.type) as PetType,
+          traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[]
         };
         setPetData(pet);
       } else {
