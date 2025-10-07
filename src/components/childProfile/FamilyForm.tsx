@@ -93,46 +93,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
           }
         }
 
-        // Si pas de proches dans family_members, charger depuis les drafts existants
-        if (relativesFromTable.length === 0) {
-          console.log('No family_members found, loading from drafts...');
-          
-          const { data: drafts, error: draftsError } = await supabase
-            .from('drafts')
-            .select('data')
-            .eq('created_by', user.id)
-            .eq('type', 'child_profile');
-
-          if (draftsError) {
-            console.error('Error loading drafts:', draftsError);
-          } else if (drafts && drafts.length > 0) {
-            // Extraire tous les proches des drafts et les dédupliquer par prénom+type
-            const relativesMap = new Map<string, ExistingRelative>();
-            
-            for (const draft of drafts) {
-              const draftData = draft.data as any;
-              if (draftData.family?.relatives) {
-                for (const relative of draftData.family.relatives) {
-                  const key = `${relative.firstName}-${relative.type}`;
-                  if (!relativesMap.has(key)) {
-                    relativesMap.set(key, {
-                      id: relative.id,
-                      name: relative.firstName,
-                      role: relative.type,
-                      avatar: '👤',
-                      family_id: '',
-                      isFromDraft: true,
-                      relativeData: relative // Stocker les données complètes
-                    });
-                  }
-                }
-              }
-            }
-            
-            relativesFromTable = Array.from(relativesMap.values());
-            console.log('Loaded relatives from drafts:', relativesFromTable);
-          }
-        }
+        // Les proches sont maintenant uniquement dans family_members
 
         if (relativesFromTable.length > 0) {
           setExistingRelatives(relativesFromTable);

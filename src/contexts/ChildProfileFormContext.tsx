@@ -108,42 +108,63 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     const loadEditData = async () => {
       if (editMode && editChildId) {
         try {
-          const { data, error } = await (await import('@/integrations/supabase/client')).supabase
-            .from('drafts')
-            .select('data')
+          const { supabase } = await import('@/integrations/supabase/client');
+          
+          // Charger depuis child_profiles
+          const { data: childProfile, error } = await supabase
+            .from('child_profiles')
+            .select(`
+              *,
+              child_traits(trait_id),
+              child_passions(passion_id),
+              child_challenges(challenge_id),
+              child_universes(universe_id),
+              child_discoveries(discovery_id)
+            `)
             .eq('id', editChildId)
-            .eq('type', 'child_profile')
             .maybeSingle();
 
           if (error) throw error;
 
-          const profileData = data?.data as any;
-          if (!profileData) {
+          if (!childProfile) {
             toast.error("Aucune donnée trouvée pour cet enfant");
             return;
           }
 
-          // Convertir la date de naissance
-          if (profileData.birthDate) {
-            profileData.birthDate = new Date(profileData.birthDate);
-          }
+          // Transformer les données pour le formulaire
+          const appearance = childProfile.appearance as any;
+          const formData: any = {
+            firstName: childProfile.first_name,
+            nickname: childProfile.nickname ? { type: 'custom', custom: childProfile.nickname } : { type: 'none' },
+            birthDate: childProfile.birth_date ? new Date(childProfile.birth_date) : undefined,
+            gender: childProfile.gender,
+            height: childProfile.height,
+            skinColor: appearance?.skinColor || { type: 'light' },
+            eyeColor: appearance?.eyeColor || { type: 'blue' },
+            hairColor: appearance?.hairColor || { type: 'blonde' },
+            hairType: appearance?.hairType || 'straight',
+            hairTypeCustom: appearance?.hairTypeCustom,
+            glasses: appearance?.glasses || false,
+            superpowers: (childProfile.child_traits || []).map((t: any) => t.trait_id),
+            passions: (childProfile.child_passions || []).map((p: any) => p.passion_id),
+            challenges: (childProfile.child_challenges || []).map((c: any) => c.challenge_id),
+            worlds: {
+              favoriteWorlds: (childProfile.child_universes || []).map((w: any) => w.universe_id),
+              discoveries: (childProfile.child_discoveries || []).map((d: any) => d.discovery_id),
+              customWorlds: {},
+              customDiscoveries: {}
+            },
+            family: { selectedRelatives: [], relatives: [], existingRelativeIds: [], existingRelativesData: [] },
+            pets: { hasPets: childProfile.has_pet, pets: [] },
+            toys: { hasToys: false, toys: [] }
+          };
           
-          // Charger toutes les données du profil
-          form.reset(profileData);
+          form.reset(formData);
           
-          // Restaurer les états UI basés sur les types sélectionnés
-          if (profileData.nickname?.type) {
-            setSelectedNickname(profileData.nickname.type);
-          }
-          if (profileData.skinColor?.type) {
-            setSelectedSkinColor(profileData.skinColor.type);
-          }
-          if (profileData.eyeColor?.type) {
-            setSelectedEyeColor(profileData.eyeColor.type);
-          }
-          if (profileData.hairColor?.type) {
-            setSelectedHairColor(profileData.hairColor.type);
-          }
+          // Restaurer les états UI
+          if (formData.skinColor?.type) setSelectedSkinColor(formData.skinColor.type);
+          if (formData.eyeColor?.type) setSelectedEyeColor(formData.eyeColor.type);
+          if (formData.hairColor?.type) setSelectedHairColor(formData.hairColor.type);
         } catch (error) {
           console.error('Error loading child data for editing:', error);
           toast.error("Erreur lors du chargement des données");

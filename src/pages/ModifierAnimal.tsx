@@ -26,24 +26,36 @@ const ModifierAnimal: React.FC = () => {
     try {
       setLoading(true);
       
+      // Charger depuis child_pets
       const { data, error } = await supabase
-        .from('drafts')
-        .select('data')
-        .eq('id', childId)
-        .eq('type', 'child_profile')
-        .single();
+        .from('child_pets')
+        .select(`
+          *,
+          pets (
+            id,
+            name,
+            type,
+            emoji
+          )
+        `)
+        .eq('child_id', childId)
+        .eq('pet_id', petId)
+        .maybeSingle();
 
       if (error) throw error;
 
-      const profileData = data?.data as any;
-      if (profileData?.pets?.pets) {
-        const pet = profileData.pets.pets.find((p: PetData) => p.id === petId);
-        if (pet) {
-          setPetData(pet);
-        } else {
-          toast.error("Animal non trouvé");
-          navigate('/espace-famille');
-        }
+      if (data && data.pets) {
+        const pet: PetData = {
+          id: data.pets.id,
+          name: data.name || data.pets.name,
+          type: data.relation_label || data.pets.type,
+          traits: data.traits ? data.traits.split(', ') : [],
+          emoji: data.pets.emoji
+        };
+        setPetData(pet);
+      } else {
+        toast.error("Animal non trouvé");
+        navigate('/espace-famille');
       }
     } catch (error) {
       console.error('Error loading pet data:', error);
@@ -54,44 +66,34 @@ const ModifierAnimal: React.FC = () => {
   };
 
   const handleSave = async (updatedPet: PetData) => {
-    if (!childId) return;
+    if (!childId || !petId) return;
 
     try {
       setSaving(true);
 
-      // Récupérer les données actuelles
-      const { data: currentData, error: fetchError } = await supabase
-        .from('drafts')
-        .select('data')
-        .eq('id', childId)
-        .eq('type', 'child_profile')
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const profileData = currentData?.data as any;
-      // Mettre à jour l'animal dans la liste
-      const pets = profileData?.pets?.pets || [];
-      const updatedPets = pets.map((p: PetData) => 
-        p.id === petId ? updatedPet : p
-      );
-
-      // Mettre à jour dans Supabase
-      const { error: updateError } = await supabase
-        .from('drafts')
+      // Mettre à jour dans child_pets et pets
+      const { error: updateChildPetError } = await supabase
+        .from('child_pets')
         .update({
-          data: {
-            ...profileData,
-            pets: {
-              ...profileData.pets,
-              pets: updatedPets
-            }
-          },
-          updated_at: new Date().toISOString()
+          name: updatedPet.name,
+          traits: updatedPet.traits?.join(', ') || null,
+          relation_label: updatedPet.type
         })
-        .eq('id', childId);
+        .eq('child_id', childId)
+        .eq('pet_id', petId);
 
-      if (updateError) throw updateError;
+      if (updateChildPetError) throw updateChildPetError;
+      
+      // Mettre à jour le pet dans la table pets
+      const { error: updatePetError } = await supabase
+        .from('pets')
+        .update({
+          name: updatedPet.name,
+          type: updatedPet.type
+        })
+        .eq('id', petId);
+
+      if (updatePetError) throw updatePetError;
 
       toast.success("Animal modifié avec succès !");
       navigate('/espace-famille');

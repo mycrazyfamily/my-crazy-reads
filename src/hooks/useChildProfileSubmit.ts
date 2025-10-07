@@ -93,32 +93,76 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 3. Serialiser les données du draft (convertir Date en string)
-        const serializedData = JSON.parse(JSON.stringify(data));
-        
-        // Ajouter le family_id aux données de l'enfant pour référence future
-        serializedData.family_id = familyId;
-        
-        // 4. Créer le draft du profil enfant
-        const { data: draft, error: draftError } = await supabase
-          .from('drafts')
+        // 3. Créer le profil enfant dans child_profiles
+        const { data: childProfile, error: childError } = await supabase
+          .from('child_profiles')
           .insert([
             {
-              type: 'child_profile',
-              data: serializedData,
-              created_by: userId,
+              user_id: userId,
+              family_id: familyId,
+              first_name: data.firstName,
+              nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
+                       data.nickname?.type !== 'none' ? data.nickname?.type : null,
+              birth_date: data.birthDate ? data.birthDate.toISOString().split('T')[0] : null,
+              gender: data.gender,
+              height: data.height,
+              appearance: {
+                skinColor: data.skinColor,
+                eyeColor: data.eyeColor,
+                hairColor: data.hairColor,
+                hairType: data.hairType,
+                hairTypeCustom: data.hairTypeCustom,
+                glasses: data.glasses
+              },
+              has_pet: data.pets?.hasPets || false
             }
           ])
           .select()
           .single();
 
-        if (draftError) {
-          console.error('Error saving child profile draft:', draftError);
+        if (childError) {
+          console.error('Error creating child profile:', childError);
           toast.error("Impossible d'enregistrer le profil. Réessayez.");
           return;
         }
 
-        const childId = draft.id;
+        const childId = childProfile.id;
+        
+        // 4. Ajouter les superpowers, passions, challenges
+        if (data.superpowers && data.superpowers.length > 0) {
+          const { error: traitsError } = await supabase
+            .from('child_traits')
+            .insert(data.superpowers.map(trait => ({ child_id: childId, trait_id: trait })));
+          if (traitsError) console.error('Error adding traits:', traitsError);
+        }
+        
+        if (data.passions && data.passions.length > 0) {
+          const { error: passionsError } = await supabase
+            .from('child_passions')
+            .insert(data.passions.map(passion => ({ child_id: childId, passion_id: passion })));
+          if (passionsError) console.error('Error adding passions:', passionsError);
+        }
+        
+        if (data.challenges && data.challenges.length > 0) {
+          const { error: challengesError } = await supabase
+            .from('child_challenges')
+            .insert(data.challenges.map(challenge => ({ child_id: childId, challenge_id: challenge })));
+          if (challengesError) console.error('Error adding challenges:', challengesError);
+        }
+        
+        if (data.worlds?.favoriteWorlds && data.worlds.favoriteWorlds.length > 0) {
+          const { error: worldsError } = await supabase
+            .from('child_universes')
+            .insert(data.worlds.favoriteWorlds.map(world => ({ child_id: childId, universe_id: world })));
+          if (worldsError) console.error('Error adding worlds:', worldsError);
+        }
+        
+        if (data.worlds?.discoveries && data.worlds.discoveries.length > 0) {
+          const { error: discoveriesError } = await supabase
+            .from('child_discoveries')
+            .insert(data.worlds.discoveries.map(discovery => ({ child_id: childId, discovery_id: discovery })));
+          if (discoveriesError) console.error('Error adding discoveries:', discoveriesError);
+        }
 
         // 5. Créer les liens child_family_members pour les nouveaux proches créés
         if (createdFamilyMemberIds.length > 0) {

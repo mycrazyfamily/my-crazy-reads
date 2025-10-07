@@ -54,59 +54,44 @@ const ModifierProche: React.FC = () => {
 
   const loadRelativeData = async () => {
     try {
-      const { data, error } = await (supabase as any)
-        .from('drafts')
-        .select('id, data')
-        .eq('id', childId)
-        .eq('type', 'child_profile')
-        .single();
+      // Charger depuis family_members via child_family_members
+      const { data, error } = await supabase
+        .from('child_family_members')
+        .select(`
+          relation_label,
+          family_members (
+            id,
+            name,
+            role,
+            avatar
+          )
+        `)
+        .eq('child_id', childId)
+        .eq('family_member_id', relativeId)
+        .maybeSingle();
 
       if (error) throw error;
 
-      if (data && data.data) {
-        setChildData(data.data);
+      if (data && data.family_members) {
+        const relative = data.family_members;
         
-        const relatives = data.data.family?.relatives || [];
-        const relative = relatives.find((r: any) => r.id === relativeId);
+        // Pour l'instant, nous avons des données limitées dans family_members
+        // On charge ce qui est disponible
+        setType((relative.role as RelativeType) || 'father');
+        setFirstName(relative.name || '');
+        setGender('male'); // Par défaut, à améliorer
         
-        if (relative) {
-          // Charger toutes les données du proche
-          setType(relative.type || 'father');
-          setFirstName(relative.firstName || '');
-          setOtherTypeName(relative.otherTypeName);
-          setAge(relative.age || '');
-          setBirthDate(relative.birthDate ? new Date(relative.birthDate) : undefined);
-          setJob(relative.job || '');
-          setGender(relative.gender || 'male');
-          
-          // Nickname
-          const nickname = relative.nickname || {};
-          if (nickname.custom) {
-            setSelectedNickname('custom');
-            setNicknameCustomValue(nickname.custom);
-          } else if (nickname.type) {
-            setSelectedNickname(nickname.type);
-          } else {
-            setSelectedNickname('none');
-          }
-          
-          // Appearance
-          const appearance = relative.appearance || {};
-          setSelectedSkinColor(appearance.skinColor?.type || 'light');
-          setSkinColorCustomValue(appearance.skinColor?.custom);
-          setSelectedHairColor(appearance.hairColor?.type || 'brown');
-          setHairColorCustomValue(appearance.hairColor?.custom);
-          setHairType(appearance.hairType?.type || 'straight');
-          setHairTypeCustom(appearance.hairType?.custom || '');
-          setGlasses(appearance.glasses || false);
-          
-          // Traits
-          setTraits(relative.traits || []);
-          setCustomTraits(relative.customTraits || {});
-        } else {
-          toast.error("Proche non trouvé");
-          navigate('/espace-famille');
-        }
+        // Valeurs par défaut pour les champs non stockés
+        setSelectedNickname('none');
+        setSelectedSkinColor('light');
+        setSelectedHairColor('brown');
+        setHairType('straight');
+        setGlasses(false);
+        
+        setChildData({ loaded: true });
+      } else {
+        toast.error("Proche non trouvé");
+        navigate('/espace-famille');
       }
     } catch (e) {
       console.error('Error loading relative data:', e);
@@ -131,60 +116,14 @@ const ModifierProche: React.FC = () => {
 
     setSaving(true);
     try {
-      // Construire l'objet relative mis à jour
-      const updatedRelative = {
-        id: relativeId,
-        type,
-        firstName,
-        otherTypeName,
-        age,
-        birthDate,
-        job,
-        gender,
-        nickname: {
-          type: selectedNickname === 'custom' ? undefined : selectedNickname,
-          custom: selectedNickname === 'custom' ? nicknameCustomValue : undefined
-        },
-        appearance: {
-          skinColor: {
-            type: selectedSkinColor,
-            custom: skinColorCustomValue
-          },
-          hairColor: {
-            type: selectedHairColor,
-            custom: hairColorCustomValue
-          },
-          hairType: {
-            type: hairType,
-            custom: hairTypeCustom
-          },
-          glasses
-        },
-        traits,
-        customTraits
-      };
-
-      // Mettre à jour le proche dans les relatives de l'enfant
-      const updatedRelatives = (childData.family?.relatives || []).map((r: any) =>
-        r.id === relativeId ? updatedRelative : r
-      );
-
-      const updatedChildData = {
-        ...childData,
-        family: {
-          ...childData.family,
-          relatives: updatedRelatives
-        }
-      };
-
-      // Sauvegarder dans Supabase
-      const { error } = await (supabase as any)
-        .from('drafts')
+      // Mettre à jour dans family_members
+      const { error } = await supabase
+        .from('family_members')
         .update({
-          data: updatedChildData,
-          updated_at: new Date().toISOString()
+          name: firstName,
+          role: type
         })
-        .eq('id', childId);
+        .eq('id', relativeId);
 
       if (error) throw error;
 

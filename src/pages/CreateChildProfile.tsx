@@ -34,22 +34,67 @@ const CreateChildProfile = ({
   
   const handleFormSubmit = async (data: ChildProfileFormData) => {
     if (editMode && editChildId) {
-      // Mode édition : mettre à jour le profil existant
+      // Mode édition : mettre à jour le profil existant dans child_profiles
       try {
         const { supabase } = await import('@/integrations/supabase/client');
         
-        // Serialiser les données (convertir Date en string)
-        const serializedData = JSON.parse(JSON.stringify(data));
-        
-        const { error } = await supabase
-          .from('drafts')
+        // Mettre à jour child_profiles
+        const { error: updateError } = await supabase
+          .from('child_profiles')
           .update({
-            data: serializedData,
+            first_name: data.firstName,
+            nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
+                     data.nickname?.type !== 'none' ? data.nickname?.type : null,
+            birth_date: data.birthDate ? data.birthDate.toISOString().split('T')[0] : null,
+            gender: data.gender,
+            height: data.height,
+            appearance: {
+              skinColor: data.skinColor,
+              eyeColor: data.eyeColor,
+              hairColor: data.hairColor,
+              hairType: data.hairType,
+              hairTypeCustom: data.hairTypeCustom,
+              glasses: data.glasses
+            },
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
+        
+        // Mettre à jour les relations (traits, passions, challenges, etc.)
+        // Supprimer puis réinsérer pour simplifier
+        await supabase.from('child_traits').delete().eq('child_id', editChildId);
+        await supabase.from('child_passions').delete().eq('child_id', editChildId);
+        await supabase.from('child_challenges').delete().eq('child_id', editChildId);
+        await supabase.from('child_universes').delete().eq('child_id', editChildId);
+        await supabase.from('child_discoveries').delete().eq('child_id', editChildId);
+        
+        if (data.superpowers?.length) {
+          await supabase.from('child_traits').insert(
+            data.superpowers.map(t => ({ child_id: editChildId, trait_id: t }))
+          );
+        }
+        if (data.passions?.length) {
+          await supabase.from('child_passions').insert(
+            data.passions.map(p => ({ child_id: editChildId, passion_id: p }))
+          );
+        }
+        if (data.challenges?.length) {
+          await supabase.from('child_challenges').insert(
+            data.challenges.map(c => ({ child_id: editChildId, challenge_id: c }))
+          );
+        }
+        if (data.worlds?.favoriteWorlds?.length) {
+          await supabase.from('child_universes').insert(
+            data.worlds.favoriteWorlds.map(w => ({ child_id: editChildId, universe_id: w }))
+          );
+        }
+        if (data.worlds?.discoveries?.length) {
+          await supabase.from('child_discoveries').insert(
+            data.worlds.discoveries.map(d => ({ child_id: editChildId, discovery_id: d }))
+          );
+        }
 
         toast.success("Profil modifié avec succès !");
         navigate('/espace-famille');

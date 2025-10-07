@@ -61,30 +61,22 @@ export default function AjouterProche() {
 
     try {
       const { data, error } = await supabase
-        .from('drafts')
-        .select('id, data, created_at')
-        .eq('type', 'child_profile')
-        .eq('created_by', supabaseSession.user.id)
+        .from('child_profiles')
+        .select('id, first_name, birth_date, gender, created_at')
+        .eq('user_id', supabaseSession.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const mappedChildren = (data || []).map((draft: any) => ({
-        id: draft.id,
-        firstName: draft.data?.firstName || 'Enfant',
-        lastName: draft.data?.lastName || '',
-        birthDate: draft.data?.birthDate,
-        gender: draft.data?.gender
+      const mappedChildren = (data || []).map((profile: any) => ({
+        id: profile.id,
+        firstName: profile.first_name || 'Enfant',
+        lastName: '',
+        birthDate: profile.birth_date,
+        gender: profile.gender
       }));
 
-      // Dédupliquer par prénom + date de naissance, garder le plus récent
-      const uniqueChildren = mappedChildren.filter((child, index, self) => 
-        index === self.findIndex((c) => 
-          c.firstName === child.firstName && c.birthDate === child.birthDate
-        )
-      );
-
-      setChildren(uniqueChildren);
+      setChildren(mappedChildren);
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -117,10 +109,23 @@ export default function AjouterProche() {
     }
 
     try {
+      // Récupérer le family_id du premier enfant sélectionné
+      const { data: firstChild } = await supabase
+        .from('child_profiles')
+        .select('family_id')
+        .eq('id', selectedChildIds[0])
+        .single();
+      
+      if (!firstChild?.family_id) {
+        toast.error('Family ID non trouvé');
+        return;
+      }
+
       // 1. Créer le membre de famille
       const { data: familyMember, error: familyError } = await supabase
         .from('family_members')
         .insert({
+          family_id: firstChild.family_id,
           name: relativeData.firstName,
           role: relativeData.type,
           avatar: null
