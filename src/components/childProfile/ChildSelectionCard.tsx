@@ -44,7 +44,7 @@ export default function ChildSelectionCard({ child, selected, onToggle }: ChildS
         <Checkbox 
           checked={selected} 
           onCheckedChange={() => onToggle(child.id)}
-          className="h-6 w-6 rounded-md border-2 transition-all duration-200 data-[state=checked]:bg-mcf-orange data-[state=checked]:border-mcf-orange data-[state=checked]:shadow-md data-[state=checked]:scale-110 hover:border-mcf-orange/70"
+          className="data-[state=checked]:bg-mcf-orange data-[state=checked]:border-mcf-orange"
         />
         <div className="text-4xl">{getChildEmoji(child.gender)}</div>
         <div className="flex-1">
