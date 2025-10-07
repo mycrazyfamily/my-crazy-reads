@@ -108,13 +108,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             createdFamilyMemberIds.push(...createdMembers.map(m => m.id));
           }
         }
-
         // 3. Créer le profil enfant dans child_profiles
         const { data: childProfile, error: childError } = await supabase
           .from('child_profiles')
           .insert([
             {
-              user_id: userId,
               family_id: familyId,
               first_name: data.firstName,
               nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
