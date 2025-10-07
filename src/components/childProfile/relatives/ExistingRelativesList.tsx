@@ -87,7 +87,7 @@ const ExistingRelativesList: React.FC<ExistingRelativesListProps> = ({
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => onToggleRelative(relative.id)}
-                    className="border-2 border-mcf-primary bg-white data-[state=checked]:bg-mcf-primary data-[state=checked]:border-mcf-primary data-[state=checked]:text-white"
+                    className="h-6 w-6 rounded-md border-2 border-mcf-primary bg-white transition-all duration-200 data-[state=checked]:bg-mcf-primary data-[state=checked]:border-mcf-primary data-[state=checked]:text-white hover:border-mcf-primary-dark"
                     aria-label={`Sélectionner ${relative.name}`}
                   />
                 </div>
