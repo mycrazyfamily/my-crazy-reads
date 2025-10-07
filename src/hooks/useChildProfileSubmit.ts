@@ -182,7 +182,51 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 7. Gérer les animaux existants sélectionnés
+        // 7. Créer les nouveaux animaux dans la table pets
+        const createdPetIds: string[] = [];
+        
+        if (data.pets?.pets && data.pets.pets.length > 0) {
+          const petsToCreate = data.pets.pets.map(pet => ({
+            family_id: familyId,
+            name: pet.name,
+            type: pet.type || pet.otherType || 'autre',
+            emoji: null
+          }));
+
+          const { data: createdPets, error: petsError } = await supabase
+            .from('pets')
+            .insert(petsToCreate)
+            .select();
+
+          if (petsError) {
+            console.error('Error creating pets:', petsError);
+            toast.warning("Profil créé mais erreur lors de l'enregistrement des animaux");
+          } else if (createdPets) {
+            createdPetIds.push(...createdPets.map(p => p.id));
+          }
+        }
+
+        // 8. Créer les liens child_pets pour les nouveaux animaux créés
+        if (createdPetIds.length > 0 && data.pets?.pets) {
+          const newPetLinks = createdPetIds.map((petId, index) => ({
+            child_id: childId,
+            pet_id: petId,
+            name: data.pets!.pets[index].name,
+            traits: data.pets!.pets[index].traits?.join(', ') || null,
+            relation_label: data.pets!.pets[index].type || data.pets!.pets[index].otherType || null
+          }));
+
+          const { error: newPetLinkError } = await supabase
+            .from('child_pets')
+            .insert(newPetLinks);
+
+          if (newPetLinkError) {
+            console.error('Error linking new pets:', newPetLinkError);
+            toast.warning("Profil créé mais erreur lors de l'association des nouveaux animaux");
+          }
+        }
+
+        // 9. Gérer les animaux existants sélectionnés
         if (data.pets?.existingPetsData && data.pets.existingPetsData.length > 0) {
           const petLinks = data.pets.existingPetsData.map(pet => ({
             child_id: childId,

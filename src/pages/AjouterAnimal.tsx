@@ -93,15 +93,26 @@ export default function AjouterAnimal() {
     }
 
     try {
-      // Note: La table pets nécessite un family_id, donc pour l'instant on utilise null
-      // Il faudrait idéalement récupérer ou créer un family_id
+      // 1. Récupérer le family_id de l'utilisateur
+      const { data: userProfile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('family_id')
+        .eq('id', supabaseSession!.user.id)
+        .single();
+
+      if (profileError || !userProfile.family_id) {
+        toast.error('Impossible de récupérer les informations de famille');
+        return;
+      }
+
+      // 2. Créer l'animal dans la table pets avec le family_id
       const { data: pet, error: petError } = await supabase
         .from('pets')
         .insert({
           name: petData.name,
-          type: petData.type,
+          type: petData.type || petData.otherType,
           emoji: null,
-          family_id: null // TODO: gérer le family_id correctement
+          family_id: userProfile.family_id
         })
         .select()
         .single();
