@@ -42,40 +42,32 @@ export default function AjouterAnimal() {
     if (!supabaseSession?.user) return;
 
     try {
-      // Récupérer le family_id de l'utilisateur s'il existe
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('family_id')
-        .eq('id', supabaseSession.user.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-      const familyId = profile?.family_id as string | null;
-
-      // Charger les enfants depuis child_profiles
-      let query = supabase
-        .from('child_profiles')
-        .select('id, first_name, birth_date, gender, family_id, user_id')
+      const { data, error } = await supabase
+        .from('drafts')
+        .select('id, data, created_at')
+        .eq('type', 'child_profile')
+        .eq('created_by', supabaseSession.user.id)
         .order('created_at', { ascending: false });
 
-      if (familyId) {
-        query = query.or(`user_id.eq.${supabaseSession.user.id},family_id.eq.${familyId}`);
-      } else {
-        query = query.eq('user_id', supabaseSession.user.id);
-      }
-
-      const { data, error } = await query;
       if (error) throw error;
 
-      const mappedChildren = (data || []).map((cp: any) => ({
-        id: cp.id,
-        firstName: cp.first_name || 'Enfant',
-        lastName: '',
-        birthDate: cp.birth_date,
-        gender: cp.gender
+      const mappedChildren = (data || []).map((draft: any) => ({
+        id: draft.id,
+        firstName: draft.data?.firstName || 'Enfant',
+        lastName: draft.data?.lastName || '',
+        birthDate: draft.data?.birthDate,
+        gender: draft.data?.gender,
+        familyId: draft.data?.family_id
       }));
 
-      setChildren(mappedChildren);
+      // Dédupliquer par prénom + date de naissance, garder le plus récent
+      const uniqueChildren = mappedChildren.filter((child, index, self) => 
+        index === self.findIndex((c) => 
+          c.firstName === child.firstName && c.birthDate === child.birthDate
+        )
+      );
+
+      setChildren(uniqueChildren);
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -179,7 +171,60 @@ export default function AjouterAnimal() {
         }
       }
 
-      // 2. Créer l'animal dans la table pets avec le family_id
+      // 5. Pour chaque enfant sélectionné, s'assurer qu'il existe dans child_profiles
+      const childProfileIds: string[] = [];
+      
+      for (const draftId of selectedChildIds) {
+        const { data: draft } = await supabase
+          .from('drafts')
+          .select('data')
+          .eq('id', draftId)
+          .maybeSingle();
+
+        if (!draft?.data) continue;
+
+        const childData = draft.data as any;
+
+        // Vérifier si cet enfant existe déjà dans child_profiles
+        const { data: existingChild } = await supabase
+          .from('child_profiles')
+          .select('id')
+          .eq('user_id', supabaseSession!.user.id)
+          .eq('first_name', childData.firstName)
+          .eq('birth_date', childData.birthDate)
+          .maybeSingle();
+
+        if (existingChild) {
+          childProfileIds.push(existingChild.id);
+        } else {
+          // Créer l'entrée dans child_profiles
+          const { data: newChild, error: childError } = await supabase
+            .from('child_profiles')
+            .insert({
+              user_id: supabaseSession!.user.id,
+              family_id: familyId,
+              first_name: childData.firstName,
+              birth_date: childData.birthDate,
+              gender: childData.gender,
+              nickname: childData.nickname?.custom || childData.nickname,
+              height: childData.height,
+              appearance: childData
+            })
+            .select()
+            .single();
+
+          if (childError) {
+            console.error('Erreur lors de la création du child_profile:', childError);
+            toast.error(`Erreur lors de la création du profil pour ${childData.firstName}`);
+            continue;
+          }
+
+          childProfileIds.push(newChild.id);
+          console.log(`child_profiles créé pour ${childData.firstName}:`, newChild.id);
+        }
+      }
+
+      // 6. Créer l'animal dans la table pets avec le family_id
       const { data: pet, error: petError } = await supabase
         .from('pets')
         .insert({
@@ -193,9 +238,9 @@ export default function AjouterAnimal() {
 
       if (petError) throw petError;
 
-      // 2. Lier l'animal à chaque enfant sélectionné
-      const childPetRecords = selectedChildIds.map(childId => ({
-        child_id: childId,
+      // 7. Lier l'animal à chaque enfant (en utilisant les IDs de child_profiles)
+      const childPetRecords = childProfileIds.map(childProfileId => ({
+        child_id: childProfileId,
         pet_id: pet.id,
         name: petData.name,
         traits: petData.traits?.join(', ') || null,
@@ -208,7 +253,7 @@ export default function AjouterAnimal() {
 
       if (linkError) throw linkError;
 
-      toast.success(`Animal ajouté avec succès pour ${selectedChildIds.length} enfant(s) !`);
+      toast.success(`Animal ajouté avec succès pour ${childProfileIds.length} enfant(s) !`);
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);
