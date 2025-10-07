@@ -34,26 +34,22 @@ export const useFamilyIdSync = () => {
           return;
         }
 
-        // 2. Chercher un enfant existant avec un family_id
-        const { data: childrenDrafts, error: draftsError } = await supabase
-          .from('drafts')
-          .select('data')
-          .eq('type', 'child_profile')
-          .eq('created_by', userId)
+        // 2. Chercher un enfant existant avec un family_id depuis child_profiles
+        const { data: childProfiles, error: childError } = await supabase
+          .from('child_profiles')
+          .select('family_id')
+          .eq('user_id', userId)
           .order('created_at', { ascending: false })
-          .limit(1);
+          .limit(1)
+          .maybeSingle();
 
-        if (draftsError) {
-          console.error('Erreur lors de la récupération des enfants:', draftsError);
+        if (childError) {
+          console.error('Erreur lors de la récupération des enfants:', childError);
           return;
         }
 
         // 3. Extraire le family_id du premier enfant trouvé
-        let familyIdFromChild: string | null = null;
-        if (childrenDrafts && childrenDrafts.length > 0) {
-          const childData = childrenDrafts[0].data as any;
-          familyIdFromChild = childData.family_id || null;
-        }
+        const familyIdFromChild = childProfiles?.family_id || null;
 
         // 4. Si un family_id a été trouvé, synchroniser le user_profile
         if (familyIdFromChild) {

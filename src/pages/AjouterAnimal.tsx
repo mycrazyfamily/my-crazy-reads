@@ -43,31 +43,22 @@ export default function AjouterAnimal() {
 
     try {
       const { data, error } = await supabase
-        .from('drafts')
-        .select('id, data, created_at')
-        .eq('type', 'child_profile')
-        .eq('created_by', supabaseSession.user.id)
+        .from('child_profiles')
+        .select('id, first_name, birth_date, gender, created_at')
+        .eq('user_id', supabaseSession.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const mappedChildren = (data || []).map((draft: any) => ({
-        id: draft.id,
-        firstName: draft.data?.firstName || 'Enfant',
-        lastName: draft.data?.lastName || '',
-        birthDate: draft.data?.birthDate,
-        gender: draft.data?.gender,
-        familyId: draft.data?.family_id
+      const mappedChildren = (data || []).map((profile: any) => ({
+        id: profile.id,
+        firstName: profile.first_name || 'Enfant',
+        lastName: '',
+        birthDate: profile.birth_date,
+        gender: profile.gender
       }));
 
-      // Dédupliquer par prénom + date de naissance, garder le plus récent
-      const uniqueChildren = mappedChildren.filter((child, index, self) => 
-        index === self.findIndex((c) => 
-          c.firstName === child.firstName && c.birthDate === child.birthDate
-        )
-      );
-
-      setChildren(uniqueChildren);
+      setChildren(mappedChildren);
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -171,56 +162,22 @@ export default function AjouterAnimal() {
         }
       }
 
-      // 5. Pour chaque enfant sélectionné, s'assurer qu'il existe dans child_profiles
-      const childProfileIds: string[] = [];
+      // 5. Les enfants sélectionnés sont déjà des child_profiles.id
+      const childProfileIds = selectedChildIds;
       
-      for (const draftId of selectedChildIds) {
-        const { data: draft } = await supabase
-          .from('drafts')
-          .select('data')
-          .eq('id', draftId)
-          .maybeSingle();
-
-        if (!draft?.data) continue;
-
-        const childData = draft.data as any;
-
-        // Vérifier si cet enfant existe déjà dans child_profiles
-        const { data: existingChild } = await supabase
+      // Synchroniser les child_profiles.family_id si nécessaire
+      for (const childId of childProfileIds) {
+        const { data: child } = await supabase
           .from('child_profiles')
-          .select('id')
-          .eq('user_id', supabaseSession!.user.id)
-          .eq('first_name', childData.firstName)
-          .eq('birth_date', childData.birthDate)
+          .select('family_id')
+          .eq('id', childId)
           .maybeSingle();
-
-        if (existingChild) {
-          childProfileIds.push(existingChild.id);
-        } else {
-          // Créer l'entrée dans child_profiles
-          const { data: newChild, error: childError } = await supabase
+        
+        if (child && child.family_id !== familyId) {
+          await supabase
             .from('child_profiles')
-            .insert({
-              user_id: supabaseSession!.user.id,
-              family_id: familyId,
-              first_name: childData.firstName,
-              birth_date: childData.birthDate,
-              gender: childData.gender,
-              nickname: childData.nickname?.custom || childData.nickname,
-              height: childData.height,
-              appearance: childData
-            })
-            .select()
-            .single();
-
-          if (childError) {
-            console.error('Erreur lors de la création du child_profile:', childError);
-            toast.error(`Erreur lors de la création du profil pour ${childData.firstName}`);
-            continue;
-          }
-
-          childProfileIds.push(newChild.id);
-          console.log(`child_profiles créé pour ${childData.firstName}:`, newChild.id);
+            .update({ family_id: familyId, has_pet: true })
+            .eq('id', childId);
         }
       }
 

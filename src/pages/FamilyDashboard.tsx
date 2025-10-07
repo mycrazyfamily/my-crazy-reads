@@ -92,81 +92,91 @@ const FamilyDashboard: React.FC = () => {
 
     const loadChildren = async () => {
       try {
-        const { data, error } = await (supabase as any)
-          .from('drafts')
-          .select('id, data')
-          .eq('type', 'child_profile')
+        // Charger directement depuis child_profiles avec toutes les relations
+        const { data: childProfiles, error } = await supabase
+          .from('child_profiles')
+          .select(`
+            id,
+            first_name,
+            birth_date,
+            gender,
+            created_at
+          `)
           .order('created_at', { ascending: false });
+        
         if (error) {
-          console.error('Failed to load child profiles from drafts:', error);
+          console.error('Failed to load child profiles:', error);
           return;
         }
         
-        // Charger les profils d'enfants depuis child_profiles pour obtenir les IDs
-        const { data: childProfiles } = await supabase
-          .from('child_profiles')
-          .select('id, first_name, birth_date');
-        
-        const mapped = await Promise.all((data || []).map(async (row: any) => {
-          const draftData = row.data;
-          
-          // Trouver le child_profile correspondant
-          const childProfile = childProfiles?.find(
-            (cp: any) => cp.first_name === draftData?.firstName && 
-            cp.birth_date === draftData?.birthDate?.split('T')[0]
-          );
-          
-          // Charger les animaux depuis child_pets si on a trouvé le child_profile
-          let petsFromDb: any[] = [];
-          if (childProfile) {
-            const { data: childPets } = await supabase
-              .from('child_pets')
-              .select(`
+        const mapped = await Promise.all((childProfiles || []).map(async (profile: any) => {
+          // Charger les animaux depuis child_pets
+          const { data: childPets } = await supabase
+            .from('child_pets')
+            .select(`
+              name,
+              traits,
+              relation_label,
+              pets:pet_id (
+                id,
                 name,
-                traits,
-                relation_label,
-                pets:pet_id (
-                  id,
-                  name,
-                  type,
-                  emoji
-                )
-              `)
-              .eq('child_id', childProfile.id);
-            
-            petsFromDb = (childPets || []).map((cp: any) => ({
-              name: cp.name || cp.pets?.name,
-              type: cp.relation_label || cp.pets?.type,
-              traits: cp.traits?.split(', ') || [],
-              emoji: cp.pets?.emoji
-            }));
-          }
+                type,
+                emoji
+              )
+            `)
+            .eq('child_id', profile.id);
+          
+          const petsFromDb = (childPets || []).map((cp: any) => ({
+            name: cp.name || cp.pets?.name,
+            type: cp.relation_label || cp.pets?.type,
+            traits: cp.traits?.split(', ') || [],
+            emoji: cp.pets?.emoji
+          }));
+          
+          // Charger les proches depuis child_family_members
+          const { data: childFamilyMembers } = await supabase
+            .from('child_family_members')
+            .select(`
+              relation_label,
+              family_members:family_member_id (
+                id,
+                name,
+                role,
+                avatar
+              )
+            `)
+            .eq('child_id', profile.id);
+          
+          const relativesFromDb = (childFamilyMembers || []).map((cfm: any) => ({
+            id: cfm.family_members?.id,
+            firstName: cfm.family_members?.name,
+            type: cfm.family_members?.role,
+            avatar: cfm.family_members?.avatar || '👤',
+            relationToChild: cfm.relation_label
+          }));
+          
+          // Charger les doudous depuis child_comforters
+          const { data: childComforters } = await supabase
+            .from('child_comforters')
+            .select('*')
+            .eq('child_id', profile.id);
+          
+          const hasToys = childComforters && childComforters.length > 0;
           
           return {
-            id: row.id,
-            firstName: draftData?.firstName || 'Enfant',
-            age: draftData?.birthDate ? calculateExactAge(draftData.birthDate) : (draftData?.age || ''),
+            id: profile.id,
+            firstName: profile.first_name || 'Enfant',
+            age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
             avatar: null,
             personalityEmoji: '🧒',
-            relatives: draftData?.family?.relatives || [],
-            pets: petsFromDb.length > 0 ? petsFromDb : (draftData?.pets?.pets || []),
-            hasToys: !!draftData?.toys?.hasToys,
-            hasPets: petsFromDb.length > 0 ? petsFromDb.length : (draftData?.pets?.pets ? draftData.pets.pets.length : 0),
+            relatives: relativesFromDb,
+            pets: petsFromDb,
+            hasToys: hasToys,
+            hasPets: petsFromDb.length,
           };
         }));
         
-        // Déduplication des enfants par prénom + date de naissance
-        const seen = new Map();
-        const deduped = mapped.filter((child: any) => {
-          const key = `${child.firstName}-${child.age}`;
-          if (seen.has(key)) {
-            return false;
-          }
-          seen.set(key, true);
-          return true;
-        });
-        
-        setChildren(deduped);
+        setChildren(mapped);
       } catch (e) {
         console.error('Unexpected error loading children:', e);
       }

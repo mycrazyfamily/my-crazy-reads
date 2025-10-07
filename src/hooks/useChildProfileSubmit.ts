@@ -292,6 +292,44 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
+        // 10. Sauvegarder les doudous dans comforters et child_comforters
+        if (data.toys?.hasToys && data.toys?.toys && data.toys.toys.length > 0) {
+          for (const toy of data.toys.toys) {
+            // Créer le doudou dans comforters
+            const { data: createdComforter, error: comforterError } = await supabase
+              .from('comforters')
+              .insert([{
+                label: toy.name,
+                emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨',
+                created_by: userId
+              }])
+              .select()
+              .maybeSingle();
+
+            if (comforterError) {
+              console.error('Error creating comforter:', comforterError);
+              continue;
+            }
+
+            if (createdComforter) {
+              // Lier le doudou à l'enfant dans child_comforters
+              const { error: linkError } = await supabase
+                .from('child_comforters')
+                .insert([{
+                  child_id: childId,
+                  comforter_id: createdComforter.id,
+                  name: toy.name,
+                  appearance: toy.type,
+                  roles: Array.isArray(toy.roles) ? toy.roles.join(', ') : toy.roles
+                }]);
+
+              if (linkError) {
+                console.error('Error linking comforter to child:', linkError);
+              }
+            }
+          }
+        }
+
         toast.success(isGiftMode
           ? "Profil créé et sauvegardé !"
           : "Profil enregistré, l'aventure peut commencer !");
