@@ -100,9 +100,46 @@ export default function AjouterAnimal() {
         .eq('id', supabaseSession!.user.id)
         .single();
 
-      if (profileError || !userProfile.family_id) {
+      if (profileError) {
         toast.error('Impossible de récupérer les informations de famille');
         return;
+      }
+
+      let familyId = userProfile.family_id;
+
+      // Si pas de famille, en créer une
+      if (!familyId) {
+        console.log('Aucune famille trouvée, création en cours...');
+        const { data: newFamily, error: familyError } = await supabase
+          .from('families')
+          .insert([{ 
+            name: 'Ma famille',
+            created_by: supabaseSession!.user.id 
+          }])
+          .select()
+          .single();
+
+        if (familyError) {
+          console.error('Error creating family:', familyError);
+          toast.error('Erreur lors de la création de la famille');
+          return;
+        }
+
+        familyId = newFamily.id;
+
+        // Mettre à jour le user profile avec le family_id
+        const { error: updateProfileError } = await supabase
+          .from('user_profiles')
+          .update({ family_id: familyId })
+          .eq('id', supabaseSession!.user.id);
+
+        if (updateProfileError) {
+          console.error('Error updating user profile:', updateProfileError);
+          toast.error('Erreur lors de la mise à jour du profil');
+          return;
+        }
+
+        console.log('Famille créée avec succès:', familyId);
       }
 
       // 2. Créer l'animal dans la table pets avec le family_id
@@ -112,7 +149,7 @@ export default function AjouterAnimal() {
           name: petData.name,
           type: petData.type || petData.otherType,
           emoji: null,
-          family_id: userProfile.family_id
+          family_id: familyId
         })
         .select()
         .single();
