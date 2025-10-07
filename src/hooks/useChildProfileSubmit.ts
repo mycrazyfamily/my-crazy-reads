@@ -15,6 +15,20 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
   const { supabaseSession } = useAuth();
   const FORM_STORAGE_KEY = 'child-profile-form-state';
 
+  // Générer un nom unique pour la famille
+  const generateUniqueFamilyName = (firstName: string, birthDate?: Date): string => {
+    // Extraire l'année de naissance
+    const year = birthDate ? birthDate.getFullYear() : new Date().getFullYear();
+    
+    // Générer 4 caractères aléatoires alphanumériques
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const randomSuffix = Array.from({ length: 4 }, () => 
+      chars.charAt(Math.floor(Math.random() * chars.length))
+    ).join('');
+    
+    return `Famille-${firstName || 'Enfant'}-${year}-${randomSuffix}`;
+  };
+
   const handleSubmit = async (data: ChildProfileFormData) => {
     console.log("Handling form submission with data:", data);
 
@@ -41,10 +55,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         // Si pas de famille, en créer une
         if (!familyId) {
+          const familyName = generateUniqueFamilyName(data.firstName, data.birthDate);
+          
           const { data: newFamily, error: familyError } = await supabase
             .from('families')
             .insert([{ 
-              name: `Famille de ${data.firstName || 'utilisateur'}`,
+              name: familyName,
               created_by: userId 
             }])
             .select()
