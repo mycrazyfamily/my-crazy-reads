@@ -21,7 +21,7 @@ const NewIndex: React.FC = () => {
 
   // Détermine la destination selon l'état de connexion
   const getDestinationPath = () => {
-    return user ? '/espace-famille' : '/creer-profil-enfant';
+    return user ? '/espace-famille' : '/authentification';
   };
 
   // Détermine le texte du bouton selon l'état de connexion

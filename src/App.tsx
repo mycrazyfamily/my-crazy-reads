@@ -43,7 +43,7 @@ import AjouterAnimal from './pages/AjouterAnimal'
 import AjouterProche from './pages/AjouterProche'
 
 function App() {
-  const isDev = process.env.NODE_ENV === 'development' || true;
+  const isDev = false; // Protection activée en production
   console.log('App loaded, Auth components available:', 
     !!LoadingCallback, 
     !!Callback, 
