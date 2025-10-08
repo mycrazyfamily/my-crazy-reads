@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { ChildProfileFormData } from '@/types/childProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
@@ -14,6 +15,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
   const navigate = useNavigate();
   const { supabaseSession } = useAuth();
   const FORM_STORAGE_KEY = 'child-profile-form-state';
+  
+  // Protection contre les soumissions multiples
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Générer un nom unique pour la famille
   const generateUniqueFamilyName = (firstName: string, birthDate?: Date): string => {
@@ -30,19 +34,26 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
   };
 
   const handleSubmit = async (data: ChildProfileFormData) => {
+    // Empêcher les soumissions multiples
+    if (isSubmitting) {
+      console.log("Submission already in progress, ignoring duplicate request");
+      return;
+    }
+    
+    setIsSubmitting(true);
     console.log("Handling form submission with data:", data);
 
-    // Récupérer la session la plus récente au moment de la soumission
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
-    
-    if (!userId) {
-      console.error('No authenticated user found. Cannot save profile.');
-      toast.error("Veuillez vous connecter pour sauvegarder le profil.");
-      return; // Arrêter l'exécution si pas d'utilisateur authentifié
-    }
-
     try {
+      // Récupérer la session la plus récente au moment de la soumission
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      
+      if (!userId) {
+        console.error('No authenticated user found. Cannot save profile.');
+        toast.error("Veuillez vous connecter pour sauvegarder le profil.");
+        setIsSubmitting(false);
+        return; // Arrêter l'exécution si pas d'utilisateur authentifié
+      }
         // 1. Vérifier si l'utilisateur a déjà une famille, sinon en créer une
         const { data: userProfile, error: profileError } = await supabase
           .from('user_profiles')
@@ -53,6 +64,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         if (profileError) {
           console.error('Error loading user profile:', profileError);
           toast.error("Erreur lors du chargement du profil utilisateur");
+          setIsSubmitting(false);
           return;
         }
 
@@ -74,6 +86,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           if (familyError) {
             console.error('Error creating family:', familyError);
             toast.error("Erreur lors de la création de la famille");
+            setIsSubmitting(false);
             return;
           }
 
@@ -142,6 +155,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         if (childError) {
           console.error('Error creating child profile:', childError);
           toast.error("Impossible d'enregistrer le profil. Réessayez.");
+          setIsSubmitting(false);
           return;
         }
 
@@ -334,6 +348,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       } catch (error) {
         console.error('Error in handleSubmit:', error);
         toast.error("Une erreur est survenue lors de l'enregistrement");
+        setIsSubmitting(false);
         return;
       }
 
@@ -344,6 +359,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     // Navigate after a short delay so the toast is visible
     setTimeout(() => {
       console.log("Executing navigation to:", destination);
+      setIsSubmitting(false);
       if (isGiftMode && nextPath) {
         navigate(nextPath, { state: { childProfile: data } });
       } else {
@@ -352,5 +368,5 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     }, 1000);
   };
 
-  return { handleSubmit };
+  return { handleSubmit, isSubmitting };
 };
