@@ -32,12 +32,17 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
   const handleSubmit = async (data: ChildProfileFormData) => {
     console.log("Handling form submission with data:", data);
 
-    const userId = supabaseSession?.user?.id;
+    // Récupérer la session la plus récente au moment de la soumission
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    
     if (!userId) {
-      console.warn('No authenticated user found. Skipping server save.');
+      console.error('No authenticated user found. Cannot save profile.');
       toast.error("Veuillez vous connecter pour sauvegarder le profil.");
-    } else {
-      try {
+      return; // Arrêter l'exécution si pas d'utilisateur authentifié
+    }
+
+    try {
         // 1. Vérifier si l'utilisateur a déjà une famille, sinon en créer une
         const { data: userProfile, error: profileError } = await supabase
           .from('user_profiles')
@@ -331,7 +336,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         toast.error("Une erreur est survenue lors de l'enregistrement");
         return;
       }
-    }
 
     // Définir la destination en fonction du mode
     const destination = isGiftMode && nextPath ? nextPath : '/start-adventure';
