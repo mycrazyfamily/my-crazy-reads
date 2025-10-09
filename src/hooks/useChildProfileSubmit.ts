@@ -161,43 +161,118 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         const childId = childProfile.id;
         
-        // 4. Ajouter les superpowers, passions, challenges
+        // 4. Ajouter les superpowers (traits)
         if (data.superpowers && data.superpowers.length > 0) {
-          const { error: traitsError } = await supabase
-            .from('child_traits')
-            .insert(data.superpowers.map(trait => ({ child_id: childId, trait_id: trait })));
-          if (traitsError) console.error('Error adding traits:', traitsError);
+          // Récupérer les UUIDs des traits depuis la table traits
+          const { data: traits, error: traitsLookupError } = await supabase
+            .from('traits')
+            .select('id, label')
+            .in('label', data.superpowers);
+          
+          if (traitsLookupError) {
+            console.error('Error looking up traits:', traitsLookupError);
+          } else if (traits && traits.length > 0) {
+            const { error: traitsError } = await supabase
+              .from('child_traits')
+              .insert(traits.map(trait => ({ child_id: childId, trait_id: trait.id })));
+            if (traitsError) {
+              console.error('Error adding traits:', traitsError);
+              toast.warning("Superpowers non enregistrés");
+            }
+          }
         }
         
+        // 5. Ajouter les passions
         if (data.passions && data.passions.length > 0) {
-          const { error: passionsError } = await supabase
-            .from('child_passions')
-            .insert(data.passions.map(passion => ({ child_id: childId, passion_id: passion })));
-          if (passionsError) console.error('Error adding passions:', passionsError);
+          // Récupérer les UUIDs des passions depuis la table passions
+          const { data: passions, error: passionsLookupError } = await supabase
+            .from('passions')
+            .select('id, label')
+            .in('label', data.passions);
+          
+          if (passionsLookupError) {
+            console.error('Error looking up passions:', passionsLookupError);
+          } else if (passions && passions.length > 0) {
+            const { error: passionsError } = await supabase
+              .from('child_passions')
+              .insert(passions.map(passion => ({ child_id: childId, passion_id: passion.id })));
+            if (passionsError) {
+              console.error('Error adding passions:', passionsError);
+              toast.warning("Passions non enregistrées");
+            }
+          }
         }
         
+        // 6. Ajouter les challenges
         if (data.challenges && data.challenges.length > 0) {
-          const { error: challengesError } = await supabase
-            .from('child_challenges')
-            .insert(data.challenges.map(challenge => ({ child_id: childId, challenge_id: challenge })));
-          if (challengesError) console.error('Error adding challenges:', challengesError);
+          // Récupérer les UUIDs des challenges depuis la table challenges
+          const { data: challenges, error: challengesLookupError } = await supabase
+            .from('challenges')
+            .select('id, label')
+            .in('label', data.challenges);
+          
+          if (challengesLookupError) {
+            console.error('Error looking up challenges:', challengesLookupError);
+          } else if (challenges && challenges.length > 0) {
+            const { error: challengesError } = await supabase
+              .from('child_challenges')
+              .insert(challenges.map(challenge => ({ child_id: childId, challenge_id: challenge.id })));
+            if (challengesError) {
+              console.error('Error adding challenges:', challengesError);
+              toast.warning("Défis non enregistrés");
+            }
+          }
         }
         
+        // 7. Ajouter les univers favoris (filtrer les "other")
         if (data.worlds?.favoriteWorlds && data.worlds.favoriteWorlds.length > 0) {
-          const { error: worldsError } = await supabase
-            .from('child_universes')
-            .insert(data.worlds.favoriteWorlds.map(world => ({ child_id: childId, universe_id: world })));
-          if (worldsError) console.error('Error adding worlds:', worldsError);
+          const worldsToAdd = data.worlds.favoriteWorlds.filter(w => !w.startsWith('other'));
+          if (worldsToAdd.length > 0) {
+            // Récupérer les UUIDs des univers depuis la table universes
+            const { data: universes, error: universesLookupError } = await supabase
+              .from('universes')
+              .select('id, label')
+              .in('label', worldsToAdd);
+            
+            if (universesLookupError) {
+              console.error('Error looking up universes:', universesLookupError);
+            } else if (universes && universes.length > 0) {
+              const { error: worldsError } = await supabase
+                .from('child_universes')
+                .insert(universes.map(universe => ({ child_id: childId, universe_id: universe.id })));
+              if (worldsError) {
+                console.error('Error adding worlds:', worldsError);
+                toast.warning("Univers favoris non enregistrés");
+              }
+            }
+          }
         }
         
+        // 8. Ajouter les découvertes (filtrer les "other")
         if (data.worlds?.discoveries && data.worlds.discoveries.length > 0) {
-          const { error: discoveriesError } = await supabase
-            .from('child_discoveries')
-            .insert(data.worlds.discoveries.map(discovery => ({ child_id: childId, discovery_id: discovery })));
-          if (discoveriesError) console.error('Error adding discoveries:', discoveriesError);
+          const discoveriesToAdd = data.worlds.discoveries.filter(d => !d.startsWith('other'));
+          if (discoveriesToAdd.length > 0) {
+            // Récupérer les UUIDs des découvertes depuis la table discoveries
+            const { data: discoveries, error: discoveriesLookupError } = await supabase
+              .from('discoveries')
+              .select('id, label')
+              .in('label', discoveriesToAdd);
+            
+            if (discoveriesLookupError) {
+              console.error('Error looking up discoveries:', discoveriesLookupError);
+            } else if (discoveries && discoveries.length > 0) {
+              const { error: discoveriesError } = await supabase
+                .from('child_discoveries')
+                .insert(discoveries.map(discovery => ({ child_id: childId, discovery_id: discovery.id })));
+              if (discoveriesError) {
+                console.error('Error adding discoveries:', discoveriesError);
+                toast.warning("Découvertes non enregistrées");
+              }
+            }
+          }
         }
 
-        // 5. Créer les liens child_family_members pour les nouveaux proches créés
+        // 9. Créer les liens child_family_members pour les nouveaux proches créés
         if (createdFamilyMemberIds.length > 0) {
           const familyMemberLinks = createdFamilyMemberIds.map(familyMemberId => ({
             child_id: childId,
@@ -214,7 +289,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 6. Gérer les proches existants sélectionnés
+        // 10. Gérer les proches existants sélectionnés
         if (data.family?.existingRelativesData && data.family.existingRelativesData.length > 0) {
           const existingRelativesLinks: string[] = data.family.existingRelativesData.map(
             existingRelative => existingRelative.id
@@ -238,7 +313,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 7. Créer les nouveaux animaux dans la table pets
+        // 11. Créer les nouveaux animaux dans la table pets
         const createdPetIds: string[] = [];
         
         if (data.pets?.pets && data.pets.pets.length > 0) {
@@ -262,7 +337,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 8. Créer les liens child_pets pour les nouveaux animaux créés
+        // 12. Créer les liens child_pets pour les nouveaux animaux créés
         if (createdPetIds.length > 0 && data.pets?.pets) {
           const newPetLinks = createdPetIds.map((petId, index) => ({
             child_id: childId,
@@ -282,7 +357,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 9. Gérer les animaux existants sélectionnés
+        // 13. Gérer les animaux existants sélectionnés
         if (data.pets?.existingPetsData && data.pets.existingPetsData.length > 0) {
           const petLinks = data.pets.existingPetsData.map(pet => ({
             child_id: childId,
@@ -301,7 +376,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 10. Sauvegarder les doudous dans comforters et child_comforters
+        // 14. Sauvegarder les doudous dans comforters et child_comforters
         if (data.toys?.hasToys && data.toys?.toys && data.toys.toys.length > 0) {
           for (const toy of data.toys.toys) {
             // Créer le doudou dans comforters
