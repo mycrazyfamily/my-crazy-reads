@@ -181,36 +181,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         const childId = childProfile.id;
         
-        // 4. Ajouter les superpowers dans child_superpowers
-        if (data.superpowers && data.superpowers.length > 0) {
-          // Convertir les values en labels
-          const superpowerLabels = convertValuesToLabels(data.superpowers, SUPERPOWERS_OPTIONS);
-          console.log('Looking up superpowers with labels:', superpowerLabels);
-          
-          // Récupérer les UUIDs des superpowers depuis la table superpowers
-          const { data: superpowers, error: superpowersLookupError } = await supabase
-            .from('superpowers')
-            .select('id, value')
-            .in('value', data.superpowers); // Lookup par value directement
-          
-          if (superpowersLookupError) {
-            console.error('Error looking up superpowers:', superpowersLookupError);
-            toast.warning("Superpowers non enregistrés");
-          } else if (superpowers && superpowers.length > 0) {
-            console.log('Found superpowers:', superpowers);
-            const { error: superpowersError } = await supabase
-              .from('child_superpowers')
-              .insert(superpowers.map(superpower => ({ child_id: childId, superpower_id: superpower.id })));
-            if (superpowersError) {
-              console.error('Error adding superpowers:', superpowersError);
-              toast.warning("Superpowers non enregistrés");
-            }
-          } else {
-            console.warn('No superpowers found for values:', data.superpowers);
-          }
-        }
-        
-        // 5. Ajouter les superpowers (traits) - ancienne logique pour compatibilité
+        // 4. Ajouter les superpowers (via traits table)
         if (data.superpowers && data.superpowers.length > 0) {
           // Convertir les values en labels
           const superpowerLabels = convertValuesToLabels(data.superpowers, SUPERPOWERS_OPTIONS);
@@ -239,7 +210,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 6. Ajouter les passions dans child_passions
+        // 5. Ajouter les passions dans child_passions (inclut aussi "ce qu'aime le plus")
         if (data.passions && data.passions.length > 0) {
           // Convertir les values en labels
           const passionLabels = convertValuesToLabels(data.passions, PASSIONS_OPTIONS);
@@ -268,32 +239,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 7. Ajouter les likes dans child_likes (même données que passions, pour compatibilité avec nouvelle structure)
-        if (data.passions && data.passions.length > 0) {
-          // Récupérer les UUIDs des likes depuis la table likes par value
-          const { data: likes, error: likesLookupError } = await supabase
-            .from('likes')
-            .select('id, value')
-            .in('value', data.passions); // Lookup par value directement
-          
-          if (likesLookupError) {
-            console.error('Error looking up likes:', likesLookupError);
-            toast.warning("Likes non enregistrés");
-          } else if (likes && likes.length > 0) {
-            console.log('Found likes:', likes);
-            const { error: likesError } = await supabase
-              .from('child_likes')
-              .insert(likes.map(like => ({ child_id: childId, like_id: like.id })));
-            if (likesError) {
-              console.error('Error adding likes:', likesError);
-              toast.warning("Likes non enregistrés");
-            }
-          } else {
-            console.warn('No likes found for values:', data.passions);
-          }
-        }
-        
-        // 8. Ajouter les challenges
+        // 6. Ajouter les challenges
         if (data.challenges && data.challenges.length > 0) {
           // Convertir les values en labels
           const challengeLabels = convertValuesToLabels(data.challenges, CHALLENGES_OPTIONS);
@@ -322,7 +268,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 9. Ajouter les univers favoris (filtrer les "other")
+        // 7. Ajouter les univers favoris (filtrer les "other")
         if (data.worlds?.favoriteWorlds && data.worlds.favoriteWorlds.length > 0) {
           const worldsToAdd = data.worlds.favoriteWorlds.filter(w => !w.startsWith('other'));
           if (worldsToAdd.length > 0) {
@@ -354,7 +300,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 10. Ajouter les découvertes (filtrer les "other")
+        // 8. Ajouter les découvertes (filtrer les "other")
         if (data.worlds?.discoveries && data.worlds.discoveries.length > 0) {
           const discoveriesToAdd = data.worlds.discoveries.filter(d => !d.startsWith('other') && d !== 'nothing');
           if (discoveriesToAdd.length > 0) {
@@ -386,7 +332,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 11. Créer les liens child_family_members pour les nouveaux proches créés
+        // 9. Créer les liens child_family_members pour les nouveaux proches créés
         if (createdFamilyMembers.length > 0) {
           const familyMemberLinks = createdFamilyMembers.map(member => ({
             child_id: childId,
@@ -404,7 +350,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 12. Gérer les proches existants sélectionnés
+        // 10. Gérer les proches existants sélectionnés
         if (data.family?.existingRelativesData && data.family.existingRelativesData.length > 0) {
           const existingRelativesLinks: string[] = data.family.existingRelativesData.map(
             existingRelative => existingRelative.id
