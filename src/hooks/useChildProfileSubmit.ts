@@ -58,9 +58,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     console.log("Handling form submission with data:", data);
 
     try {
-      // Récupérer la session la plus récente au moment de la soumission
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
+      // Utiliser la session du contexte d'authentification
+      const userId = supabaseSession?.user?.id;
       
       if (!userId) {
         console.error('No authenticated user found. Cannot save profile.');
