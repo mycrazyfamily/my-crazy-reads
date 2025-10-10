@@ -93,7 +93,11 @@ const ModifierProche: React.FC = () => {
         // Récupérer toutes les infos depuis family_members.details si présent
         setType((relative.role as RelativeType) || 'father');
         setFirstName(relative.name || '');
-        const details = (relative as any).details || {};
+        // Supporte le cas où details est une chaîne JSON
+        let details: any = (relative as any).details ?? {};
+        if (typeof details === 'string') {
+          try { details = JSON.parse(details); } catch { details = {}; }
+        }
 
         // Pré-remplir les champs basiques (avec compatibilité pour anciens enregistrements)
         setGender(details.gender || 'male');
