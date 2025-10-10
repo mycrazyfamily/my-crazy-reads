@@ -181,65 +181,63 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         const childId = childProfile.id;
         
-        // 4. Ajouter les superpowers (via traits table)
+        // 4. Ajouter les superpowers
         if (data.superpowers && data.superpowers.length > 0) {
-          // Convertir les values en labels
-          const superpowerLabels = convertValuesToLabels(data.superpowers, SUPERPOWERS_OPTIONS);
-          console.log('Looking up traits with labels:', superpowerLabels);
+          // Récupérer les UUIDs des superpowers depuis la table superpowers par value
+          const { data: superpowers, error: superpowersLookupError } = await supabase
+            .from('superpowers')
+            .select('id, value')
+            .in('value', data.superpowers);
           
-          // Récupérer les UUIDs des traits depuis la table traits
-          const { data: traits, error: traitsLookupError } = await supabase
-            .from('traits')
-            .select('id, label')
-            .in('label', superpowerLabels);
-          
-          if (traitsLookupError) {
-            console.error('Error looking up traits:', traitsLookupError);
+          if (superpowersLookupError) {
+            console.error('Error looking up superpowers:', superpowersLookupError);
             toast.warning("Superpowers non enregistrés");
-          } else if (traits && traits.length > 0) {
-            console.log('Found traits:', traits);
-            const { error: traitsError } = await supabase
-              .from('child_traits')
-              .insert(traits.map(trait => ({ child_id: childId, trait_id: trait.id })));
-            if (traitsError) {
-              console.error('Error adding traits:', traitsError);
+          } else if (superpowers && superpowers.length > 0) {
+            console.log('Found superpowers:', superpowers);
+            const { error: superpowersError } = await supabase
+              .from('child_superpowers')
+              .insert(superpowers.map(superpower => ({ child_id: childId, superpower_id: superpower.id })));
+            if (superpowersError) {
+              console.error('Error adding superpowers:', superpowersError);
               toast.warning("Superpowers non enregistrés");
             }
           } else {
-            console.warn('No traits found for labels:', superpowerLabels);
+            console.warn('No superpowers found for values:', data.superpowers);
           }
         }
         
-        // 5. Ajouter les passions dans child_passions (inclut aussi "ce qu'aime le plus")
+        // 5. Ajouter les traits (anciens superpowers)
+        // DEPRECATED: Cette section est conservée pour rétrocompatibilité mais n'est plus utilisée
+        
+        // 6. Ajouter les likes ("ce qu'aime le plus")
         if (data.passions && data.passions.length > 0) {
-          // Convertir les values en labels
-          const passionLabels = convertValuesToLabels(data.passions, PASSIONS_OPTIONS);
-          console.log('Looking up passions with labels:', passionLabels);
+          // Récupérer les UUIDs des likes depuis la table likes par value
+          const { data: likes, error: likesLookupError } = await supabase
+            .from('likes')
+            .select('id, value')
+            .in('value', data.passions);
           
-          // Récupérer les UUIDs des passions depuis la table passions
-          const { data: passions, error: passionsLookupError } = await supabase
-            .from('passions')
-            .select('id, label')
-            .in('label', passionLabels);
-          
-          if (passionsLookupError) {
-            console.error('Error looking up passions:', passionsLookupError);
-            toast.warning("Passions non enregistrées");
-          } else if (passions && passions.length > 0) {
-            console.log('Found passions:', passions);
-            const { error: passionsError } = await supabase
-              .from('child_passions')
-              .insert(passions.map(passion => ({ child_id: childId, passion_id: passion.id })));
-            if (passionsError) {
-              console.error('Error adding passions:', passionsError);
-              toast.warning("Passions non enregistrées");
+          if (likesLookupError) {
+            console.error('Error looking up likes:', likesLookupError);
+            toast.warning("Ce qu'aime le plus non enregistré");
+          } else if (likes && likes.length > 0) {
+            console.log('Found likes:', likes);
+            const { error: likesError } = await supabase
+              .from('child_likes')
+              .insert(likes.map(like => ({ child_id: childId, like_id: like.id })));
+            if (likesError) {
+              console.error('Error adding likes:', likesError);
+              toast.warning("Ce qu'aime le plus non enregistré");
             }
           } else {
-            console.warn('No passions found for labels:', passionLabels);
+            console.warn('No likes found for values:', data.passions);
           }
         }
         
-        // 6. Ajouter les challenges
+        // 7. Ajouter les passions (DEPRECATED - conservé pour compatibilité)
+        // Cette section n'est plus utilisée mais gardée au cas où
+        
+        // 8. Ajouter les challenges
         if (data.challenges && data.challenges.length > 0) {
           // Convertir les values en labels
           const challengeLabels = convertValuesToLabels(data.challenges, CHALLENGES_OPTIONS);

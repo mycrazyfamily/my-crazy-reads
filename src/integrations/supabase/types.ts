@@ -327,6 +327,42 @@ export type Database = {
           },
         ]
       }
+      child_likes: {
+        Row: {
+          child_id: string
+          created_at: string | null
+          id: string
+          like_id: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string | null
+          id?: string
+          like_id?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string | null
+          id?: string
+          like_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_likes_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "child_likes_like_id_fkey"
+            columns: ["like_id"]
+            isOneToOne: false
+            referencedRelation: "likes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       child_passions: {
         Row: {
           child_id: string
@@ -418,6 +454,7 @@ export type Database = {
           gender: string | null
           has_pet: boolean | null
           height: string | null
+          height_relative_to_age: string | null
           id: string
           nickname: string | null
           updated_at: string | null
@@ -432,6 +469,7 @@ export type Database = {
           gender?: string | null
           has_pet?: boolean | null
           height?: string | null
+          height_relative_to_age?: string | null
           id?: string
           nickname?: string | null
           updated_at?: string | null
@@ -446,6 +484,7 @@ export type Database = {
           gender?: string | null
           has_pet?: boolean | null
           height?: string | null
+          height_relative_to_age?: string | null
           id?: string
           nickname?: string | null
           updated_at?: string | null
@@ -457,6 +496,42 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      child_superpowers: {
+        Row: {
+          child_id: string
+          created_at: string | null
+          id: string
+          superpower_id: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string | null
+          id?: string
+          superpower_id?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string | null
+          id?: string
+          superpower_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_superpowers_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "child_superpowers_superpower_id_fkey"
+            columns: ["superpower_id"]
+            isOneToOne: false
+            referencedRelation: "superpowers"
             referencedColumns: ["id"]
           },
         ]
@@ -809,6 +884,30 @@ export type Database = {
           },
         ]
       }
+      likes: {
+        Row: {
+          created_at: string | null
+          emoji: string | null
+          id: string
+          label: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          label: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          label?: string
+          value?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: string
@@ -942,6 +1041,30 @@ export type Database = {
         }
         Relationships: []
       }
+      superpowers: {
+        Row: {
+          created_at: string | null
+          emoji: string | null
+          id: string
+          label: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          label: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          label?: string
+          value?: string
+        }
+        Relationships: []
+      }
       themes: {
         Row: {
           created_at: string | null
@@ -1027,23 +1150,17 @@ export type Database = {
         Row: {
           created_at: string | null
           family_id: string | null
-          first_name: string | null
           id: string
-          role: string | null
         }
         Insert: {
           created_at?: string | null
           family_id?: string | null
-          first_name?: string | null
           id: string
-          role?: string | null
         }
         Update: {
           created_at?: string | null
           family_id?: string | null
-          first_name?: string | null
           id?: string
-          role?: string | null
         }
         Relationships: [
           {
