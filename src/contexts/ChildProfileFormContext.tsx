@@ -3,6 +3,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from "sonner";
 import { useLocation } from 'react-router-dom';
 import type { ChildProfileFormData } from '@/types/childProfile';
+import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
+import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 
 const FORM_STORAGE_KEY = 'child-profile-form-state';
 
@@ -123,7 +125,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             return;
           }
 
-          // Charger les relations en parallèle (pas de jointures implicites car pas de FKs déclarées)
+          // Charger les relations (IDs) en parallèle
           const [superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
             supabase.from('child_superpowers').select('superpower_id').eq('child_id', editChildId),
             supabase.from('child_likes').select('like_id').eq('child_id', editChildId),
@@ -132,11 +134,45 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             supabase.from('child_discoveries').select('discovery_id').eq('child_id', editChildId),
           ]);
 
-          const superpowers = (superpowersRes.data || []).map((t: any) => t.superpower_id);
-          const passions = (likesRes.data || []).map((p: any) => p.like_id);
-          const challenges = (challengesRes.data || []).map((c: any) => c.challenge_id);
-          const favoriteWorlds = (universesRes.data || []).map((w: any) => w.universe_id);
-          const discoveries = (discoveriesRes.data || []).map((d: any) => d.discovery_id);
+          // Récupérer les valeurs/labels correspondants
+          const [spVals, likeVals, chalVals, uniVals, discVals] = await Promise.all([
+            (async () => {
+              const ids = (superpowersRes.data || []).map((r: any) => r.superpower_id).filter(Boolean);
+              if (!ids.length) return [] as string[];
+              const { data } = await supabase.from('superpowers').select('id, value').in('id', ids);
+              return (data || []).map((x: any) => x.value);
+            })(),
+            (async () => {
+              const ids = (likesRes.data || []).map((r: any) => r.like_id).filter(Boolean);
+              if (!ids.length) return [] as string[];
+              const { data } = await supabase.from('likes').select('id, value').in('id', ids);
+              return (data || []).map((x: any) => x.value);
+            })(),
+            (async () => {
+              const ids = (challengesRes.data || []).map((r: any) => r.challenge_id).filter(Boolean);
+              if (!ids.length) return [] as string[];
+              const { data } = await supabase.from('challenges').select('id, label').in('id', ids);
+              return (data || []).map((x: any) => CHALLENGES_OPTIONS.find(o => o.label === x.label)?.value || x.label);
+            })(),
+            (async () => {
+              const ids = (universesRes.data || []).map((r: any) => r.universe_id).filter(Boolean);
+              if (!ids.length) return [] as string[];
+              const { data } = await supabase.from('universes').select('id, label').in('id', ids);
+              return (data || []).map((x: any) => FAVORITE_WORLDS_OPTIONS.find(o => o.label === x.label)?.value || x.label);
+            })(),
+            (async () => {
+              const ids = (discoveriesRes.data || []).map((r: any) => r.discovery_id).filter(Boolean);
+              if (!ids.length) return [] as string[];
+              const { data } = await supabase.from('discoveries').select('id, label').in('id', ids);
+              return (data || []).map((x: any) => DISCOVERY_OPTIONS.find(o => o.label === x.label)?.value || x.label);
+            })(),
+          ]);
+
+          const superpowers = spVals;
+          const passions = likeVals;
+          const challenges = chalVals;
+          const favoriteWorlds = uniVals;
+          const discoveries = discVals;
 
           // Mapper le surnom depuis la colonne text nickname
           const mapNickname = (raw: string | null | undefined) => {

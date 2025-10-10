@@ -183,7 +183,7 @@ const ModifierProche: React.FC = () => {
           traits,
           customTraits,
           age,
-          birthDate,
+          birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
           job,
           gender
         }

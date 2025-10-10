@@ -140,7 +140,7 @@ export default function AjouterProche() {
             traits: relativeData.traits,
             customTraits: relativeData.customTraits || {},
             age: relativeData.age,
-            birthDate: relativeData.birthDate,
+            birthDate: relativeData.birthDate ? relativeData.birthDate.toISOString().split('T')[0] : null,
             job: relativeData.job,
             gender: relativeData.gender,
             otherTypeName: relativeData.otherTypeName
