@@ -25,28 +25,32 @@ const ChildrenSelector: React.FC<ChildrenSelectorProps> = ({
   }
 
   return (
-    <div className="space-y-3 p-4 bg-mcf-cream/30 rounded-lg border border-mcf-mint/30">
-      <Label className="text-base font-semibold text-mcf-primary">
+    <div className="space-y-4 p-6 bg-gradient-to-br from-mcf-mint/20 to-mcf-gradient-end/20 rounded-xl border border-mcf-secondary/30 shadow-sm">
+      <Label className="text-lg font-semibold text-mcf-primary block">
         {label}
       </Label>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {children.map((child) => (
-          <div key={child.id} className="flex items-center space-x-2">
+          <div 
+            key={child.id} 
+            className="flex items-center space-x-3 p-3 bg-white/50 rounded-lg hover:bg-white/70 transition-colors"
+          >
             <Checkbox
               id={`child-${child.id}`}
               checked={selectedChildrenIds.includes(child.id)}
               onCheckedChange={() => onToggleChild(child.id)}
+              className="data-[state=checked]:bg-mcf-primary data-[state=checked]:border-mcf-primary"
             />
             <Label
               htmlFor={`child-${child.id}`}
-              className="text-sm cursor-pointer"
+              className="text-base cursor-pointer font-medium text-mcf-text flex-1"
             >
               {child.first_name}
             </Label>
           </div>
         ))}
       </div>
-      <p className="text-xs text-gray-500 italic mt-2">
+      <p className="text-sm text-muted-foreground italic">
         Sélectionnez tous les enfants concernés par ce proche/animal
       </p>
     </div>
