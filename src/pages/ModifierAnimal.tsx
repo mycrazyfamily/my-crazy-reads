@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
+import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 
 const ModifierAnimal: React.FC = () => {
@@ -15,6 +16,8 @@ const ModifierAnimal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [petData, setPetData] = useState<PetData | null>(null);
+  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
 
   useEffect(() => {
     loadPetData();
@@ -26,7 +29,7 @@ const ModifierAnimal: React.FC = () => {
     try {
       setLoading(true);
       
-      // Charger depuis child_pets
+      // Charger l'animal depuis child_pets
       const { data, error } = await supabase
         .from('child_pets')
         .select(`
@@ -35,7 +38,8 @@ const ModifierAnimal: React.FC = () => {
             id,
             name,
             type,
-            emoji
+            emoji,
+            family_id
           )
         `)
         .eq('child_id', childId)
@@ -52,6 +56,25 @@ const ModifierAnimal: React.FC = () => {
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[]
         };
         setPetData(pet);
+
+        // Charger tous les enfants de la famille
+        const { data: childrenData, error: childrenError } = await supabase
+          .from('child_profiles')
+          .select('id, first_name')
+          .eq('family_id', data.pets.family_id)
+          .order('first_name');
+
+        if (childrenError) throw childrenError;
+        setExistingChildren(childrenData || []);
+
+        // Charger les enfants liés à cet animal
+        const { data: linkedChildren, error: linkedError } = await supabase
+          .from('child_pets')
+          .select('child_id')
+          .eq('pet_id', petId);
+
+        if (linkedError) throw linkedError;
+        setSelectedChildrenIds(linkedChildren?.map(c => c.child_id) || []);
       } else {
         toast.error("Animal non trouvé");
         navigate('/espace-famille');
@@ -64,25 +87,20 @@ const ModifierAnimal: React.FC = () => {
     }
   };
 
+  const handleToggleChild = (childIdToToggle: string) => {
+    setSelectedChildrenIds(prev => 
+      prev.includes(childIdToToggle)
+        ? prev.filter(id => id !== childIdToToggle)
+        : [...prev, childIdToToggle]
+    );
+  };
+
   const handleSave = async (updatedPet: PetData) => {
-    if (!childId || !petId) return;
+    if (!petId) return;
 
     try {
       setSaving(true);
 
-      // Mettre à jour dans child_pets et pets
-      const { error: updateChildPetError } = await supabase
-        .from('child_pets')
-        .update({
-          name: updatedPet.name,
-          traits: updatedPet.traits?.join(', ') || null,
-          relation_label: updatedPet.type
-        })
-        .eq('child_id', childId)
-        .eq('pet_id', petId);
-
-      if (updateChildPetError) throw updateChildPetError;
-      
       // Mettre à jour le pet dans la table pets
       const { error: updatePetError } = await supabase
         .from('pets')
@@ -93,6 +111,31 @@ const ModifierAnimal: React.FC = () => {
         .eq('id', petId);
 
       if (updatePetError) throw updatePetError;
+
+      // Supprimer toutes les anciennes relations
+      const { error: deleteError } = await supabase
+        .from('child_pets')
+        .delete()
+        .eq('pet_id', petId);
+
+      if (deleteError) throw deleteError;
+
+      // Créer les nouvelles relations
+      if (selectedChildrenIds.length > 0) {
+        const childPetsData = selectedChildrenIds.map(childId => ({
+          child_id: childId,
+          pet_id: petId,
+          name: updatedPet.name,
+          traits: updatedPet.traits?.join(', ') || null,
+          relation_label: updatedPet.type
+        }));
+
+        const { error: insertError } = await supabase
+          .from('child_pets')
+          .insert(childPetsData);
+
+        if (insertError) throw insertError;
+      }
 
       toast.success("Animal modifié avec succès !");
       navigate('/espace-famille');
@@ -142,12 +185,38 @@ const ModifierAnimal: React.FC = () => {
           Modifier l'animal
         </h1>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
+        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
           <PetForm 
             pet={petData}
             onSave={handleSave}
             onCancel={handleCancel}
           />
+
+          {existingChildren.length > 0 && (
+            <ChildrenSelector
+              children={existingChildren}
+              selectedChildrenIds={selectedChildrenIds}
+              onToggleChild={handleToggleChild}
+              label="Enfants associés à cet animal"
+            />
+          )}
+
+          <div className="flex gap-4 justify-end pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={saving}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={() => petData && handleSave(petData)}
+              disabled={saving}
+            >
+              {saving ? "Enregistrement..." : "Enregistrer"}
+            </Button>
+          </div>
         </div>
       </main>
       

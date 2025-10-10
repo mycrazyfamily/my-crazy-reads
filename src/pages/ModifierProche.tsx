@@ -11,6 +11,7 @@ import RelativeBasicInfoSection from '@/components/childProfile/relatives/Relati
 import RelativeNicknameSection from '@/components/childProfile/relatives/RelativeNicknameSection';
 import RelativeAppearanceSection from '@/components/childProfile/relatives/RelativeAppearanceSection';
 import RelativeTraitsSection from '@/components/childProfile/relatives/RelativeTraitsSection';
+import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 
 const ModifierProche: React.FC = () => {
@@ -20,6 +21,8 @@ const ModifierProche: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [childData, setChildData] = useState<any>(null);
+  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   
   // État pour toutes les informations du proche
   const [type, setType] = useState<RelativeType>('father');
@@ -54,7 +57,7 @@ const ModifierProche: React.FC = () => {
 
   const loadRelativeData = async () => {
     try {
-      // Charger depuis family_members via child_family_members
+      // Charger le proche depuis family_members via child_family_members
       const { data, error } = await supabase
         .from('child_family_members')
         .select(`
@@ -63,7 +66,8 @@ const ModifierProche: React.FC = () => {
             id,
             name,
             role,
-            avatar
+            avatar,
+            family_id
           )
         `)
         .eq('child_id', childId)
@@ -89,6 +93,25 @@ const ModifierProche: React.FC = () => {
         setGlasses(false);
         
         setChildData({ loaded: true });
+
+        // Charger tous les enfants de la famille
+        const { data: childrenData, error: childrenError } = await supabase
+          .from('child_profiles')
+          .select('id, first_name')
+          .eq('family_id', relative.family_id)
+          .order('first_name');
+
+        if (childrenError) throw childrenError;
+        setExistingChildren(childrenData || []);
+
+        // Charger les enfants liés à ce proche
+        const { data: linkedChildren, error: linkedError } = await supabase
+          .from('child_family_members')
+          .select('child_id')
+          .eq('family_member_id', relativeId);
+
+        if (linkedError) throw linkedError;
+        setSelectedChildrenIds(linkedChildren?.map(c => c.child_id) || []);
       } else {
         toast.error("Proche non trouvé");
         navigate('/espace-famille');
@@ -111,6 +134,14 @@ const ModifierProche: React.FC = () => {
     }
   };
 
+  const handleToggleChild = (childIdToToggle: string) => {
+    setSelectedChildrenIds(prev => 
+      prev.includes(childIdToToggle)
+        ? prev.filter(id => id !== childIdToToggle)
+        : [...prev, childIdToToggle]
+    );
+  };
+
   const handleSave = async () => {
     if (!childData) return;
 
@@ -126,6 +157,29 @@ const ModifierProche: React.FC = () => {
         .eq('id', relativeId);
 
       if (error) throw error;
+
+      // Supprimer toutes les anciennes relations
+      const { error: deleteError } = await supabase
+        .from('child_family_members')
+        .delete()
+        .eq('family_member_id', relativeId);
+
+      if (deleteError) throw deleteError;
+
+      // Créer les nouvelles relations
+      if (selectedChildrenIds.length > 0) {
+        const childFamilyMembersData = selectedChildrenIds.map(childId => ({
+          child_id: childId,
+          family_member_id: relativeId,
+          relation_label: type
+        }));
+
+        const { error: insertError } = await supabase
+          .from('child_family_members')
+          .insert(childFamilyMembersData);
+
+        if (insertError) throw insertError;
+      }
 
       toast.success("Proche modifié avec succès !");
       navigate('/espace-famille');
@@ -222,6 +276,15 @@ const ModifierProche: React.FC = () => {
             setCustomTraits={setCustomTraits}
             gender={gender}
           />
+
+          {existingChildren.length > 0 && (
+            <ChildrenSelector
+              children={existingChildren}
+              selectedChildrenIds={selectedChildrenIds}
+              onToggleChild={handleToggleChild}
+              label="Enfants associés à ce proche"
+            />
+          )}
         </Card>
 
         <div className="flex gap-3 mt-8">
