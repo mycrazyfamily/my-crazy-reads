@@ -127,6 +127,7 @@ const FamilyDashboard: React.FC = () => {
             .eq('child_id', profile.id);
           
           const petsFromDb = (childPets || []).map((cp: any) => ({
+            id: cp.pets?.id,
             name: cp.name || cp.pets?.name,
             type: cp.relation_label || cp.pets?.type,
             traits: cp.traits?.split(', ') || [],
