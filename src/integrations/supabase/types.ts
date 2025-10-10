@@ -707,7 +707,6 @@ export type Database = {
       family_members: {
         Row: {
           avatar: string | null
-          child_id: string | null
           created_at: string | null
           family_id: string | null
           id: string
@@ -716,7 +715,6 @@ export type Database = {
         }
         Insert: {
           avatar?: string | null
-          child_id?: string | null
           created_at?: string | null
           family_id?: string | null
           id?: string
@@ -725,7 +723,6 @@ export type Database = {
         }
         Update: {
           avatar?: string | null
-          child_id?: string | null
           created_at?: string | null
           family_id?: string | null
           id?: string
@@ -733,13 +730,6 @@ export type Database = {
           role?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "family_members_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "child_profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "family_members_family_id_fkey"
             columns: ["family_id"]
