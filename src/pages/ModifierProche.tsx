@@ -62,13 +62,14 @@ const ModifierProche: React.FC = () => {
         .from('child_family_members')
         .select(`
           relation_label,
-          family_members (
-            id,
-            name,
-            role,
-            avatar,
-            family_id
-          )
+            family_members (
+              id,
+              name,
+              role,
+              avatar,
+              family_id,
+              details
+            )
         `)
         .eq('child_id', childId)
         .eq('family_member_id', relativeId)
@@ -79,18 +80,27 @@ const ModifierProche: React.FC = () => {
       if (data && data.family_members) {
         const relative = data.family_members;
         
-        // Pour l'instant, nous avons des données limitées dans family_members
-        // On charge ce qui est disponible
+        // Récupérer toutes les infos depuis family_members.details si présent
         setType((relative.role as RelativeType) || 'father');
         setFirstName(relative.name || '');
-        setGender('male'); // Par défaut, à améliorer
+        const details = (relative as any).details || {};
+        setGender(details.gender || 'male');
         
-        // Valeurs par défaut pour les champs non stockés
-        setSelectedNickname('none');
-        setSelectedSkinColor('light');
-        setSelectedHairColor('brown');
-        setHairType('straight');
-        setGlasses(false);
+        // Préremplir les champs de formulaire
+        setSelectedNickname(details.nickname?.type || 'none');
+        setNicknameCustomValue(details.nickname?.custom || undefined);
+        setSelectedSkinColor(details.skinColor?.type || 'light');
+        setSkinColorCustomValue(details.skinColor?.custom || undefined);
+        setSelectedHairColor(details.hairColor?.type || 'brown');
+        setHairColorCustomValue(details.hairColor?.custom || undefined);
+        setHairType(details.hairType || 'straight');
+        setHairTypeCustom(details.hairTypeCustom || '');
+        setGlasses(!!details.glasses);
+        setTraits(details.traits || []);
+        setCustomTraits(details.customTraits || {});
+        setAge(details.age || '');
+        setBirthDate(details.birthDate ? new Date(details.birthDate) : undefined);
+        setJob(details.job || '');
         
         setChildData({ loaded: true });
 
@@ -148,12 +158,28 @@ const ModifierProche: React.FC = () => {
     setSaving(true);
     try {
       // Mettre à jour dans family_members
+      const updatePayload: any = {
+        name: firstName,
+        role: type,
+        details: {
+          nickname: { type: selectedNickname, custom: nicknameCustomValue },
+          skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
+          hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
+          hairType: hairType,
+          hairTypeCustom,
+          glasses,
+          traits,
+          customTraits,
+          age,
+          birthDate,
+          job,
+          gender
+        }
+      };
+
       const { error } = await supabase
         .from('family_members')
-        .update({
-          name: firstName,
-          role: type
-        })
+        .update(updatePayload)
         .eq('id', relativeId);
 
       if (error) throw error;

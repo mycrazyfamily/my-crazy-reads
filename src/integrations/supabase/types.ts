@@ -408,6 +408,7 @@ export type Database = {
           pet_id: string | null
           relation_label: string | null
           traits: string | null
+          traits_custom: Json | null
         }
         Insert: {
           child_id?: string | null
@@ -417,6 +418,7 @@ export type Database = {
           pet_id?: string | null
           relation_label?: string | null
           traits?: string | null
+          traits_custom?: Json | null
         }
         Update: {
           child_id?: string | null
@@ -426,6 +428,7 @@ export type Database = {
           pet_id?: string | null
           relation_label?: string | null
           traits?: string | null
+          traits_custom?: Json | null
         }
         Relationships: [
           {
@@ -783,6 +786,7 @@ export type Database = {
         Row: {
           avatar: string | null
           created_at: string | null
+          details: Json | null
           family_id: string | null
           id: string
           name: string | null
@@ -791,6 +795,7 @@ export type Database = {
         Insert: {
           avatar?: string | null
           created_at?: string | null
+          details?: Json | null
           family_id?: string | null
           id?: string
           name?: string | null
@@ -799,6 +804,7 @@ export type Database = {
         Update: {
           avatar?: string | null
           created_at?: string | null
+          details?: Json | null
           family_id?: string | null
           id?: string
           name?: string | null

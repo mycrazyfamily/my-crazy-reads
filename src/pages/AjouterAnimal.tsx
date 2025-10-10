@@ -201,6 +201,7 @@ export default function AjouterAnimal() {
         pet_id: pet.id,
         name: petData.name,
         traits: petData.traits?.join(', ') || null,
+        traits_custom: petData.customTraits || null,
         relation_label: petData.type
       }));
 

@@ -128,8 +128,24 @@ export default function AjouterProche() {
           family_id: firstChild.family_id,
           name: relativeData.firstName,
           role: relativeData.type,
-          avatar: null
-        })
+          avatar: null,
+          // Persist full relative profile for edit prefill
+          details: {
+            nickname: relativeData.nickname,
+            skinColor: relativeData.skinColor,
+            hairColor: relativeData.hairColor,
+            hairType: relativeData.hairType,
+            hairTypeCustom: relativeData.hairTypeCustom,
+            glasses: relativeData.glasses,
+            traits: relativeData.traits,
+            customTraits: relativeData.customTraits || {},
+            age: relativeData.age,
+            birthDate: relativeData.birthDate || null,
+            job: relativeData.job,
+            gender: relativeData.gender,
+            otherTypeName: relativeData.otherTypeName
+          }
+        } as any)
         .select()
         .single();
 
