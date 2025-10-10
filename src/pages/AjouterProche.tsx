@@ -131,16 +131,16 @@ export default function AjouterProche() {
           avatar: null,
           // Persist full relative profile for edit prefill
           details: {
-            nickname: relativeData.nickname,
-            skinColor: relativeData.skinColor,
-            hairColor: relativeData.hairColor,
+            nickname: relativeData.nickname, // Already an object with type/custom
+            skinColor: relativeData.skinColor, // Already an object with type/custom
+            hairColor: relativeData.hairColor, // Already an object with type/custom
             hairType: relativeData.hairType,
             hairTypeCustom: relativeData.hairTypeCustom,
             glasses: relativeData.glasses,
             traits: relativeData.traits,
             customTraits: relativeData.customTraits || {},
             age: relativeData.age,
-            birthDate: relativeData.birthDate || null,
+            birthDate: relativeData.birthDate,
             job: relativeData.job,
             gender: relativeData.gender,
             otherTypeName: relativeData.otherTypeName

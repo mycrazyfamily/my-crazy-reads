@@ -84,23 +84,35 @@ const ModifierProche: React.FC = () => {
         setType((relative.role as RelativeType) || 'father');
         setFirstName(relative.name || '');
         const details = (relative as any).details || {};
-        setGender(details.gender || 'male');
         
-        // Préremplir les champs de formulaire
-        setSelectedNickname(details.nickname?.type || 'none');
-        setNicknameCustomValue(details.nickname?.custom || undefined);
-        setSelectedSkinColor(details.skinColor?.type || 'light');
-        setSkinColorCustomValue(details.skinColor?.custom || undefined);
-        setSelectedHairColor(details.hairColor?.type || 'brown');
-        setHairColorCustomValue(details.hairColor?.custom || undefined);
-        setHairType(details.hairType || 'straight');
-        setHairTypeCustom(details.hairTypeCustom || '');
-        setGlasses(!!details.glasses);
-        setTraits(details.traits || []);
-        setCustomTraits(details.customTraits || {});
+        // Pré-remplir les champs basiques
+        setGender(details.gender || 'male');
         setAge(details.age || '');
         setBirthDate(details.birthDate ? new Date(details.birthDate) : undefined);
         setJob(details.job || '');
+        setOtherTypeName(details.otherTypeName || undefined);
+        
+        // Pré-remplir le surnom
+        const nicknameType = details.nickname?.type || 'none';
+        setSelectedNickname(nicknameType);
+        setNicknameCustomValue(details.nickname?.custom || undefined);
+        
+        // Pré-remplir l'apparence
+        const skinColorType = details.skinColor?.type || 'light';
+        setSelectedSkinColor(skinColorType);
+        setSkinColorCustomValue(details.skinColor?.custom || undefined);
+        
+        const hairColorType = details.hairColor?.type || 'brown';
+        setSelectedHairColor(hairColorType);
+        setHairColorCustomValue(details.hairColor?.custom || undefined);
+        
+        setHairType(details.hairType || 'straight');
+        setHairTypeCustom(details.hairTypeCustom || '');
+        setGlasses(!!details.glasses);
+        
+        // Pré-remplir les traits
+        setTraits(details.traits || []);
+        setCustomTraits(details.customTraits || {});
         
         setChildData({ loaded: true });
 
