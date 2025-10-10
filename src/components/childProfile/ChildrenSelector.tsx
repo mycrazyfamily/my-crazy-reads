@@ -33,7 +33,7 @@ const ChildrenSelector: React.FC<ChildrenSelectorProps> = ({
         {children.map((child) => (
           <div 
             key={child.id} 
-            className="flex items-center space-x-3 p-3 bg-white/50 rounded-lg hover:bg-white/70 transition-colors"
+            className="flex items-center space-x-2 p-3 bg-white/50 rounded-lg hover:bg-white/70 transition-colors"
           >
             <Checkbox
               id={`child-${child.id}`}
