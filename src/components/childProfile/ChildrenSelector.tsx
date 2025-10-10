@@ -33,7 +33,7 @@ const ChildrenSelector: React.FC<ChildrenSelectorProps> = ({
         {children.map((child) => (
           <div 
             key={child.id} 
-            className="flex items-center gap-2 p-3 bg-white/50 rounded-lg hover:bg-white/70 transition-colors"
+            className="flex items-center gap-1 p-3 bg-white/50 rounded-lg hover:bg-white/70 transition-colors"
           >
             <Checkbox
               id={`child-${child.id}`}
@@ -43,7 +43,7 @@ const ChildrenSelector: React.FC<ChildrenSelectorProps> = ({
             />
             <Label
               htmlFor={`child-${child.id}`}
-              className="text-base cursor-pointer font-medium text-mcf-text flex-1"
+              className="text-base cursor-pointer font-medium text-mcf-text text-left"
             >
               {child.first_name}
             </Label>
