@@ -8,9 +8,10 @@ import type { PetData } from '@/types/childProfile';
 interface PetProfileCardProps {
   pet: PetData;
   childrenNames: string[];
+  primaryChildId: string;
 }
 
-const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames }) => {
+const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, primaryChildId }) => {
   const getPetTypeEmoji = (type: string) => {
     const emojiMap: Record<string, string> = {
       dog: '🐶',
@@ -94,7 +95,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames }) =
           className="w-full mt-4 border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
           asChild
         >
-          <Link to={`/modifier-animal/${pet.id}`}>
+          <Link to={`/modifier-animal/${primaryChildId}/${pet.id}`}>
             <Edit className="h-3.5 w-3.5 mr-1" />
             Modifier
           </Link>

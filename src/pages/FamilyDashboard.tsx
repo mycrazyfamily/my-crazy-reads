@@ -386,28 +386,32 @@ const FamilyDashboard: React.FC = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(() => {
                   // Grouper les proches par leur ID pour éviter les doublons
-                  const relativesMap = new Map<string, { relative: any; childrenNames: string[] }>();
+                  const relativesMap = new Map<string, { relative: any; childrenNames: string[]; childrenIds: string[] }>();
                   
                   children.forEach((child) => {
                     if (!child.relatives || child.relatives.length === 0) return;
                     
                     child.relatives.forEach((relative: any) => {
                       if (relativesMap.has(relative.id)) {
-                        relativesMap.get(relative.id)!.childrenNames.push(child.firstName);
+                        const entry = relativesMap.get(relative.id)!;
+                        entry.childrenNames.push(child.firstName);
+                        entry.childrenIds.push(child.id);
                       } else {
                         relativesMap.set(relative.id, {
                           relative,
-                          childrenNames: [child.firstName]
+                          childrenNames: [child.firstName],
+                          childrenIds: [child.id]
                         });
                       }
                     });
                   });
                   
-                  return Array.from(relativesMap.values()).map(({ relative, childrenNames }) => (
+                  return Array.from(relativesMap.values()).map(({ relative, childrenNames, childrenIds }) => (
                     <RelativeProfileCard 
                       key={relative.id}
                       relative={relative}
                       childrenNames={childrenNames}
+                      primaryChildId={childrenIds[0]}
                     />
                   ));
                 })()}
@@ -432,7 +436,7 @@ const FamilyDashboard: React.FC = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(() => {
                   // Grouper les animaux par leur nom pour éviter les doublons
-                  const petsMap = new Map<string, { pet: any; childrenNames: string[] }>();
+                  const petsMap = new Map<string, { pet: any; childrenNames: string[]; childrenIds: string[] }>();
                   
                   children.forEach((child) => {
                     if (!child.pets || child.pets.length === 0) return;
@@ -440,21 +444,25 @@ const FamilyDashboard: React.FC = () => {
                     child.pets.forEach((pet: any) => {
                       const petKey = pet.id || pet.name;
                       if (petsMap.has(petKey)) {
-                        petsMap.get(petKey)!.childrenNames.push(child.firstName);
+                        const entry = petsMap.get(petKey)!;
+                        entry.childrenNames.push(child.firstName);
+                        entry.childrenIds.push(child.id);
                       } else {
                         petsMap.set(petKey, {
                           pet,
-                          childrenNames: [child.firstName]
+                          childrenNames: [child.firstName],
+                          childrenIds: [child.id]
                         });
                       }
                     });
                   });
                   
-                  return Array.from(petsMap.values()).map(({ pet, childrenNames }) => (
+                  return Array.from(petsMap.values()).map(({ pet, childrenNames, childrenIds }) => (
                     <PetProfileCard 
                       key={pet.id || pet.name}
                       pet={pet}
                       childrenNames={childrenNames}
+                      primaryChildId={childrenIds[0]}
                     />
                   ));
                 })()}
