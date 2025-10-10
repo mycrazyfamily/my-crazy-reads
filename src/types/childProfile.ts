@@ -62,6 +62,7 @@ export type FamilyData = {
   otherRelativeType?: string;
   existingRelativeIds?: string[]; // IDs des proches existants sélectionnés
   existingRelativesData?: any[]; // Données complètes des proches existants sélectionnés
+  relativeChildLinks?: Record<string, string[]>; // Liens entre proches et enfants existants (relativeId -> childIds[])
 };
 
 export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "other";
@@ -84,6 +85,7 @@ export type PetsData = {
   hasPets: boolean;
   pets: PetData[];
   existingPetsData?: any[]; // Données des animaux existants sélectionnés
+  petChildLinks?: Record<string, string[]>; // Liens entre animaux et enfants existants (petId -> childIds[])
 };
 
 // Nouveaux types pour les doudous et objets magiques

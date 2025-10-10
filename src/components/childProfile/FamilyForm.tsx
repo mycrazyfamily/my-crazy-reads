@@ -147,7 +147,17 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     setCurrentRelative(newRelative);
     setIsEditingRelative(true);
   };
-  const handleSaveRelative = (relative: RelativeData) => {
+  const handleSaveRelative = (relative: RelativeData, selectedChildrenIds?: string[]) => {
+    // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
+    if (selectedChildrenIds && selectedChildrenIds.length > 0) {
+      const existingLinks = form.getValues().family?.relativeChildLinks || {};
+      const relativeId = relative.id || Date.now().toString();
+      
+      form.setValue("family.relativeChildLinks", {
+        ...existingLinks,
+        [relativeId]: selectedChildrenIds
+      });
+    }
     // Validation basique
     if (!relative.firstName) {
       toast.error("Le prénom est requis");
@@ -292,7 +302,12 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
             </div>
           </div>
         </form> : currentRelative && <div className="animate-fade-in">
-          <RelativeForm relative={currentRelative} onSave={handleSaveRelative} onCancel={handleCancelRelativeEdit} />
+          <RelativeForm 
+            relative={currentRelative} 
+            onSave={handleSaveRelative} 
+            onCancel={handleCancelRelativeEdit}
+            isCreatingNewChild={true}
+          />
         </div>}
     </div>;
 };

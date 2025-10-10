@@ -15,11 +15,10 @@ interface RelativeProfileCardProps {
     appearance?: any;
     age?: string;
   };
-  childId: string;
-  childName: string;
+  childrenNames: string[];
 }
 
-const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, childId, childName }) => {
+const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, childrenNames }) => {
   const getRelativeTypeEmoji = (type: string) => {
     switch (type) {
       case 'father': return '👨';
@@ -62,7 +61,9 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
               <p className="text-sm font-medium text-mcf-primary mb-1">{relative.age}</p>
             )}
             <p className="text-sm text-gray-600 mb-1">{nickname}</p>
-            <p className="text-xs text-gray-500">Proche de {childName}</p>
+            <p className="text-xs text-gray-500">
+              Proche de {childrenNames.join(' et ')}
+            </p>
           </div>
         </div>
         
@@ -77,7 +78,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
         
         <div className="flex gap-2">
           <Link 
-            to={`/modifier-proche/${childId}/${relative.id}`}
+            to={`/modifier-proche/${relative.id}`}
             className="flex-1"
           >
             <Button 

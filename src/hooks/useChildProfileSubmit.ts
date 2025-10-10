@@ -348,6 +348,28 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
+        // 9b. Gérer les liens supplémentaires pour les proches (enfants existants)
+        if (data.family?.relativeChildLinks) {
+          const links: Array<{ child_id: string; family_member_id: string }> = [];
+          
+          Object.entries(data.family.relativeChildLinks).forEach(([relativeId, childIds]) => {
+            childIds.forEach(existingChildId => {
+              links.push({
+                child_id: existingChildId,
+                family_member_id: createdFamilyMembers.find(m => m.relativeType === relativeId)?.id || relativeId
+              });
+            });
+          });
+
+          if (links.length > 0) {
+            const { error } = await supabase
+              .from('child_family_members')
+              .insert(links);
+            
+            if (error) console.error('Error creating additional relative links:', error);
+          }
+        }
+
         // 10. Gérer les proches existants sélectionnés
         if (data.family?.existingRelativesData && data.family.existingRelativesData.length > 0) {
           const existingRelativesLinks: string[] = data.family.existingRelativesData.map(
@@ -432,6 +454,30 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           if (petLinkError) {
             console.error('Error linking existing pets:', petLinkError);
             toast.warning("Profil créé mais erreur lors de l'association des animaux existants");
+          }
+        }
+
+        // 15b. Gérer les liens supplémentaires pour les animaux (enfants existants)
+        if (data.pets?.petChildLinks) {
+          const links: Array<{ child_id: string; pet_id: string; name: string }> = [];
+          
+          Object.entries(data.pets.petChildLinks).forEach(([petId, childIds]) => {
+            const pet = data.pets!.pets.find(p => p.id === petId);
+            childIds.forEach(existingChildId => {
+              links.push({
+                child_id: existingChildId,
+                pet_id: createdPetIds[data.pets!.pets.indexOf(pet!)] || petId,
+                name: pet?.name || ''
+              });
+            });
+          });
+
+          if (links.length > 0) {
+            const { error } = await supabase
+              .from('child_pets')
+              .insert(links);
+            
+            if (error) console.error('Error creating additional pet links:', error);
           }
         }
 

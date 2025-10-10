@@ -188,7 +188,18 @@ const PetsForm: React.FC<PetsFormProps> = ({
     toast.success("Animal supprimé avec succès");
   };
 
-  const handleSavePet = (pet: PetData) => {
+  const handleSavePet = (pet: PetData, selectedChildrenIds?: string[]) => {
+    // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
+    if (selectedChildrenIds && selectedChildrenIds.length > 0) {
+      const existingLinks = form.getValues().pets?.petChildLinks || {};
+      const petId = pet.id || Date.now().toString();
+      
+      form.setValue("pets.petChildLinks", {
+        ...existingLinks,
+        [petId]: selectedChildrenIds
+      });
+    }
+
     const isEditing = pets.some(p => p.id === pet.id);
     let updatedPets;
     
@@ -315,7 +326,8 @@ const PetsForm: React.FC<PetsFormProps> = ({
         <PetForm 
           pet={currentPet || undefined} 
           onSave={handleSavePet} 
-          onCancel={handleCancelPetForm} 
+          onCancel={handleCancelPetForm}
+          isCreatingNewChild={true}
         />
       )}
     </div>

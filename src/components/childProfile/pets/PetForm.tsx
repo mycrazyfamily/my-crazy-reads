@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,14 +7,17 @@ import { toast } from "sonner";
 import { PET_TYPE_OPTIONS, PET_TRAIT_OPTIONS } from '@/constants/petOptions';
 import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 import { Dog, Cat, Rabbit, Bird, Fish } from 'lucide-react';
+import ChildrenSelector from '../ChildrenSelector';
+import { supabase } from "@/integrations/supabase/client";
 
 type PetFormProps = {
   pet?: PetData;
-  onSave: (pet: PetData) => void;
+  onSave: (pet: PetData, selectedChildrenIds?: string[]) => void;
   onCancel: () => void;
+  isCreatingNewChild?: boolean;
 };
 
-const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
+const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false }) => {
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
@@ -23,6 +26,48 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
   
   const MAX_TRAITS = 2;
   const hasReachedMaxTraits = selectedTraits.length >= MAX_TRAITS;
+
+  // Pour la sélection d'enfants existants
+  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+
+  // Charger les enfants existants
+  useEffect(() => {
+    const loadExistingChildren = async () => {
+      if (!isCreatingNewChild) return;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profiles, error } = await supabase
+          .from('child_profiles')
+          .select('id, first_name')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading children:', error);
+        } else if (profiles) {
+          setExistingChildren(profiles);
+        }
+      } catch (error) {
+        console.error('Error loading existing children:', error);
+      }
+    };
+
+    loadExistingChildren();
+  }, [isCreatingNewChild]);
+
+  const handleToggleChild = (childId: string) => {
+    setSelectedChildrenIds(prev => {
+      if (prev.includes(childId)) {
+        return prev.filter(id => id !== childId);
+      } else {
+        return [...prev, childId];
+      }
+    });
+  };
 
   const getIconComponent = (petType: PetType) => {
     switch (petType) {
@@ -99,7 +144,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
       customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
 
-    onSave(newPet);
+    onSave(newPet, isCreatingNewChild ? selectedChildrenIds : undefined);
   };
 
   return (
@@ -202,6 +247,16 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel }) => {
           })}
         </div>
       </div>
+
+      {/* Sélection des enfants existants (uniquement lors de la création d'un nouvel enfant) */}
+      {isCreatingNewChild && existingChildren.length > 0 && (
+        <ChildrenSelector
+          children={existingChildren}
+          selectedChildrenIds={selectedChildrenIds}
+          onToggleChild={handleToggleChild}
+          label="Cet animal est aussi l'animal de :"
+        />
+      )}
 
       {/* Boutons d'action */}
       <div className="flex justify-between pt-4">

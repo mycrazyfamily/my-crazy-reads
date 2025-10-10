@@ -382,28 +382,34 @@ const FamilyDashboard: React.FC = () => {
                 <Heart className="h-6 w-6" /> Ma famille et mes proches
               </h2>
               
-              <div className="space-y-6">
-                {children.map((child) => {
-                  if (!child.relatives || child.relatives.length === 0) return null;
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(() => {
+                  // Grouper les proches par leur ID pour éviter les doublons
+                  const relativesMap = new Map<string, { relative: any; childrenNames: string[] }>();
                   
-                  return (
-                    <div key={child.id} className="space-y-3">
-                      <h3 className="text-lg font-semibold text-mcf-orange-dark">
-                        Les proches de {child.firstName}
-                      </h3>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {child.relatives.map((relative: any, idx: number) => (
-                          <RelativeProfileCard 
-                            key={idx}
-                            relative={relative}
-                            childId={child.id}
-                            childName={child.firstName}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+                  children.forEach((child) => {
+                    if (!child.relatives || child.relatives.length === 0) return;
+                    
+                    child.relatives.forEach((relative: any) => {
+                      if (relativesMap.has(relative.id)) {
+                        relativesMap.get(relative.id)!.childrenNames.push(child.firstName);
+                      } else {
+                        relativesMap.set(relative.id, {
+                          relative,
+                          childrenNames: [child.firstName]
+                        });
+                      }
+                    });
+                  });
+                  
+                  return Array.from(relativesMap.values()).map(({ relative, childrenNames }) => (
+                    <RelativeProfileCard 
+                      key={relative.id}
+                      relative={relative}
+                      childrenNames={childrenNames}
+                    />
+                  ));
+                })()}
               </div>
               
               <Button 
@@ -422,47 +428,50 @@ const FamilyDashboard: React.FC = () => {
                 <span className="text-2xl">🐾</span> Nos animaux de compagnie
               </h2>
               
-              <div className="space-y-6">
-                {children.map((child) => {
-                  if (!child.pets || child.pets.length === 0) return null;
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(() => {
+                  // Grouper les animaux par leur nom pour éviter les doublons
+                  const petsMap = new Map<string, { pet: any; childrenNames: string[] }>();
                   
-                  return (
-                    <div key={child.id} className="space-y-3">
-                      <h3 className="text-lg font-semibold text-mcf-orange-dark">
-                        Les animaux de {child.firstName}
-                      </h3>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {child.pets.map((pet: any, idx: number) => (
-                          <PetProfileCard 
-                            key={idx}
-                            pet={pet}
-                            childId={child.id}
-                            childName={child.firstName}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {/* Bouton pour ajouter un animal */}
-                {children.length > 0 && (
-                  <div className="flex justify-center mt-6">
-                    <Button 
-                      className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2"
-                      onClick={() => {
-                        if (children.length === 1) {
-                          navigate(`/ajouter-animal/${children[0].id}`);
-                        } else {
-                          navigate('/ajouter-animal');
-                        }
-                      }}
-                    >
-                      <Plus className="h-4 w-4" /> Ajouter un animal
-                    </Button>
-                  </div>
-                )}
+                  children.forEach((child) => {
+                    if (!child.pets || child.pets.length === 0) return;
+                    
+                    child.pets.forEach((pet: any) => {
+                      const petKey = pet.id || pet.name;
+                      if (petsMap.has(petKey)) {
+                        petsMap.get(petKey)!.childrenNames.push(child.firstName);
+                      } else {
+                        petsMap.set(petKey, {
+                          pet,
+                          childrenNames: [child.firstName]
+                        });
+                      }
+                    });
+                  });
+                  
+                  return Array.from(petsMap.values()).map(({ pet, childrenNames }) => (
+                    <PetProfileCard 
+                      key={pet.id || pet.name}
+                      pet={pet}
+                      childrenNames={childrenNames}
+                    />
+                  ));
+                })()}
               </div>
+              
+              {/* Bouton pour ajouter un animal */}
+              <Button 
+                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                onClick={() => {
+                  if (children.length === 1) {
+                    navigate(`/ajouter-animal/${children[0].id}`);
+                  } else {
+                    navigate('/ajouter-animal');
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" /> Ajouter un animal
+              </Button>
             </section>
           )}
           

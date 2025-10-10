@@ -5,11 +5,14 @@ import RelativeBasicInfoSection from './relatives/RelativeBasicInfoSection';
 import RelativeNicknameSection from './relatives/RelativeNicknameSection';
 import RelativeAppearanceSection from './relatives/RelativeAppearanceSection';
 import RelativeTraitsSection from './relatives/RelativeTraitsSection';
+import ChildrenSelector from './ChildrenSelector';
+import { supabase } from "@/integrations/supabase/client";
 
 type RelativeFormProps = {
   relative: RelativeData;
-  onSave: (relative: RelativeData) => void;
+  onSave: (relative: RelativeData, selectedChildrenIds?: string[]) => void;
   onCancel: () => void;
+  isCreatingNewChild?: boolean;
 };
 
 // Helper function to determine gender based on relative type
@@ -25,7 +28,8 @@ const getRelativeGender = (type: RelativeType): RelativeGender => {
 const RelativeForm: React.FC<RelativeFormProps> = ({
   relative,
   onSave,
-  onCancel
+  onCancel,
+  isCreatingNewChild = false
 }) => {
   const [formData, setFormData] = useState<RelativeData>({
     ...relative,
@@ -41,6 +45,38 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
+
+  // Pour la sélection d'enfants existants
+  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+
+  // Charger les enfants existants
+  useEffect(() => {
+    const loadExistingChildren = async () => {
+      if (!isCreatingNewChild) return;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profiles, error } = await supabase
+          .from('child_profiles')
+          .select('id, first_name')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading children:', error);
+        } else if (profiles) {
+          setExistingChildren(profiles);
+        }
+      } catch (error) {
+        console.error('Error loading existing children:', error);
+      }
+    };
+
+    loadExistingChildren();
+  }, [isCreatingNewChild]);
 
   // Réinitialiser le formulaire quand on change de proche (nouveau vs édition)
   useEffect(() => {
@@ -87,6 +123,16 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     }
   };
 
+  const handleToggleChild = (childId: string) => {
+    setSelectedChildrenIds(prev => {
+      if (prev.includes(childId)) {
+        return prev.filter(id => id !== childId);
+      } else {
+        return [...prev, childId];
+      }
+    });
+  };
+
   const handleSaveClick = () => {
     // Update all custom fields before saving
     const updatedRelative = {
@@ -106,7 +152,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       customTraits: customTraits
     };
     
-    onSave(updatedRelative);
+    onSave(updatedRelative, isCreatingNewChild ? selectedChildrenIds : undefined);
   };
   
   return (
@@ -186,6 +232,16 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setCustomTraits={setCustomTraits}
           gender={formData.gender}
         />
+
+        {/* Sélection des enfants existants (uniquement lors de la création d'un nouvel enfant) */}
+        {isCreatingNewChild && existingChildren.length > 0 && (
+          <ChildrenSelector
+            children={existingChildren}
+            selectedChildrenIds={selectedChildrenIds}
+            onToggleChild={handleToggleChild}
+            label="Ce proche est aussi proche de :"
+          />
+        )}
       </div>
       
       <div className="flex justify-between mt-8">
