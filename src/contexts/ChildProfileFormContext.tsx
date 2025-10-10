@@ -110,47 +110,62 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         try {
           const { supabase } = await import('@/integrations/supabase/client');
           
-          // Charger depuis child_profiles
-          const { data: childProfile, error } = await supabase
+          // Charger le profil enfant (table principale)
+          const { data: childProfile, error: childError } = await supabase
             .from('child_profiles')
-            .select(`
-              *,
-              child_traits(trait_id),
-              child_passions(passion_id),
-              child_challenges(challenge_id),
-              child_universes(universe_id),
-              child_discoveries(discovery_id)
-            `)
+            .select('*')
             .eq('id', editChildId)
             .maybeSingle();
 
-          if (error) throw error;
-
+          if (childError) throw childError;
           if (!childProfile) {
             toast.error("Aucune donnée trouvée pour cet enfant");
             return;
           }
 
-          // Transformer les données pour le formulaire
-          const appearance = childProfile.appearance as any;
+          // Charger les relations en parallèle (pas de jointures implicites car pas de FKs déclarées)
+          const [traitsRes, passionsRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+            supabase.from('child_traits').select('trait_id').eq('child_id', editChildId),
+            supabase.from('child_passions').select('passion_id').eq('child_id', editChildId),
+            supabase.from('child_challenges').select('challenge_id').eq('child_id', editChildId),
+            supabase.from('child_universes').select('universe_id').eq('child_id', editChildId),
+            supabase.from('child_discoveries').select('discovery_id').eq('child_id', editChildId),
+          ]);
+
+          const superpowers = (traitsRes.data || []).map((t: any) => t.trait_id);
+          const passions = (passionsRes.data || []).map((p: any) => p.passion_id);
+          const challenges = (challengesRes.data || []).map((c: any) => c.challenge_id);
+          const favoriteWorlds = (universesRes.data || []).map((w: any) => w.universe_id);
+          const discoveries = (discoveriesRes.data || []).map((d: any) => d.discovery_id);
+
+          // Mapper le surnom depuis la colonne text nickname
+          const mapNickname = (raw: string | null | undefined) => {
+            const preset = ['petitChou', 'tresor', 'boubou', 'none'];
+            if (!raw || raw === 'none') return { type: 'none' } as const;
+            if (preset.includes(raw)) return { type: raw as 'petitChou' | 'tresor' | 'boubou' | 'none' } as const;
+            return { type: 'custom', custom: raw } as const;
+          };
+
+          const appearance = (childProfile.appearance as any) || {};
+
           const formData: any = {
             firstName: childProfile.first_name,
-            nickname: childProfile.nickname ? { type: 'custom', custom: childProfile.nickname } : { type: 'none' },
+            nickname: mapNickname(childProfile.nickname),
             birthDate: childProfile.birth_date ? new Date(childProfile.birth_date) : undefined,
             gender: childProfile.gender,
             height: childProfile.height,
-            skinColor: appearance?.skinColor || { type: 'light' },
-            eyeColor: appearance?.eyeColor || { type: 'blue' },
-            hairColor: appearance?.hairColor || { type: 'blonde' },
-            hairType: appearance?.hairType || 'straight',
-            hairTypeCustom: appearance?.hairTypeCustom,
-            glasses: appearance?.glasses || false,
-            superpowers: (childProfile.child_traits || []).map((t: any) => t.trait_id),
-            passions: (childProfile.child_passions || []).map((p: any) => p.passion_id),
-            challenges: (childProfile.child_challenges || []).map((c: any) => c.challenge_id),
+            skinColor: appearance.skinColor || { type: 'light' },
+            eyeColor: appearance.eyeColor || { type: 'blue' },
+            hairColor: appearance.hairColor || { type: 'blonde' },
+            hairType: appearance.hairType || 'straight',
+            hairTypeCustom: appearance.hairTypeCustom,
+            glasses: appearance.glasses ?? false,
+            superpowers,
+            passions,
+            challenges,
             worlds: {
-              favoriteWorlds: (childProfile.child_universes || []).map((w: any) => w.universe_id),
-              discoveries: (childProfile.child_discoveries || []).map((d: any) => d.discovery_id),
+              favoriteWorlds,
+              discoveries,
               customWorlds: {},
               customDiscoveries: {}
             },
@@ -158,10 +173,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             pets: { hasPets: childProfile.has_pet, pets: [] },
             toys: { hasToys: false, toys: [] }
           };
-          
+
           form.reset(formData);
-          
+
           // Restaurer les états UI
+          if (formData.nickname?.type) setSelectedNickname(formData.nickname.type);
           if (formData.skinColor?.type) setSelectedSkinColor(formData.skinColor.type);
           if (formData.eyeColor?.type) setSelectedEyeColor(formData.eyeColor.type);
           if (formData.hairColor?.type) setSelectedHairColor(formData.hairColor.type);
