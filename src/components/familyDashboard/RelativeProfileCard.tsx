@@ -28,6 +28,12 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       case 'sister': return '👧';
       case 'grandfather': return '👴';
       case 'grandmother': return '👵';
+      case 'otherParent': return '🏡';
+      case 'femaleCousin': return '👧';
+      case 'maleCousin': return '👦';
+      case 'femaleFriend': return '👭';
+      case 'maleFriend': return '👬';
+      case 'other': return '➕';
       default: return '👤';
     }
   };
