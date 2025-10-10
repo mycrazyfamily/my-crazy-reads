@@ -57,7 +57,7 @@ const ModifierProche: React.FC = () => {
 
   const loadRelativeData = async () => {
     try {
-      // Charger le proche depuis family_members via child_family_members
+      // Charger le proche depuis la relation; fallback direct si nécessaire
       const { data, error } = await supabase
         .from('child_family_members')
         .select(`
@@ -77,43 +77,54 @@ const ModifierProche: React.FC = () => {
 
       if (error) throw error;
 
-      if (data && data.family_members) {
-        const relative = data.family_members;
-        
+      // Fallback: si la jointure ne renvoie pas le membre, charger directement
+      let relative: any = data?.family_members;
+      if (!relative) {
+        const { data: relativeDirect, error: relErr } = await supabase
+          .from('family_members')
+          .select('id, name, role, avatar, family_id, details')
+          .eq('id', relativeId)
+          .maybeSingle();
+        if (relErr) throw relErr;
+        relative = relativeDirect;
+      }
+
+      if (relative) {
         // Récupérer toutes les infos depuis family_members.details si présent
         setType((relative.role as RelativeType) || 'father');
         setFirstName(relative.name || '');
         const details = (relative as any).details || {};
-        
-        // Pré-remplir les champs basiques
+
+        // Pré-remplir les champs basiques (avec compatibilité pour anciens enregistrements)
         setGender(details.gender || 'male');
         setAge(details.age || '');
-        setBirthDate(details.birthDate ? new Date(details.birthDate) : undefined);
-        setJob(details.job || '');
+        const birthDateRaw = details.birthDate ?? details.birthdate ?? details.birth_date ?? null;
+        setBirthDate(birthDateRaw ? new Date(birthDateRaw) : undefined);
+        setJob(details.job ?? details.profession ?? details.occupation ?? '');
         setOtherTypeName(details.otherTypeName || undefined);
-        
+
         // Pré-remplir le surnom
         const nicknameType = details.nickname?.type || 'none';
         setSelectedNickname(nicknameType);
         setNicknameCustomValue(details.nickname?.custom || undefined);
-        
+
         // Pré-remplir l'apparence
         const skinColorType = details.skinColor?.type || 'light';
         setSelectedSkinColor(skinColorType);
         setSkinColorCustomValue(details.skinColor?.custom || undefined);
-        
+
         const hairColorType = details.hairColor?.type || 'brown';
         setSelectedHairColor(hairColorType);
         setHairColorCustomValue(details.hairColor?.custom || undefined);
-        
+
         setHairType(details.hairType || 'straight');
         setHairTypeCustom(details.hairTypeCustom || '');
         setGlasses(!!details.glasses);
-        
+
         // Pré-remplir les traits
         setTraits(details.traits || []);
         setCustomTraits(details.customTraits || {});
-        
+
         setChildData({ loaded: true });
 
         // Charger tous les enfants de la famille
