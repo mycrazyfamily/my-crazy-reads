@@ -124,16 +124,16 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           }
 
           // Charger les relations en parallèle (pas de jointures implicites car pas de FKs déclarées)
-          const [traitsRes, passionsRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
-            supabase.from('child_traits').select('trait_id').eq('child_id', editChildId),
-            supabase.from('child_passions').select('passion_id').eq('child_id', editChildId),
+          const [superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+            supabase.from('child_superpowers').select('superpower_id').eq('child_id', editChildId),
+            supabase.from('child_likes').select('like_id').eq('child_id', editChildId),
             supabase.from('child_challenges').select('challenge_id').eq('child_id', editChildId),
             supabase.from('child_universes').select('universe_id').eq('child_id', editChildId),
             supabase.from('child_discoveries').select('discovery_id').eq('child_id', editChildId),
           ]);
 
-          const superpowers = (traitsRes.data || []).map((t: any) => t.trait_id);
-          const passions = (passionsRes.data || []).map((p: any) => p.passion_id);
+          const superpowers = (superpowersRes.data || []).map((t: any) => t.superpower_id);
+          const passions = (likesRes.data || []).map((p: any) => p.like_id);
           const challenges = (challengesRes.data || []).map((c: any) => c.challenge_id);
           const favoriteWorlds = (universesRes.data || []).map((w: any) => w.universe_id);
           const discoveries = (discoveriesRes.data || []).map((d: any) => d.discovery_id);

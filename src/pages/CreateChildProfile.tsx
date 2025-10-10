@@ -7,7 +7,8 @@ import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
-
+import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
+import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 type CreateChildProfileProps = {
   isGiftMode?: boolean;
   familyCode?: string;
@@ -62,38 +63,88 @@ const CreateChildProfile = ({
 
         if (updateError) throw updateError;
         
-        // Mettre à jour les relations (traits, passions, challenges, etc.)
+        // Mettre à jour les relations (sélections multiples)
         // Supprimer puis réinsérer pour simplifier
-        await supabase.from('child_traits').delete().eq('child_id', editChildId);
-        await supabase.from('child_passions').delete().eq('child_id', editChildId);
-        await supabase.from('child_challenges').delete().eq('child_id', editChildId);
-        await supabase.from('child_universes').delete().eq('child_id', editChildId);
-        await supabase.from('child_discoveries').delete().eq('child_id', editChildId);
+        await Promise.all([
+          supabase.from('child_superpowers').delete().eq('child_id', editChildId),
+          supabase.from('child_likes').delete().eq('child_id', editChildId),
+          supabase.from('child_challenges').delete().eq('child_id', editChildId),
+          supabase.from('child_universes').delete().eq('child_id', editChildId),
+          supabase.from('child_discoveries').delete().eq('child_id', editChildId),
+        ]);
         
+        // Super-pouvoirs
         if (data.superpowers?.length) {
-          await supabase.from('child_traits').insert(
-            data.superpowers.map(t => ({ child_id: editChildId, trait_id: t }))
-          );
+          const { data: sp, error: spLookupError } = await supabase
+            .from('superpowers')
+            .select('id, value')
+            .in('value', data.superpowers);
+          if (!spLookupError && sp?.length) {
+            await supabase.from('child_superpowers').insert(
+              sp.map(s => ({ child_id: editChildId, superpower_id: s.id }))
+            );
+          }
         }
+        
+        // Ce que l'enfant aime (likes)
         if (data.passions?.length) {
-          await supabase.from('child_passions').insert(
-            data.passions.map(p => ({ child_id: editChildId, passion_id: p }))
-          );
+          const { data: likes, error: likesLookupError } = await supabase
+            .from('likes')
+            .select('id, value')
+            .in('value', data.passions);
+          if (!likesLookupError && likes?.length) {
+            await supabase.from('child_likes').insert(
+              likes.map(l => ({ child_id: editChildId, like_id: l.id }))
+            );
+          }
         }
+        
+        // Défis
         if (data.challenges?.length) {
-          await supabase.from('child_challenges').insert(
-            data.challenges.map(c => ({ child_id: editChildId, challenge_id: c }))
-          );
+          const challengeLabels = data.challenges.map(v => CHALLENGES_OPTIONS.find(o => o.value === v)?.label || v);
+          const { data: challenges, error: challengesLookupError } = await supabase
+            .from('challenges')
+            .select('id, label')
+            .in('label', challengeLabels);
+          if (!challengesLookupError && challenges?.length) {
+            await supabase.from('child_challenges').insert(
+              challenges.map(c => ({ child_id: editChildId, challenge_id: c.id }))
+            );
+          }
         }
+        
+        // Univers favoris (ignorer "Autre*")
         if (data.worlds?.favoriteWorlds?.length) {
-          await supabase.from('child_universes').insert(
-            data.worlds.favoriteWorlds.map(w => ({ child_id: editChildId, universe_id: w }))
-          );
+          const worldsToAdd = data.worlds.favoriteWorlds.filter(w => !String(w).startsWith('other'));
+          if (worldsToAdd.length) {
+            const labels = worldsToAdd.map(v => FAVORITE_WORLDS_OPTIONS.find(o => o.value === v)?.label || String(v));
+            const { data: universes, error: universesLookupError } = await supabase
+              .from('universes')
+              .select('id, label')
+              .in('label', labels);
+            if (!universesLookupError && universes?.length) {
+              await supabase.from('child_universes').insert(
+                universes.map(u => ({ child_id: editChildId, universe_id: u.id }))
+              );
+            }
+          }
         }
+        
+        // Découvertes (ignorer "Autre*" et "nothing")
         if (data.worlds?.discoveries?.length) {
-          await supabase.from('child_discoveries').insert(
-            data.worlds.discoveries.map(d => ({ child_id: editChildId, discovery_id: d }))
-          );
+          const discoveriesToAdd = data.worlds.discoveries.filter(d => !String(d).startsWith('other') && d !== 'nothing');
+          if (discoveriesToAdd.length) {
+            const labels = discoveriesToAdd.map(v => DISCOVERY_OPTIONS.find(o => o.value === v)?.label || String(v));
+            const { data: discoveries, error: discoveriesLookupError } = await supabase
+              .from('discoveries')
+              .select('id, label')
+              .in('label', labels);
+            if (!discoveriesLookupError && discoveries?.length) {
+              await supabase.from('child_discoveries').insert(
+                discoveries.map(d => ({ child_id: editChildId, discovery_id: d.id }))
+              );
+            }
+          }
         }
 
         toast.success("Profil modifié avec succès !");
