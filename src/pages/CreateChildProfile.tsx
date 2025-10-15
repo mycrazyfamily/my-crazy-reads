@@ -72,45 +72,50 @@ const CreateChildProfile = ({
           supabase.from('child_universes').delete().eq('child_id', editChildId),
           supabase.from('child_discoveries').delete().eq('child_id', editChildId),
         ]);
-        
-        // Super-pouvoirs
-        if (data.superpowers?.length) {
+
+        // Utils de nettoyage
+        const uniq = <T,>(arr: T[]) => Array.from(new Set((arr || []).filter(Boolean)));
+        const top3 = (arr: string[]) => uniq(arr).slice(0, 3);
+
+        // Super-pouvoirs (max 3)
+        const selectedSP = top3(data.superpowers || []);
+        if (selectedSP.length) {
           const { data: sp, error: spLookupError } = await supabase
             .from('superpowers')
             .select('id, value')
-            .in('value', data.superpowers);
+            .in('value', selectedSP);
           if (!spLookupError && sp?.length) {
             await supabase.from('child_superpowers').insert(
               sp.map(s => ({ child_id: editChildId, superpower_id: s.id }))
             );
           }
         }
-        
-        // Ce que l'enfant aime (likes)
-        if (data.passions?.length) {
+
+        // Ce que l'enfant aime (likes) (max 3)
+        const selectedLikes = top3(data.passions || []);
+        if (selectedLikes.length) {
           const { data: likes, error: likesLookupError } = await supabase
             .from('likes')
             .select('id, value')
-            .in('value', data.passions);
+            .in('value', selectedLikes);
           if (!likesLookupError && likes?.length) {
             await supabase.from('child_likes').insert(
               likes.map(l => ({ child_id: editChildId, like_id: l.id }))
             );
           }
         }
-        
-        // Défis (map value to label for DB lookup)
-        if (data.challenges?.length) {
-          const challengeLabels = data.challenges
+
+        // Défis (max 3) (map value to label for DB lookup)
+        const selectedChallenges = top3(data.challenges || []);
+        if (selectedChallenges.length) {
+          const challengeLabels = selectedChallenges
             .map(v => CHALLENGES_OPTIONS.find(o => o.value === v)?.label)
             .filter(Boolean) as string[];
-          
           if (challengeLabels.length) {
             const { data: challenges, error: challengesLookupError } = await supabase
               .from('challenges')
               .select('id, label')
               .in('label', challengeLabels);
-            
             if (!challengesLookupError && challenges?.length) {
               await supabase.from('child_challenges').insert(
                 challenges.map(c => ({ child_id: editChildId, challenge_id: c.id }))
@@ -118,38 +123,35 @@ const CreateChildProfile = ({
             }
           }
         }
-        
-        // Univers favoris (ignorer "Autre*")
-        if (data.worlds?.favoriteWorlds?.length) {
-          const worldsToAdd = data.worlds.favoriteWorlds.filter(w => !String(w).startsWith('other'));
-          if (worldsToAdd.length) {
-            const labels = worldsToAdd.map(v => FAVORITE_WORLDS_OPTIONS.find(o => o.value === v)?.label || String(v));
-            const { data: universes, error: universesLookupError } = await supabase
-              .from('universes')
-              .select('id, label')
-              .in('label', labels);
-            if (!universesLookupError && universes?.length) {
-              await supabase.from('child_universes').insert(
-                universes.map(u => ({ child_id: editChildId, universe_id: u.id }))
-              );
-            }
+
+        // Univers favoris (max 3) (ignorer "Autre*")
+        const worldsRaw = (data.worlds?.favoriteWorlds || []).filter(w => !String(w).startsWith('other'));
+        const selectedWorlds = top3(worldsRaw.map(v => String(v)));
+        if (selectedWorlds.length) {
+          const labels = selectedWorlds.map(v => FAVORITE_WORLDS_OPTIONS.find(o => o.value === v)?.label || String(v));
+          const { data: universes, error: universesLookupError } = await supabase
+            .from('universes')
+            .select('id, label')
+            .in('label', labels);
+          if (!universesLookupError && universes?.length) {
+            await supabase.from('child_universes').insert(
+              universes.map(u => ({ child_id: editChildId, universe_id: u.id }))
+            );
           }
         }
-        
-        // Découvertes (ignorer "Autre*" et "nothing")
-        if (data.worlds?.discoveries?.length) {
-          const discoveriesToAdd = data.worlds.discoveries.filter(d => !String(d).startsWith('other') && d !== 'nothing');
-          if (discoveriesToAdd.length) {
-            const labels = discoveriesToAdd.map(v => DISCOVERY_OPTIONS.find(o => o.value === v)?.label || String(v));
-            const { data: discoveries, error: discoveriesLookupError } = await supabase
-              .from('discoveries')
-              .select('id, label')
-              .in('label', labels);
-            if (!discoveriesLookupError && discoveries?.length) {
-              await supabase.from('child_discoveries').insert(
-                discoveries.map(d => ({ child_id: editChildId, discovery_id: d.id }))
-              );
-            }
+
+        // Découvertes (ignorer "Autre*" et "nothing") - déduplication simple
+        const discoveriesToAdd = uniq((data.worlds?.discoveries || []).filter(d => !String(d).startsWith('other') && d !== 'nothing').map(d => String(d)));
+        if (discoveriesToAdd.length) {
+          const labels = discoveriesToAdd.map(v => DISCOVERY_OPTIONS.find(o => o.value === v)?.label || String(v));
+          const { data: discoveries, error: discoveriesLookupError } = await supabase
+            .from('discoveries')
+            .select('id, label')
+            .in('label', labels);
+          if (!discoveriesLookupError && discoveries?.length) {
+            await supabase.from('child_discoveries').insert(
+              discoveries.map(d => ({ child_id: editChildId, discovery_id: d.id }))
+            );
           }
         }
 

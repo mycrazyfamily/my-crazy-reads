@@ -181,11 +181,14 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             })(),
           ]);
 
-          const superpowers = spVals;
-          const passions = likeVals;
-          const challenges = chalVals;
-          const favoriteWorlds = uniVals;
-          const discoveries = discVals;
+          const uniq = <T,>(arr: T[]) => Array.from(new Set(arr.filter(Boolean)));
+          const limit = (arr: string[], max: number) => uniq(arr).slice(0, max);
+
+          const superpowers = limit(spVals, 3);
+          const passions = limit(likeVals, 3);
+          const challenges = limit(chalVals, 3);
+          const favoriteWorlds = limit(uniVals, 3);
+          const discoveries = uniq(discVals);
 
           // Mapper le surnom depuis la colonne text nickname
           const mapNickname = (raw: string | null | undefined) => {
