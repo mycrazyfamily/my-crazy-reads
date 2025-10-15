@@ -60,7 +60,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
               ) : (
                 <Dog className="h-4 w-4 text-mcf-orange" />
               )}
-              <span>{child.hasPets} animal{child.hasPets > 1 ? 'aux' : ''}</span>
+              <span>{child.hasPets} anim{child.hasPets > 1 ? 'aux' : 'al'}</span>
             </div>
           )}
           
