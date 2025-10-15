@@ -108,7 +108,9 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
 
   useEffect(() => {
     const loadEditData = async () => {
+      console.log('🔍 loadEditData called with:', { editMode, editChildId });
       if (editMode && editChildId) {
+        console.log('✅ Loading data for child:', editChildId);
         try {
           const { supabase } = await import('@/integrations/supabase/client');
           
