@@ -128,12 +128,13 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           }
 
           // Charger les relations (IDs) en parallèle
-          const [superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+          const [superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes, comfortersRes] = await Promise.all([
             supabase.from('child_superpowers').select('superpower_id').eq('child_id', editChildId),
             supabase.from('child_likes').select('like_id').eq('child_id', editChildId),
             supabase.from('child_challenges').select('challenge_id').eq('child_id', editChildId),
             supabase.from('child_universes').select('universe_id').eq('child_id', editChildId),
             supabase.from('child_discoveries').select('discovery_id').eq('child_id', editChildId),
+            supabase.from('child_comforters').select('*').eq('child_id', editChildId),
           ]);
 
           // Récupérer les valeurs/labels correspondants
@@ -190,6 +191,17 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           const favoriteWorlds = limit(uniVals, 3);
           const discoveries = limit(discVals, 3);
 
+          // Charger les comforters (doudous)
+          const comfortersData = (comfortersRes.data || []).map((c: any) => ({
+            id: c.comforter_id || c.id,
+            name: c.name || '',
+            type: c.relation_label || 'plush',
+            appearance: c.appearance || '',
+            roles: c.roles ? c.roles.split(',') : [],
+          }));
+          
+          const hasToys = comfortersData.length > 0;
+
           // Mapper le surnom depuis la colonne text nickname
           const mapNickname = (raw: string | null | undefined) => {
             const preset = ['petitChou', 'tresor', 'boubou', 'none'];
@@ -223,7 +235,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             },
             family: { selectedRelatives: [], relatives: [], existingRelativeIds: [], existingRelativesData: [] },
             pets: { hasPets: childProfile.has_pet, pets: [] },
-            toys: { hasToys: false, toys: [] }
+            toys: { hasToys, toys: comfortersData }
           };
 
           form.reset(formData);
