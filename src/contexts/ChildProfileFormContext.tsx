@@ -188,7 +188,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           const passions = limit(likeVals, 3);
           const challenges = limit(chalVals, 3);
           const favoriteWorlds = limit(uniVals, 3);
-          const discoveries = uniq(discVals);
+          const discoveries = limit(discVals, 3);
 
           // Mapper le surnom depuis la colonne text nickname
           const mapNickname = (raw: string | null | undefined) => {
