@@ -179,18 +179,28 @@ const CreateChildProfile = ({
 
         // Gérer les doudous (comforters) - mise à jour du statut isActive
         if (data.toys?.toys && data.toys.toys.length > 0) {
+          console.log('🧸 Updating comforters:', data.toys.toys);
           // Pour chaque doudou dans le formulaire
           for (const toy of data.toys.toys) {
+            console.log(`Processing toy: ${toy.name}, comforterId: ${toy.comforterId}, isActive: ${toy.isActive}`);
             if (toy.comforterId) {
               // Si le doudou existe déjà en base, mettre à jour son statut isActive
-              const { error: updateComforterError } = await supabase
+              const { data: updateResult, error: updateComforterError } = await supabase
                 .from('comforters')
-                .update({ is_active: toy.isActive !== false })
-                .eq('id', toy.comforterId);
+                .update({ 
+                  is_active: toy.isActive !== false,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', toy.comforterId)
+                .select();
               
               if (updateComforterError) {
-                console.error('Error updating comforter:', updateComforterError);
+                console.error('❌ Error updating comforter:', updateComforterError);
+              } else {
+                console.log(`✅ Updated comforter ${toy.name}:`, updateResult);
               }
+            } else {
+              console.warn(`⚠️ No comforterId for toy: ${toy.name}`);
             }
           }
         }

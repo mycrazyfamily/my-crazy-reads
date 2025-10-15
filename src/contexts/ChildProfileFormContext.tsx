@@ -192,15 +192,20 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           const discoveries = limit(discVals, 3);
 
           // Charger les comforters (doudous)
-          const comfortersData = (comfortersRes.data || []).map((c: any) => ({
-            id: c.id,
-            name: c.name || '',
-            type: c.relation_label || 'plush',
-            appearance: c.appearance || '',
-            roles: c.roles ? c.roles.split(',') : [],
-            isActive: c.comforters?.is_active !== false, // Charger le statut actif depuis la table comforters
-            comforterId: c.comforter_id || undefined // Stocker l'ID du comforter pour la mise à jour
-          }));
+          console.log('🧸 Raw comforters data from DB:', comfortersRes.data);
+          const comfortersData = (comfortersRes.data || []).map((c: any) => {
+            console.log(`Mapping comforter: name=${c.name}, comforter_id=${c.comforter_id}, is_active=${c.comforters?.is_active}`);
+            return {
+              id: c.id,
+              name: c.name || '',
+              type: c.relation_label || 'plush',
+              appearance: c.appearance || '',
+              roles: c.roles ? c.roles.split(',') : [],
+              isActive: c.comforters?.is_active !== false, // Charger le statut actif depuis la table comforters
+              comforterId: c.comforter_id // Stocker l'ID du comforter pour la mise à jour
+            };
+          });
+          console.log('🧸 Mapped comfortersData:', comfortersData);
           
           const hasToys = comfortersData.length > 0;
 
