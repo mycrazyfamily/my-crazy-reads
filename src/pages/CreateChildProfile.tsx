@@ -99,17 +99,23 @@ const CreateChildProfile = ({
           }
         }
         
-        // Défis
+        // Défis (map value to label for DB lookup)
         if (data.challenges?.length) {
-          const challengeLabels = data.challenges.map(v => CHALLENGES_OPTIONS.find(o => o.value === v)?.label || v);
-          const { data: challenges, error: challengesLookupError } = await supabase
-            .from('challenges')
-            .select('id, label')
-            .in('label', challengeLabels);
-          if (!challengesLookupError && challenges?.length) {
-            await supabase.from('child_challenges').insert(
-              challenges.map(c => ({ child_id: editChildId, challenge_id: c.id }))
-            );
+          const challengeLabels = data.challenges
+            .map(v => CHALLENGES_OPTIONS.find(o => o.value === v)?.label)
+            .filter(Boolean) as string[];
+          
+          if (challengeLabels.length) {
+            const { data: challenges, error: challengesLookupError } = await supabase
+              .from('challenges')
+              .select('id, label')
+              .in('label', challengeLabels);
+            
+            if (!challengesLookupError && challenges?.length) {
+              await supabase.from('child_challenges').insert(
+                challenges.map(c => ({ child_id: editChildId, challenge_id: c.id }))
+              );
+            }
           }
         }
         

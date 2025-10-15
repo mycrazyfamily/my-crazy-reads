@@ -98,13 +98,30 @@ const ModifierProche: React.FC = () => {
         if (typeof details === 'string') {
           try { details = JSON.parse(details); } catch { details = {}; }
         }
+        console.log('Loaded relative details:', details);
 
         // Pré-remplir les champs basiques (avec compatibilité pour anciens enregistrements)
         setGender(details.gender || 'male');
         setAge(details.age || '');
+        
+        // birthDate: support multiple formats
         const birthDateRaw = details.birthDate ?? details.birthdate ?? details.birth_date ?? null;
-        setBirthDate(birthDateRaw ? new Date(birthDateRaw) : undefined);
-        setJob(details.job ?? details.profession ?? details.occupation ?? '');
+        console.log('birthDateRaw from details:', birthDateRaw);
+        if (birthDateRaw) {
+          try {
+            setBirthDate(new Date(birthDateRaw));
+          } catch {
+            console.error('Failed to parse birthDate:', birthDateRaw);
+            setBirthDate(undefined);
+          }
+        } else {
+          setBirthDate(undefined);
+        }
+        
+        // job: support multiple aliases
+        const jobValue = details.job ?? details.profession ?? details.occupation ?? '';
+        console.log('job from details:', jobValue);
+        setJob(jobValue);
         setOtherTypeName(details.otherTypeName || undefined);
 
         // Pré-remplir le surnom
@@ -185,23 +202,26 @@ const ModifierProche: React.FC = () => {
     setSaving(true);
     try {
       // Mettre à jour dans family_members
+      const detailsPayload = {
+        nickname: { type: selectedNickname, custom: nicknameCustomValue },
+        skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
+        hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
+        hairType: hairType,
+        hairTypeCustom,
+        glasses,
+        traits,
+        customTraits,
+        age,
+        birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
+        job: job || null,
+        gender,
+        otherTypeName: otherTypeName || null
+      };
+
       const updatePayload: any = {
         name: firstName,
         role: type,
-        details: {
-          nickname: { type: selectedNickname, custom: nicknameCustomValue },
-          skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
-          hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
-          hairType: hairType,
-          hairTypeCustom,
-          glasses,
-          traits,
-          customTraits,
-          age,
-          birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
-          job,
-          gender
-        }
+        details: detailsPayload
       };
 
       const { error } = await supabase

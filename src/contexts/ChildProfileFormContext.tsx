@@ -140,19 +140,30 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
               const ids = (superpowersRes.data || []).map((r: any) => r.superpower_id).filter(Boolean);
               if (!ids.length) return [] as string[];
               const { data } = await supabase.from('superpowers').select('id, value').in('id', ids);
+              console.log('Loaded superpowers:', data);
               return (data || []).map((x: any) => x.value);
             })(),
             (async () => {
               const ids = (likesRes.data || []).map((r: any) => r.like_id).filter(Boolean);
               if (!ids.length) return [] as string[];
               const { data } = await supabase.from('likes').select('id, value').in('id', ids);
+              console.log('Loaded likes:', data);
               return (data || []).map((x: any) => x.value);
             })(),
             (async () => {
               const ids = (challengesRes.data || []).map((r: any) => r.challenge_id).filter(Boolean);
+              console.log('Challenge IDs from child_challenges:', ids);
               if (!ids.length) return [] as string[];
               const { data } = await supabase.from('challenges').select('id, label').in('id', ids);
-              return (data || []).map((x: any) => CHALLENGES_OPTIONS.find(o => o.label === x.label)?.value || x.label);
+              console.log('Loaded challenges from DB:', data);
+              // Map label from DB to value in form options
+              const mapped = (data || []).map((x: any) => {
+                const option = CHALLENGES_OPTIONS.find(o => o.label === x.label);
+                console.log(`Mapping challenge "${x.label}" to value "${option?.value}"`);
+                return option ? option.value : x.label;
+              });
+              console.log('Final challenges values:', mapped);
+              return mapped;
             })(),
             (async () => {
               const ids = (universesRes.data || []).map((r: any) => r.universe_id).filter(Boolean);
