@@ -181,13 +181,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         const childId = childProfile.id;
         
-        // 4. Ajouter les superpowers
+        // 4. Ajouter les superpowers (max 3)
         if (data.superpowers && data.superpowers.length > 0) {
+          const limitedSuperpowers = Array.from(new Set(data.superpowers)).slice(0, 3);
           // Récupérer les UUIDs des superpowers depuis la table superpowers par value
           const { data: superpowers, error: superpowersLookupError } = await supabase
             .from('superpowers')
             .select('id, value')
-            .in('value', data.superpowers);
+            .in('value', limitedSuperpowers);
           
           if (superpowersLookupError) {
             console.error('Error looking up superpowers:', superpowersLookupError);
@@ -209,13 +210,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         // 5. Ajouter les traits (anciens superpowers)
         // DEPRECATED: Cette section est conservée pour rétrocompatibilité mais n'est plus utilisée
         
-        // 6. Ajouter les likes ("ce qu'aime le plus")
+        // 6. Ajouter les likes ("ce qu'aime le plus") (max 3)
         if (data.passions && data.passions.length > 0) {
+          const limitedPassions = Array.from(new Set(data.passions)).slice(0, 3);
           // Récupérer les UUIDs des likes depuis la table likes par value
           const { data: likes, error: likesLookupError } = await supabase
             .from('likes')
             .select('id, value')
-            .in('value', data.passions);
+            .in('value', limitedPassions);
           
           if (likesLookupError) {
             console.error('Error looking up likes:', likesLookupError);
@@ -237,10 +239,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         // 7. Ajouter les passions (DEPRECATED - conservé pour compatibilité)
         // Cette section n'est plus utilisée mais gardée au cas où
         
-        // 8. Ajouter les challenges
+        // 8. Ajouter les challenges (max 3)
         if (data.challenges && data.challenges.length > 0) {
+          const limitedChallenges = Array.from(new Set(data.challenges)).slice(0, 3);
           // Convertir les values en labels
-          const challengeLabels = convertValuesToLabels(data.challenges, CHALLENGES_OPTIONS);
+          const challengeLabels = convertValuesToLabels(limitedChallenges, CHALLENGES_OPTIONS);
           console.log('Looking up challenges with labels:', challengeLabels);
           
           // Récupérer les UUIDs des challenges depuis la table challenges
@@ -266,9 +269,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 7. Ajouter les univers favoris (filtrer les "other")
+        // 7. Ajouter les univers favoris (filtrer les "other", max 3)
         if (data.worlds?.favoriteWorlds && data.worlds.favoriteWorlds.length > 0) {
-          const worldsToAdd = data.worlds.favoriteWorlds.filter(w => !w.startsWith('other'));
+          const worldsToAdd = Array.from(new Set(data.worlds.favoriteWorlds.filter(w => !w.startsWith('other')))).slice(0, 3);
           if (worldsToAdd.length > 0) {
             // Convertir les values en labels
             const worldLabels = convertValuesToLabels(worldsToAdd, FAVORITE_WORLDS_OPTIONS);
@@ -298,9 +301,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
-        // 8. Ajouter les découvertes (filtrer les "other")
+        // 8. Ajouter les découvertes (filtrer les "other", max 3)
         if (data.worlds?.discoveries && data.worlds.discoveries.length > 0) {
-          const discoveriesToAdd = data.worlds.discoveries.filter(d => !d.startsWith('other') && d !== 'nothing');
+          const discoveriesToAdd = Array.from(new Set(data.worlds.discoveries.filter(d => !d.startsWith('other') && d !== 'nothing'))).slice(0, 3);
           if (discoveriesToAdd.length > 0) {
             // Convertir les values en labels
             const discoveryLabels = convertValuesToLabels(discoveriesToAdd, DISCOVERY_OPTIONS);
