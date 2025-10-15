@@ -72,15 +72,20 @@ const CreateChildProfile = ({
         if (updateError) throw updateError;
         
         // Mettre à jour les relations (sélections multiples)
-        // Supprimer puis réinsérer pour simplifier
-        await Promise.all([
+        // Supprimer puis réinsérer pour simplifier (et vérifier les erreurs RLS)
+        const deleteResults = await Promise.all([
           supabase.from('child_superpowers').delete().eq('child_id', editChildId),
           supabase.from('child_likes').delete().eq('child_id', editChildId),
           supabase.from('child_challenges').delete().eq('child_id', editChildId),
           supabase.from('child_universes').delete().eq('child_id', editChildId),
           supabase.from('child_discoveries').delete().eq('child_id', editChildId),
-        ]);
+        ] as const);
 
+        const deleteErrors = deleteResults.map(r => r.error).filter(Boolean);
+        if (deleteErrors.length) {
+          console.error('❌ Pivot delete errors:', deleteErrors);
+          throw deleteErrors[0];
+        }
         // Utils de nettoyage
         const uniq = <T,>(arr: T[]) => Array.from(new Set((arr || []).filter(Boolean)));
         const top3 = (arr: string[]) => uniq(arr).slice(0, 3);
