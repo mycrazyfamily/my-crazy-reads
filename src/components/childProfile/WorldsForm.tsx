@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,68 +18,29 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   
-  // États pour les sélections
-  const [favoriteWorlds, setFavoriteWorlds] = useState<FavoriteWorldType[]>(
-    form.getValues("worlds.favoriteWorlds") || []
-  );
-  const [discoveries, setDiscoveries] = useState<DiscoveryType[]>(
-    form.getValues("worlds.discoveries") || []
-  );
-  
-  // États pour les champs personnalisés
-  const [customWorld1, setCustomWorld1] = useState(
-    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds").other1 || ''
-  );
-  const [customWorld2, setCustomWorld2] = useState(
-    form.getValues("worlds.customWorlds") && form.getValues("worlds.customWorlds").other2 || ''
-  );
-  const [customDiscovery1, setCustomDiscovery1] = useState(
-    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries").other1 || ''
-  );
-  const [customDiscovery2, setCustomDiscovery2] = useState(
-    form.getValues("worlds.customDiscoveries") && form.getValues("worlds.customDiscoveries").other2 || ''
-  );
-
-  // Met à jour le formulaire quand les états locaux changent
-  useEffect(() => {
-    form.setValue("worlds.favoriteWorlds", favoriteWorlds, { shouldDirty: true });
-    
-    // Mise à jour des champs personnalisés pour les univers
-    if (favoriteWorlds.includes("other1") || favoriteWorlds.includes("other2")) {
-      const customWorlds = {
-        ...(favoriteWorlds.includes("other1") ? { other1: customWorld1 } : {}),
-        ...(favoriteWorlds.includes("other2") ? { other2: customWorld2 } : {})
-      };
-      form.setValue("worlds.customWorlds", customWorlds, { shouldDirty: true });
-    } else {
-      form.setValue("worlds.customWorlds", undefined, { shouldDirty: true });
-    }
-  }, [favoriteWorlds, customWorld1, customWorld2, form]);
-
-  useEffect(() => {
-    form.setValue("worlds.discoveries", discoveries, { shouldDirty: true });
-    
-    // Mise à jour des champs personnalisés pour les découvertes
-    if (discoveries.includes("other1") || discoveries.includes("other2")) {
-      const customDiscoveries = {
-        ...(discoveries.includes("other1") ? { other1: customDiscovery1 } : {}),
-        ...(discoveries.includes("other2") ? { other2: customDiscovery2 } : {})
-      };
-      form.setValue("worlds.customDiscoveries", customDiscoveries, { shouldDirty: true });
-    } else {
-      form.setValue("worlds.customDiscoveries", undefined, { shouldDirty: true });
-    }
-  }, [discoveries, customDiscovery1, customDiscovery2, form]);
+  // Lecture directe depuis react-hook-form (pas d'état local)
+  const favoriteWorlds = form.watch("worlds.favoriteWorlds") || [];
+  const discoveries = form.watch("worlds.discoveries") || [];
+  const customWorlds = form.watch("worlds.customWorlds") || {};
+  const customDiscoveries = form.watch("worlds.customDiscoveries") || {};
 
   // Gère la sélection/désélection d'un univers préféré
   const handleFavoriteWorldToggle = (world: FavoriteWorldType) => {
-    if (favoriteWorlds.includes(world)) {
-      // Si déjà sélectionné, on le retire
-      setFavoriteWorlds(prev => prev.filter(w => w !== world));
+    const current = [...favoriteWorlds];
+    if (current.includes(world)) {
+      // Retirer
+      const updated = current.filter(w => w !== world);
+      form.setValue("worlds.favoriteWorlds", updated, { shouldDirty: true });
+      // Nettoyer le customWorld si on retire other1/other2
+      if (world === "other1" || world === "other2") {
+        const updatedCustom = { ...customWorlds };
+        delete updatedCustom[world];
+        form.setValue("worlds.customWorlds", Object.keys(updatedCustom).length ? updatedCustom : undefined, { shouldDirty: true });
+      }
     } else {
-      // Si pas encore sélectionné et qu'on n'a pas atteint la limite
-      if (favoriteWorlds.length < 3) {
-        setFavoriteWorlds(prev => [...prev, world]);
+      // Ajouter (max 3)
+      if (current.length < 3) {
+        form.setValue("worlds.favoriteWorlds", [...current, world], { shouldDirty: true });
       } else {
         toast.error("Vous pouvez sélectionner au maximum 3 univers préférés.");
       }
@@ -88,13 +49,21 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 
   // Gère la sélection/désélection d'une découverte
   const handleDiscoveryToggle = (discovery: DiscoveryType) => {
-    if (discoveries.includes(discovery)) {
-      // Si déjà sélectionné, on le retire
-      setDiscoveries(prev => prev.filter(d => d !== discovery));
+    const current = [...discoveries];
+    if (current.includes(discovery)) {
+      // Retirer
+      const updated = current.filter(d => d !== discovery);
+      form.setValue("worlds.discoveries", updated, { shouldDirty: true });
+      // Nettoyer le customDiscovery si on retire other1/other2
+      if (discovery === "other1" || discovery === "other2") {
+        const updatedCustom = { ...customDiscoveries };
+        delete updatedCustom[discovery];
+        form.setValue("worlds.customDiscoveries", Object.keys(updatedCustom).length ? updatedCustom : undefined, { shouldDirty: true });
+      }
     } else {
-      // Si pas encore sélectionné et qu'on n'a pas atteint la limite
-      if (discoveries.length < 3) {
-        setDiscoveries(prev => [...prev, discovery]);
+      // Ajouter (max 3)
+      if (current.length < 3) {
+        form.setValue("worlds.discoveries", [...current, discovery], { shouldDirty: true });
       } else {
         toast.error("Vous pouvez sélectionner au maximum 3 types de découvertes.");
       }
@@ -103,36 +72,30 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 
   // Gère les changements dans les champs de texte personnalisés
   const handleCustomWorldChange = (value: string, fieldNumber: 1 | 2) => {
-    if (fieldNumber === 1) {
-      setCustomWorld1(value);
-    } else {
-      setCustomWorld2(value);
-    }
+    const key = fieldNumber === 1 ? "other1" : "other2";
+    form.setValue(`worlds.customWorlds.${key}`, value, { shouldDirty: true });
   };
 
   const handleCustomDiscoveryChange = (value: string, fieldNumber: 1 | 2) => {
-    if (fieldNumber === 1) {
-      setCustomDiscovery1(value);
-    } else {
-      setCustomDiscovery2(value);
-    }
+    const key = fieldNumber === 1 ? "other1" : "other2";
+    form.setValue(`worlds.customDiscoveries.${key}`, value, { shouldDirty: true });
   };
 
   const handleSubmit = () => {
     // Validation des champs personnalisés si nécessaire
-    if (favoriteWorlds.includes("other1") && !customWorld1) {
+    if (favoriteWorlds.includes("other1" as FavoriteWorldType) && !customWorlds?.other1) {
       toast.error("Veuillez préciser l'univers personnalisé 1");
       return;
     }
-    if (favoriteWorlds.includes("other2") && !customWorld2) {
+    if (favoriteWorlds.includes("other2" as FavoriteWorldType) && !customWorlds?.other2) {
       toast.error("Veuillez préciser l'univers personnalisé 2");
       return;
     }
-    if (discoveries.includes("other1") && !customDiscovery1) {
+    if (discoveries.includes("other1" as DiscoveryType) && !customDiscoveries?.other1) {
       toast.error("Veuillez préciser la découverte personnalisée 1");
       return;
     }
-    if (discoveries.includes("other2") && !customDiscovery2) {
+    if (discoveries.includes("other2" as DiscoveryType) && !customDiscoveries?.other2) {
       toast.error("Veuillez préciser la découverte personnalisée 2");
       return;
     }
@@ -193,14 +156,14 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           
           {/* Champs personnalisés pour les univers */}
           <div className="space-y-3 mt-3">
-            {favoriteWorlds.includes("other1") && (
+            {favoriteWorlds.includes("other1" as FavoriteWorldType) && (
               <div>
                 <Label htmlFor="custom-world-1" className="text-sm font-medium">
                   Autre univers (1):
                 </Label>
                 <Input
                   id="custom-world-1"
-                  value={customWorld1}
+                  value={customWorlds?.other1 || ''}
                   onChange={(e) => handleCustomWorldChange(e.target.value, 1)}
                   placeholder="Précisez l'univers"
                   className="mt-1"
@@ -208,14 +171,14 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
               </div>
             )}
             
-            {favoriteWorlds.includes("other2") && (
+            {favoriteWorlds.includes("other2" as FavoriteWorldType) && (
               <div>
                 <Label htmlFor="custom-world-2" className="text-sm font-medium">
                   Autre univers (2):
                 </Label>
                 <Input
                   id="custom-world-2"
-                  value={customWorld2}
+                  value={customWorlds?.other2 || ''}
                   onChange={(e) => handleCustomWorldChange(e.target.value, 2)}
                   placeholder="Précisez l'univers"
                   className="mt-1"
@@ -270,14 +233,14 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           
           {/* Champs personnalisés pour les découvertes */}
           <div className="space-y-3 mt-3">
-            {discoveries.includes("other1") && (
+            {discoveries.includes("other1" as DiscoveryType) && (
               <div>
                 <Label htmlFor="custom-discovery-1" className="text-sm font-medium">
                   Autre découverte (1):
                 </Label>
                 <Input
                   id="custom-discovery-1"
-                  value={customDiscovery1}
+                  value={customDiscoveries?.other1 || ''}
                   onChange={(e) => handleCustomDiscoveryChange(e.target.value, 1)}
                   placeholder="Précisez le type de découverte"
                   className="mt-1"
@@ -285,14 +248,14 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
               </div>
             )}
             
-            {discoveries.includes("other2") && (
+            {discoveries.includes("other2" as DiscoveryType) && (
               <div>
                 <Label htmlFor="custom-discovery-2" className="text-sm font-medium">
                   Autre découverte (2):
                 </Label>
                 <Input
                   id="custom-discovery-2"
-                  value={customDiscovery2}
+                  value={customDiscoveries?.other2 || ''}
                   onChange={(e) => handleCustomDiscoveryChange(e.target.value, 2)}
                   placeholder="Précisez le type de découverte"
                   className="mt-1"
