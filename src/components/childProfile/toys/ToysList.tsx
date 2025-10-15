@@ -4,6 +4,7 @@ import type { ToyData } from '@/types/childProfile';
 import { toyTypeOptions, toyRoleOptions } from '@/constants/toyOptions';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Pencil, Archive, ArchiveRestore } from "lucide-react";
 
 type ToysListProps = {
@@ -80,18 +81,26 @@ const ToysList: React.FC<ToysListProps> = ({ toys, onEditToy, onDeleteToy, onTog
             <span className="sr-only">Modifier</span>
           </Button>
           {onToggleActive && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => onToggleActive(toy.id)}
-              className="h-8 w-8 p-0 text-gray-500 hover:text-amber-600"
-              title={isInactive ? "Marquer comme utilisé" : "Marquer comme perdu/non utilisé"}
-            >
-              {isInactive ? <ArchiveRestore size={16} /> : <Archive size={16} />}
-              <span className="sr-only">
-                {isInactive ? "Marquer comme utilisé" : "Marquer comme perdu"}
-              </span>
-            </Button>
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onToggleActive(toy.id)}
+                    className="h-8 w-8 p-0 text-gray-500 hover:text-amber-600"
+                  >
+                    {isInactive ? <ArchiveRestore size={16} /> : <Archive size={16} />}
+                    <span className="sr-only">
+                      {isInactive ? "Marquer comme utilisé" : "Marquer comme perdu"}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isInactive ? "Marquer comme utilisé" : "Marquer comme perdu/non utilisé"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>
