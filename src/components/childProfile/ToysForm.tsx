@@ -30,12 +30,14 @@ const ToysForm: React.FC<ToysFormProps> = ({
 
   const handleHasToysChange = (value: string) => {
     const hasToysValue = value === "true";
-    form.setValue("toys.hasToys", hasToysValue, { shouldDirty: true });
     
-    // Si "Non" est sélectionné, réinitialiser la liste des doudous
-    if (!hasToysValue) {
-      form.setValue("toys.toys", [], { shouldDirty: true });
+    // Empêcher de sélectionner "Non" s'il y a des doudous
+    if (!hasToysValue && toys.length > 0) {
+      toast.error("Veuillez d'abord supprimer tous les doudous avant de sélectionner 'Non'");
+      return;
     }
+    
+    form.setValue("toys.hasToys", hasToysValue, { shouldDirty: true });
   };
 
   const handleAddToy = () => {
@@ -113,10 +115,25 @@ const ToysForm: React.FC<ToysFormProps> = ({
               </div>
               
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="false" id="has-toys-no" />
-                <Label htmlFor="has-toys-no" className="cursor-pointer">Non</Label>
+                <RadioGroupItem 
+                  value="false" 
+                  id="has-toys-no" 
+                  disabled={toys.length > 0}
+                  className={toys.length > 0 ? "opacity-50 cursor-not-allowed" : ""}
+                />
+                <Label 
+                  htmlFor="has-toys-no" 
+                  className={toys.length > 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                >
+                  Non
+                </Label>
               </div>
             </RadioGroup>
+            {toys.length > 0 && (
+              <p className="text-sm text-muted-foreground italic mt-2">
+                Supprimez d'abord tous les doudous pour pouvoir sélectionner "Non"
+              </p>
+            )}
           </div>
           
           {/* Section d'ajout de doudous (visible uniquement si "Oui" est sélectionné) */}
