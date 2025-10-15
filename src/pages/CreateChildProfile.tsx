@@ -33,7 +33,16 @@ const CreateChildProfile = ({
   const location = useLocation();
   const locationState = location.state as { targetStep?: number } | null;
   
+  // Protection contre la double soumission
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  
   const handleFormSubmit = async (data: ChildProfileFormData) => {
+    if (isSubmitting) {
+      console.log('⚠️ Submission already in progress, ignoring duplicate');
+      return;
+    }
+    
+    setIsSubmitting(true);
     if (editMode && editChildId) {
       // Mode édition : mettre à jour le profil existant dans child_profiles
       try {
@@ -173,10 +182,16 @@ const CreateChildProfile = ({
       } catch (error) {
         console.error('Error updating child profile:', error);
         toast.error("Erreur lors de la mise à jour");
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       // Mode création : utiliser la logique normale
-      await handleSubmit(data);
+      try {
+        await handleSubmit(data);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
   
