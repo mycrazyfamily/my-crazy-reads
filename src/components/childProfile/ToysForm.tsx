@@ -97,19 +97,14 @@ const ToysForm: React.FC<ToysFormProps> = ({
   };
 
   const handleToysSectionContinue = () => {
-    // Vérifier si tous les doudous sont marqués comme perdus
-    const activeToys = toys.filter(toy => toy.isActive !== false);
-    
-    if (hasToys && activeToys.length === 0 && toys.length > 0) {
-      toast.error("Tous les doudous sont marqués comme perdus. Ajoutez au moins un doudou actif ou sélectionnez \"Non\"");
-      return;
-    }
-    
+    // Si l'utilisateur a sélectionné "Oui" mais n'a ajouté aucun doudou (ni actif ni inactif)
     if (hasToys && toys.length === 0) {
       toast.error("Veuillez ajouter au moins un doudou ou objet magique, ou sélectionner \"Non\"");
       return;
     }
     
+    // Permettre la validation même si tous les doudous sont perdus
+    // Les doudous perdus restent sauvegardés et visibles
     handleNextStep();
   };
 
