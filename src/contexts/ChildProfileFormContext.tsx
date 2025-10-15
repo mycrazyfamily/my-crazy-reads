@@ -134,7 +134,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             supabase.from('child_challenges').select('challenge_id').eq('child_id', editChildId),
             supabase.from('child_universes').select('universe_id').eq('child_id', editChildId),
             supabase.from('child_discoveries').select('discovery_id').eq('child_id', editChildId),
-            supabase.from('child_comforters').select('*').eq('child_id', editChildId),
+            supabase.from('child_comforters').select('*, comforters(*)').eq('child_id', editChildId),
           ]);
 
           // Récupérer les valeurs/labels correspondants
@@ -193,11 +193,13 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
 
           // Charger les comforters (doudous)
           const comfortersData = (comfortersRes.data || []).map((c: any) => ({
-            id: c.comforter_id || c.id,
+            id: c.id,
             name: c.name || '',
             type: c.relation_label || 'plush',
             appearance: c.appearance || '',
             roles: c.roles ? c.roles.split(',') : [],
+            isActive: c.comforters?.is_active !== false, // Charger le statut actif depuis la table comforters
+            comforterId: c.comforter_id || undefined // Stocker l'ID du comforter pour la mise à jour
           }));
           
           const hasToys = comfortersData.length > 0;

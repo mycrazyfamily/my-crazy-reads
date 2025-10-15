@@ -487,37 +487,55 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         // 16. Sauvegarder les doudous dans comforters et child_comforters
         if (data.toys?.hasToys && data.toys?.toys && data.toys.toys.length > 0) {
           for (const toy of data.toys.toys) {
-            // Créer le doudou dans comforters
-            const { data: createdComforter, error: comforterError } = await supabase
-              .from('comforters')
-              .insert([{
-                label: toy.name,
-                emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨',
-                created_by: userId
-              }])
-              .select()
-              .maybeSingle();
+            // Si le doudou a déjà un comforterId, c'est un doudou existant à mettre à jour
+            if (toy.comforterId) {
+              // Mettre à jour le statut is_active du comforter existant
+              const { error: updateError } = await supabase
+                .from('comforters')
+                .update({
+                  is_active: toy.isActive !== false, // Par défaut actif si non spécifié
+                  label: toy.name,
+                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨'
+                })
+                .eq('id', toy.comforterId);
 
-            if (comforterError) {
-              console.error('Error creating comforter:', comforterError);
-              continue;
-            }
-
-            if (createdComforter) {
-              // Lier le doudou à l'enfant dans child_comforters
-              const { error: linkError } = await supabase
-                .from('child_comforters')
+              if (updateError) {
+                console.error('Error updating comforter:', updateError);
+              }
+            } else {
+              // Créer un nouveau doudou dans comforters
+              const { data: createdComforter, error: comforterError } = await supabase
+                .from('comforters')
                 .insert([{
-                  child_id: childId,
-                  comforter_id: createdComforter.id,
-                  name: toy.name,
-                  appearance: toy.type,
-                  roles: Array.isArray(toy.roles) ? toy.roles.join(', ') : toy.roles,
-                  relation_label: toy.type
-                }]);
+                  label: toy.name,
+                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨',
+                  created_by: userId,
+                  is_active: toy.isActive !== false // Par défaut actif si non spécifié
+                }])
+                .select()
+                .maybeSingle();
 
-              if (linkError) {
-                console.error('Error linking comforter to child:', linkError);
+              if (comforterError) {
+                console.error('Error creating comforter:', comforterError);
+                continue;
+              }
+
+              if (createdComforter) {
+                // Lier le doudou à l'enfant dans child_comforters
+                const { error: linkError } = await supabase
+                  .from('child_comforters')
+                  .insert([{
+                    child_id: childId,
+                    comforter_id: createdComforter.id,
+                    name: toy.name,
+                    appearance: toy.type,
+                    roles: Array.isArray(toy.roles) ? toy.roles.join(', ') : toy.roles,
+                    relation_label: toy.type
+                  }]);
+
+                if (linkError) {
+                  console.error('Error linking comforter to child:', linkError);
+                }
               }
             }
           }

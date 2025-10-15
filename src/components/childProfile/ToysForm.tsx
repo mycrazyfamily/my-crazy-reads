@@ -31,9 +31,10 @@ const ToysForm: React.FC<ToysFormProps> = ({
   const handleHasToysChange = (value: string) => {
     const hasToysValue = value === "true";
     
-    // Empêcher de sélectionner "Non" s'il y a des doudous
-    if (!hasToysValue && toys.length > 0) {
-      toast.error("Veuillez d'abord supprimer tous les doudous avant de sélectionner 'Non'");
+    // Empêcher de sélectionner "Non" s'il y a des doudous actifs
+    const activeToys = toys.filter(toy => toy.isActive !== false);
+    if (!hasToysValue && activeToys.length > 0) {
+      toast.error("Veuillez d'abord marquer tous les doudous comme perdus avant de sélectionner 'Non'");
       return;
     }
     
@@ -54,6 +55,20 @@ const ToysForm: React.FC<ToysFormProps> = ({
     const updatedToys = toys.filter(toy => toy.id !== id);
     form.setValue("toys.toys", updatedToys, { shouldDirty: true });
     toast.success("Doudou supprimé avec succès");
+  };
+
+  const handleToggleActive = (id: string) => {
+    const updatedToys = toys.map(toy => 
+      toy.id === id ? { ...toy, isActive: toy.isActive === false ? true : false } : toy
+    );
+    form.setValue("toys.toys", updatedToys, { shouldDirty: true });
+    
+    const toy = toys.find(t => t.id === id);
+    if (toy?.isActive === false) {
+      toast.success("Doudou marqué comme utilisé à nouveau");
+    } else {
+      toast.success("Doudou marqué comme perdu/non utilisé");
+    }
   };
 
   const handleSaveToy = (toy: ToyData) => {
@@ -82,6 +97,14 @@ const ToysForm: React.FC<ToysFormProps> = ({
   };
 
   const handleToysSectionContinue = () => {
+    // Vérifier si tous les doudous sont marqués comme perdus
+    const activeToys = toys.filter(toy => toy.isActive !== false);
+    
+    if (hasToys && activeToys.length === 0 && toys.length > 0) {
+      toast.error("Tous les doudous sont marqués comme perdus. Ajoutez au moins un doudou actif ou sélectionnez \"Non\"");
+      return;
+    }
+    
     if (hasToys && toys.length === 0) {
       toast.error("Veuillez ajouter au moins un doudou ou objet magique, ou sélectionner \"Non\"");
       return;
@@ -118,20 +141,20 @@ const ToysForm: React.FC<ToysFormProps> = ({
                 <RadioGroupItem 
                   value="false" 
                   id="has-toys-no" 
-                  disabled={toys.length > 0}
-                  className={toys.length > 0 ? "opacity-50 cursor-not-allowed" : ""}
+                  disabled={toys.filter(t => t.isActive !== false).length > 0}
+                  className={toys.filter(t => t.isActive !== false).length > 0 ? "opacity-50 cursor-not-allowed" : ""}
                 />
                 <Label 
                   htmlFor="has-toys-no" 
-                  className={toys.length > 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+                  className={toys.filter(t => t.isActive !== false).length > 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
                 >
                   Non
                 </Label>
               </div>
             </RadioGroup>
-            {toys.length > 0 && (
+            {toys.filter(t => t.isActive !== false).length > 0 && (
               <p className="text-sm text-muted-foreground italic mt-2">
-                Supprimez d'abord tous les doudous pour pouvoir sélectionner "Non"
+                Marquez d'abord tous les doudous comme perdus pour pouvoir sélectionner "Non"
               </p>
             )}
           </div>
@@ -150,7 +173,8 @@ const ToysForm: React.FC<ToysFormProps> = ({
               <ToysList 
                 toys={toys} 
                 onEditToy={handleEditToy} 
-                onDeleteToy={handleDeleteToy} 
+                onDeleteToy={handleDeleteToy}
+                onToggleActive={handleToggleActive}
               />
             </div>
           )}

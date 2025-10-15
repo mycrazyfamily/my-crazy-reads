@@ -107,6 +107,8 @@ export type ToyData = {
     otherRole1?: string;
     otherRole2?: string;
   };
+  isActive?: boolean; // Pour marquer comme perdu/non utilisé
+  comforterId?: string; // ID du comforter en base de données
 };
 
 export type ToysData = {
