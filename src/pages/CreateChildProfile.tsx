@@ -177,6 +177,50 @@ const CreateChildProfile = ({
           }
         }
 
+        // Gérer les doudous (comforters) - mise à jour du statut isActive
+        if (data.toys?.toys && data.toys.toys.length > 0) {
+          // Pour chaque doudou dans le formulaire
+          for (const toy of data.toys.toys) {
+            if (toy.comforterId) {
+              // Si le doudou existe déjà en base, mettre à jour son statut isActive
+              const { error: updateComforterError } = await supabase
+                .from('comforters')
+                .update({ is_active: toy.isActive !== false })
+                .eq('id', toy.comforterId);
+              
+              if (updateComforterError) {
+                console.error('Error updating comforter:', updateComforterError);
+              }
+            }
+          }
+        }
+
+        // Gérer les animaux (pets) - mise à jour
+        if (data.pets?.pets && data.pets.pets.length > 0) {
+          // Récupérer les liens existants
+          const { data: existingLinks } = await supabase
+            .from('child_pets')
+            .select('*')
+            .eq('child_id', editChildId);
+
+          // Pour chaque animal dans le formulaire
+          for (const pet of data.pets.pets) {
+            const existingLink = existingLinks?.find(link => link.pet_id === pet.id);
+            
+            if (existingLink) {
+              // Mettre à jour le lien existant
+              await supabase
+                .from('child_pets')
+                .update({
+                  name: pet.name,
+                  traits: pet.traits?.join(', '),
+                  relation_label: pet.type
+                })
+                .eq('id', existingLink.id);
+            }
+          }
+        }
+
         toast.success("Profil modifié avec succès !");
         navigate('/espace-famille');
       } catch (error) {

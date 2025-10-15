@@ -107,7 +107,9 @@ const ToysList: React.FC<ToysListProps> = ({ toys, onEditToy, onDeleteToy, onTog
       
       <div className="mt-2 text-sm">
         <p><span className="font-medium">Type:</span> {getToyTypeName(toy.type, toy.otherType)}</p>
-        <p><span className="font-medium">Apparence:</span> {toy.appearance}</p>
+        {toy.appearance && (
+          <p><span className="font-medium">Apparence:</span> {toy.appearance}</p>
+        )}
         {toy.roles.length > 0 && (
           <p><span className="font-medium">Rôle:</span> {getToyRoleNames(toy.roles)}</p>
         )}
