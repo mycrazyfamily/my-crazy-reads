@@ -39,6 +39,14 @@ const CreateChildProfile = ({
       try {
         const { supabase } = await import('@/integrations/supabase/client');
         
+        console.log('🔄 Mode édition - Données reçues du formulaire:', {
+          superpowers: data.superpowers,
+          passions: data.passions,
+          challenges: data.challenges,
+          favoriteWorlds: data.worlds?.favoriteWorlds,
+          discoveries: data.worlds?.discoveries
+        });
+        
         // Mettre à jour child_profiles
         const { error: updateError } = await supabase
           .from('child_profiles')
@@ -140,8 +148,8 @@ const CreateChildProfile = ({
           }
         }
 
-        // Découvertes (ignorer "Autre*" et "nothing") - déduplication simple
-        const discoveriesToAdd = uniq((data.worlds?.discoveries || []).filter(d => !String(d).startsWith('other') && d !== 'nothing').map(d => String(d)));
+        // Découvertes (ignorer "Autre*" et "nothing") - déduplication + limit à 3
+        const discoveriesToAdd = top3(uniq((data.worlds?.discoveries || []).filter(d => !String(d).startsWith('other') && d !== 'nothing').map(d => String(d))));
         if (discoveriesToAdd.length) {
           const labels = discoveriesToAdd.map(v => DISCOVERY_OPTIONS.find(o => o.value === v)?.label || String(v));
           const { data: discoveries, error: discoveriesLookupError } = await supabase

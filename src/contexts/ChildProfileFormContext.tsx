@@ -241,7 +241,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     };
 
     loadEditData();
-  }, [editMode, editChildId, form]);
+  }, [editMode, editChildId]); // Enlever 'form' des dépendances pour ne charger qu'une seule fois
 
   useEffect(() => {
     if (editMode) {
