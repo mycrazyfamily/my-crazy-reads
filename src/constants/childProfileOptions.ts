@@ -1,12 +1,12 @@
 
 export const SUPERPOWERS_OPTIONS = [
   { value: "curious", label: "Curieux.se", icon: "🧐" },
-  { value: "adventurous", label: "Aventurier.e", icon: "🌍" },
+  { value: "adventurer", label: "Aventurier.e", icon: "🌍" },
   { value: "dreamer", label: "Rêveur.se", icon: "💭" },
   { value: "funny", label: "Drôle", icon: "😆" },
   { value: "brave", label: "Courageux.se", icon: "🛡️" },
   { value: "emotional", label: "Émotif.ve", icon: "💖" },
-  { value: "athletic", label: "Sportif.ve", icon: "⚽" },
+  { value: "sporty", label: "Sportif.ve", icon: "⚽" },
   { value: "mischievous", label: "Malicieux.se", icon: "🐒" },
   { value: "calm", label: "Calme", icon: "🌿" },
 ];
@@ -17,7 +17,7 @@ export const PASSIONS_OPTIONS = [
   { value: "space", label: "Espace", icon: "🚀" },
   { value: "pirates", label: "Pirates", icon: "🏴‍☠️" },
   { value: "magic", label: "Magie", icon: "✨" },
-  { value: "fairytales", label: "Contes de fées", icon: "🏰" },
+  { value: "fairy_tales", label: "Contes de fées", icon: "🏰" },
   { value: "nature", label: "Nature", icon: "🌳" },
   { value: "vehicles", label: "Véhicules", icon: "🚒" },
   { value: "robots", label: "Robots", icon: "🤖" },
