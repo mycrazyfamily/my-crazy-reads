@@ -9,6 +9,7 @@ import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
+import FormProgressIndicator from '@/components/FormProgressIndicator';
 import type { PetData } from '@/types/childProfile';
 
 interface Child {
@@ -244,6 +245,12 @@ export default function AjouterAnimal() {
           </Button>
           <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un animal de compagnie</h1>
         </div>
+
+        <FormProgressIndicator 
+          currentStep={showForm ? 1 : 0}
+          totalSteps={2}
+          stepLabels={['Sélection', 'Informations']}
+        />
 
         {!showForm ? (
           <>

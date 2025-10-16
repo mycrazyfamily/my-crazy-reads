@@ -9,6 +9,7 @@ import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
 import RelativeForm from '@/components/childProfile/RelativeForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
+import FormProgressIndicator from '@/components/FormProgressIndicator';
 import type { RelativeData } from '@/types/childProfile';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -197,6 +198,12 @@ export default function AjouterProche() {
           </Button>
           <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un proche</h1>
         </div>
+
+        <FormProgressIndicator 
+          currentStep={showForm ? 1 : 0}
+          totalSteps={2}
+          stepLabels={['Sélection', 'Informations']}
+        />
 
         {!showForm ? (
           <>

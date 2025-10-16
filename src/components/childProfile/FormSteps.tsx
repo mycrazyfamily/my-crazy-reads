@@ -9,6 +9,7 @@ import ToysForm from '@/components/childProfile/ToysForm';
 import WorldsForm from '@/components/childProfile/WorldsForm';
 import FinalSummary from '@/components/childProfile/FinalSummary';
 import NavigationButtons from '@/components/childProfile/personality/NavigationButtons';
+import FormProgressIndicator from '@/components/FormProgressIndicator';
 
 type FormStepsProps = {
   isGiftMode?: boolean;
@@ -46,8 +47,21 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     }
   };
 
+  const stepLabels = editMode 
+    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Résumé']
+    : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Résumé'];
+  
+  const totalSteps = editMode ? 5 : 7;
+  const adjustedStep = editMode && formStep > 1 ? formStep - 2 : formStep;
+
   return (
     <>
+      <FormProgressIndicator 
+        currentStep={adjustedStep}
+        totalSteps={totalSteps}
+        stepLabels={stepLabels}
+      />
+      
       {formStep === 0 && (
         <BasicInfoForm 
           selectedNickname={selectedNickname}
