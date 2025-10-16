@@ -72,14 +72,19 @@ const ToysForm: React.FC<ToysFormProps> = ({
   };
 
   const handleSaveToy = (toy: ToyData) => {
-    const isEditing = toys.some(t => t.id === toy.id);
-    let updatedToys;
-    
-    if (isEditing) {
-      updatedToys = toys.map(t => t.id === toy.id ? toy : t);
-    } else {
-      updatedToys = [...toys, toy];
-    }
+    const existing = toys.find(t => t.id === toy.id);
+    const isEditing = !!existing;
+    const merged = isEditing ? { ...existing, ...toy } : toy;
+    // S'assurer de ne jamais perdre les champs de liaison
+    const safeMerged: ToyData = {
+      ...merged,
+      comforterId: merged.comforterId ?? existing?.comforterId,
+      isActive: merged.isActive ?? existing?.isActive
+    };
+
+    const updatedToys = isEditing
+      ? toys.map(t => t.id === toy.id ? safeMerged : t)
+      : [...toys, safeMerged];
     
     form.setValue("toys.toys", updatedToys, { shouldDirty: true });
     setIsAddingToy(false);

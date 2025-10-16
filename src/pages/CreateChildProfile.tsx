@@ -193,10 +193,13 @@ const CreateChildProfile = ({
             
             if (toy.comforterId) {
               // 1. Mettre à jour le statut isActive dans la table comforters
+              const emoji = toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨';
               const { error: updateComforterError } = await supabase
                 .from('comforters')
                 .update({ 
                   is_active: toy.isActive !== false,
+                  label: toy.name,
+                  emoji,
                   updated_at: new Date().toISOString()
                 })
                 .eq('id', toy.comforterId);
@@ -213,9 +216,9 @@ const CreateChildProfile = ({
                   .from('child_comforters')
                   .update({
                     name: toy.name,
-                    appearance: toy.appearance || '',
-                    roles: toy.roles?.join(',') || '',
-                    relation_label: toy.type
+                    appearance: toy.appearance?.trim() || '',
+                    roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
+                    relation_label: toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type
                   })
                   .eq('id', existingLink.id);
                 

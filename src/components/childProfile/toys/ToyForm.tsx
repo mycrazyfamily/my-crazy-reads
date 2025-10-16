@@ -75,7 +75,10 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
       customRoles: {
         ...(selectedRoles.includes('otherRole1') ? { otherRole1: customRole1.trim() } : {}),
         ...(selectedRoles.includes('otherRole2') ? { otherRole2: customRole2.trim() } : {})
-      }
+      },
+      // Préserver le lien BD et le statut lors d'une édition
+      comforterId: toy?.comforterId,
+      isActive: toy?.isActive !== false
     };
 
     onSave(newToy);
