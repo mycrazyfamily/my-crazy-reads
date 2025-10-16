@@ -163,7 +163,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Nom de l'animal */}
       <div className="space-y-2">
         <Label htmlFor="pet-name" className="text-base font-medium">
-          Prénom de l'animal <span className="text-red-500">*</span>
+          Prénom de l'animal
         </Label>
         <Input
           id="pet-name"
@@ -177,7 +177,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Type d'animal */}
       <div className="space-y-3">
         <Label className="text-base font-medium block">
-          Type d'animal <span className="text-red-500">*</span>
+          Type d'animal
         </Label>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {PET_TYPE_OPTIONS.map((option) => (
@@ -215,7 +215,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Race de l'animal */}
       <div className="space-y-2">
         <Label htmlFor="pet-breed" className="text-base font-medium">
-          Quelle est sa race ? <span className="text-red-500">*</span>
+          Quelle est sa race ?
         </Label>
         <Input
           id="pet-breed"
