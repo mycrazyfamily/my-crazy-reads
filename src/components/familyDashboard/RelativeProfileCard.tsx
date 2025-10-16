@@ -53,6 +53,10 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       case 'grandmother': return 'Grand-mère';
       case 'uncle': return 'Oncle';
       case 'aunt': return 'Tante';
+      case 'femaleCousin': return 'Cousine';
+      case 'maleCousin': return 'Cousin';
+      case 'femaleFriend': return 'Meilleure amie';
+      case 'maleFriend': return 'Meilleur ami';
       case 'partner': return 'Petit copain / petite copine';
       case 'teacher': return 'Maîtresse / Maître';
       case 'babysitter': return 'Baby-sitter / Nounou';
