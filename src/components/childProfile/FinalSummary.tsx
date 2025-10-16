@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift } from 'lucide-react';
+import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2 } from 'lucide-react';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -17,6 +17,7 @@ type FinalSummaryProps = {
   handleSubmit: () => void;
   isGiftMode?: boolean;
   nextButtonText?: string;
+  isSubmitting?: boolean;
 };
 
 const FinalSummary: React.FC<FinalSummaryProps> = ({
@@ -24,7 +25,8 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   handleGoToStep,
   handleSubmit,
   isGiftMode = false,
-  nextButtonText
+  nextButtonText,
+  isSubmitting = false
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   const formData = form.getValues();
@@ -115,12 +117,22 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         <Button 
           type="submit"
           onClick={handleStartAdventure}
-          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2"
+          disabled={isSubmitting}
+          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          {isGiftMode ? <Gift className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
-          {nextButtonText || (isGiftMode 
-            ? "Continuer vers le choix du thème →" 
-            : "Tout est prêt, on démarre l'aventure !"
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Enregistrement en cours...
+            </>
+          ) : (
+            <>
+              {isGiftMode ? <Gift className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
+              {nextButtonText || (isGiftMode 
+                ? "Continuer vers le choix du thème →" 
+                : "Tout est prêt, on démarre l'aventure !"
+              )}
+            </>
           )}
         </Button>
         
@@ -128,7 +140,8 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           variant="outline" 
           type="button"
           onClick={handlePreviousStep}
-          className="text-gray-600 hover:text-gray-800"
+          disabled={isSubmitting}
+          className="text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           ← Revenir à l'étape précédente
         </Button>

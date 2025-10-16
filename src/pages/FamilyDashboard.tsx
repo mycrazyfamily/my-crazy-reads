@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Baby, Book, Gift, User, Clock, Truck, Edit, Plus, Settings, 
   LogOut, Home, Heart, HelpCircle, Copy, ExternalLink, MessageSquarePlus,
@@ -36,6 +37,9 @@ const FamilyDashboard: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  
+  // État de chargement
+  const [isLoading, setIsLoading] = useState(true);
   
   // Données chargées depuis child_profiles
   const [children, setChildren] = useState<Array<{
@@ -91,6 +95,7 @@ const FamilyDashboard: React.FC = () => {
     };
 
     const loadChildren = async () => {
+      setIsLoading(true);
       try {
         // Charger directement depuis child_profiles avec toutes les relations
         const { data: childProfiles, error } = await supabase
@@ -180,6 +185,8 @@ const FamilyDashboard: React.FC = () => {
         setChildren(mapped);
       } catch (e) {
         console.error('Unexpected error loading children:', e);
+      } finally {
+        setIsLoading(false);
       }
     };
     loadChildren();
@@ -336,7 +343,34 @@ const FamilyDashboard: React.FC = () => {
               <Baby className="h-6 w-6" /> Mes enfants
             </h2>
             
-            {children.length > 0 ? (
+            {isLoading ? (
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-16 w-16 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </Card>
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-16 w-16 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </Card>
+              </div>
+            ) : children.length > 0 ? (
               <>
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   {children.map((child) => (

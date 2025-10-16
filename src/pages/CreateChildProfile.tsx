@@ -304,7 +304,11 @@ const CreateChildProfile = ({
         }
 
         toast.success("Profil modifié avec succès !");
-        navigate('/espace-famille');
+        
+        // Petit délai pour laisser le toast s'afficher avant la navigation
+        setTimeout(() => {
+          navigate('/espace-famille');
+        }, 500);
       } catch (error) {
         console.error('Error updating child profile:', error);
         toast.error("Erreur lors de la mise à jour");
@@ -354,6 +358,7 @@ const CreateChildProfile = ({
             nextButtonText={isGiftMode ? "Continuer vers le choix du thème →" : undefined}
             onFormSubmit={isGiftMode ? () => {} : undefined}
             editMode={editMode}
+            isSubmitting={isSubmitting}
           />
         </ChildProfileFormProvider>
       </div>
