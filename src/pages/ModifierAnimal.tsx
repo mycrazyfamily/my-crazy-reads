@@ -39,7 +39,8 @@ const ModifierAnimal: React.FC = () => {
             type,
             emoji,
             family_id,
-            breed
+            breed,
+            physical_details
           )
         `)
         .eq('child_id', childId)
@@ -54,6 +55,7 @@ const ModifierAnimal: React.FC = () => {
           name: data.name || data.pets.name,
           type: (data.relation_label || data.pets.type) as PetType,
           breed: (data.pets as any).breed || undefined,
+          physicalDetails: (data.pets as any).physical_details || undefined,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
           customTraits: (data as any).traits_custom || undefined
         };
@@ -107,7 +109,8 @@ const ModifierAnimal: React.FC = () => {
         .update({
           name: updatedPet.name,
           type: updatedPet.type,
-          breed: updatedPet.breed || null
+          breed: updatedPet.breed || null,
+          physical_details: updatedPet.physicalDetails || null
         })
         .eq('id', petId);
 

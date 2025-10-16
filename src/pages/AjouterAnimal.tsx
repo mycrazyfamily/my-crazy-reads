@@ -189,6 +189,7 @@ export default function AjouterAnimal() {
           name: petData.name,
           type: petData.type || petData.otherType,
           breed: petData.breed || null,
+          physical_details: petData.physicalDetails || null,
           emoji: null,
           family_id: familyId
         })

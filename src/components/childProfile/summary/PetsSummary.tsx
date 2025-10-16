@@ -95,6 +95,12 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
           {pet.breed && <span> • {pet.breed}</span>}
         </div>
         
+        {pet.physicalDetails && (
+          <div className="text-xs text-gray-500 mt-1 italic">
+            {pet.physicalDetails}
+          </div>
+        )}
+        
         {pet.traits && pet.traits.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2 justify-center">
             {pet.traits.map((trait, index) => {

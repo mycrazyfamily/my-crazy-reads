@@ -78,6 +78,7 @@ export type PetData = {
   type: PetType;
   otherType?: string;
   breed?: string;
+  physicalDetails?: string;
   traits: PetTrait[];
   customTraits?: Record<string, string>; // Added custom traits field
 };

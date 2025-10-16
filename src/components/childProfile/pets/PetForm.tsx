@@ -22,6 +22,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [breed, setBreed] = useState(pet?.breed || '');
+  const [physicalDetails, setPhysicalDetails] = useState(pet?.physicalDetails || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
   
@@ -147,6 +148,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       type,
       otherType: type === 'other' ? otherType.trim() : undefined,
       breed: breed.trim() || undefined,
+      physicalDetails: physicalDetails.trim() || undefined,
       traits: selectedTraits,
       customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
@@ -222,6 +224,20 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
           placeholder="Ex: Labrador, Persan, Bélier, etc."
           value={breed}
           onChange={(e) => setBreed(e.target.value)}
+          className="text-base"
+        />
+      </div>
+
+      {/* Détails physiques de l'animal */}
+      <div className="space-y-2">
+        <Label htmlFor="pet-physical-details" className="text-base font-medium">
+          Détails physiques <span className="text-xs text-gray-500">(facultatif)</span>
+        </Label>
+        <Input
+          id="pet-physical-details"
+          placeholder="Ex: Poils longs blancs, tache noire sur l'œil droit, etc."
+          value={physicalDetails}
+          onChange={(e) => setPhysicalDetails(e.target.value)}
           className="text-base"
         />
       </div>

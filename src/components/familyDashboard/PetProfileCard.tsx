@@ -77,6 +77,13 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
       </CardHeader>
       
       <CardContent className="p-4">
+        {pet.physicalDetails && (
+          <div className="text-sm text-gray-600 mb-3">
+            <span className="font-medium">Apparence : </span>
+            <span>{pet.physicalDetails}</span>
+          </div>
+        )}
+        
         {pet.traits && pet.traits.length > 0 && (
           <div className="flex flex-wrap gap-1 justify-center mb-4">
             {pet.traits.slice(0, 3).map((trait, idx) => (
