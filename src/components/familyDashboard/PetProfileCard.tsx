@@ -67,6 +67,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
             <h3 className="text-lg font-bold text-mcf-orange-dark">{pet.name}</h3>
             <p className="text-sm text-gray-600">
               {pet.type === 'other' && pet.otherType ? pet.otherType : getPetTypeLabel(pet.type)}
+              {pet.breed && <span> • {pet.breed}</span>}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Animal de {childrenNames.join(' et ')}

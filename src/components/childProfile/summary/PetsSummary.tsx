@@ -90,7 +90,10 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
       </Avatar>
       <div className="text-center w-full">
         <div className="font-medium">{pet.name}</div>
-        <div className="text-xs text-gray-600">{getPetTypeLabel(pet.type)}</div>
+        <div className="text-xs text-gray-600">
+          {getPetTypeLabel(pet.type)}
+          {pet.breed && <span> • {pet.breed}</span>}
+        </div>
         
         {pet.traits && pet.traits.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2 justify-center">

@@ -188,6 +188,7 @@ export default function AjouterAnimal() {
         .insert({
           name: petData.name,
           type: petData.type || petData.otherType,
+          breed: petData.breed || null,
           emoji: null,
           family_id: familyId
         })

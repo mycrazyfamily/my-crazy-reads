@@ -978,6 +978,7 @@ export type Database = {
       }
       pets: {
         Row: {
+          breed: string | null
           created_at: string | null
           emoji: string | null
           family_id: string | null
@@ -986,6 +987,7 @@ export type Database = {
           type: string | null
         }
         Insert: {
+          breed?: string | null
           created_at?: string | null
           emoji?: string | null
           family_id?: string | null
@@ -994,6 +996,7 @@ export type Database = {
           type?: string | null
         }
         Update: {
+          breed?: string | null
           created_at?: string | null
           emoji?: string | null
           family_id?: string | null

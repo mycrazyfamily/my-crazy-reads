@@ -21,6 +21,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
+  const [breed, setBreed] = useState(pet?.breed || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
   
@@ -140,6 +141,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       name: name.trim(),
       type,
       otherType: type === 'other' ? otherType.trim() : undefined,
+      breed: breed.trim() || undefined,
       traits: selectedTraits,
       customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
@@ -203,6 +205,20 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             />
           </div>
         )}
+      </div>
+
+      {/* Race de l'animal */}
+      <div className="space-y-2">
+        <Label htmlFor="pet-breed" className="text-base font-medium">
+          Quelle est sa race ? <span className="text-xs text-gray-500">(facultatif)</span>
+        </Label>
+        <Input
+          id="pet-breed"
+          placeholder="Ex: Labrador, Persan, Bélier, etc."
+          value={breed}
+          onChange={(e) => setBreed(e.target.value)}
+          className="text-base"
+        />
       </div>
 
       {/* Traits de caractère */}

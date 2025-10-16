@@ -126,6 +126,7 @@ const FamilyDashboard: React.FC = () => {
                 id,
                 name,
                 type,
+                breed,
                 emoji
               )
             `)
@@ -135,6 +136,7 @@ const FamilyDashboard: React.FC = () => {
             id: cp.pets?.id,
             name: cp.name || cp.pets?.name,
             type: cp.relation_label || cp.pets?.type,
+            breed: cp.pets?.breed,
             traits: cp.traits?.split(', ') || [],
             emoji: cp.pets?.emoji
           }));

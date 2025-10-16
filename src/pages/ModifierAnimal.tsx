@@ -53,6 +53,7 @@ const ModifierAnimal: React.FC = () => {
           id: data.pets.id,
           name: data.name || data.pets.name,
           type: (data.relation_label || data.pets.type) as PetType,
+          breed: (data.pets as any).breed || undefined,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
           customTraits: (data as any).traits_custom || undefined
         };
@@ -107,7 +108,8 @@ const ModifierAnimal: React.FC = () => {
         .from('pets')
         .update({
           name: updatedPet.name,
-          type: updatedPet.type
+          type: updatedPet.type,
+          breed: updatedPet.breed || null
         })
         .eq('id', petId);
 
