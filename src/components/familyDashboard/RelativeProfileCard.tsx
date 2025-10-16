@@ -28,12 +28,17 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       case 'sister': return '👧';
       case 'grandfather': return '👴';
       case 'grandmother': return '👵';
+      case 'uncle': return '👨';
+      case 'aunt': return '👩';
       case 'otherParent': return '🏡';
       case 'femaleCousin': return '👧';
       case 'maleCousin': return '👦';
       case 'femaleFriend': return '👭';
       case 'maleFriend': return '👬';
-      case 'other': return '➕';
+      case 'partner': return '💑';
+      case 'teacher': return '👨‍🏫';
+      case 'babysitter': return '👶';
+      case 'other': return '✨';
       default: return '👤';
     }
   };
@@ -46,6 +51,11 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       case 'sister': return 'Sœur';
       case 'grandfather': return 'Grand-père';
       case 'grandmother': return 'Grand-mère';
+      case 'uncle': return 'Oncle';
+      case 'aunt': return 'Tante';
+      case 'partner': return 'Petit copain / petite copine';
+      case 'teacher': return 'Maîtresse / Maître';
+      case 'babysitter': return 'Baby-sitter / Nounou';
       default: return 'Proche';
     }
   };
