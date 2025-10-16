@@ -177,9 +177,9 @@ const CreateChildProfile = ({
           }
         }
 
-        // Gérer les doudous (comforters) - mise à jour
+        // Gérer les doudous (comforters) - mise à jour et création
         if (data.toys?.toys && data.toys.toys.length > 0) {
-          console.log('🧸 Updating comforters:', data.toys.toys);
+          console.log('🧸 Updating/Creating comforters:', data.toys.toys);
           
           // Récupérer les liens existants dans child_comforters
           const { data: existingComforterLinks } = await supabase
@@ -192,6 +192,7 @@ const CreateChildProfile = ({
             console.log(`Processing toy: ${toy.name}, comforterId: ${toy.comforterId}, isActive: ${toy.isActive}`);
             
             if (toy.comforterId) {
+              // CAS 1: Mise à jour d'un doudou existant
               // 1. Mettre à jour le statut isActive dans la table comforters
               const emoji = toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨';
               const { error: updateComforterError } = await supabase
@@ -229,7 +230,49 @@ const CreateChildProfile = ({
                 }
               }
             } else {
-              console.warn(`⚠️ No comforterId for toy: ${toy.name}`);
+              // CAS 2: Création d'un nouveau doudou
+              console.log(`🆕 Creating new comforter: ${toy.name}`);
+              const emoji = toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨';
+              
+              // 1. Créer le comforter dans la table comforters
+              const { supabase: supabaseClient } = await import('@/integrations/supabase/client');
+              const userId = (await supabaseClient.auth.getUser()).data.user?.id;
+              
+              const { data: createdComforter, error: createComforterError } = await supabase
+                .from('comforters')
+                .insert([{
+                  label: toy.name,
+                  emoji,
+                  created_by: userId,
+                  is_active: toy.isActive !== false
+                }])
+                .select()
+                .maybeSingle();
+              
+              if (createComforterError || !createdComforter) {
+                console.error('❌ Error creating comforter:', createComforterError);
+                continue;
+              }
+              
+              console.log(`✅ Created comforter with ID: ${createdComforter.id}`);
+              
+              // 2. Créer le lien dans child_comforters
+              const { error: createLinkError } = await supabase
+                .from('child_comforters')
+                .insert([{
+                  child_id: editChildId,
+                  comforter_id: createdComforter.id,
+                  name: toy.name,
+                  appearance: toy.appearance?.trim() || '',
+                  roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
+                  relation_label: toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type
+                }]);
+              
+              if (createLinkError) {
+                console.error('❌ Error creating child_comforters link:', createLinkError);
+              } else {
+                console.log(`✅ Created comforter link for ${toy.name}`);
+              }
             }
           }
         }
