@@ -131,7 +131,7 @@ const ModifierAnimal: React.FC = () => {
           pet_id: petId,
           name: updatedPet.name,
           traits: updatedPet.traits?.join(', ') || null,
-          traits_custom: updatedPet.customTraits ? JSON.stringify(updatedPet.customTraits) : null,
+          traits_custom: updatedPet.customTraits || null,
           relation_label: updatedPet.type
         }));
         
