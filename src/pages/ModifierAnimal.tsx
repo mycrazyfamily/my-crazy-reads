@@ -131,9 +131,12 @@ const ModifierAnimal: React.FC = () => {
           pet_id: petId,
           name: updatedPet.name,
           traits: updatedPet.traits?.join(', ') || null,
-          traits_custom: updatedPet.customTraits || null,
+          traits_custom: updatedPet.customTraits ? JSON.stringify(updatedPet.customTraits) : null,
           relation_label: updatedPet.type
         }));
+        
+        console.log('Saving pet with customTraits:', updatedPet.customTraits);
+        console.log('childPetsData:', childPetsData);
 
         const { error: insertError } = await supabase
           .from('child_pets')
