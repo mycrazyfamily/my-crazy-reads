@@ -195,12 +195,19 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           console.log('🧸 Raw comforters data from DB:', comfortersRes.data);
           const comfortersData = (comfortersRes.data || []).map((c: any) => {
             console.log(`Mapping comforter: name=${c.name}, comforter_id=${c.comforter_id}, is_active=${c.comforters?.is_active}`);
+            // Nettoyer l'apparence si c'est une valeur technique du type
+            const technicalValues = ['plush', 'blanket', 'doll', 'miniCar', 'figurine', 'other'];
+            const cleanAppearance = c.appearance && !technicalValues.includes(c.appearance) ? c.appearance : '';
+            
+            // Nettoyer les rôles en enlevant les espaces
+            const cleanRoles = c.roles ? c.roles.split(',').map((r: string) => r.trim()) : [];
+            
             return {
               id: c.id,
               name: c.name || '',
               type: c.relation_label || 'plush',
-              appearance: c.appearance || '',
-              roles: c.roles ? c.roles.split(',') : [],
+              appearance: cleanAppearance,
+              roles: cleanRoles,
               isActive: c.comforters?.is_active !== false, // Charger le statut actif depuis la table comforters
               comforterId: c.comforter_id // Stocker l'ID du comforter pour la mise à jour
             };

@@ -42,8 +42,10 @@ const ToysList: React.FC<ToysListProps> = ({ toys, onEditToy, onDeleteToy, onTog
 
   const getToyRoleNames = (roles: string[]) => {
     return roles.map(role => {
-      const foundRole = toyRoleOptions.find(option => option.value === role);
-      return foundRole ? `${foundRole.emoji} ${foundRole.label}` : role;
+      // Nettoyer les espaces autour du rôle
+      const cleanRole = role.trim();
+      const foundRole = toyRoleOptions.find(option => option.value === cleanRole);
+      return foundRole ? `${foundRole.emoji} ${foundRole.label}` : cleanRole;
     }).join(", ");
   };
 
@@ -107,7 +109,7 @@ const ToysList: React.FC<ToysListProps> = ({ toys, onEditToy, onDeleteToy, onTog
       
       <div className="mt-2 text-sm">
         <p><span className="font-medium">Type:</span> {getToyTypeName(toy.type, toy.otherType)}</p>
-        {toy.appearance && (
+        {toy.appearance && !['plush', 'blanket', 'doll', 'miniCar', 'figurine', 'other'].includes(toy.appearance) && (
           <p><span className="font-medium">Apparence:</span> {toy.appearance}</p>
         )}
         {toy.roles.length > 0 && (

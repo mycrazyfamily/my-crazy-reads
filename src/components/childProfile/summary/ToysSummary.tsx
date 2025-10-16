@@ -60,6 +60,10 @@ const ToyCard: React.FC<ToyCardProps> = ({ toy }) => {
     return roleData[role] || { label: role, icon: '❓' };
   };
 
+  // Valeurs techniques à ne pas afficher
+  const technicalValues = ['plush', 'blanket', 'doll', 'miniCar', 'figurine', 'other'];
+  const shouldShowAppearance = toy.appearance && !technicalValues.includes(toy.appearance);
+
   return (
     <div className="p-4 border rounded-lg bg-mcf-amber/5 text-center">
       <div>
@@ -67,7 +71,9 @@ const ToyCard: React.FC<ToyCardProps> = ({ toy }) => {
         <p className="text-sm text-gray-600">{getToyTypeLabel(toy.type)}</p>
       </div>
       
-      <p className="mt-2 text-sm text-gray-700">{toy.appearance}</p>
+      {shouldShowAppearance && (
+        <p className="mt-2 text-sm text-gray-700">{toy.appearance}</p>
+      )}
       
       {toy.roles && toy.roles.length > 0 && (
         <div className="mt-3">
