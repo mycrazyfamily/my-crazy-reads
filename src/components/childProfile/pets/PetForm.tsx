@@ -126,6 +126,11 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       return;
     }
 
+    if (!breed.trim()) {
+      toast.error("La race de l'animal est requise");
+      return;
+    }
+
     // Vérifier que les traits personnalisés sont remplis
     const hasEmptyCustomTrait = selectedTraits.some(trait => 
       (trait === 'other' || trait === 'other2') && (!customTraits[trait] || !customTraits[trait].trim())
@@ -210,7 +215,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Race de l'animal */}
       <div className="space-y-2">
         <Label htmlFor="pet-breed" className="text-base font-medium">
-          Quelle est sa race ? <span className="text-xs text-gray-500">(facultatif)</span>
+          Quelle est sa race ? <span className="text-red-500">*</span>
         </Label>
         <Input
           id="pet-breed"
