@@ -14,7 +14,6 @@ const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [petData, setPetData] = useState<PetData | null>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
@@ -39,7 +38,8 @@ const ModifierAnimal: React.FC = () => {
             name,
             type,
             emoji,
-            family_id
+            family_id,
+            breed
           )
         `)
         .eq('child_id', childId)
@@ -101,8 +101,6 @@ const ModifierAnimal: React.FC = () => {
     if (!petId) return;
 
     try {
-      setSaving(true);
-
       // Mettre à jour le pet dans la table pets
       const { error: updatePetError } = await supabase
         .from('pets')
@@ -146,8 +144,6 @@ const ModifierAnimal: React.FC = () => {
     } catch (error) {
       console.error('Error saving pet:', error);
       toast.error("Erreur lors de la sauvegarde");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -204,23 +200,6 @@ const ModifierAnimal: React.FC = () => {
               label="Enfants associés à cet animal"
             />
           )}
-
-          <div className="flex gap-4 justify-end pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={saving}
-            >
-              Annuler
-            </Button>
-            <Button
-              onClick={() => petData && handleSave(petData)}
-              disabled={saving}
-            >
-              {saving ? "Enregistrement..." : "Enregistrer"}
-            </Button>
-          </div>
         </div>
       </main>
       
