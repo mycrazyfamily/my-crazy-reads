@@ -157,6 +157,9 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     if (formData.hairType === 'custom' && !formData.hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
     }
+    if (formData.glasses === undefined || formData.glasses === null) {
+      errors.push("si l'enfant porte des lunettes (Oui/Non)");
+    }
     if (formData.nickname?.type === 'custom' && !formData.nickname?.custom?.trim()) {
       errors.push("le surnom personnalisé");
     }
