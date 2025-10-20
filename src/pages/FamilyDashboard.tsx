@@ -50,7 +50,8 @@ const FamilyDashboard: React.FC = () => {
     personalityEmoji: string;
     relatives?: any[];
     pets?: any[];
-    hasToys?: boolean;
+    toysCount?: number;
+    preferencesCount?: number;
     hasPets?: number;
   }>>([]);
   const books: any[] = []; // Empty for new users
@@ -171,7 +172,27 @@ const FamilyDashboard: React.FC = () => {
             .select('*')
             .eq('child_id', profile.id);
           
-          const hasToys = childComforters && childComforters.length > 0;
+          // Charger toutes les préférences pour calculer le total
+          const [
+            { data: superpowers },
+            { data: likes },
+            { data: challenges },
+            { data: universes },
+            { data: discoveries }
+          ] = await Promise.all([
+            supabase.from('child_superpowers').select('*').eq('child_id', profile.id),
+            supabase.from('child_likes').select('*').eq('child_id', profile.id),
+            supabase.from('child_challenges').select('*').eq('child_id', profile.id),
+            supabase.from('child_universes').select('*').eq('child_id', profile.id),
+            supabase.from('child_discoveries').select('*').eq('child_id', profile.id)
+          ]);
+          
+          const toysCount = childComforters?.length || 0;
+          const preferencesCount = (superpowers?.length || 0) + 
+                                   (likes?.length || 0) + 
+                                   (challenges?.length || 0) + 
+                                   (universes?.length || 0) + 
+                                   (discoveries?.length || 0);
           
           return {
             id: profile.id,
@@ -181,7 +202,8 @@ const FamilyDashboard: React.FC = () => {
             personalityEmoji: '🧒',
             relatives: relativesFromDb,
             pets: petsFromDb,
-            hasToys: hasToys,
+            toysCount: toysCount,
+            preferencesCount: preferencesCount,
             hasPets: petsFromDb.length,
           };
         }));

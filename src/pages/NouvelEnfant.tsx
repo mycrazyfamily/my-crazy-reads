@@ -53,7 +53,7 @@ const NouvelEnfant: React.FC = () => {
         initialStep={0}
         editMode={!!editChildId}
         editChildId={editChildId || undefined}
-        useSavedDraft={false}
+        useSavedDraft={!editChildId}
       />
     </div>
   );

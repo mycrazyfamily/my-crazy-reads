@@ -13,7 +13,8 @@ interface Child {
   avatar: string | null;
   personalityEmoji: string;
   relatives?: any[];
-  hasToys?: boolean;
+  toysCount?: number;
+  preferencesCount?: number;
   hasPets?: number;
 }
 
@@ -46,14 +47,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
             </div>
           )}
           
-          {child.hasToys && (
-            <div className="flex items-center gap-2">
-              <Gamepad2 className="h-4 w-4 text-mcf-orange" />
-              <span>Jouets préférés</span>
-            </div>
-          )}
-          
-          {child.hasPets && (
+          {child.hasPets !== undefined && child.hasPets > 0 && (
             <div className="flex items-center gap-2">
               {child.hasPets > 1 ? (
                 <Cat className="h-4 w-4 text-mcf-orange" />
@@ -65,8 +59,13 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           )}
           
           <div className="flex items-center gap-2">
+            <Gamepad2 className="h-4 w-4 text-mcf-orange" />
+            <span>Jouets préférés {child.toysCount !== undefined ? child.toysCount : 0}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
             <Palette className="h-4 w-4 text-mcf-orange" />
-            <span>Préférences</span>
+            <span>Préférences {child.preferencesCount !== undefined ? child.preferencesCount : 0}</span>
           </div>
         </div>
       </CardContent>
