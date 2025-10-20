@@ -7,6 +7,7 @@ import RelativeAppearanceSection from './relatives/RelativeAppearanceSection';
 import RelativeTraitsSection from './relatives/RelativeTraitsSection';
 import ChildrenSelector from './ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type RelativeFormProps = {
   relative: RelativeData;
@@ -134,6 +135,39 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   };
 
   const handleSaveClick = () => {
+    // Validation des champs obligatoires
+    const errors: string[] = [];
+
+    if (!formData.firstName?.trim()) errors.push("le prénom");
+    if (!formData.type) errors.push("le type de relation");
+    if (formData.type === 'other' && !formData.otherTypeName?.trim()) {
+      errors.push("la description du type de relation personnalisé");
+    }
+    if (selectedNickname === 'custom' && !formData.nickname.custom?.trim()) {
+      errors.push("le surnom personnalisé");
+    }
+    if (selectedSkinColor === 'custom' && !formData.skinColor.custom?.trim()) {
+      errors.push("la couleur de peau personnalisée");
+    }
+    if (selectedHairColor === 'custom' && !formData.hairColor.custom?.trim()) {
+      errors.push("la couleur des cheveux personnalisée");
+    }
+    if (hairTypeUI === 'custom' && !formData.hairTypeCustom?.trim()) {
+      errors.push("le type de cheveux personnalisé");
+    }
+
+    // Validation des traits personnalisés
+    for (const traitKey of Object.keys(customTraits)) {
+      if (!customTraits[traitKey]?.trim()) {
+        errors.push(`le trait personnalisé "${traitKey}"`);
+      }
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+      return;
+    }
+
     // Update all custom fields before saving
     const updatedRelative = {
       ...formData,

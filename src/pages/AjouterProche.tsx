@@ -104,8 +104,42 @@ export default function AjouterProche() {
   };
 
   const handleAddRelative = async (relativeData: RelativeData) => {
+    // Validation des champs obligatoires
+    const errors: string[] = [];
+
+    if (!relativeData.firstName?.trim()) errors.push("le prénom");
+    if (!relativeData.type) errors.push("le type de relation");
+    if (relativeData.type === 'other' && !relativeData.otherTypeName?.trim()) {
+      errors.push("la description du type de relation personnalisé");
+    }
+    if (relativeData.nickname.type === 'custom' && !relativeData.nickname.custom?.trim()) {
+      errors.push("le surnom personnalisé");
+    }
+    if (relativeData.skinColor.type === 'custom' && !relativeData.skinColor.custom?.trim()) {
+      errors.push("la couleur de peau personnalisée");
+    }
+    if (relativeData.hairColor.type === 'custom' && !relativeData.hairColor.custom?.trim()) {
+      errors.push("la couleur des cheveux personnalisée");
+    }
+    if (relativeData.hairType === 'custom' && !relativeData.hairTypeCustom?.trim()) {
+      errors.push("le type de cheveux personnalisé");
+    }
+
+    // Validation des traits personnalisés
+    if (relativeData.customTraits) {
+      for (const traitKey of Object.keys(relativeData.customTraits)) {
+        if (!relativeData.customTraits[traitKey]?.trim()) {
+          errors.push(`le trait personnalisé "${traitKey}"`);
+        }
+      }
+    }
+
     if (selectedChildIds.length === 0) {
-      toast.error('Veuillez sélectionner au moins un enfant');
+      errors.push("au moins un enfant sélectionné");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
       return;
     }
 

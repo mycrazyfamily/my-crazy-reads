@@ -225,6 +225,12 @@ const PetsForm: React.FC<PetsFormProps> = ({
   };
 
   const handlePetsSectionContinue = () => {
+    // Vérification obligatoire de la réponse à la question "Oui/Non"
+    if (hasPets === undefined || hasPets === null) {
+      toast.error("Veuillez répondre à la question sur la présence d'un animal de compagnie");
+      return;
+    }
+
     // Sauvegarder les données des animaux existants sélectionnés
     const selectedPetsData = existingPets.filter(p => 
       selectedExistingPetIds.includes(p.id)

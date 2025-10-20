@@ -102,6 +102,12 @@ const ToysForm: React.FC<ToysFormProps> = ({
   };
 
   const handleToysSectionContinue = () => {
+    // Vérification obligatoire de la réponse à la question "Oui/Non"
+    if (hasToys === undefined || hasToys === null) {
+      toast.error("Veuillez répondre à la question sur la présence d'un doudou ou objet fétiche");
+      return;
+    }
+
     // Si l'utilisateur a sélectionné "Oui" mais n'a ajouté aucun doudou (ni actif ni inactif)
     if (hasToys && toys.length === 0) {
       toast.error("Veuillez ajouter au moins un doudou ou objet magique, ou sélectionner \"Non\"");

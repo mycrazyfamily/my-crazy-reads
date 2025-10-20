@@ -199,6 +199,34 @@ const ModifierProche: React.FC = () => {
   const handleSave = async () => {
     if (!childData) return;
 
+    // Validation des champs obligatoires
+    const errors: string[] = [];
+
+    if (!firstName?.trim()) errors.push("le prénom");
+    if (!type) errors.push("le type de relation");
+    if (type === 'other' && !otherTypeName?.trim()) errors.push("la description du type de relation personnalisé");
+    if (selectedNickname === 'custom' && !nicknameCustomValue?.trim()) errors.push("le surnom personnalisé");
+    if (selectedSkinColor === 'custom' && !skinColorCustomValue?.trim()) errors.push("la couleur de peau personnalisée");
+    if (selectedHairColor === 'custom' && !hairColorCustomValue?.trim()) errors.push("la couleur des cheveux personnalisée");
+    if (hairType === 'custom' && !hairTypeCustom?.trim()) errors.push("le type de cheveux personnalisé");
+    
+    // Validation des traits personnalisés
+    for (const traitKey of Object.keys(customTraits)) {
+      if (!customTraits[traitKey]?.trim()) {
+        errors.push(`le trait personnalisé "${traitKey}"`);
+      }
+    }
+
+    // Validation de la sélection des enfants
+    if (selectedChildrenIds.length === 0) {
+      errors.push("au moins un enfant associé à ce proche");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+      return;
+    }
+
     setSaving(true);
     try {
       // Mettre à jour dans family_members

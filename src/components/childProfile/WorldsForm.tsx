@@ -82,21 +82,32 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
   };
 
   const handleSubmit = () => {
+    const errors: string[] = [];
+
+    // Validation des sélections minimales (facultatives mais si sélectionnées, doivent être valides)
+    if (favoriteWorlds.length === 0) {
+      errors.push("au moins un univers préféré");
+    }
+    if (discoveries.length === 0) {
+      errors.push("au moins un type de découverte");
+    }
+
     // Validation des champs personnalisés si nécessaire
     if (favoriteWorlds.includes("other1" as FavoriteWorldType) && !customWorlds?.other1) {
-      toast.error("Veuillez préciser l'univers personnalisé 1");
-      return;
+      errors.push("l'univers personnalisé 1");
     }
     if (favoriteWorlds.includes("other2" as FavoriteWorldType) && !customWorlds?.other2) {
-      toast.error("Veuillez préciser l'univers personnalisé 2");
-      return;
+      errors.push("l'univers personnalisé 2");
     }
     if (discoveries.includes("other1" as DiscoveryType) && !customDiscoveries?.other1) {
-      toast.error("Veuillez préciser la découverte personnalisée 1");
-      return;
+      errors.push("la découverte personnalisée 1");
     }
     if (discoveries.includes("other2" as DiscoveryType) && !customDiscoveries?.other2) {
-      toast.error("Veuillez préciser la découverte personnalisée 2");
+      errors.push("la découverte personnalisée 2");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez sélectionner ou préciser : ${errors.join(', ')}`);
       return;
     }
 

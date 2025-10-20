@@ -24,10 +24,31 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
 
   const handleContinue = () => {
-    // Vérifier si les champs de la section 2 sont valides
+    // Validation obligatoire : au moins 1 sélection dans chaque catégorie
     const superpowers = form.getValues().superpowers || [];
     const passions = form.getValues().passions || [];
     const challenges = form.getValues().challenges || [];
+    const height = form.getValues().height;
+
+    const errors: string[] = [];
+
+    if (!height) {
+      errors.push("la taille par rapport à son âge");
+    }
+    if (superpowers.length === 0) {
+      errors.push("au moins un super-pouvoir");
+    }
+    if (passions.length === 0) {
+      errors.push("au moins une passion");
+    }
+    if (challenges.length === 0) {
+      errors.push("au moins un défi");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez sélectionner : ${errors.join(', ')}`);
+      return;
+    }
 
     // Validation des sélections maximales
     if (superpowers.length > 3) {

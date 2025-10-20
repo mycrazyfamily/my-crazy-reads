@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "sonner";
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -130,6 +131,42 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       form.setValue("birthDate", undefined, { shouldValidate: true });
       setAgeDisplay("");
     }
+  };
+
+  const validateAndContinue = () => {
+    const errors: string[] = [];
+    const formData = form.getValues();
+
+    if (!formData.firstName?.trim()) errors.push("le prénom");
+    if (!formData.gender) errors.push("le genre");
+    if (!formData.birthDate) errors.push("la date de naissance");
+    if (ageError) errors.push("une date de naissance valide");
+    if (!formData.skinColor?.type) errors.push("la couleur de peau");
+    if (formData.skinColor?.type === 'custom' && !formData.skinColor?.custom?.trim()) {
+      errors.push("la couleur de peau personnalisée");
+    }
+    if (!formData.eyeColor?.type) errors.push("la couleur des yeux");
+    if (formData.eyeColor?.type === 'custom' && !formData.eyeColor?.custom?.trim()) {
+      errors.push("la couleur des yeux personnalisée");
+    }
+    if (!formData.hairColor?.type) errors.push("la couleur des cheveux");
+    if (formData.hairColor?.type === 'custom' && !formData.hairColor?.custom?.trim()) {
+      errors.push("la couleur des cheveux personnalisée");
+    }
+    if (!formData.hairType) errors.push("le type de cheveux");
+    if (formData.hairType === 'custom' && !formData.hairTypeCustom?.trim()) {
+      errors.push("le type de cheveux personnalisé");
+    }
+    if (formData.nickname?.type === 'custom' && !formData.nickname?.custom?.trim()) {
+      errors.push("le surnom personnalisé");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+      return;
+    }
+
+    handleNextStep();
   };
 
   return (
@@ -562,7 +599,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         <div className="pt-6 flex justify-center">
           <button 
             type="button" 
-            onClick={handleNextStep}
+            onClick={validateAndContinue}
             disabled={!!ageError}
             className={`bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
               ageError ? 'opacity-50 cursor-not-allowed' : ''

@@ -132,19 +132,26 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   };
 
   const validatePetData = (): boolean => {
+    const errors: string[] = [];
+
     if (!name.trim()) {
-      toast.error("Le prénom de l'animal est requis");
-      return false;
+      errors.push("le nom de l'animal");
+    }
+
+    if (!type) {
+      errors.push("le type d'animal");
     }
 
     if (type === 'other' && !otherType.trim()) {
-      toast.error("Veuillez préciser le type d'animal");
-      return false;
+      errors.push("le type d'animal personnalisé");
     }
 
     if (!breed.trim()) {
-      toast.error("La race de l'animal est requise");
-      return false;
+      errors.push("la race de l'animal");
+    }
+
+    if (selectedTraits.length === 0) {
+      errors.push("au moins un trait de caractère");
     }
 
     // Vérifier que les traits personnalisés sont remplis
@@ -153,7 +160,11 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     );
 
     if (hasEmptyCustomTrait) {
-      toast.error("Veuillez préciser tous les traits personnalisés");
+      errors.push("tous les traits personnalisés");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
       return false;
     }
 
