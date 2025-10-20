@@ -15,6 +15,7 @@ const ModifierAnimal: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [petData, setPetData] = useState<PetData | null>(null);
+  const [currentPetData, setCurrentPetData] = useState<PetData | null>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
 
@@ -166,6 +167,16 @@ const ModifierAnimal: React.FC = () => {
     navigate('/espace-famille');
   };
 
+  const handleSubmitClick = () => {
+    if (currentPetData) {
+      handleSave(currentPetData);
+    }
+  };
+
+  const handlePetDataChange = (updatedPet: PetData) => {
+    setCurrentPetData(updatedPet);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -205,6 +216,8 @@ const ModifierAnimal: React.FC = () => {
             pet={petData}
             onSave={handleSave}
             onCancel={handleCancel}
+            showButtons={false}
+            onDataChange={handlePetDataChange}
           />
 
           {existingChildren.length > 0 && (
@@ -215,6 +228,25 @@ const ModifierAnimal: React.FC = () => {
               label="Enfants associés à cet animal"
             />
           )}
+
+          {/* Boutons d'action */}
+          <div className="flex justify-between pt-4">
+            <Button 
+              type="button" 
+              onClick={handleCancel}
+              variant="outline"
+            >
+              Annuler
+            </Button>
+            
+            <Button 
+              type="button"
+              onClick={handleSubmitClick}
+              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+            >
+              Enregistrer les modifications
+            </Button>
+          </div>
         </div>
       </main>
       

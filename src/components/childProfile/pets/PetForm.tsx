@@ -15,9 +15,11 @@ type PetFormProps = {
   onSave: (pet: PetData, selectedChildrenIds?: string[]) => void;
   onCancel: () => void;
   isCreatingNewChild?: boolean;
+  showButtons?: boolean;
+  onDataChange?: (pet: PetData) => void;
 };
 
-const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false }) => {
+const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange }) => {
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
@@ -116,33 +118,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     });
   };
 
-  const handleSubmit = () => {
-    if (!name.trim()) {
-      toast.error("Le prénom de l'animal est requis");
-      return;
-    }
-
-    if (type === 'other' && !otherType.trim()) {
-      toast.error("Veuillez préciser le type d'animal");
-      return;
-    }
-
-    if (!breed.trim()) {
-      toast.error("La race de l'animal est requise");
-      return;
-    }
-
-    // Vérifier que les traits personnalisés sont remplis
-    const hasEmptyCustomTrait = selectedTraits.some(trait => 
-      (trait === 'other' || trait === 'other2') && (!customTraits[trait] || !customTraits[trait].trim())
-    );
-
-    if (hasEmptyCustomTrait) {
-      toast.error("Veuillez préciser tous les traits personnalisés");
-      return;
-    }
-
-    const newPet: PetData = {
+  const getPetData = (): PetData => {
+    return {
       id: pet?.id || Date.now().toString(),
       name: name.trim(),
       type,
@@ -152,9 +129,50 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       traits: selectedTraits,
       customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
+  };
 
+  const validatePetData = (): boolean => {
+    if (!name.trim()) {
+      toast.error("Le prénom de l'animal est requis");
+      return false;
+    }
+
+    if (type === 'other' && !otherType.trim()) {
+      toast.error("Veuillez préciser le type d'animal");
+      return false;
+    }
+
+    if (!breed.trim()) {
+      toast.error("La race de l'animal est requise");
+      return false;
+    }
+
+    // Vérifier que les traits personnalisés sont remplis
+    const hasEmptyCustomTrait = selectedTraits.some(trait => 
+      (trait === 'other' || trait === 'other2') && (!customTraits[trait] || !customTraits[trait].trim())
+    );
+
+    if (hasEmptyCustomTrait) {
+      toast.error("Veuillez préciser tous les traits personnalisés");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = () => {
+    if (!validatePetData()) return;
+    const newPet = getPetData();
     onSave(newPet, isCreatingNewChild ? selectedChildrenIds : undefined);
   };
+
+  // Notifier le parent des changements de données
+  useEffect(() => {
+    if (onDataChange) {
+      const petData = getPetData();
+      onDataChange(petData);
+    }
+  }, [name, type, otherType, breed, physicalDetails, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -296,23 +314,25 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       )}
 
       {/* Boutons d'action */}
-      <div className="flex justify-between pt-4">
-        <Button 
-          type="button" 
-          onClick={onCancel}
-          variant="outline"
-        >
-          Annuler
-        </Button>
-        
-        <Button 
-          type="button"
-          onClick={handleSubmit}
-          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
-        >
-          {pet ? 'Enregistrer les modifications' : 'Ajouter cet animal'}
-        </Button>
-      </div>
+      {showButtons && (
+        <div className="flex justify-between pt-4">
+          <Button 
+            type="button" 
+            onClick={onCancel}
+            variant="outline"
+          >
+            Annuler
+          </Button>
+          
+          <Button 
+            type="button"
+            onClick={handleSubmit}
+            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+          >
+            {pet ? 'Enregistrer les modifications' : 'Ajouter cet animal'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
