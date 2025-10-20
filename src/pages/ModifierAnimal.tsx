@@ -168,9 +168,55 @@ const ModifierAnimal: React.FC = () => {
   };
 
   const handleSubmitClick = () => {
-    if (currentPetData) {
-      handleSave(currentPetData);
+    if (!currentPetData) {
+      toast.error("Aucune donnée à enregistrer");
+      return;
     }
+
+    // Validation avant sauvegarde
+    const errors: string[] = [];
+
+    if (!currentPetData.name?.trim()) {
+      errors.push("le nom de l'animal");
+    }
+
+    if (!currentPetData.type) {
+      errors.push("le type d'animal");
+    }
+
+    if (currentPetData.type === 'other' && !currentPetData.otherType?.trim()) {
+      errors.push("le type d'animal personnalisé");
+    }
+
+    if (!currentPetData.breed?.trim()) {
+      errors.push("la race de l'animal");
+    }
+
+    if (!currentPetData.traits || currentPetData.traits.length === 0) {
+      errors.push("au moins un trait de caractère");
+    }
+
+    // Vérifier que les traits personnalisés sont remplis
+    const hasEmptyCustomTrait = currentPetData.traits?.some(trait => 
+      (trait === 'other' || trait === 'other2') && 
+      (!currentPetData.customTraits?.[trait] || !currentPetData.customTraits[trait].trim())
+    );
+
+    if (hasEmptyCustomTrait) {
+      errors.push("tous les traits personnalisés");
+    }
+
+    // Vérifier qu'au moins un enfant est associé
+    if (selectedChildrenIds.length === 0) {
+      errors.push("au moins un enfant associé à cet animal");
+    }
+
+    if (errors.length > 0) {
+      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+      return;
+    }
+
+    handleSave(currentPetData);
   };
 
   const handlePetDataChange = (updatedPet: PetData) => {

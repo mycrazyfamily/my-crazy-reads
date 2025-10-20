@@ -139,21 +139,40 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     const errors: string[] = [];
 
     if (!formData.firstName?.trim()) errors.push("le prénom");
-    if (!formData.type) errors.push("le type de relation");
+    if (!formData.type || !typeUI) errors.push("le type de relation");
     if (formData.type === 'other' && !formData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");
     }
-    if (selectedNickname === 'custom' && !formData.nickname.custom?.trim()) {
-      errors.push("le surnom personnalisé");
-    }
+    
+    // Couleur de peau
+    if (!selectedSkinColor) errors.push("la couleur de peau");
     if (selectedSkinColor === 'custom' && !formData.skinColor.custom?.trim()) {
       errors.push("la couleur de peau personnalisée");
     }
+    
+    // Couleur des cheveux
+    if (!selectedHairColor) errors.push("la couleur des cheveux");
     if (selectedHairColor === 'custom' && !formData.hairColor.custom?.trim()) {
       errors.push("la couleur des cheveux personnalisée");
     }
+    
+    // Type de cheveux
+    if (!hairTypeUI) errors.push("le type de cheveux");
     if (hairTypeUI === 'custom' && !formData.hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
+    }
+    
+    // Lunettes
+    if (glassesUI === null) errors.push("si le proche porte des lunettes (Oui/Non)");
+    
+    // Surnom
+    if (selectedNickname === 'custom' && !formData.nickname.custom?.trim()) {
+      errors.push("le surnom personnalisé");
+    }
+    
+    // Au moins un trait de caractère
+    if (formData.traits.length === 0) {
+      errors.push("au moins un trait de caractère");
     }
 
     // Validation des traits personnalisés
@@ -161,6 +180,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       if (!customTraits[traitKey]?.trim()) {
         errors.push(`le trait personnalisé "${traitKey}"`);
       }
+    }
+    
+    // Association à au moins un enfant (uniquement lors de la création d'un nouvel enfant)
+    if (isCreatingNewChild && existingChildren.length > 0 && selectedChildrenIds.length === 0) {
+      errors.push("au moins un enfant associé à ce proche");
     }
 
     if (errors.length > 0) {

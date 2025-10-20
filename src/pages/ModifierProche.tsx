@@ -204,11 +204,42 @@ const ModifierProche: React.FC = () => {
 
     if (!firstName?.trim()) errors.push("le prénom");
     if (!type) errors.push("le type de relation");
-    if (type === 'other' && !otherTypeName?.trim()) errors.push("la description du type de relation personnalisé");
-    if (selectedNickname === 'custom' && !nicknameCustomValue?.trim()) errors.push("le surnom personnalisé");
-    if (selectedSkinColor === 'custom' && !skinColorCustomValue?.trim()) errors.push("la couleur de peau personnalisée");
-    if (selectedHairColor === 'custom' && !hairColorCustomValue?.trim()) errors.push("la couleur des cheveux personnalisée");
-    if (hairType === 'custom' && !hairTypeCustom?.trim()) errors.push("le type de cheveux personnalisé");
+    if (type === 'other' && !otherTypeName?.trim()) {
+      errors.push("la description du type de relation personnalisé");
+    }
+    
+    // Couleur de peau
+    if (!selectedSkinColor) errors.push("la couleur de peau");
+    if (selectedSkinColor === 'custom' && !skinColorCustomValue?.trim()) {
+      errors.push("la couleur de peau personnalisée");
+    }
+    
+    // Couleur des cheveux
+    if (!selectedHairColor) errors.push("la couleur des cheveux");
+    if (selectedHairColor === 'custom' && !hairColorCustomValue?.trim()) {
+      errors.push("la couleur des cheveux personnalisée");
+    }
+    
+    // Type de cheveux
+    if (!hairType) errors.push("le type de cheveux");
+    if (hairType === 'custom' && !hairTypeCustom?.trim()) {
+      errors.push("le type de cheveux personnalisé");
+    }
+    
+    // Lunettes
+    if (glasses === null || glasses === undefined) {
+      errors.push("si le proche porte des lunettes (Oui/Non)");
+    }
+    
+    // Surnom
+    if (selectedNickname === 'custom' && !nicknameCustomValue?.trim()) {
+      errors.push("le surnom personnalisé");
+    }
+    
+    // Au moins un trait de caractère
+    if (traits.length === 0) {
+      errors.push("au moins un trait de caractère");
+    }
     
     // Validation des traits personnalisés
     for (const traitKey of Object.keys(customTraits)) {

@@ -141,25 +141,37 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     if (!formData.gender) errors.push("le genre");
     if (!formData.birthDate) errors.push("la date de naissance");
     if (ageError) errors.push("une date de naissance valide");
-    if (!formData.skinColor?.type) errors.push("la couleur de peau");
+    
+    // Couleur de peau
+    if (!formData.skinColor?.type || !selectedSkinColor) errors.push("la couleur de peau");
     if (formData.skinColor?.type === 'custom' && !formData.skinColor?.custom?.trim()) {
       errors.push("la couleur de peau personnalisée");
     }
-    if (!formData.eyeColor?.type) errors.push("la couleur des yeux");
+    
+    // Couleur des yeux
+    if (!formData.eyeColor?.type || !selectedEyeColor) errors.push("la couleur des yeux");
     if (formData.eyeColor?.type === 'custom' && !formData.eyeColor?.custom?.trim()) {
       errors.push("la couleur des yeux personnalisée");
     }
-    if (!formData.hairColor?.type) errors.push("la couleur des cheveux");
+    
+    // Couleur des cheveux
+    if (!formData.hairColor?.type || !selectedHairColor) errors.push("la couleur des cheveux");
     if (formData.hairColor?.type === 'custom' && !formData.hairColor?.custom?.trim()) {
       errors.push("la couleur des cheveux personnalisée");
     }
-    if (!formData.hairType) errors.push("le type de cheveux");
+    
+    // Type de cheveux
+    if (!formData.hairType) errors.push("le type de cheveux (comment sont les cheveux)");
     if (formData.hairType === 'custom' && !formData.hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
     }
+    
+    // Lunettes
     if (formData.glasses === undefined || formData.glasses === null) {
       errors.push("si l'enfant porte des lunettes (Oui/Non)");
     }
+    
+    // Surnom
     if (formData.nickname?.type === 'custom' && !formData.nickname?.custom?.trim()) {
       errors.push("le surnom personnalisé");
     }
