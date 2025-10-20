@@ -50,10 +50,15 @@ const ModifierAnimal: React.FC = () => {
       if (error) throw error;
 
       if (data && data.pets) {
+        const storedType = data.relation_label || data.pets.type;
+        const predefinedTypes = ['dog', 'cat', 'rabbit', 'bird', 'fish', 'reptile', 'other'];
+        const isCustomType = storedType && !predefinedTypes.includes(storedType);
+        
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
-          type: (data.relation_label || data.pets.type) as PetType,
+          type: isCustomType ? 'other' : (storedType as PetType),
+          otherType: isCustomType ? storedType : undefined,
           breed: (data.pets as any).breed || undefined,
           physicalDetails: (data.pets as any).physical_details || undefined,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
@@ -104,11 +109,15 @@ const ModifierAnimal: React.FC = () => {
 
     try {
       // Mettre à jour le pet dans la table pets
+      const finalType = updatedPet.type === 'other' && updatedPet.otherType 
+        ? updatedPet.otherType 
+        : updatedPet.type;
+      
       const { error: updatePetError } = await supabase
         .from('pets')
         .update({
           name: updatedPet.name,
-          type: updatedPet.type,
+          type: finalType,
           breed: updatedPet.breed || null,
           physical_details: updatedPet.physicalDetails || null
         })
@@ -132,7 +141,7 @@ const ModifierAnimal: React.FC = () => {
           name: updatedPet.name,
           traits: updatedPet.traits?.join(', ') || null,
           traits_custom: updatedPet.customTraits || null,
-          relation_label: updatedPet.type
+          relation_label: finalType
         }));
         
         console.log('Saving pet with customTraits:', updatedPet.customTraits);

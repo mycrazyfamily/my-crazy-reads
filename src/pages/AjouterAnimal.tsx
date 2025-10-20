@@ -183,11 +183,15 @@ export default function AjouterAnimal() {
       }
 
       // 6. Créer l'animal dans la table pets avec le family_id
+      const finalType = petData.type === 'other' && petData.otherType 
+        ? petData.otherType 
+        : petData.type;
+      
       const { data: pet, error: petError } = await supabase
         .from('pets')
         .insert({
           name: petData.name,
-          type: petData.type || petData.otherType,
+          type: finalType,
           breed: petData.breed || null,
           physical_details: petData.physicalDetails || null,
           emoji: null,
@@ -205,7 +209,7 @@ export default function AjouterAnimal() {
         name: petData.name,
         traits: petData.traits?.join(', ') || null,
         traits_custom: petData.customTraits || null,
-        relation_label: petData.type
+        relation_label: finalType
       }));
       
       console.log('Saving pet with customTraits:', petData.customTraits);
