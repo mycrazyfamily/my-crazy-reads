@@ -134,7 +134,23 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             family_id: familyId,
             name: relative.firstName,
             role: relative.type,
-            avatar: '👤', // On pourrait générer un avatar basé sur le type
+            avatar: '👤',
+            // Persist full relative profile for edit prefill
+            details: {
+              nickname: relative.nickname,
+              skinColor: relative.skinColor,
+              hairColor: relative.hairColor,
+              hairType: relative.hairType,
+              hairTypeCustom: relative.hairTypeCustom,
+              glasses: relative.glasses,
+              traits: relative.traits,
+              customTraits: relative.customTraits || {},
+              age: relative.age,
+              birthDate: relative.birthDate ? relative.birthDate.toISOString().split('T')[0] : null,
+              job: relative.job,
+              gender: relative.gender,
+              otherTypeName: relative.otherTypeName
+            }
           }));
 
           const { data: createdMembers, error: membersError } = await supabase
@@ -415,6 +431,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             family_id: familyId,
             name: pet.name,
             type: pet.type || pet.otherType || 'autre',
+            breed: pet.breed || null,
+            physical_details: pet.physicalDetails || null,
             emoji: null
           }));
 
@@ -438,6 +456,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             pet_id: petId,
             name: data.pets!.pets[index].name,
             traits: data.pets!.pets[index].traits?.join(', ') || null,
+            traits_custom: data.pets!.pets[index].customTraits || null,
             relation_label: data.pets!.pets[index].type || data.pets!.pets[index].otherType || null
           }));
 
