@@ -14,6 +14,7 @@ type RelativeFormProps = {
   onSave: (relative: RelativeData, selectedChildrenIds?: string[]) => void;
   onCancel: () => void;
   isCreatingNewChild?: boolean;
+  isDisabled?: boolean;
 };
 
 // Helper function to determine gender based on relative type
@@ -30,7 +31,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   relative,
   onSave,
   onCancel,
-  isCreatingNewChild = false
+  isCreatingNewChild = false,
+  isDisabled = false
 }) => {
   const [formData, setFormData] = useState<RelativeData>({
     ...relative,
@@ -306,6 +308,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           type="button"
           variant="outline" 
           onClick={onCancel}
+          disabled={isDisabled}
         >
           Annuler
         </Button>
@@ -313,8 +316,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           type="button"
           className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
           onClick={handleSaveClick}
+          disabled={isDisabled}
         >
-          Enregistrer
+          {isDisabled ? 'Enregistrement...' : 'Enregistrer'}
         </Button>
       </div>
     </div>

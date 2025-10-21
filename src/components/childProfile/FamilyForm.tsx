@@ -36,6 +36,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [currentRelative, setCurrentRelative] = useState<RelativeData | null>(null);
   const [isEditingRelative, setIsEditingRelative] = useState(false);
+  const [isSavingRelative, setIsSavingRelative] = useState(false);
   const [existingRelatives, setExistingRelatives] = useState<ExistingRelative[]>([]);
   const [selectedExistingRelativeIds, setSelectedExistingRelativeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +149,10 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     setIsEditingRelative(true);
   };
   const handleSaveRelative = (relative: RelativeData, selectedChildrenIds?: string[]) => {
+    // Marquer comme en cours de sauvegarde pour éviter les doubles clics
+    if (isSavingRelative) return;
+    setIsSavingRelative(true);
+    
     // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
     if (selectedChildrenIds && selectedChildrenIds.length > 0) {
       const existingLinks = form.getValues().family?.relativeChildLinks || {};
@@ -161,10 +166,12 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Validation basique
     if (!relative.firstName) {
       toast.error("Le prénom est requis");
+      setIsSavingRelative(false);
       return;
     }
     if (relative.traits.length > 3) {
       toast.error("Veuillez sélectionner au maximum 3 traits de caractère");
+      setIsSavingRelative(false);
       return;
     }
 
@@ -191,9 +198,13 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Réinitialiser l'état de sélection après avoir sauvegardé un proche
     form.setValue("family.selectedRelatives", []);
 
-    // Réinitialiser l'état
-    setCurrentRelative(null);
-    setIsEditingRelative(false);
+    // CRITICAL FIX: Attendre que les Portals (DatePicker, etc.) se démontent proprement
+    // avant de démonter le composant RelativeForm parent
+    setTimeout(() => {
+      setCurrentRelative(null);
+      setIsEditingRelative(false);
+      setIsSavingRelative(false);
+    }, 100); // Délai suffisant pour permettre au Portal de se nettoyer
   };
   const handleEditRelative = (relative: RelativeData) => {
     // Ensure the relative has a gender property
@@ -215,8 +226,11 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     form.setValue("family.relatives", updatedRelatives);
   };
   const handleCancelRelativeEdit = () => {
-    setCurrentRelative(null);
-    setIsEditingRelative(false);
+    // CRITICAL FIX: Même logique pour l'annulation - laisser le temps aux Portals de se nettoyer
+    setTimeout(() => {
+      setCurrentRelative(null);
+      setIsEditingRelative(false);
+    }, 100);
   };
   const handleFamilySectionContinue = () => {
     // Sauvegarder les IDs et les données des proches existants sélectionnés
@@ -305,6 +319,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
             onSave={handleSaveRelative} 
             onCancel={handleCancelRelativeEdit}
             isCreatingNewChild={true}
+            isDisabled={isSavingRelative}
           />
         </div>}
     </div>;
