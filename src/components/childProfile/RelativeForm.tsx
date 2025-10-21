@@ -182,10 +182,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       }
     }
     
-    // Association à au moins un enfant (uniquement lors de la création d'un nouvel enfant)
-    if (isCreatingNewChild && existingChildren.length > 0 && selectedChildrenIds.length === 0) {
-      errors.push("au moins un enfant associé à ce proche");
-    }
+    // Pendant la création d'un nouvel enfant, l'association aux enfants existants est facultative.
+    // La validation d'association est gérée par les pages dédiées (Ajouter/Modifier Proche).
+    // => Pas de vérification ici.
 
     if (errors.length > 0) {
       toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
