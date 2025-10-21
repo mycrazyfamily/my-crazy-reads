@@ -22,6 +22,7 @@ import { AlertTriangle } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "sonner";
+import ErrorBoundary from "@/components/util/ErrorBoundary";
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -255,36 +256,44 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               </FormLabel>
               <FormControl>
                 <div className="relative">
-                  <DatePicker
-                    selected={field.value}
-                    onChange={handleDateChange}
-                    showYearDropdown
-                    showMonthDropdown
-                    dropdownMode="select"
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="JJ/MM/AAAA"
-                    locale={fr}
-                    maxDate={new Date()}
-                    minDate={getMinDate()}
-                    yearDropdownItemNumber={15}
-                    customInput={
-                      <Input 
-                        className={cn(
-                          "border-mcf-amber",
-                          ageError ? "border-red-500 focus-visible:ring-red-500" : ""
-                        )}
-                      />
-                    }
-                    portalId="portal-root"
-                    popperContainer={({ children }) => {
-                      const portalRoot = document.getElementById('portal-root');
-                      if (!portalRoot) return <>{children}</>;
-                      return ReactDOM.createPortal(children, portalRoot);
-                    }}
-                    className="z-50"
-                    onCalendarOpen={() => console.log('📅 BasicInfo DatePicker opened')}
-                    onCalendarClose={() => console.log('📅 BasicInfo DatePicker closed')}
-                  />
+                  <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
+                    <DatePicker
+                      selected={field.value}
+                      onChange={handleDateChange}
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="JJ/MM/AAAA"
+                      locale={fr}
+                      maxDate={new Date()}
+                      minDate={getMinDate()}
+                      yearDropdownItemNumber={15}
+                      autoFocus={false}
+                      customInput={
+                        <Input 
+                          className={cn(
+                            "border-mcf-amber",
+                            ageError ? "border-red-500 focus-visible:ring-red-500" : ""
+                          )}
+                        />
+                      }
+                      portalId="datepicker-portal"
+                      popperContainer={({ children }) => {
+                        const portalRoot = document.getElementById('datepicker-portal');
+                        if (!portalRoot) return <>{children}</>;
+                        return ReactDOM.createPortal(children, portalRoot);
+                      }}
+                      calendarContainer={(containerProps) => {
+                        const portalRoot = document.getElementById('datepicker-portal');
+                        const node = <div {...containerProps} />;
+                        return portalRoot ? ReactDOM.createPortal(node, portalRoot) : node;
+                      }}
+                      className="z-50"
+                      onCalendarOpen={() => console.log('📅 BasicInfo DatePicker opened')}
+                      onCalendarClose={() => console.log('📅 BasicInfo DatePicker closed')}
+                    />
+                  </ErrorBoundary>
                 </div>
               </FormControl>
               <FormDescription>
