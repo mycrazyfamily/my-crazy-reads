@@ -68,7 +68,6 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
           isAuthenticated: true,
         });
         
-        toast.success("Connexion réussie !");
         navigate('/espace-famille');
       }
     } catch (err) {
@@ -111,7 +110,6 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       }
 
       navigate('/check-email');
-      toast.success("Un email de confirmation vous a été envoyé.");
       
       setFormData({
         email: '',
@@ -148,7 +146,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
       
-      toast.success("Un lien de réinitialisation a été envoyé à votre adresse email.");
+      
     } catch (err) {
       console.error('Erreur inattendue:', err);
       toast.error("Une erreur inattendue est survenue");
@@ -163,7 +161,6 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       isAuthenticated: true,
       isTemporary: true
     });
-    toast.success("Compte temporaire créé. Vous pourrez le sauvegarder plus tard.");
     navigate('/espace-famille');
   };
 

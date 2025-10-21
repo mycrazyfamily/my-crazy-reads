@@ -54,7 +54,6 @@ const ToysForm: React.FC<ToysFormProps> = ({
   const handleDeleteToy = (id: string) => {
     const updatedToys = toys.filter(toy => toy.id !== id);
     form.setValue("toys.toys", updatedToys, { shouldDirty: true });
-    toast.success("Doudou supprimé avec succès");
   };
 
   const handleToggleActive = (id: string) => {
@@ -64,11 +63,7 @@ const ToysForm: React.FC<ToysFormProps> = ({
     form.setValue("toys.toys", updatedToys, { shouldDirty: true });
     
     const toy = toys.find(t => t.id === id);
-    if (toy?.isActive === false) {
-      toast.success("Doudou marqué comme utilisé à nouveau");
-    } else {
-      toast.success("Doudou marqué comme perdu/non utilisé");
-    }
+    // Status updated silently
   };
 
   const handleSaveToy = (toy: ToyData) => {
@@ -89,11 +84,6 @@ const ToysForm: React.FC<ToysFormProps> = ({
     form.setValue("toys.toys", updatedToys, { shouldDirty: true });
     setIsAddingToy(false);
     setCurrentToy(null);
-    
-    toast.success(isEditing 
-      ? "Doudou modifié avec succès" 
-      : "Doudou ajouté avec succès"
-    );
   };
 
   const handleCancelToyForm = () => {

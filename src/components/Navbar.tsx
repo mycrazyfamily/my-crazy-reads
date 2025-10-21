@@ -37,7 +37,6 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success('Vous avez été déconnecté avec succès');
   };
 
   const handleHomeClick = () => {

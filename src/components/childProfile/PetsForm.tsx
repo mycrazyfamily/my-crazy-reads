@@ -185,7 +185,6 @@ const PetsForm: React.FC<PetsFormProps> = ({
   const handleDeletePet = (id: string) => {
     const updatedPets = pets.filter(pet => pet.id !== id);
     form.setValue("pets.pets", updatedPets, { shouldDirty: true });
-    toast.success("Animal supprimé avec succès");
   };
 
   const handleSavePet = (pet: PetData, selectedChildrenIds?: string[]) => {
@@ -212,11 +211,6 @@ const PetsForm: React.FC<PetsFormProps> = ({
     form.setValue("pets.pets", updatedPets, { shouldDirty: true });
     setIsAddingPet(false);
     setCurrentPet(null);
-    
-    toast.success(isEditing 
-      ? "Animal modifié avec succès" 
-      : "Animal ajouté avec succès"
-    );
   };
 
   const handleCancelPetForm = () => {

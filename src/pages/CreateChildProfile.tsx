@@ -303,7 +303,7 @@ const CreateChildProfile = ({
           }
         }
 
-        toast.success("Profil modifié avec succès !");
+        
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         setTimeout(() => {

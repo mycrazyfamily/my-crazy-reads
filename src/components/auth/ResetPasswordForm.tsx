@@ -85,8 +85,6 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ accessToken, refr
           isAuthenticated: true,
         });
       }
-
-      toast.success("Mot de passe mis à jour avec succès !");
       navigate('/espace-famille');
     } catch (err) {
       console.error('Erreur inattendue:', err);

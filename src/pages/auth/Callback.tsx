@@ -116,7 +116,6 @@ const Callback = () => {
         });
 
         console.log('Authentication successful - redirecting to family dashboard');
-        toast.success("Connexion réussie ✅");
         
         // Petite delay pour s'assurer que l'état d'auth est mis à jour
         setTimeout(() => {

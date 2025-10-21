@@ -194,7 +194,6 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Réinitialiser l'état
     setCurrentRelative(null);
     setIsEditingRelative(false);
-    toast.success(isUpdate ? "Proche modifié avec succès !" : "Proche ajouté avec succès !");
   };
   const handleEditRelative = (relative: RelativeData) => {
     // Ensure the relative has a gender property
@@ -214,7 +213,6 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
 
     // Mettre à jour le formulaire
     form.setValue("family.relatives", updatedRelatives);
-    toast.success("Proche supprimé avec succès !");
   };
   const handleCancelRelativeEdit = () => {
     setCurrentRelative(null);

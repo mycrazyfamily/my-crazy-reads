@@ -117,7 +117,6 @@ const ResetPassword = () => {
       const sessionEstablished = await waitForSession;
 
       if (sessionEstablished) {
-        toast.success("Mot de passe mis à jour avec succès ! Vous êtes maintenant connecté.");
         navigate('/espace-famille');
       } else {
         // Fallback: try to get the session directly
@@ -127,7 +126,6 @@ const ResetPassword = () => {
             email: session.user.email || '',
             isAuthenticated: true,
           });
-          toast.success("Mot de passe mis à jour avec succès ! Vous êtes maintenant connecté.");
           navigate('/espace-famille');
         } else {
           toast.error("Mot de passe mis à jour mais connexion automatique échouée. Veuillez vous reconnecter.");

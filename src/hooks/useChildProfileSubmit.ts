@@ -540,10 +540,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             }
           }
         }
-
-        toast.success(isGiftMode
-          ? "Profil créé et sauvegardé !"
-          : "Profil enregistré, l'aventure peut commencer !");
         
         // Clear stored form data only after a successful save
         localStorage.removeItem(FORM_STORAGE_KEY);

@@ -198,8 +198,6 @@ export default function AjouterProche() {
         .insert(childFamilyMemberRecords);
 
       if (linkError) throw linkError;
-
-      toast.success(`Proche ajouté avec succès pour ${selectedChildIds.length} enfant(s) !`);
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);

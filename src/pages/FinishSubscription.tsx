@@ -27,7 +27,6 @@ const FinishSubscription = () => {
       });
       
       setIsProcessing(false);
-      toast.success("Félicitations ! Votre abonnement a été activé avec succès.");
       navigate('/confirmation');
     }, 1500);
   };

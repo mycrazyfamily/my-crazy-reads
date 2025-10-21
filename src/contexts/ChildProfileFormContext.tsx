@@ -308,10 +308,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     
     if (initialStep !== undefined) {
       console.log(`Navigation vers l'étape ${initialStep + 1} via initialStep`);
-      toast.success(`Navigation vers l'étape ${initialStep + 1}`);
     } else if (locationState?.targetStep !== undefined) {
       console.log(`Navigation vers l'étape ${locationState.targetStep + 1} via locationState`);
-      toast.success(`Navigation vers l'étape ${locationState.targetStep + 1}`);
     }
   }, [form, familyCode, initialStep, locationState, editMode, useSavedDraft]);
 
@@ -354,7 +352,6 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       }
       
       setFormStep(nextStep);
-      toast.success("Section complétée !");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       toast.error("Veuillez compléter tous les champs requis");

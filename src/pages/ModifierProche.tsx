@@ -312,8 +312,6 @@ const ModifierProche: React.FC = () => {
 
         if (insertError) throw insertError;
       }
-
-      toast.success("Proche modifié avec succès !");
       navigate('/espace-famille');
     } catch (e) {
       console.error('Error saving relative:', e);
