@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useFormContext } from 'react-hook-form';
 import { 
   FormField, 
@@ -275,6 +276,11 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                       />
                     }
                     portalId="portal-root"
+                    popperContainer={({ children }) => {
+                      const portalRoot = document.getElementById('portal-root');
+                      if (!portalRoot) return <>{children}</>;
+                      return ReactDOM.createPortal(children, portalRoot);
+                    }}
                     className="z-50"
                     onCalendarOpen={() => console.log('📅 BasicInfo DatePicker opened')}
                     onCalendarClose={() => console.log('📅 BasicInfo DatePicker closed')}

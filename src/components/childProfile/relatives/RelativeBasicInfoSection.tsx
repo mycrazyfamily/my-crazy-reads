@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
@@ -184,6 +185,11 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
               />
             }
             portalId="portal-root"
+            popperContainer={({ children }) => {
+              const portalRoot = document.getElementById('portal-root');
+              if (!portalRoot) return <>{children}</>;
+              return ReactDOM.createPortal(children, portalRoot);
+            }}
             className="z-50"
             onCalendarOpen={() => console.log('📅 Relative DatePicker opened')}
             onCalendarClose={() => console.log('📅 Relative DatePicker closed')}
