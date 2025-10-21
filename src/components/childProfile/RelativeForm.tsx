@@ -139,7 +139,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     const errors: string[] = [];
 
     if (!formData.firstName?.trim()) errors.push("le prénom");
-    if (!formData.type || !typeUI) errors.push("le type de relation");
+    if (!formData.type) errors.push("le type de relation");
     if (formData.type === 'other' && !formData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");
     }
