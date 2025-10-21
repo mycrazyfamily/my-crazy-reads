@@ -183,7 +183,10 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
                 className="border-mcf-amber"
               />
             }
+            portalId="portal-root"
             className="z-50"
+            onCalendarOpen={() => console.log('📅 Relative DatePicker opened')}
+            onCalendarClose={() => console.log('📅 Relative DatePicker closed')}
           />
         </div>
         {ageDisplay && (

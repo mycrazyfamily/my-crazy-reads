@@ -274,7 +274,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                         )}
                       />
                     }
+                    portalId="portal-root"
                     className="z-50"
+                    onCalendarOpen={() => console.log('📅 BasicInfo DatePicker opened')}
+                    onCalendarClose={() => console.log('📅 BasicInfo DatePicker closed')}
                   />
                 </div>
               </FormControl>
