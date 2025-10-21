@@ -259,7 +259,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
         <p className="text-sm text-gray-600 italic">Vous pourrez toujours ajouter ou modifier les membres de la famille plus tard si vous le souhaitez</p>
       </div>
       
-      {!isEditingRelative ? <form className="space-y-8">
+      {!isEditingRelative ? <div className="space-y-8">
           {/* Liste des proches existants à sélectionner */}
           {!loading && existingRelatives.length > 0 && (
             <ExistingRelativesList 
@@ -299,7 +299,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               </Button>
             </div>
           </div>
-        </form> : currentRelative && <div className="animate-fade-in">
+        </div> : currentRelative && <div className="animate-fade-in">
           <RelativeForm 
             relative={currentRelative} 
             onSave={handleSaveRelative} 

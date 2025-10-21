@@ -304,12 +304,14 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       
       <div className="flex justify-between mt-8">
         <Button 
+          type="button"
           variant="outline" 
           onClick={onCancel}
         >
           Annuler
         </Button>
         <Button 
+          type="button"
           className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
           onClick={handleSaveClick}
         >
