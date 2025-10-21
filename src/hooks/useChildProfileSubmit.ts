@@ -81,7 +81,17 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           return;
         }
 
-        let familyId = userProfile.family_id;
+        // S'assurer que le profil utilisateur existe (première inscription)
+        if (!userProfile) {
+          const { error: ensureProfileError } = await supabase
+            .from('user_profiles')
+            .upsert({ id: userId }, { onConflict: 'id' });
+          if (ensureProfileError) {
+            console.warn('Could not ensure user profile exists:', ensureProfileError);
+          }
+        }
+
+        let familyId = userProfile?.family_id ?? null;
 
         // Si pas de famille, en créer une
         if (!familyId) {
