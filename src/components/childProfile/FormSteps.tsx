@@ -10,6 +10,7 @@ import WorldsForm from '@/components/childProfile/WorldsForm';
 import FinalSummary from '@/components/childProfile/FinalSummary';
 import NavigationButtons from '@/components/childProfile/personality/NavigationButtons';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
+import ErrorBoundary from '@/components/util/ErrorBoundary';
 
 type FormStepsProps = {
   isGiftMode?: boolean;
@@ -35,6 +36,19 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     setSelectedHairColor,
     handleSubmitForm
   } = useChildProfileForm();
+
+  const goNext = React.useCallback(() => {
+    console.log("🎯 Changing step:", formStep, "→", formStep + 1)
+    handleNextStep()
+  }, [formStep, handleNextStep])
+  const goPrev = React.useCallback(() => {
+    console.log("🎯 Changing step:", formStep, "→", formStep - 1)
+    handlePreviousStep()
+  }, [formStep, handlePreviousStep])
+  const goTo = React.useCallback((n: number) => {
+    console.log("🎯 Changing step:", formStep, "→", n)
+    handleGoToStep(n)
+  }, [formStep, handleGoToStep])
 
   console.log("Current form step:", formStep);
 
@@ -72,42 +86,44 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
           setSelectedEyeColor={setSelectedEyeColor}
           selectedHairColor={selectedHairColor}
           setSelectedHairColor={setSelectedHairColor}
-          handleNextStep={handleNextStep}
+          handleNextStep={goNext}
         />
       )}
 
       {formStep === 1 && (
         <PersonalityForm
-          handleNextStep={handleNextStep}
-          handlePreviousStep={handlePreviousStep}
+          handleNextStep={goNext}
+          handlePreviousStep={goPrev}
         />
       )}
 
       {formStep === 2 && !editMode && (
-        <FamilyForm
-          handlePreviousStep={handlePreviousStep}
-          onSubmit={() => handleNextStep()}
-        />
+        <ErrorBoundary fallback={<div>Erreur dans la fiche proche</div>}>
+          <FamilyForm
+            handlePreviousStep={goPrev}
+            onSubmit={() => goNext()}
+          />
+        </ErrorBoundary>
       )}
 
       {formStep === 3 && !editMode && (
         <PetsForm
-          handleNextStep={handleNextStep}
-          handlePreviousStep={handlePreviousStep}
+          handleNextStep={goNext}
+          handlePreviousStep={goPrev}
         />
       )}
 
       {formStep === 4 && (
         <ToysForm
-          handleNextStep={handleNextStep}
-          handlePreviousStep={handlePreviousStep}
+          handleNextStep={goNext}
+          handlePreviousStep={goPrev}
         />
       )}
 
       {formStep === 5 && (
         <WorldsForm
-          handleNextStep={handleNextStep}
-          handlePreviousStep={handlePreviousStep}
+          handleNextStep={goNext}
+          handlePreviousStep={goPrev}
         />
       )}
 

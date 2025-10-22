@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
 import RelativeForm from '@/components/childProfile/RelativeForm';
+import ErrorBoundary from '@/components/util/ErrorBoundary';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
 import type { RelativeData } from '@/types/childProfile';
@@ -308,12 +309,14 @@ export default function AjouterProche() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <RelativeForm 
-                key={relativeKey}
-                relative={createEmptyRelative()}
-                onSave={handleAddRelative} 
-                onCancel={() => navigate('/espace-famille')} 
-              />
+              <ErrorBoundary fallback={<div>Erreur dans la fiche proche</div>}>
+                <RelativeForm 
+                  key={relativeKey}
+                  relative={createEmptyRelative()}
+                  onSave={handleAddRelative} 
+                  onCancel={() => navigate('/espace-famille')} 
+                />
+              </ErrorBoundary>
             </CardContent>
           </Card>
         )}

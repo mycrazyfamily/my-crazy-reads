@@ -30,6 +30,11 @@ const AlertDialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
 >(({ className, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`AlertDialogContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] AlertDialogContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] AlertDialogContent unmounted", idRef.current)
+  }, [])
   return (
     <AlertDialogPortal container={container}>
       <AlertDialogOverlay />

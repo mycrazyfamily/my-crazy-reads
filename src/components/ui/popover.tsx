@@ -12,6 +12,11 @@ const PopoverContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`PopoverContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] PopoverContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] PopoverContent unmounted", idRef.current)
+  }, [])
   return (
     <PopoverPrimitive.Portal container={container}>
       <PopoverPrimitive.Content

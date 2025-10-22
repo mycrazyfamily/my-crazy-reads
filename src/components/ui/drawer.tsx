@@ -37,6 +37,11 @@ const DrawerContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`DrawerContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] DrawerContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] DrawerContent unmounted", idRef.current)
+  }, [])
   return (
     <DrawerPortal container={container as any}>
       <DrawerOverlay />

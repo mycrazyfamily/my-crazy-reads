@@ -14,6 +14,11 @@ const TooltipContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`TooltipContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] TooltipContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] TooltipContent unmounted", idRef.current)
+  }, [])
   return (
     <TooltipPrimitive.Portal container={container}>
       <TooltipPrimitive.Content

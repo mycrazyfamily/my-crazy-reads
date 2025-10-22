@@ -56,6 +56,11 @@ const SheetContent = React.forwardRef<
   SheetContentProps
 >(({ side = "right", className, children, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`SheetContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] SheetContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] SheetContent unmounted", idRef.current)
+  }, [])
   return (
     <SheetPortal container={container}>
       <SheetOverlay />

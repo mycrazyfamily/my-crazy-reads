@@ -32,6 +32,11 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   const container = typeof document !== "undefined" ? document.getElementById("portal-root") ?? undefined : undefined
+  const idRef = React.useRef(`DialogContent-${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  React.useEffect(() => {
+    console.log("🟣 [Portal] DialogContent mounted", idRef.current)
+    return () => console.log("🔻 [Portal] DialogContent unmounted", idRef.current)
+  }, [])
   return (
     <DialogPortal container={container}>
       <DialogOverlay />
