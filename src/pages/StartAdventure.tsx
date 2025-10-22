@@ -56,11 +56,11 @@ const StartAdventure = () => {
               onClick={() => setSelectedOption('monthly')}
             >
               <h3 className="text-xl font-bold mb-2">Abonnement mensuel</h3>
-              <p className="text-3xl font-bold text-mcf-orange-dark mb-2">9,90€<span className="text-base font-normal text-gray-600">/mois</span></p>
+              <p className="text-3xl font-bold text-mcf-orange-dark mb-2">19,99€<span className="text-base font-normal text-gray-600">/mois</span></p>
               <ul className="space-y-2 text-gray-700">
                 <li>• 1 livre personnalisé chaque mois</li>
                 <li>• Sans engagement</li>
-                <li>• Modifiable à tout moment</li>
+                <li>• Livraison incluse</li>
               </ul>
             </div>
             
@@ -75,12 +75,12 @@ const StartAdventure = () => {
               onClick={() => setSelectedOption('yearly')}
             >
               <h3 className="text-xl font-bold mb-2">Abonnement annuel</h3>
-              <p className="text-3xl font-bold text-mcf-orange-dark mb-2">99€<span className="text-base font-normal text-gray-600">/an</span></p>
-              <p className="text-sm bg-mcf-amber/20 text-mcf-orange-dark p-2 rounded mb-2">Économisez 2 mois gratuits!</p>
+              <p className="text-3xl font-bold text-mcf-orange-dark mb-2">219,99€<span className="text-base font-normal text-gray-600">/an</span></p>
+              <p className="text-sm bg-mcf-amber/20 text-mcf-orange-dark p-2 rounded mb-2">Économisez 1 mois gratuit!</p>
               <ul className="space-y-2 text-gray-700">
                 <li>• 1 livre personnalisé chaque mois</li>
                 <li>• Cadeau de bienvenue offert</li>
-                <li>• 2 mois gratuits</li>
+                <li>• Livraison incluse</li>
               </ul>
             </div>
           </div>

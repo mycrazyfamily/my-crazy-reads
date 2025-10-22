@@ -21,7 +21,7 @@ const Abonnement: React.FC = () => {
               {/* Formule mensuelle */}
               <div className="border border-mcf-mint rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-shadow duration-300 animate-fade-in animation-delay-100">
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement mensuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">9,90€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
+                <p className="text-3xl font-bold mb-4 text-mcf-secondary">19,99€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
@@ -33,7 +33,7 @@ const Abonnement: React.FC = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Livraison gratuite</span>
+                    <span>Livraison incluse</span>
                   </li>
                 </ul>
                 <button 
@@ -50,7 +50,7 @@ const Abonnement: React.FC = () => {
                   ÉCONOMIE DE 20%
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement annuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
+                <p className="text-3xl font-bold mb-4 text-mcf-secondary">219,99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
@@ -62,11 +62,11 @@ const Abonnement: React.FC = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>2 mois gratuits</span>
+                    <span>1 mois gratuit</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Livraison gratuite</span>
+                    <span>Livraison incluse</span>
                   </li>
                 </ul>
                 <button 
