@@ -8,7 +8,7 @@ import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 import { differenceInMonths, differenceInYears, isAfter, format } from "date-fns";
 import { fr } from 'date-fns/locale';
-import { Calendar } from "@/components/ui/calendar";
+import { StepDatePicker } from "@/components/ui/step-date-picker";
 
 type RelativeBasicInfoSectionProps = {
   type: RelativeType;
@@ -176,34 +176,31 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">🎂</span> Date de naissance
         </label>
-          <div className="relative">
-            {ready ? (
-              <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
-                <div className="space-y-2">
-                  <Input
-                    value={birthDate ? format(birthDate, 'dd/MM/yyyy') : ''}
-                    readOnly
-                    placeholder="JJ/MM/AAAA"
-                    className="border-mcf-amber"
-                  />
-                  <div className="rounded-md border border-mcf-amber/50 bg-background">
-                    <Calendar
-                      mode="single"
-                      selected={birthDate}
-                      onSelect={(d) => handleDateChange(d ?? null)}
-                      locale={fr}
-                      disabled={(date) => isAfter(date, new Date())}
-                      initialFocus={false}
-                      className="p-3 pointer-events-auto"
-                    />
-                  </div>
-                </div>
-              </ErrorBoundary>
-            ) : (
-              <Input className="border-mcf-amber" placeholder="JJ/MM/AAAA" readOnly />
-            )}
-          </div>
-         {ageDisplay && (
+        <div className="relative">
+          {ready ? (
+            <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
+              <div className="space-y-2">
+                <Input
+                  value={birthDate ? format(birthDate, 'dd/MM/yyyy') : ''}
+                  readOnly
+                  placeholder="JJ/MM/AAAA"
+                  className="border-mcf-amber cursor-pointer"
+                  onClick={() => {}}
+                />
+                <StepDatePicker
+                  value={birthDate}
+                  onChange={(date) => handleDateChange(date ?? null)}
+                  minYear={1920}
+                  maxYear={new Date().getFullYear()}
+                  className="border-mcf-amber/50"
+                />
+              </div>
+            </ErrorBoundary>
+          ) : (
+            <Input className="border-mcf-amber" placeholder="JJ/MM/AAAA" readOnly />
+          )}
+        </div>
+        {ageDisplay && (
           <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
             <p className="text-sm font-medium text-mcf-primary-dark">
               Âge: {ageDisplay}
