@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+
 import { useFormContext } from 'react-hook-form';
 import { 
   FormField, 
@@ -19,8 +19,7 @@ import type { ChildProfileFormData } from '@/types/childProfile';
 import { fr } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Calendar } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 
@@ -50,6 +49,12 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [ageDisplay, setAgeDisplay] = useState<string>("");
   const [ageError, setAgeError] = useState<string>("");
+  // Delay mounting of DatePicker/Calendar to avoid portal race conditions
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setReady(true), 200);
+    return () => window.clearTimeout(id);
+  }, []);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
@@ -256,44 +261,32 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               </FormLabel>
               <FormControl>
                 <div className="relative">
-                  <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
-                    <DatePicker
-                      selected={field.value}
-                      onChange={handleDateChange}
-                      showYearDropdown
-                      showMonthDropdown
-                      dropdownMode="select"
-                      dateFormat="dd/MM/yyyy"
-                      placeholderText="JJ/MM/AAAA"
-                      locale={fr}
-                      maxDate={new Date()}
-                      minDate={getMinDate()}
-                      yearDropdownItemNumber={15}
-                      autoFocus={false}
-                      customInput={
-                        <Input 
-                          className={cn(
-                            "border-mcf-amber",
-                            ageError ? "border-red-500 focus-visible:ring-red-500" : ""
-                          )}
-                        />
-                      }
-                      portalId="datepicker-portal"
-                      popperContainer={({ children }) => {
-                        const portalRoot = document.getElementById('datepicker-portal');
-                        if (!portalRoot) return <>{children}</>;
-                        return ReactDOM.createPortal(children, portalRoot);
-                      }}
-                      calendarContainer={(containerProps) => {
-                        const portalRoot = document.getElementById('datepicker-portal');
-                        const node = <div {...containerProps} />;
-                        return portalRoot ? ReactDOM.createPortal(node, portalRoot) : node;
-                      }}
-                      className="z-50"
-                      onCalendarOpen={() => console.log('📅 BasicInfo DatePicker opened')}
-                      onCalendarClose={() => console.log('📅 BasicInfo DatePicker closed')}
-                    />
-                  </ErrorBoundary>
+<ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
+  <div className="space-y-2">
+    <Input
+      value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+      readOnly
+      placeholder="JJ/MM/AAAA"
+      className={cn(
+        "border-mcf-amber",
+        ageError ? "border-red-500 focus-visible:ring-red-500" : ""
+      )}
+    />
+    {ready ? (
+      <div className="rounded-md border border-mcf-amber/50 bg-background">
+        <Calendar
+          mode="single"
+          selected={field.value}
+          onSelect={(d) => handleDateChange(d ?? null)}
+          locale={fr}
+          disabled={(date) => isAfter(date, new Date()) || isBefore(date, getMinDate())}
+          initialFocus={false}
+          className="p-3 pointer-events-auto"
+        />
+      </div>
+    ) : null}
+  </div>
+</ErrorBoundary>
                 </div>
               </FormControl>
               <FormDescription>
