@@ -28,9 +28,31 @@ window.onerror = function(message, source, lineno, colno, error) {
       document.body.appendChild(el);
       console.log(`🛠️ Injected missing #${id} at startup`);
     }
+    return el as HTMLElement;
   };
   ensure('portal-root');
-  ensure('datepicker-portal');
+  const dp = ensure('datepicker-portal');
+
+  // Guard against accidental removals of #datepicker-portal
+  try {
+    if (!dp.dataset.pinned) {
+      const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          m.removedNodes.forEach((node) => {
+            if (node === dp) {
+              console.warn('⛔️ Someone tried to remove #datepicker-portal! Re-attaching.');
+              document.body.appendChild(dp);
+            }
+          });
+        }
+      });
+      observer.observe(document.body, { childList: true });
+      dp.dataset.pinned = 'true';
+      (window as any).__dpObserver__ = observer;
+    }
+  } catch (e) {
+    console.error('Failed to pin #datepicker-portal', e);
+  }
 })();
 
 createRoot(document.getElementById("root")!).render(<App />);

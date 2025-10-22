@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -133,6 +133,9 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       el.id = 'datepicker-portal';
       document.body.appendChild(el);
       console.warn('⚠️ Recreated missing #datepicker-portal');
+    } else if (!document.body.contains(el)) {
+      document.body.appendChild(el);
+      console.warn('⚠️ Re-attached detached #datepicker-portal');
     }
     return el;
   };
@@ -196,7 +199,7 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         </label>
           <div className="relative">
             {ready ? (
-              <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
+              <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
                 <DatePicker
                   selected={birthDate}
                   onChange={handleDateChange}
@@ -215,15 +218,6 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
                     />
                   }
                   portalId="datepicker-portal"
-                  popperContainer={({ children }) => {
-                    const portalRoot = getPortalRoot();
-                    return ReactDOM.createPortal(children, portalRoot);
-                  }}
-                  calendarContainer={(containerProps) => {
-                    const node = <div {...containerProps} />;
-                    const portalRoot = getPortalRoot();
-                    return ReactDOM.createPortal(node, portalRoot);
-                  }}
                   className="z-50"
                   onCalendarOpen={() => {
                     console.log('📅 Relative DatePicker opened');
@@ -231,7 +225,21 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
                   }}
                   onCalendarClose={() => {
                     console.log('📅 Relative DatePicker closed');
-                    console.log('🔎 portal at close:', document.getElementById('datepicker-portal'));
+                    const portal = document.getElementById('datepicker-portal') as HTMLElement | null;
+                    if (!portal) {
+                      console.error('⛔️ #datepicker-portal missing at close');
+                    } else {
+                      const isAttached = !!portal.parentElement && document.body.contains(portal);
+                      if (!isAttached) {
+                        console.warn('⚠️ #datepicker-portal detached from DOM at close, reattaching');
+                        try {
+                          document.body.appendChild(portal);
+                        } catch (e) {
+                          console.error('❌ Failed to reattach #datepicker-portal', e);
+                        }
+                      }
+                      console.log('🔎 portal at close:', portal, 'attached:', isAttached);
+                    }
                   }}
                 />
               </ErrorBoundary>
