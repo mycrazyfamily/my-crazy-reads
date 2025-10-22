@@ -202,7 +202,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         <span className="text-2xl">👶</span> L'enfant, le héros de l'histoire <span className="text-2xl">🌟</span>
       </h2>
       
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+      <div className="space-y-6">
         <FormField
           control={form.control}
           name="firstName"
@@ -636,7 +636,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             Continuer l'aventure →
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

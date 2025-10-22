@@ -72,6 +72,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => onChange(undefined)}
@@ -86,6 +87,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
         {years.map((year) => (
           <Button
             key={year}
+            type="button"
             variant={selectedYear === year ? "default" : "outline"}
             onClick={() => handleYearSelect(year)}
             className="h-12"
@@ -101,6 +103,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => setStep('year')}
@@ -115,6 +118,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
         {MONTHS.map((month, index) => (
           <Button
             key={month}
+            type="button"
             variant={selectedMonth === index ? "default" : "outline"}
             onClick={() => handleMonthSelect(index)}
             className="h-12"
@@ -140,6 +144,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-4">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => setStep('month')}
@@ -164,6 +169,7 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
           {days.map((day) => (
             <Button
               key={day}
+              type="button"
               variant={selectedDay === day ? "default" : "ghost"}
               onClick={() => handleDaySelect(day)}
               className="h-10 w-10 p-0"
