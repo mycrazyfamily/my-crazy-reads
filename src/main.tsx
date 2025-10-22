@@ -18,4 +18,19 @@ window.onerror = function(message, source, lineno, colno, error) {
   return false; // Let default error handling continue
 };
 
+// Ensure critical portal containers exist ASAP (pre-render)
+(() => {
+  const ensure = (id: string) => {
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = id;
+      document.body.appendChild(el);
+      console.log(`🛠️ Injected missing #${id} at startup`);
+    }
+  };
+  ensure('portal-root');
+  ensure('datepicker-portal');
+})();
+
 createRoot(document.getElementById("root")!).render(<App />);

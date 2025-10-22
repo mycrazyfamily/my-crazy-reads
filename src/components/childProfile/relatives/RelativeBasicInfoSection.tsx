@@ -66,6 +66,20 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
     }
   }, [birthDate]);
 
+  // Delay mounting of DatePicker to avoid race with hydration/auth redirects
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setReady(true), 200);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  // Verify portal existence at component mount
+  useEffect(() => {
+    const node = document.getElementById('datepicker-portal');
+    console.log('🔎 #datepicker-portal at component mount:', node);
+  }, []);
+
   const calculateExactAge = (birthDate: Date) => {
     const today = new Date();
     const years = differenceInYears(today, birthDate);
@@ -109,6 +123,18 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
     setType(value);
     // Update gender immediately when type changes
     setGender(getRelativeGender(value));
+  };
+
+  // Ensure we always have a stable portal root (re-create if missing)
+  const getPortalRoot = (): HTMLElement => {
+    let el = document.getElementById('datepicker-portal') as HTMLElement | null;
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'datepicker-portal';
+      document.body.appendChild(el);
+      console.warn('⚠️ Recreated missing #datepicker-portal');
+    }
+    return el;
   };
 
   return (
@@ -168,42 +194,51 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">🎂</span> Date de naissance
         </label>
-        <div className="relative">
-          <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
-            <DatePicker
-              selected={birthDate}
-              onChange={handleDateChange}
-              showYearDropdown
-              showMonthDropdown
-              dropdownMode="select"
-              dateFormat="dd/MM/yyyy"
-              placeholderText="JJ/MM/AAAA"
-              locale={fr}
-              maxDate={new Date()}
-              yearDropdownItemNumber={50}
-              autoFocus={false}
-              customInput={
-                <Input 
-                  className="border-mcf-amber"
+          <div className="relative">
+            {ready ? (
+              <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
+                <DatePicker
+                  selected={birthDate}
+                  onChange={handleDateChange}
+                  showYearDropdown
+                  showMonthDropdown
+                  dropdownMode="select"
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="JJ/MM/AAAA"
+                  locale={fr}
+                  maxDate={new Date()}
+                  yearDropdownItemNumber={50}
+                  autoFocus={false}
+                  customInput={
+                    <Input 
+                      className="border-mcf-amber"
+                    />
+                  }
+                  portalId="datepicker-portal"
+                  popperContainer={({ children }) => {
+                    const portalRoot = getPortalRoot();
+                    return ReactDOM.createPortal(children, portalRoot);
+                  }}
+                  calendarContainer={(containerProps) => {
+                    const node = <div {...containerProps} />;
+                    const portalRoot = getPortalRoot();
+                    return ReactDOM.createPortal(node, portalRoot);
+                  }}
+                  className="z-50"
+                  onCalendarOpen={() => {
+                    console.log('📅 Relative DatePicker opened');
+                    console.log('🔎 portal at open:', document.getElementById('datepicker-portal'));
+                  }}
+                  onCalendarClose={() => {
+                    console.log('📅 Relative DatePicker closed');
+                    console.log('🔎 portal at close:', document.getElementById('datepicker-portal'));
+                  }}
                 />
-              }
-              portalId="datepicker-portal"
-              popperContainer={({ children }) => {
-                const portalRoot = document.getElementById('datepicker-portal');
-                if (!portalRoot) return <>{children}</>;
-                return ReactDOM.createPortal(children, portalRoot);
-              }}
-              calendarContainer={(containerProps) => {
-                const portalRoot = document.getElementById('datepicker-portal');
-                const node = <div {...containerProps} />;
-                return portalRoot ? ReactDOM.createPortal(node, portalRoot) : node;
-              }}
-              className="z-50"
-              onCalendarOpen={() => console.log('📅 Relative DatePicker opened')}
-              onCalendarClose={() => console.log('📅 Relative DatePicker closed')}
-            />
-          </ErrorBoundary>
-        </div>
+              </ErrorBoundary>
+            ) : (
+              <Input className="border-mcf-amber" placeholder="JJ/MM/AAAA" readOnly />
+            )}
+          </div>
         {ageDisplay && (
           <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
             <p className="text-sm font-medium text-mcf-primary-dark">
