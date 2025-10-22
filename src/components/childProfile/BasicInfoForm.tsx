@@ -127,16 +127,21 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   };
 
   const handleDateChange = (date: Date | null) => {
-    if (date) {
-      const isValid = validateAge(date);
-      form.setValue("birthDate", date, { shouldValidate: true });
-      
-      if (isValid) {
-        calculateExactAge(date);
+    try {
+      if (date) {
+        const isValid = validateAge(date);
+        form.setValue("birthDate", date, { shouldValidate: true });
+        
+        if (isValid) {
+          calculateExactAge(date);
+        }
+      } else {
+        form.setValue("birthDate", undefined, { shouldValidate: true });
+        setAgeDisplay("");
       }
-    } else {
-      form.setValue("birthDate", undefined, { shouldValidate: true });
-      setAgeDisplay("");
+    } catch (error) {
+      console.error("Error handling date change:", error);
+      toast.error("Erreur lors de la modification de la date");
     }
   };
 

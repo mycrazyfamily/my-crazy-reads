@@ -98,10 +98,14 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   };
 
   const handleDateChange = (date: Date | null) => {
-    if (date && !isAfter(date, new Date())) {
-      setBirthDate(date);
-    } else {
-      setBirthDate(undefined);
+    try {
+      if (date && !isAfter(date, new Date())) {
+        setBirthDate(date);
+      } else {
+        setBirthDate(undefined);
+      }
+    } catch (error) {
+      console.error("Error handling date change:", error);
     }
   };
   // Update gender whenever the type changes

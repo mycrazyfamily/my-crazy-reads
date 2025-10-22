@@ -7,6 +7,7 @@ import AuthGuard from './components/AuthGuard'
 import RouteGuard from './components/RouteGuard'
 import SubscriptionGuard from './components/SubscriptionGuard'
 import DevMenu from './components/DevMenu'
+import ErrorBoundary from './components/util/ErrorBoundary'
 
 // Auth Components - Import at the TOP LEVEL to ensure bundling
 import Callback from './pages/auth/Callback'
@@ -51,127 +52,144 @@ function App() {
   );
 
   return (
-    <AuthProvider>
-      <Router>
-        <div>
-          <Routes>
-            {/* Auth callback route - explicitly defined FIRST in the routes for priority */}
-            <Route path="/auth/callback" element={<Callback />} />
-            
-            {/* Debug route for testing Callback component */}
-            <Route path="/debug/callback" element={<CallbackDummy />} />
-            
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/authentification" element={<Authentication />} />
-            <Route path="/check-email" element={<CheckEmail />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            
-            {/* Routes nécessitant l'authentification mais pas d'abonnement */}
-            <Route path="/creer-profil-enfant" element={
-              <RouteGuard bypassProtection={isDev}>
-                <NouvelEnfant />
-              </RouteGuard>
-            } />
-            <Route path="/abonnement" element={
-              <RouteGuard bypassProtection={isDev}>
-                <Abonnement />
-              </RouteGuard>
-            } />
-            
-            {/* Semi-protected routes - will redirect to auth before payment */}
-            <Route path="/start-adventure" element={<StartAdventure />} />
-            <Route path="/pret-a-demarrer" element={<StartAdventure />} />
-            
-            {/* Protected routes - require authentication */}
-            <Route path="/finaliser-abonnement" element={
-              <AuthGuard>
-                <FinishSubscription />
-              </AuthGuard>
-            } />
-            <Route path="/confirmation" element={
-              <AuthGuard>
-                <ConfirmationPage />
-              </AuthGuard>
-            } />
-            <Route path="/espace-famille" element={
-              <AuthGuard>
-                <FamilyDashboard />
-              </AuthGuard>
-            } />
-            <Route path="/modifier-proche/:childId/:relativeId" element={
-              <AuthGuard>
-                <ModifierProche />
-              </AuthGuard>
-            } />
-            <Route path="/modifier-animal/:childId/:petId" element={
-              <AuthGuard>
-                <ModifierAnimal />
-              </AuthGuard>
-            } />
-            <Route path="/ajouter-proche" element={
-              <AuthGuard>
-                <AjouterProche />
-              </AuthGuard>
-            } />
-            <Route path="/ajouter-proche/:childId" element={
-              <AuthGuard>
-                <AjouterProche />
-              </AuthGuard>
-            } />
-            <Route path="/ajouter-animal" element={
-              <AuthGuard>
-                <AjouterAnimal />
-              </AuthGuard>
-            } />
-            <Route path="/ajouter-animal/:childId" element={
-              <AuthGuard>
-                <AjouterAnimal />
-              </AuthGuard>
-            } />
-
-            {/* Debug route for testing Supabase */}
-
-            {/* Gift book flow routes */}
-            <Route path="/offrir-livre" element={<OffrirLivre />} />
-            <Route path="/offrir/profil-enfant" element={
-              <RouteGuard bypassProtection={isDev}>
-                <OffrirProfilEnfant />
-              </RouteGuard>
-            } />
-            <Route path="/offrir/theme" element={<OffrirTheme />} />
-            <Route path="/offrir/message" element={<OffrirMessage />} />
-            <Route path="/offrir/livraison" element={
-              <AuthGuard>
-                <OffrirLivraison />
-              </AuthGuard>
-            } />
-            <Route path="/offrir/confirmation" element={
-              <AuthGuard>
-                <OffrirConfirmation />
-              </AuthGuard>
-            } />
-            
-            {/* Routes nécessitant un abonnement actif */}
-            <Route path="/mon-abonnement" element={
-              <SubscriptionGuard>
-                <Abonnement />
-              </SubscriptionGuard>
-            } />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          
-          {isDev && <DevMenu />}
-          
-          <Toaster 
-            richColors 
-            position="top-center"
-            closeButton
-          />
+    <ErrorBoundary fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold mb-4">Une erreur est survenue</h1>
+          <p className="text-muted-foreground mb-4">
+            L'application a rencontré une erreur. Veuillez rafraîchir la page.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Rafraîchir la page
+          </button>
         </div>
-      </Router>
-    </AuthProvider>
+      </div>
+    }>
+      <AuthProvider>
+        <Router>
+          <div>
+            <Routes>
+              {/* Auth callback route - explicitly defined FIRST in the routes for priority */}
+              <Route path="/auth/callback" element={<Callback />} />
+              
+              {/* Debug route for testing Callback component */}
+              <Route path="/debug/callback" element={<CallbackDummy />} />
+              
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/authentification" element={<Authentication />} />
+              <Route path="/check-email" element={<CheckEmail />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              
+              {/* Routes nécessitant l'authentification mais pas d'abonnement */}
+              <Route path="/creer-profil-enfant" element={
+                <RouteGuard bypassProtection={isDev}>
+                  <NouvelEnfant />
+                </RouteGuard>
+              } />
+              <Route path="/abonnement" element={
+                <RouteGuard bypassProtection={isDev}>
+                  <Abonnement />
+                </RouteGuard>
+              } />
+              
+              {/* Semi-protected routes - will redirect to auth before payment */}
+              <Route path="/start-adventure" element={<StartAdventure />} />
+              <Route path="/pret-a-demarrer" element={<StartAdventure />} />
+              
+              {/* Protected routes - require authentication */}
+              <Route path="/finaliser-abonnement" element={
+                <AuthGuard>
+                  <FinishSubscription />
+                </AuthGuard>
+              } />
+              <Route path="/confirmation" element={
+                <AuthGuard>
+                  <ConfirmationPage />
+                </AuthGuard>
+              } />
+              <Route path="/espace-famille" element={
+                <AuthGuard>
+                  <FamilyDashboard />
+                </AuthGuard>
+              } />
+              <Route path="/modifier-proche/:childId/:relativeId" element={
+                <AuthGuard>
+                  <ModifierProche />
+                </AuthGuard>
+              } />
+              <Route path="/modifier-animal/:childId/:petId" element={
+                <AuthGuard>
+                  <ModifierAnimal />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-proche" element={
+                <AuthGuard>
+                  <AjouterProche />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-proche/:childId" element={
+                <AuthGuard>
+                  <AjouterProche />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-animal" element={
+                <AuthGuard>
+                  <AjouterAnimal />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-animal/:childId" element={
+                <AuthGuard>
+                  <AjouterAnimal />
+                </AuthGuard>
+              } />
+
+              {/* Debug route for testing Supabase */}
+
+              {/* Gift book flow routes */}
+              <Route path="/offrir-livre" element={<OffrirLivre />} />
+              <Route path="/offrir/profil-enfant" element={
+                <RouteGuard bypassProtection={isDev}>
+                  <OffrirProfilEnfant />
+                </RouteGuard>
+              } />
+              <Route path="/offrir/theme" element={<OffrirTheme />} />
+              <Route path="/offrir/message" element={<OffrirMessage />} />
+              <Route path="/offrir/livraison" element={
+                <AuthGuard>
+                  <OffrirLivraison />
+                </AuthGuard>
+              } />
+              <Route path="/offrir/confirmation" element={
+                <AuthGuard>
+                  <OffrirConfirmation />
+                </AuthGuard>
+              } />
+              
+              {/* Routes nécessitant un abonnement actif */}
+              <Route path="/mon-abonnement" element={
+                <SubscriptionGuard>
+                  <Abonnement />
+                </SubscriptionGuard>
+              } />
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            
+            {isDev && <DevMenu />}
+            
+            <Toaster 
+              richColors 
+              position="top-center"
+              closeButton
+            />
+          </div>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 
