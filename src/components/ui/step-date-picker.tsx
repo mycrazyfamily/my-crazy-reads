@@ -54,7 +54,8 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
   const handleDaySelect = (day: number) => {
     setSelectedDay(day);
     if (selectedYear !== null && selectedMonth !== null) {
-      const newDate = new Date(selectedYear, selectedMonth, day);
+      // Set time to noon to avoid timezone issues
+      const newDate = new Date(selectedYear, selectedMonth, day, 12, 0, 0, 0);
       onChange(newDate);
     }
   };

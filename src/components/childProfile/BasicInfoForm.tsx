@@ -19,7 +19,7 @@ import type { ChildProfileFormData } from '@/types/childProfile';
 import { fr } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
+import { StepDatePicker } from "@/components/ui/step-date-picker";
 import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 
@@ -268,22 +268,19 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       readOnly
       placeholder="JJ/MM/AAAA"
       className={cn(
-        "border-mcf-amber",
+        "border-mcf-amber cursor-pointer",
         ageError ? "border-red-500 focus-visible:ring-red-500" : ""
       )}
+      onClick={() => {}}
     />
     {ready ? (
-      <div className="rounded-md border border-mcf-amber/50 bg-background">
-        <Calendar
-          mode="single"
-          selected={field.value}
-          onSelect={(d) => handleDateChange(d ?? null)}
-          locale={fr}
-          disabled={(date) => isAfter(date, new Date()) || isBefore(date, getMinDate())}
-          initialFocus={false}
-          className="p-3 pointer-events-auto"
-        />
-      </div>
+      <StepDatePicker
+        value={field.value}
+        onChange={(date) => handleDateChange(date ?? null)}
+        minYear={new Date().getFullYear() - 10}
+        maxYear={new Date().getFullYear()}
+        className="border-mcf-amber/50"
+      />
     ) : null}
   </div>
 </ErrorBoundary>
