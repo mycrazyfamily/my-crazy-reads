@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -50,6 +52,17 @@ const FinishSubscription = () => {
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-20">
+        <div className="mb-6">
+          <Button 
+            type="button" 
+            onClick={() => navigate('/abonnement')}
+            variant="outline"
+            className="font-semibold flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" /> Retour
+          </Button>
+        </div>
+        
         <h1 className="text-3xl font-bold text-center mb-8 text-mcf-orange-dark mt-10">
           Finaliser votre abonnement
         </h1>
@@ -62,12 +75,12 @@ const FinishSubscription = () => {
               {subscriptionOption === 'monthly' ? 'Abonnement mensuel' : 'Abonnement annuel'}
             </h3>
             <p className="text-2xl font-bold text-mcf-orange-dark">
-              {subscriptionOption === 'monthly' ? '9,90€/mois' : '99€/an'}
+              {subscriptionOption === 'monthly' ? '19,99€/mois' : '219,99€/an'}
             </p>
             <p className="text-gray-600 mt-2">
               {subscriptionOption === 'monthly' 
                 ? 'Facturation mensuelle, sans engagement' 
-                : 'Facturation annuelle (2 mois gratuits inclus)'}
+                : 'Facturation annuelle (1 mois gratuit inclus)'}
             </p>
           </div>
           
@@ -75,7 +88,7 @@ const FinishSubscription = () => {
             <p className="font-medium">Votre abonnement inclut :</p>
             <ul className="list-disc pl-5 space-y-1 text-gray-700">
               <li>1 livre personnalisé chaque mois</li>
-              <li>Livraison gratuite à votre domicile</li>
+              <li>Livraison incluse à votre domicile</li>
               <li>Accès complet à votre espace famille</li>
               <li>Possibilité de modifier les préférences de votre enfant</li>
               {subscriptionOption === 'yearly' && (
