@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -49,17 +47,6 @@ const Abonnement: React.FC = () => {
       
       <main className="flex-grow pt-24 pb-12 px-4">
         <div className="container mx-auto">
-          <div className="mb-6">
-            <Button 
-              type="button" 
-              onClick={() => navigate(-1)}
-              variant="outline"
-              className="font-semibold flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" /> Retour
-            </Button>
-          </div>
-          
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-mcf-primary animate-fade-in">
             {isFromAdventure ? "Prêt à démarrer l'aventure" : "Nos formules d'abonnement"}
           </h1>
