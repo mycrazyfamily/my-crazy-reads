@@ -35,10 +35,15 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      console.log('▶︎ logout: clicked in Navbar');
+      await logout();
+      console.log('▶︎ logout: completed, redirect should occur');
+    } catch (e) {
+      console.error('❌ logout error:', e);
+    }
   };
-
   const handleHomeClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

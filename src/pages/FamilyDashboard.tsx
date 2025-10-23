@@ -85,10 +85,12 @@ const FamilyDashboard: React.FC = () => {
       try {
         if (!supabaseSession?.user?.id) {
           // Pas de session prête, éviter un chargement infini
+          console.log('▶︎ FamilyDashboard: no session yet, stop loading');
           setIsLoading(false);
           return;
         }
         const userId = supabaseSession.user.id;
+        console.log('▶︎ FamilyDashboard: fetchChildren for user', userId);
         // Charger directement depuis child_profiles avec toutes les relations
         const { data: childProfiles, error } = await supabase
           .from('child_profiles')
@@ -202,6 +204,7 @@ const FamilyDashboard: React.FC = () => {
         }));
         
         setChildren(mapped);
+        console.log('▶︎ FamilyDashboard: subscriptions/children loaded', { count: mapped.length });
       } catch (e) {
         console.error('Unexpected error loading children:', e);
       } finally {

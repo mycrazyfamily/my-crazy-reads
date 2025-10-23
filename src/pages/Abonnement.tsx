@@ -20,28 +20,50 @@ const Abonnement: React.FC = () => {
   
   useEffect(() => {
     if (isAuthenticated && hasActiveSubscription) {
-      toast.info("Vous êtes déjà abonné! Redirection vers votre espace famille.");
-      navigate('/espace-famille');
+      console.log("▶︎ Abonnement: user has at least one active subscription - UI remains accessible for per-enfant selection");
     }
   }, [isAuthenticated, hasActiveSubscription, navigate]);
   
   useEffect(() => {
     const load = async () => {
-      if (!isAuthenticated || !supabaseSession) return;
-      // Charger les enfants
-      const { data: cps } = await supabase
-        .from('child_profiles')
-        .select('id, first_name')
-        .order('created_at', { ascending: false });
-      setChildren(cps || []);
-      // Charger les abonnements actifs (par enfant)
-      const { data } = await supabase.functions.invoke('check-subscription', {
-        headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
-      });
-      const ids = (data?.subscriptions || [])
-        .map((s: any) => s.child_id)
-        .filter(Boolean);
-      setSubscribedChildIds(ids);
+      try {
+        if (!isAuthenticated || !supabaseSession) {
+          console.log('▶︎ Abonnement.load: not authenticated or no session');
+          return;
+        }
+        const userId = supabaseSession.user.id;
+        console.log('▶︎ Abonnement.load: fetchChildren for user', userId);
+        // Charger les enfants du user courant
+        const { data: cps, error: childrenError } = await supabase
+          .from('child_profiles')
+          .select('id, first_name, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (childrenError) {
+          console.error('❌ Abonnement.load: children query error', childrenError);
+          setChildren([]);
+        } else {
+          setChildren(cps || []);
+        }
+        // Charger les abonnements actifs (par enfant)
+        const { data: subData, error: subError } = await supabase.functions.invoke('check-subscription', {
+          headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
+        });
+        if (subError) {
+          console.error('❌ Abonnement.load: check-subscription error', subError);
+          setSubscribedChildIds([]);
+        } else {
+          const ids = (subData?.subscriptions || [])
+            .map((s: any) => s.child_id)
+            .filter(Boolean);
+          console.log('▶︎ Abonnement.load: subscriptions returned', ids);
+          setSubscribedChildIds(ids);
+        }
+      } catch (e) {
+        console.error('❌ Abonnement.load: unexpected error', e);
+        setChildren([]);
+        setSubscribedChildIds([]);
+      }
     };
     load();
   }, [isAuthenticated, supabaseSession]);
@@ -72,28 +94,41 @@ const Abonnement: React.FC = () => {
     }
 
     setIsLoading(true);
+    console.log('▶︎ Abonnement.checkout: initiation', { plan, childId: selectedChildId });
     
     try {
       const priceId = SUBSCRIPTION_PLANS[plan].priceId;
-      
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+
+      const invokePromise = supabase.functions.invoke('create-checkout', {
         body: { priceId, childId: selectedChildId },
         headers: {
           Authorization: `Bearer ${supabaseSession.access_token}`,
         },
       });
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: new Error('timeout') }), 15000)
+      );
+
+      const { data, error } = await Promise.race([invokePromise as any, timeoutPromise]);
 
       if (error) {
-        console.error('Error creating checkout:', error);
-        toast.error("Une erreur est survenue lors de la création de la session de paiement.");
+        console.error('❌ Abonnement.checkout: error', error);
+        if ((error as Error).message === 'timeout') {
+          toast.error("Le service de paiement met trop de temps à répondre. Réessayez dans un instant.");
+        } else {
+          toast.error("Une erreur est survenue lors de la création de la session de paiement.");
+        }
         return;
       }
 
+      console.log('▶︎ Abonnement.checkout: session created', data);
       if (data?.url) {
         window.location.href = data.url;
+      } else {
+        toast.error("Impossible d'ouvrir le paiement. Réessayez.");
       }
     } catch (error) {
-      console.error('Error in handleSelectPlan:', error);
+      console.error('❌ Abonnement.checkout: unexpected error', error);
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
