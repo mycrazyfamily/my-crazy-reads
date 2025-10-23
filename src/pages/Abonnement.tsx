@@ -2,42 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 const Abonnement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, hasActiveSubscription } = useAuth();
-  const [selectedOption, setSelectedOption] = useState<'monthly' | 'yearly'>('monthly');
+  const { isAuthenticated, hasActiveSubscription, supabaseSession } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Déterminer si on vient du flux d'ajout d'enfant
   const isFromAdventure = searchParams.get('context') === 'adventure';
   
   useEffect(() => {
-    // Si l'utilisateur est déjà abonné, le rediriger vers l'espace famille
     if (isAuthenticated && hasActiveSubscription) {
       toast.info("Vous êtes déjà abonné! Redirection vers votre espace famille.");
       navigate('/espace-famille');
     }
   }, [isAuthenticated, hasActiveSubscription, navigate]);
   
-  const handleSelectPlan = (plan: 'monthly' | 'yearly') => {
-    // Stocker l'option sélectionnée dans localStorage
-    localStorage.setItem('mcf_subscription_option', plan);
-    
+  const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
-      // Rediriger vers la page d'authentification si l'utilisateur n'est pas connecté
+      localStorage.setItem('mcf_subscription_option', plan);
       toast.info("Veuillez vous connecter ou créer un compte pour continuer");
       navigate('/authentification', { 
-        state: { from: { pathname: '/finaliser-abonnement' } } 
+        state: { from: { pathname: '/abonnement' } } 
       });
-    } else if (!hasActiveSubscription) {
-      // L'utilisateur est connecté mais n'a pas d'abonnement actif
-      navigate('/finaliser-abonnement');
-    } else {
-      // L'utilisateur est déjà abonné, le rediriger vers l'espace famille
-      navigate('/espace-famille');
+      return;
+    }
+
+    if (!supabaseSession) {
+      toast.error("Session invalide. Veuillez vous reconnecter.");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const priceId = SUBSCRIPTION_PLANS[plan].priceId;
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId },
+        headers: {
+          Authorization: `Bearer ${supabaseSession.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error creating checkout:', error);
+        toast.error("Une erreur est survenue lors de la création de la session de paiement.");
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error in handleSelectPlan:', error);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,9 +100,12 @@ const Abonnement: React.FC = () => {
                 </ul>
                 <button 
                   onClick={() => handleSelectPlan('monthly')}
-                  className="w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto"
+                  disabled={isLoading}
+                  className={`w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Choisir cette formule
+                  {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                 </button>
               </div>
               
@@ -110,9 +138,12 @@ const Abonnement: React.FC = () => {
                 </ul>
                 <button 
                   onClick={() => handleSelectPlan('yearly')}
-                  className="w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto"
+                  disabled={isLoading}
+                  className={`w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Choisir cette formule
+                  {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                 </button>
               </div>
             </div>

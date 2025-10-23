@@ -23,6 +23,7 @@ import CreateChildProfile from './pages/CreateChildProfile'
 import NouvelEnfant from './pages/NouvelEnfant'
 import FinishSubscription from './pages/FinishSubscription'
 import ConfirmationPage from './pages/ConfirmationPage'
+import ConfirmationAbonnement from './pages/ConfirmationAbonnement'
 import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
@@ -102,6 +103,11 @@ function App() {
                 </AuthGuard>
               } />
               <Route path="/confirmation" element={
+                <AuthGuard>
+                  <ConfirmationAbonnement />
+                </AuthGuard>
+              } />
+              <Route path="/confirmation-profil" element={
                 <AuthGuard>
                   <ConfirmationPage />
                 </AuthGuard>

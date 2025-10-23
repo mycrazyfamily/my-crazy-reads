@@ -10,6 +10,8 @@ type Subscription = {
   type?: 'monthly' | 'yearly';
   startDate?: string;
   nextPaymentDate?: string;
+  priceId?: string;
+  productId?: string;
 };
 
 type User = {
@@ -31,6 +33,7 @@ type AuthContextType = {
   logout: () => void;
   updateUserSubscription: (subscription: Subscription) => void;
   updateUserProfile: (userData: Partial<User>) => void;
+  refreshSubscription: () => Promise<void>;
   supabaseSession: Session | null;
 };
 
@@ -39,26 +42,58 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [supabaseSession, setSupabaseSession] = useState<Session | null>(null);
+
+  const checkSubscription = async (session: Session | null) => {
+    if (!session) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error checking subscription:', error);
+        return;
+      }
+
+      if (data?.subscribed) {
+        const subscription: Subscription = {
+          status: 'active',
+          type: data.price_id === 'price_1SLPaABm2xG2OMOvaDzDSB2s' ? 'monthly' : 'yearly',
+          nextPaymentDate: data.subscription_end,
+          priceId: data.price_id,
+          productId: data.product_id,
+        };
+        
+        setUser(prev => prev ? { ...prev, subscription } : null);
+        
+        const storedUser = localStorage.getItem('mcf_user');
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          localStorage.setItem('mcf_user', JSON.stringify({ ...parsedUser, subscription }));
+        }
+      }
+    } catch (error) {
+      console.error('Error in checkSubscription:', error);
+    }
+  };
   
   useEffect(() => {
-    // Configurer l'écouteur d'événements d'authentification Supabase
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session);
         setSupabaseSession(session);
         
-        // Ne pas appeler d'autres fonctions Supabase directement ici pour éviter les deadlocks
-        // Si une session est active, mettre à jour l'état utilisateur
         if (session?.user) {
           const email = session.user.email || '';
-          // Mise à jour de l'état utilisateur local
           setUser(prev => ({
             ...(prev || {}),
             email,
             isAuthenticated: true
           }));
           
-          // Enregistrer l'utilisateur dans localStorage
           const storedUser = localStorage.getItem('mcf_user');
           if (storedUser) {
             try {
@@ -81,25 +116,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isAuthenticated: true
             }));
           }
+
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            await checkSubscription(session);
+          }
         }
       }
     );
     
-    // Vérifier s'il existe une session au chargement
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       console.log('Initial session check:', session);
       setSupabaseSession(session);
       
       if (session?.user) {
-        // Si l'utilisateur est déjà connecté via Supabase
         const email = session.user.email || '';
         setUser(prev => ({
           ...(prev || {}),
           email,
           isAuthenticated: true
         }));
+        
+        await checkSubscription(session);
       } else {
-        // Sinon, vérifier si l'utilisateur existe dans localStorage
         const storedUser = localStorage.getItem('mcf_user');
         if (storedUser) {
           try {
@@ -149,6 +187,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const refreshSubscription = async () => {
+    await checkSubscription(supabaseSession);
+  };
+
   const hasActiveSubscription = user?.subscription?.status === 'active' || false;
   
   return (
@@ -162,6 +204,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         updateUserSubscription,
         updateUserProfile,
+        refreshSubscription,
         supabaseSession
       }}
     >

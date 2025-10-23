@@ -22,7 +22,7 @@ import ChildProfileCard from '@/components/familyDashboard/ChildProfileCard';
 import BookTimeline from '@/components/familyDashboard/BookTimeline';
 import FamilyCodeShare from '@/components/familyDashboard/FamilyCodeShare';
 import StoryCustomizationForm from '@/components/familyDashboard/StoryCustomizationForm';
-import SubscriptionSummary from '@/components/familyDashboard/SubscriptionSummary';
+import ManageSubscription from '@/components/familyDashboard/ManageSubscription';
 import RelativeProfileCard from '@/components/familyDashboard/RelativeProfileCard';
 import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
 
@@ -620,15 +620,9 @@ const FamilyDashboard: React.FC = () => {
           )}
           
           {/* Section 5: Subscription Management */}
-          {subscription && (
-            <section className="animate-fade-in animation-delay-400">
-              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <Settings className="h-6 w-6" /> Mon abonnement
-              </h2>
-              
-              <SubscriptionSummary subscription={subscription} />
-            </section>
-          )}
+          <section className="animate-fade-in animation-delay-400">
+            <ManageSubscription />
+          </section>
         </div>
         
         {/* Footer Actions */}
