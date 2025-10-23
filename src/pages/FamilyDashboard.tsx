@@ -28,7 +28,7 @@ import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { logout, user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id
   useFamilyIdSync();
@@ -61,43 +61,34 @@ const FamilyDashboard: React.FC = () => {
   useEffect(() => {
     const calculateExactAge = (birthDate: string | Date) => {
       if (!birthDate) return '';
-      
       const today = new Date();
       const birth = new Date(birthDate);
-      
       let years = today.getFullYear() - birth.getFullYear();
       let months = today.getMonth() - birth.getMonth();
       const days = today.getDate() - birth.getDate();
-      
-      // Si le jour du mois actuel est avant le jour de naissance, soustraire un mois
-      if (days < 0) {
-        months--;
-      }
-      
-      // Si le mois est négatif, soustraire une année et ajuster les mois
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
-      
+      if (days < 0) months--;
+      if (months < 0) { years--; months += 12; }
       let ageString = "";
       if (years > 0) {
         ageString += `${years} an${years > 1 ? 's' : ''}`;
-        if (months > 0) {
-          ageString += ` et ${months} mois`;
-        }
+        if (months > 0) ageString += ` et ${months} mois`;
       } else if (months > 0) {
         ageString = `${months} mois`;
       } else {
         ageString = "moins d'un mois";
       }
-      
       return ageString;
     };
 
     const loadChildren = async () => {
       setIsLoading(true);
       try {
+        if (!supabaseSession?.user?.id) {
+          // Pas de session prête, éviter un chargement infini
+          setIsLoading(false);
+          return;
+        }
+        const userId = supabaseSession.user.id;
         // Charger directement depuis child_profiles avec toutes les relations
         const { data: childProfiles, error } = await supabase
           .from('child_profiles')
@@ -108,10 +99,12 @@ const FamilyDashboard: React.FC = () => {
             gender,
             created_at
           `)
+          .eq('user_id', userId)
           .order('created_at', { ascending: false });
         
         if (error) {
           console.error('Failed to load child profiles:', error);
+          setChildren([]);
           return;
         }
         
@@ -216,7 +209,7 @@ const FamilyDashboard: React.FC = () => {
       }
     };
     loadChildren();
-  }, []);
+  }, [supabaseSession?.user?.id]);
   
   const handleLogout = () => {
     logout();

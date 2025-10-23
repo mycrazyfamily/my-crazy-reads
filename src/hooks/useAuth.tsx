@@ -169,6 +169,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       setSupabaseSession(null);
       try { localStorage.removeItem('mcf_user'); } catch {}
+      // Nettoyage explicite du token Supabase (par précaution)
+      try { localStorage.removeItem('sb-rjbmhcoctpwmlqndzybm-auth-token'); } catch {}
       // Forcer un rafraîchissement pour éviter tout état rémanent
       window.location.href = '/';
     }
