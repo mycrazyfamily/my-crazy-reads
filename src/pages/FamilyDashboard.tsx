@@ -84,149 +84,160 @@ const FamilyDashboard: React.FC = () => {
       setIsLoading(true);
       try {
         if (!supabaseSession?.user?.id) {
-          // Pas de session prête, éviter un chargement infini
           console.log('▶︎ FamilyDashboard: no session yet, stop loading');
           setIsLoading(false);
           return;
         }
         const userId = supabaseSession.user.id;
         console.log('▶︎ FamilyDashboard: fetchChildren for user', userId);
-        // Charger directement depuis child_profiles avec toutes les relations
-        // Récupérer le family_id du profil utilisateur s'il existe
+
+        // 1) Récupérer le profil utilisateur (pour family_id)
         const { data: userProfile, error: userProfileError } = await supabase
           .from('user_profiles')
           .select('family_id')
           .eq('id', userId)
           .maybeSingle();
         if (userProfileError) {
-          console.error('Failed to load user profile:', userProfileError);
-        }
-
-        // Construire la requête enfants selon la meilleure clé disponible
-        let childQuery = supabase
-          .from('child_profiles')
-          .select(`
-            id,
-            first_name,
-            birth_date,
-            gender,
-            created_at,
-            family_id,
-            user_id
-          `);
-
-        if (userProfile?.family_id) {
-          console.log('▶︎ FamilyDashboard: using family_id filter', userProfile.family_id);
-          childQuery = childQuery.eq('family_id', userProfile.family_id);
+          console.error('❌ FamilyDashboard: user_profile error', userProfileError);
         } else {
-          console.log('▶︎ FamilyDashboard: using user_id filter', userId);
-          childQuery = childQuery.eq('user_id', userId);
+          console.log('▶︎ FamilyDashboard: user_profile', userProfile);
         }
 
-        const { data: childProfiles, error } = await childQuery
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error('Failed to load child profiles:', error);
-          setChildren([]);
-          return;
-        }
-        
-        const mapped = await Promise.all((childProfiles || []).map(async (profile: any) => {
-          // Charger les animaux depuis child_pets
-          const { data: childPets } = await supabase
-            .from('child_pets')
-            .select(`
-              name,
-              traits,
-              relation_label,
-              pets:pet_id (
-                id,
-                name,
-                type,
-                breed,
-                physical_details,
-                emoji
-              )
-            `)
-            .eq('child_id', profile.id);
-          
-          const petsFromDb = (childPets || []).map((cp: any) => ({
-            id: cp.pets?.id,
-            name: cp.name || cp.pets?.name,
-            type: cp.relation_label || cp.pets?.type,
-            breed: cp.pets?.breed,
-            physicalDetails: cp.pets?.physical_details,
-            traits: cp.traits?.split(', ') || [],
-            emoji: cp.pets?.emoji
-          }));
-          
-          // Charger les proches depuis child_family_members
-          const { data: childFamilyMembers } = await supabase
-            .from('child_family_members')
-            .select(`
-              relation_label,
-              family_members:family_member_id (
-                id,
-                name,
-                role,
-                avatar
-              )
-            `)
-            .eq('child_id', profile.id);
-          
-          const relativesFromDb = (childFamilyMembers || []).map((cfm: any) => ({
-            id: cfm.family_members?.id,
-            firstName: cfm.family_members?.name,
-            type: cfm.family_members?.role,
-            avatar: cfm.family_members?.avatar || '👤',
-            relationToChild: cfm.relation_label
-          }));
-          
-          // Charger les doudous depuis child_comforters
-          const { data: childComforters } = await supabase
-            .from('child_comforters')
-            .select('*')
-            .eq('child_id', profile.id);
-          
-          // Charger toutes les préférences pour calculer le total
-          const [
-            { data: superpowers },
-            { data: likes },
-            { data: challenges },
-            { data: universes },
-            { data: discoveries }
-          ] = await Promise.all([
-            supabase.from('child_superpowers').select('*').eq('child_id', profile.id),
-            supabase.from('child_likes').select('*').eq('child_id', profile.id),
-            supabase.from('child_challenges').select('*').eq('child_id', profile.id),
-            supabase.from('child_universes').select('*').eq('child_id', profile.id),
-            supabase.from('child_discoveries').select('*').eq('child_id', profile.id)
-          ]);
-          
-          const toysCount = childComforters?.length || 0;
-          const preferencesCount = (superpowers?.length || 0) + 
-                                   (likes?.length || 0) + 
-                                   (challenges?.length || 0) + 
-                                   (universes?.length || 0) + 
-                                   (discoveries?.length || 0);
-          
-          return {
-            id: profile.id,
-            firstName: profile.first_name || 'Enfant',
-            age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
-            avatar: null,
-            personalityEmoji: '🧒',
-            relatives: relativesFromDb,
-            pets: petsFromDb,
-            toysCount: toysCount,
-            preferencesCount: preferencesCount,
-            hasPets: petsFromDb.length,
-          };
+        // 2) Construire 2 requêtes: par family_id (si dispo) et par user_id
+        const baseSelect = `
+          id,
+          first_name,
+          birth_date,
+          gender,
+          created_at,
+          family_id,
+          user_id
+        `;
+
+        const qByUser = supabase.from('child_profiles').select(baseSelect).eq('user_id', userId);
+        const qByFamily = userProfile?.family_id
+          ? supabase.from('child_profiles').select(baseSelect).eq('family_id', userProfile.family_id)
+          : null;
+
+        // 3) Exécuter en parallèle et fusionner (évite les cas limites RLS / synchro)
+        const [{ data: byUser, error: errUser }, famRes] = await Promise.all([
+          qByUser.order('created_at', { ascending: false }),
+          qByFamily ? qByFamily.order('created_at', { ascending: false }) : Promise.resolve({ data: [], error: null })
+        ] as const);
+
+        if (errUser) console.error('❌ FamilyDashboard: child_profiles by user error', errUser);
+        const byFamily = famRes?.data as any[] | undefined;
+        if ((famRes as any)?.error) console.error('❌ FamilyDashboard: child_profiles by family error', (famRes as any).error);
+
+        const rows = [...(byFamily || []), ...(byUser || [])];
+        // Uniq par id
+        const seen = new Set<string>();
+        const uniqueRows = rows.filter(r => (seen.has(r.id) ? false : (seen.add(r.id), true)));
+
+        console.log('▶︎ FamilyDashboard: children rows fetched', {
+          byUser: byUser?.length || 0,
+          byFamily: byFamily?.length || 0,
+          totalUnique: uniqueRows.length,
+        });
+
+        // 4) Mapper minimal et afficher immédiatement (puis enrichir ensuite)
+        const minimal = (uniqueRows || []).map((profile: any) => ({
+          id: profile.id,
+          firstName: profile.first_name || 'Enfant',
+          age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
+          avatar: null as string | null,
+          personalityEmoji: '🧒',
+          relatives: [],
+          pets: [],
+          toysCount: 0,
+          preferencesCount: 0,
+          hasPets: 0,
         }));
-        
-        setChildren(mapped);
-        console.log('▶︎ FamilyDashboard: subscriptions/children loaded', { count: mapped.length });
+        setChildren(minimal);
+        console.log('▶︎ FamilyDashboard: children set (minimal)', minimal.length);
+
+        // 5) Enrichissement asynchrone non bloquant
+        await Promise.all(
+          uniqueRows.map(async (profile: any) => {
+            try {
+              const [{ data: childPets }, { data: childFamilyMembers }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+                supabase
+                  .from('child_pets')
+                  .select(`
+                    name,
+                    traits,
+                    relation_label,
+                    pets:pet_id (
+                      id,
+                      name,
+                      type,
+                      breed,
+                      physical_details,
+                      emoji
+                    )
+                  `)
+                  .eq('child_id', profile.id),
+                supabase
+                  .from('child_family_members')
+                  .select(`
+                    relation_label,
+                    family_members:family_member_id (
+                      id,
+                      name,
+                      role,
+                      avatar
+                    )
+                  `)
+                  .eq('child_id', profile.id),
+                supabase.from('child_superpowers').select('*').eq('child_id', profile.id),
+                supabase.from('child_likes').select('*').eq('child_id', profile.id),
+                supabase.from('child_challenges').select('*').eq('child_id', profile.id),
+                supabase.from('child_universes').select('*').eq('child_id', profile.id),
+                supabase.from('child_discoveries').select('*').eq('child_id', profile.id),
+              ]);
+
+              const petsFromDb = (childPets || []).map((cp: any) => ({
+                id: cp.pets?.id,
+                name: cp.name || cp.pets?.name,
+                type: cp.relation_label || cp.pets?.type,
+                breed: cp.pets?.breed,
+                physicalDetails: cp.pets?.physical_details,
+                traits: cp.traits?.split(', ') || [],
+                emoji: cp.pets?.emoji,
+              }));
+
+              const relativesFromDb = (childFamilyMembers || []).map((cfm: any) => ({
+                id: cfm.family_members?.id,
+                firstName: cfm.family_members?.name,
+                type: cfm.family_members?.role,
+                avatar: cfm.family_members?.avatar || '👤',
+                relationToChild: cfm.relation_label,
+              }));
+
+              const toysCount = 0; // pas de table jouets distincte ici
+              const preferencesCount =
+                (superpowersRes.data?.length || 0) +
+                (likesRes.data?.length || 0) +
+                (challengesRes.data?.length || 0) +
+                (universesRes.data?.length || 0) +
+                (discoveriesRes.data?.length || 0);
+
+              // Mettre à jour l'enfant enrichi
+              setChildren(prev => prev.map(c => c.id === profile.id ? {
+                ...c,
+                relatives: relativesFromDb,
+                pets: petsFromDb,
+                toysCount,
+                preferencesCount,
+                hasPets: petsFromDb.length,
+              } : c));
+            } catch (err) {
+              console.error('❌ FamilyDashboard: enrich error for child', profile.id, err);
+            }
+          })
+        );
+
+        console.log('▶︎ FamilyDashboard: enrichment done');
       } catch (e) {
         console.error('Unexpected error loading children:', e);
       } finally {
