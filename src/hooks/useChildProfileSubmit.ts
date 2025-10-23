@@ -590,7 +590,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       if (isGiftMode && nextPath) {
         navigate(nextPath, { state: { childProfile: data } });
       } else {
-        navigate('/start-adventure', { state: { childProfile: data } });
+        navigate('/abonnement?context=adventure', { state: { childProfile: data } });
       }
     }, 1000);
   };

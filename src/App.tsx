@@ -21,7 +21,6 @@ import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import CreateChildProfile from './pages/CreateChildProfile'
 import NouvelEnfant from './pages/NouvelEnfant'
-import StartAdventure from './pages/StartAdventure'
 import FinishSubscription from './pages/FinishSubscription'
 import ConfirmationPage from './pages/ConfirmationPage'
 import FamilyDashboard from './pages/FamilyDashboard'
@@ -95,10 +94,6 @@ function App() {
                   <Abonnement />
                 </RouteGuard>
               } />
-              
-              {/* Semi-protected routes - will redirect to auth before payment */}
-              <Route path="/start-adventure" element={<StartAdventure />} />
-              <Route path="/pret-a-demarrer" element={<StartAdventure />} />
               
               {/* Protected routes - require authentication */}
               <Route path="/finaliser-abonnement" element={
