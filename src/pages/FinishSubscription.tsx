@@ -51,7 +51,7 @@ const FinishSubscription = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-20">
+      <main className="flex-grow container mx-auto px-4 pt-32 pb-12">
         <div className="mb-6">
           <Button 
             type="button" 
@@ -63,7 +63,7 @@ const FinishSubscription = () => {
           </Button>
         </div>
         
-        <h1 className="text-3xl font-bold text-center mb-8 text-mcf-orange-dark mt-10">
+        <h1 className="text-3xl font-bold text-center mb-8 text-mcf-orange-dark">
           Finaliser votre abonnement
         </h1>
         
