@@ -92,16 +92,38 @@ const FamilyDashboard: React.FC = () => {
         const userId = supabaseSession.user.id;
         console.log('▶︎ FamilyDashboard: fetchChildren for user', userId);
         // Charger directement depuis child_profiles avec toutes les relations
-        const { data: childProfiles, error } = await supabase
+        // Récupérer le family_id du profil utilisateur s'il existe
+        const { data: userProfile, error: userProfileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', userId)
+          .maybeSingle();
+        if (userProfileError) {
+          console.error('Failed to load user profile:', userProfileError);
+        }
+
+        // Construire la requête enfants selon la meilleure clé disponible
+        let childQuery = supabase
           .from('child_profiles')
           .select(`
             id,
             first_name,
             birth_date,
             gender,
-            created_at
-          `)
-          .eq('user_id', userId)
+            created_at,
+            family_id,
+            user_id
+          `);
+
+        if (userProfile?.family_id) {
+          console.log('▶︎ FamilyDashboard: using family_id filter', userProfile.family_id);
+          childQuery = childQuery.eq('family_id', userProfile.family_id);
+        } else {
+          console.log('▶︎ FamilyDashboard: using user_id filter', userId);
+          childQuery = childQuery.eq('user_id', userId);
+        }
+
+        const { data: childProfiles, error } = await childQuery
           .order('created_at', { ascending: false });
         
         if (error) {

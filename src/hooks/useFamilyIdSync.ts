@@ -19,13 +19,27 @@ export const useFamilyIdSync = () => {
         // 1. Vérifier le family_id actuel dans user_profiles
         const { data: userProfile, error: profileError } = await supabase
           .from('user_profiles')
-          .select('family_id')
+          .select('id, family_id')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) {
           console.error('Erreur lors de la récupération du profil:', profileError);
           return;
+        }
+
+        // Créer le user_profile s'il n'existe pas
+        if (!userProfile) {
+          const { error: insertError } = await supabase
+            .from('user_profiles')
+            .insert({ id: userId })
+            .select('id')
+            .maybeSingle();
+          if (insertError) {
+            console.error('Erreur lors de la création du user_profile:', insertError);
+            return;
+          }
+          console.log('✅ user_profile créé');
         }
 
         // Si le user a déjà un family_id, pas besoin de synchroniser
