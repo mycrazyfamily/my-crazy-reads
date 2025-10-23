@@ -52,19 +52,14 @@ const Abonnement: React.FC = () => {
           </h1>
           
           <div className="max-w-5xl mx-auto mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Formule mensuelle */}
               <div 
-                className={`border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-100 cursor-pointer ${
-                  selectedOption === 'monthly' 
-                    ? 'border-2 border-mcf-primary ring-2 ring-mcf-primary/20' 
-                    : 'border-mcf-mint hover:border-mcf-primary/50'
-                }`}
-                onClick={() => setSelectedOption('monthly')}
+                className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-100 border-mcf-mint hover:border-mcf-primary/50 flex flex-col"
               >
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement mensuel</h2>
                 <p className="text-3xl font-bold mb-4 text-mcf-secondary">19,99€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-3 mb-6 flex-grow">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
                     <span>Un livre personnalisé chaque mois</span>
@@ -78,23 +73,24 @@ const Abonnement: React.FC = () => {
                     <span>Livraison incluse</span>
                   </li>
                 </ul>
+                <button 
+                  onClick={() => handleSelectPlan('monthly')}
+                  className="w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto"
+                >
+                  Choisir cette formule
+                </button>
               </div>
               
               {/* Formule annuelle */}
               <div 
-                className={`border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-200 cursor-pointer ${
-                  selectedOption === 'yearly' 
-                    ? 'border-2 border-mcf-secondary ring-2 ring-mcf-secondary/20' 
-                    : 'border-mcf-secondary hover:border-mcf-secondary/70'
-                }`}
-                onClick={() => setSelectedOption('yearly')}
+                className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-200 border-mcf-secondary hover:border-mcf-secondary/70 flex flex-col"
               >
                 <div className="text-sm font-bold py-1 px-3 rounded-full inline-block mb-3 bg-mcf-mint text-mcf-primary">
                   ÉCONOMIE DE 20%
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement annuel</h2>
                 <p className="text-3xl font-bold mb-4 text-mcf-secondary">219,99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-3 mb-6 flex-grow">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
                     <span>Un livre personnalisé chaque mois</span>
@@ -112,16 +108,13 @@ const Abonnement: React.FC = () => {
                     <span>Livraison incluse</span>
                   </li>
                 </ul>
+                <button 
+                  onClick={() => handleSelectPlan('yearly')}
+                  className="w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto"
+                >
+                  Choisir cette formule
+                </button>
               </div>
-            </div>
-            
-            <div className="flex justify-center mt-8">
-              <button 
-                onClick={() => handleSelectPlan(selectedOption)}
-                className="w-full md:w-auto bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-12 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-lg"
-              >
-                {isFromAdventure ? "Continuer l'aventure" : "Continuer"}
-              </button>
             </div>
             
             <div className="mt-12 text-center">
