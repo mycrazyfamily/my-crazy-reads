@@ -12,6 +12,9 @@ const Abonnement: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated, hasActiveSubscription, supabaseSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [children, setChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [subscribedChildIds, setSubscribedChildIds] = useState<string[]>([]);
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
   
@@ -21,6 +24,27 @@ const Abonnement: React.FC = () => {
       navigate('/espace-famille');
     }
   }, [isAuthenticated, hasActiveSubscription, navigate]);
+  
+  useEffect(() => {
+    const load = async () => {
+      if (!isAuthenticated || !supabaseSession) return;
+      // Charger les enfants
+      const { data: cps } = await supabase
+        .from('child_profiles')
+        .select('id, first_name')
+        .order('created_at', { ascending: false });
+      setChildren(cps || []);
+      // Charger les abonnements actifs (par enfant)
+      const { data } = await supabase.functions.invoke('check-subscription', {
+        headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
+      });
+      const ids = (data?.subscriptions || [])
+        .map((s: any) => s.child_id)
+        .filter(Boolean);
+      setSubscribedChildIds(ids);
+    };
+    load();
+  }, [isAuthenticated, supabaseSession]);
   
   const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
@@ -37,13 +61,23 @@ const Abonnement: React.FC = () => {
       return;
     }
 
+    if (!selectedChildId) {
+      toast.info("Sélectionnez d'abord l'enfant à abonner.");
+      return;
+    }
+
+    if (subscribedChildIds.includes(selectedChildId)) {
+      toast.info("Cet enfant est déjà abonné.");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       const priceId = SUBSCRIPTION_PLANS[plan].priceId;
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
+        body: { priceId, childId: selectedChildId },
         headers: {
           Authorization: `Bearer ${supabaseSession.access_token}`,
         },
@@ -77,6 +111,33 @@ const Abonnement: React.FC = () => {
           </h1>
           
           <div className="max-w-5xl mx-auto mt-8">
+            {/* Sélection de l'enfant à abonner */}
+            {isAuthenticated && (
+              <div className="mb-8 p-4 border rounded-xl bg-white shadow-sm">
+                <h2 className="text-xl font-semibold mb-3 text-mcf-primary">Sélectionnez l'enfant à abonner</h2>
+                {children.length === 0 ? (
+                  <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    {children.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedChildId(c.id)}
+                        className={`px-4 py-2 rounded-full border transition ${
+                          selectedChildId === c.id ? 'bg-mcf-primary text-white border-mcf-primary' : 'bg-white hover:bg-mcf-mint border-mcf-mint'
+                        }`}
+                      >
+                        <span>{c.first_name}</span>
+                        {subscribedChildIds.includes(c.id) && (
+                          <span className="ml-2 text-xs font-semibold text-mcf-secondary">Déjà abonné</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">L'abonnement est lié à l'enfant sélectionné.</p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Formule mensuelle */}
               <div 

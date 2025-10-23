@@ -162,13 +162,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const logout = async () => {
-    // Déconnexion de Supabase
-    await supabase.auth.signOut();
-    
-    // Réinitialiser l'état local
-    setUser(null);
-    setSupabaseSession(null);
-    localStorage.removeItem('mcf_user');
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      // Réinitialiser l'état local et le stockage local
+      setUser(null);
+      setSupabaseSession(null);
+      try { localStorage.removeItem('mcf_user'); } catch {}
+      // Forcer un rafraîchissement pour éviter tout état rémanent
+      window.location.href = '/';
+    }
   };
 
   const updateUserSubscription = (subscription: Subscription) => {

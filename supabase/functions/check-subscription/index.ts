@@ -60,22 +60,31 @@ serve(async (req) => {
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
-      limit: 1,
+      limit: 100,
     });
     const hasActiveSub = subscriptions.data.length > 0;
     let productId = null;
     let subscriptionEnd = null;
     let priceId = null;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
-      
+    let detailedSubs = subscriptions.data.map((subscription) => {
       const price = subscription.items.data[0].price;
-      productId = typeof price.product === 'string' ? price.product : price.product?.id;
-      priceId = price.id;
-      logStep("Determined subscription tier", { productId, priceId });
+      const pid = typeof price.product === 'string' ? price.product : price.product?.id;
+      return {
+        subscription_id: subscription.id,
+        child_id: (subscription.metadata && subscription.metadata.child_id) || null,
+        product_id: pid,
+        price_id: price.id,
+        subscription_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      };
+    });
+
+    if (hasActiveSub) {
+      const first = detailedSubs[0];
+      productId = first.product_id;
+      priceId = first.price_id;
+      subscriptionEnd = first.subscription_end;
+      logStep("Active subscription(s) found", { count: detailedSubs.length });
     } else {
       logStep("No active subscription found");
     }
@@ -84,7 +93,8 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       product_id: productId,
       price_id: priceId,
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      subscriptions: detailedSubs
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

@@ -32,9 +32,9 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { priceId } = await req.json();
+    const { priceId, childId } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
-    logStep("Price ID received", { priceId });
+    logStep("Price ID received", { priceId, childId });
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -58,6 +58,11 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      subscription_data: {
+        metadata: {
+          child_id: childId || "",
+        },
+      },
       success_url: `${origin}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/abonnement?canceled=true`,
     });
