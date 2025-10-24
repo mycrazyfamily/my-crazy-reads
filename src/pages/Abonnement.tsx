@@ -167,7 +167,15 @@ const Abonnement: React.FC = () => {
 
       console.log('▶︎ Abonnement.checkout: session created', data);
       if (data?.url) {
-        window.location.href = data.url;
+        // Ouvrir Stripe dans un nouvel onglet pour éviter de bloquer l'app en cas d'échec
+        const win = window.open(data.url, '_blank', 'noopener,noreferrer');
+        if (!win) {
+          // Fallback si le bloqueur de popups empêche l'ouverture
+          toast.info("Le paiement s'ouvre dans un nouvel onglet. Si rien ne s'ouvre, autorisez les popups et réessayez.");
+          window.location.assign(data.url);
+        } else {
+          toast.success('Redirection vers Stripe ouverte dans un nouvel onglet');
+        }
       } else {
         toast.error("Impossible d'ouvrir le paiement. Réessayez.");
       }

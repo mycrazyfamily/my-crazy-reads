@@ -36,9 +36,14 @@ serve(async (req) => {
     if (!priceId) throw new Error("Price ID is required");
     logStep("Price ID received", { priceId, childId });
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      logStep("Missing STRIPE_SECRET_KEY");
+      throw new Error("Stripe n'est pas configuré (clé manquante)");
+    }
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId;
+    let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Existing customer found", { customerId });
