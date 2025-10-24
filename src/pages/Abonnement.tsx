@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 
 const Abonnement: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ const Abonnement: React.FC = () => {
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
   
+  // Assure que le user_profile possède bien un family_id si possible
+  useFamilyIdSync();
+  
   useEffect(() => {
     if (isAuthenticated && hasActiveSubscription) {
       console.log("▶︎ Abonnement: user has at least one active subscription - UI remains accessible for per-enfant selection");
@@ -26,26 +30,67 @@ const Abonnement: React.FC = () => {
   
   useEffect(() => {
     const load = async () => {
+      if (!isAuthenticated || !supabaseSession) {
+        console.log('▶︎ Abonnement.load: not authenticated or no session');
+        return;
+      }
+
+      const userId = supabaseSession.user.id;
+      console.log('▶︎ Abonnement.load: fetch user_profile and children for', userId);
+
+      // 1) Charger les enfants (par user_id ET par family_id si dispo)
       try {
-        if (!isAuthenticated || !supabaseSession) {
-          console.log('▶︎ Abonnement.load: not authenticated or no session');
-          return;
+        const { data: userProfile, error: userProfileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', userId)
+          .maybeSingle();
+        if (userProfileError) {
+          console.error('❌ Abonnement.load: user_profile error', userProfileError);
+        } else {
+          console.log('▶︎ Abonnement.load: user_profile', userProfile);
         }
-        const userId = supabaseSession.user.id;
-        console.log('▶︎ Abonnement.load: fetchChildren for user', userId);
-        // Charger les enfants du user courant
-        const { data: cps, error: childrenError } = await supabase
+
+        const baseSelect = 'id, first_name, created_at, family_id, user_id';
+        const qByUser = supabase
           .from('child_profiles')
-          .select('id, first_name, created_at')
+          .select(baseSelect)
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
-        if (childrenError) {
-          console.error('❌ Abonnement.load: children query error', childrenError);
-          setChildren([]);
-        } else {
-          setChildren(cps || []);
-        }
-        // Charger les abonnements actifs (par enfant)
+        const qByFamily = userProfile?.family_id
+          ? supabase
+              .from('child_profiles')
+              .select(baseSelect)
+              .eq('family_id', userProfile.family_id)
+              .order('created_at', { ascending: false })
+          : null;
+
+        const [{ data: byUser, error: errUser }, famRes] = await Promise.all([
+          qByUser,
+          qByFamily ? qByFamily : Promise.resolve({ data: [], error: null } as any),
+        ] as const);
+
+        if (errUser) console.error('❌ Abonnement.load: child_profiles by user error', errUser);
+        const byFamily = (famRes as any)?.data as any[] | undefined;
+        if ((famRes as any)?.error) console.error('❌ Abonnement.load: child_profiles by family error', (famRes as any).error);
+
+        const rows = [...(byFamily || []), ...(byUser || [])];
+        const seen = new Set<string>();
+        const uniqueRows = rows.filter((r) => (seen.has(r.id) ? false : (seen.add(r.id), true)));
+        console.log('▶︎ Abonnement.load: children rows fetched', {
+          byUser: byUser?.length || 0,
+          byFamily: byFamily?.length || 0,
+          totalUnique: uniqueRows.length,
+        });
+
+        setChildren(uniqueRows.map((r) => ({ id: r.id, first_name: r.first_name })));
+      } catch (e) {
+        console.error('❌ Abonnement.load: children load error', e);
+        // Ne pas vider les enfants si une autre étape échoue
+      }
+
+      // 2) Vérifier les abonnements actifs (enfant par enfant, si renvoyé)
+      try {
         const { data: subData, error: subError } = await supabase.functions.invoke('check-subscription', {
           headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
         });
@@ -53,20 +98,19 @@ const Abonnement: React.FC = () => {
           console.error('❌ Abonnement.load: check-subscription error', subError);
           setSubscribedChildIds([]);
         } else {
-          const ids = (subData?.subscriptions || [])
-            .map((s: any) => s.child_id)
-            .filter(Boolean);
-          console.log('▶︎ Abonnement.load: subscriptions returned', ids);
+          const ids = Array.isArray(subData?.subscriptions)
+            ? subData.subscriptions.map((s: any) => s?.child_id).filter(Boolean)
+            : [];
+          console.log('▶︎ Abonnement.load: subscriptions child_ids', ids);
           setSubscribedChildIds(ids);
         }
       } catch (e) {
-        console.error('❌ Abonnement.load: unexpected error', e);
-        setChildren([]);
+        console.error('❌ Abonnement.load: subscription check error', e);
         setSubscribedChildIds([]);
       }
     };
     load();
-  }, [isAuthenticated, supabaseSession]);
+  }, [isAuthenticated, supabaseSession?.access_token]);
   
   const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
