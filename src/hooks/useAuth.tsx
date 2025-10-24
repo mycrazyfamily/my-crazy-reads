@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, session);
         setSupabaseSession(session);
         
@@ -118,13 +118,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
 
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            await checkSubscription(session);
+            // Defer to avoid deadlocks inside the auth callback
+            setTimeout(() => {
+              checkSubscription(session).catch((e) => console.error('checkSubscription error (deferred):', e));
+            }, 0);
           }
         }
       }
     );
     
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session check:', session);
       setSupabaseSession(session);
       
@@ -136,7 +139,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isAuthenticated: true
         }));
         
-        await checkSubscription(session);
+        // Defer subscription check on initial load as well
+        setTimeout(() => {
+          checkSubscription(session).catch((e) => console.error('checkSubscription error (initial deferred):', e));
+        }, 0);
       } else {
         const storedUser = localStorage.getItem('mcf_user');
         if (storedUser) {
@@ -221,7 +227,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.warn('useAuth called outside AuthProvider - returning safe fallback');
+    const hardLogout = async () => {
+      try { await supabase.auth.signOut(); } catch {}
+      try { localStorage.removeItem('mcf_user'); } catch {}
+      try { localStorage.removeItem('sb-rjbmhcoctpwmlqndzybm-auth-token'); } catch {}
+      window.location.href = '/';
+    };
+    return {
+      user: null,
+      isAuthenticated: false,
+      isTemporaryUser: false,
+      hasActiveSubscription: false,
+      login: () => {},
+      logout: hardLogout,
+      updateUserSubscription: () => {},
+      updateUserProfile: () => {},
+      refreshSubscription: async () => {},
+      supabaseSession: null,
+    } as AuthContextType;
   }
   return context;
 };
