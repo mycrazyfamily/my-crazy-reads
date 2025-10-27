@@ -42,6 +42,17 @@ serve(async (req) => {
       throw new Error("Stripe n'est pas configuré (clé manquante)");
     }
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    
+    // Verify the price details from Stripe to ensure correct configuration
+    const priceDetails = await stripe.prices.retrieve(priceId);
+    logStep("Stripe price details", { 
+      priceId, 
+      amount: priceDetails.unit_amount, 
+      currency: priceDetails.currency,
+      interval: priceDetails.recurring?.interval,
+      product: priceDetails.product
+    });
+    
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {

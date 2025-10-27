@@ -142,6 +142,13 @@ const Abonnement: React.FC = () => {
     
     try {
       const priceId = SUBSCRIPTION_PLANS[plan].priceId;
+      const planDetails = SUBSCRIPTION_PLANS[plan];
+      console.log('▶︎ Abonnement.checkout: priceId details', { 
+        plan, 
+        priceId, 
+        expectedPrice: planDetails.price,
+        expectedInterval: planDetails.interval 
+      });
 
       const invokePromise = supabase.functions.invoke('create-checkout', {
         body: { priceId, childId: selectedChildId },
