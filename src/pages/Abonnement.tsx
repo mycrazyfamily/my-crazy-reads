@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,8 @@ const Abonnement: React.FC = () => {
   const [children, setChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [subscribedChildIds, setSubscribedChildIds] = useState<string[]>([]);
+  
+  const checkoutOpeningRef = useRef(false);
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
   
@@ -137,6 +139,13 @@ const Abonnement: React.FC = () => {
       return;
     }
 
+    // Empêche les doubles déclenchements (double-clic, re-render)
+    if (checkoutOpeningRef.current) {
+      toast.info('Une redirection de paiement est déjà en cours.');
+      return;
+    }
+    checkoutOpeningRef.current = true;
+
     setIsLoading(true);
     console.log('▶︎ Abonnement.checkout: initiation', { plan, childId: selectedChildId });
     
@@ -177,9 +186,8 @@ const Abonnement: React.FC = () => {
         // Ouvrir Stripe dans un nouvel onglet pour éviter de bloquer l'app en cas d'échec
         const win = window.open(data.url, '_blank', 'noopener,noreferrer');
         if (!win) {
-          // Fallback si le bloqueur de popups empêche l'ouverture
-          toast.info("Le paiement s'ouvre dans un nouvel onglet. Si rien ne s'ouvre, autorisez les popups et réessayez.");
-          window.location.assign(data.url);
+          // Ne pas forcer la redirection de l'onglet courant pour éviter de "casser" l'état global
+          toast.info("Le paiement n'a pas pu s'ouvrir (popup bloquée). Autorisez les popups, puis réessayez.");
         } else {
           toast.success('Redirection vers Stripe ouverte dans un nouvel onglet');
         }
@@ -190,6 +198,7 @@ const Abonnement: React.FC = () => {
       console.error('❌ Abonnement.checkout: unexpected error', error);
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
+      checkoutOpeningRef.current = false;
       setIsLoading(false);
     }
   };
