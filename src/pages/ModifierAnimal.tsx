@@ -55,13 +55,25 @@ const ModifierAnimal: React.FC = () => {
         const predefinedTypes = ['dog', 'cat', 'rabbit', 'bird', 'fish', 'reptile', 'other'];
         const isCustomType = storedType && !predefinedTypes.includes(storedType);
         
+        // Parser physical_details (jsonb)
+        let physicalDetails: string[] = [];
+        if ((data.pets as any).physical_details) {
+          try {
+            const raw = (data.pets as any).physical_details;
+            physicalDetails = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          } catch (e) {
+            console.error('Failed to parse physical_details:', e);
+            physicalDetails = [];
+          }
+        }
+        
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
           type: isCustomType ? 'other' : (storedType as PetType),
           otherType: isCustomType ? storedType : undefined,
           breed: (data.pets as any).breed || undefined,
-          physicalDetails: (data.pets as any).physical_details || undefined,
+          physicalDetails,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
           customTraits: (data as any).traits_custom || undefined
         };
@@ -120,7 +132,9 @@ const ModifierAnimal: React.FC = () => {
           name: updatedPet.name,
           type: finalType,
           breed: updatedPet.breed || null,
-          physical_details: updatedPet.physicalDetails || null
+          physical_details: updatedPet.physicalDetails && updatedPet.physicalDetails.length > 0
+            ? JSON.stringify(updatedPet.physicalDetails)
+            : JSON.stringify([])
         })
         .eq('id', petId);
 

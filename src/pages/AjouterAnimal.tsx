@@ -193,7 +193,9 @@ export default function AjouterAnimal() {
           name: petData.name,
           type: finalType,
           breed: petData.breed || null,
-          physical_details: petData.physicalDetails || null,
+          physical_details: petData.physicalDetails && petData.physicalDetails.length > 0
+            ? JSON.stringify(petData.physicalDetails)
+            : JSON.stringify([]),
           emoji: null,
           family_id: familyId
         })

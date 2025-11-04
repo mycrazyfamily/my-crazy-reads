@@ -74,6 +74,9 @@ const CreateChildProfile = ({
               hairTypeCustom: data.hairTypeCustom,
               glasses: data.glasses
             },
+            physical_details: data.physicalDetails && data.physicalDetails.length > 0 
+              ? JSON.stringify(data.physicalDetails) 
+              : JSON.stringify([]),
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);

@@ -149,7 +149,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               birthDate: relative.birthDate ? relative.birthDate.toISOString().split('T')[0] : null,
               job: relative.job,
               gender: relative.gender,
-              otherTypeName: relative.otherTypeName
+              otherTypeName: relative.otherTypeName,
+              physicalDetails: relative.physicalDetails || []
             }
           }));
 
@@ -192,6 +193,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 hairTypeCustom: data.hairTypeCustom,
                 glasses: data.glasses
               },
+              physical_details: data.physicalDetails && data.physicalDetails.length > 0 
+                ? JSON.stringify(data.physicalDetails) 
+                : JSON.stringify([]),
               has_pet: data.pets?.hasPets || false
             }
           ])
@@ -432,7 +436,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: pet.name,
             type: pet.type || pet.otherType || 'autre',
             breed: pet.breed || null,
-            physical_details: pet.physicalDetails || null,
+            physical_details: pet.physicalDetails && pet.physicalDetails.length > 0 
+              ? JSON.stringify(pet.physicalDetails) 
+              : JSON.stringify([]),
             emoji: null
           }));
 

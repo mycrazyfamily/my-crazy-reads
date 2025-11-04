@@ -226,6 +226,19 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
 
           const appearance = (childProfile.appearance as any) || {};
 
+          // Parser physical_details (jsonb)
+          let physicalDetails: string[] = [];
+          if (childProfile.physical_details) {
+            try {
+              physicalDetails = typeof childProfile.physical_details === 'string' 
+                ? JSON.parse(childProfile.physical_details)
+                : childProfile.physical_details;
+            } catch (e) {
+              console.error('Failed to parse physical_details:', e);
+              physicalDetails = [];
+            }
+          }
+
           const formData: any = {
             firstName: childProfile.first_name,
             nickname: mapNickname(childProfile.nickname),
@@ -238,6 +251,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             hairType: appearance.hairType || 'straight',
             hairTypeCustom: appearance.hairTypeCustom,
             glasses: appearance.glasses ?? false,
+            physicalDetails,
             superpowers,
             passions,
             challenges,

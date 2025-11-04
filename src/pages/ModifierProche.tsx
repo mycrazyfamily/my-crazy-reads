@@ -147,6 +147,9 @@ const ModifierProche: React.FC = () => {
         setTraits(details.traits || []);
         setCustomTraits(details.customTraits || {});
 
+        // Charger les physical_details
+        setPhysicalDetails(details.physicalDetails || []);
+
         setChildData({ loaded: true });
 
         // Charger tous les enfants de la famille
@@ -275,7 +278,8 @@ const ModifierProche: React.FC = () => {
         birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
         job: job || null,
         gender,
-        otherTypeName: otherTypeName || null
+        otherTypeName: otherTypeName || null,
+        physicalDetails: physicalDetails.length > 0 ? physicalDetails : []
       };
 
       const updatePayload: any = {
