@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import NewHero from '../components/NewHero';
+import ExpertQuote from '../components/ExpertQuote';
 import HowItWorks from '../components/HowItWorks';
 import BenefitCard from '../components/BenefitCard';
 import Footer from '../components/Footer';
@@ -63,6 +64,9 @@ const NewIndex: React.FC = () => {
       <main className="flex-grow">
         {/* Hero Section */}
         <NewHero />
+        
+        {/* Citation Experte */}
+        <ExpertQuote />
         
         {/* Comment ça marche */}
         <HowItWorks />
