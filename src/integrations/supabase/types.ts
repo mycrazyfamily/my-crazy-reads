@@ -447,6 +447,45 @@ export type Database = {
           },
         ]
       }
+      child_places: {
+        Row: {
+          child_id: string
+          created_at: string | null
+          id: string
+          label: string | null
+          place_id: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          place_id: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          place_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_places_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "child_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       child_profiles: {
         Row: {
           appearance: Json | null
@@ -1174,6 +1213,65 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "pets_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      places: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          details: Json | null
+          emoji: string | null
+          family_id: string | null
+          id: string
+          is_active: boolean | null
+          label: string
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          details?: Json | null
+          emoji?: string | null
+          family_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          label: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          details?: Json | null
+          emoji?: string | null
+          family_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "places_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"

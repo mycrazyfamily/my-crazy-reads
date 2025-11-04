@@ -184,4 +184,5 @@ export type ChildProfileFormData = {
   pets: PetsData;
   toys: ToysData; // Ajout des doudous et objets magiques
   worlds: WorldsData; // Ajout des univers préférés et découvertes
+  places?: any[]; // Ajout des lieux de vie
 };
