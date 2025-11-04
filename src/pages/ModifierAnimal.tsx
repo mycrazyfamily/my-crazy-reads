@@ -41,7 +41,8 @@ const ModifierAnimal: React.FC = () => {
             emoji,
             family_id,
             breed,
-            physical_details
+            physical_details,
+            clothing_style
           )
         `)
         .eq('child_id', childId)
@@ -67,6 +68,18 @@ const ModifierAnimal: React.FC = () => {
           }
         }
         
+        // Parser clothing_style (jsonb)
+        let clothingStyle: string[] = [];
+        if ((data.pets as any).clothing_style) {
+          try {
+            const raw = (data.pets as any).clothing_style;
+            clothingStyle = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          } catch (e) {
+            console.error('Failed to parse clothing_style:', e);
+            clothingStyle = [];
+          }
+        }
+        
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
@@ -74,6 +87,7 @@ const ModifierAnimal: React.FC = () => {
           otherType: isCustomType ? storedType : undefined,
           breed: (data.pets as any).breed || undefined,
           physicalDetails,
+          clothingStyle,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
           customTraits: (data as any).traits_custom || undefined
         };
@@ -134,6 +148,9 @@ const ModifierAnimal: React.FC = () => {
           breed: updatedPet.breed || null,
           physical_details: updatedPet.physicalDetails && updatedPet.physicalDetails.length > 0
             ? JSON.stringify(updatedPet.physicalDetails)
+            : JSON.stringify([]),
+          clothing_style: updatedPet.clothingStyle && updatedPet.clothingStyle.length > 0
+            ? JSON.stringify(updatedPet.clothingStyle)
             : JSON.stringify([])
         })
         .eq('id', petId);

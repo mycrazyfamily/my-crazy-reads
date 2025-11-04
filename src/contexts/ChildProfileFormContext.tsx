@@ -79,6 +79,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       hairType: undefined as unknown as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom",
       hairTypeCustom: undefined,
       glasses: undefined,
+      physicalDetails: [],
+      clothingStyle: [],
       height: undefined as unknown as "small" | "medium" | "tall",
       superpowers: [],
       passions: [],
@@ -239,6 +241,19 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             }
           }
 
+          // Parser clothing_style (jsonb)
+          let clothingStyle: string[] = [];
+          if (childProfile.clothing_style) {
+            try {
+              clothingStyle = typeof childProfile.clothing_style === 'string' 
+                ? JSON.parse(childProfile.clothing_style)
+                : childProfile.clothing_style;
+            } catch (e) {
+              console.error('Failed to parse clothing_style:', e);
+              clothingStyle = [];
+            }
+          }
+
           const formData: any = {
             firstName: childProfile.first_name,
             nickname: mapNickname(childProfile.nickname),
@@ -252,6 +267,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             hairTypeCustom: appearance.hairTypeCustom,
             glasses: appearance.glasses ?? false,
             physicalDetails,
+            clothingStyle,
             superpowers,
             passions,
             challenges,
