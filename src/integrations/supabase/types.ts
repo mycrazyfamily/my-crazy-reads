@@ -460,6 +460,7 @@ export type Database = {
           height_relative_to_age: string | null
           id: string
           nickname: string | null
+          physical_details: Json | null
           updated_at: string | null
           user_id: string | null
         }
@@ -475,6 +476,7 @@ export type Database = {
           height_relative_to_age?: string | null
           id?: string
           nickname?: string | null
+          physical_details?: Json | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -490,6 +492,7 @@ export type Database = {
           height_relative_to_age?: string | null
           id?: string
           nickname?: string | null
+          physical_details?: Json | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -790,6 +793,7 @@ export type Database = {
           family_id: string | null
           id: string
           name: string | null
+          physical_details: Json | null
           role: string | null
         }
         Insert: {
@@ -799,6 +803,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           name?: string | null
+          physical_details?: Json | null
           role?: string | null
         }
         Update: {
@@ -808,6 +813,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           name?: string | null
+          physical_details?: Json | null
           role?: string | null
         }
         Relationships: [
@@ -914,6 +920,155 @@ export type Database = {
         }
         Relationships: []
       }
+      mcf_book_pages: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_prompt: string | null
+          image_status: string | null
+          image_url: string | null
+          notes: string | null
+          page_no: number
+          production_id: string
+          text_left: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_prompt?: string | null
+          image_status?: string | null
+          image_url?: string | null
+          notes?: string | null
+          page_no: number
+          production_id: string
+          text_left?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_prompt?: string | null
+          image_status?: string | null
+          image_url?: string | null
+          notes?: string | null
+          page_no?: number
+          production_id?: string
+          text_left?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mcf_book_pages_production_id_fkey"
+            columns: ["production_id"]
+            isOneToOne: false
+            referencedRelation: "mcf_book_productions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mcf_book_productions: {
+        Row: {
+          book_request_id: string | null
+          child_id: string | null
+          created_at: string | null
+          family_id: string | null
+          final_book_id: string | null
+          id: string
+          image_provider: string | null
+          last_error: string | null
+          layout_provider: string | null
+          pdf_url: string | null
+          retry_count: number | null
+          status: Database["public"]["Enums"]["mcf_production_status"] | null
+          text_draft: string | null
+          text_final: string | null
+          text_prompt: string | null
+          text_provider: string | null
+          theme_id: string | null
+          theme_label: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          book_request_id?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          family_id?: string | null
+          final_book_id?: string | null
+          id?: string
+          image_provider?: string | null
+          last_error?: string | null
+          layout_provider?: string | null
+          pdf_url?: string | null
+          retry_count?: number | null
+          status?: Database["public"]["Enums"]["mcf_production_status"] | null
+          text_draft?: string | null
+          text_final?: string | null
+          text_prompt?: string | null
+          text_provider?: string | null
+          theme_id?: string | null
+          theme_label?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          book_request_id?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          family_id?: string | null
+          final_book_id?: string | null
+          id?: string
+          image_provider?: string | null
+          last_error?: string | null
+          layout_provider?: string | null
+          pdf_url?: string | null
+          retry_count?: number | null
+          status?: Database["public"]["Enums"]["mcf_production_status"] | null
+          text_draft?: string | null
+          text_final?: string | null
+          text_prompt?: string | null
+          text_provider?: string | null
+          theme_id?: string | null
+          theme_label?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mcf_book_productions_book_request_id_fkey"
+            columns: ["book_request_id"]
+            isOneToOne: false
+            referencedRelation: "book_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mcf_book_productions_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mcf_book_productions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mcf_book_productions_final_book_id_fkey"
+            columns: ["final_book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mcf_book_productions_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           content: string
@@ -984,7 +1139,7 @@ export type Database = {
           family_id: string | null
           id: string
           name: string
-          physical_details: string | null
+          physical_details: Json | null
           type: string | null
         }
         Insert: {
@@ -994,7 +1149,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           name: string
-          physical_details?: string | null
+          physical_details?: Json | null
           type?: string | null
         }
         Update: {
@@ -1004,7 +1159,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           name?: string
-          physical_details?: string | null
+          physical_details?: Json | null
           type?: string | null
         }
         Relationships: [
@@ -1192,7 +1347,21 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      mcf_production_status:
+        | "new"
+        | "needs_text"
+        | "text_ready"
+        | "needs_text_review"
+        | "text_approved"
+        | "needs_images"
+        | "images_ready"
+        | "needs_images_review"
+        | "images_approved"
+        | "needs_layout"
+        | "layout_ready"
+        | "needs_final_review"
+        | "pdf_ready"
+        | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1319,6 +1488,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      mcf_production_status: [
+        "new",
+        "needs_text",
+        "text_ready",
+        "needs_text_review",
+        "text_approved",
+        "needs_images",
+        "images_ready",
+        "needs_images_review",
+        "images_approved",
+        "needs_layout",
+        "layout_ready",
+        "needs_final_review",
+        "pdf_ready",
+        "error",
+      ],
+    },
   },
 } as const

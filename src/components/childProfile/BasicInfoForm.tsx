@@ -22,6 +22,7 @@ import { AlertTriangle } from "lucide-react";
 import { StepDatePicker } from "@/components/ui/step-date-picker";
 import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
+import PhysicalDetailsInput from './PhysicalDetailsInput';
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -619,6 +620,22 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
               <FormDescription>
                 Sélectionnez si l'enfant porte des lunettes.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="physicalDetails"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <PhysicalDetailsInput
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

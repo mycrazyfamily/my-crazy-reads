@@ -48,6 +48,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
+  const [physicalDetails, setPhysicalDetails] = useState<string[]>(relative.physicalDetails || []);
 
   // Pour la sélection d'enfants existants
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
@@ -208,7 +209,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "white" | "custom",
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
       },
-      customTraits: customTraits
+      customTraits: customTraits,
+      physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined
     };
     
     onSave(updatedRelative, isCreatingNewChild ? selectedChildrenIds : undefined);
@@ -282,6 +284,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           glasses={glassesUI}
           setGlasses={(value) => { setGlassesUI(value); updateFormData('glasses', value); }}
           gender={formData.gender}
+          physicalDetails={physicalDetails}
+          setPhysicalDetails={setPhysicalDetails}
         />
         
         <RelativeTraitsSection 

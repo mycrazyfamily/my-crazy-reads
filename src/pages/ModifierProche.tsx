@@ -49,6 +49,7 @@ const ModifierProche: React.FC = () => {
   // Traits
   const [traits, setTraits] = useState<string[]>([]);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>({});
+  const [physicalDetails, setPhysicalDetails] = useState<string[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -397,6 +398,8 @@ const ModifierProche: React.FC = () => {
             glasses={glasses}
             setGlasses={setGlasses}
             gender={gender}
+            physicalDetails={physicalDetails}
+            setPhysicalDetails={setPhysicalDetails}
           />
 
           <RelativeTraitsSection

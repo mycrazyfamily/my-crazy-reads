@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { RelativeGender } from '@/types/childProfile';
+import PhysicalDetailsInput from '../PhysicalDetailsInput';
 
 type RelativeAppearanceSectionProps = {
   selectedSkinColor: string;
@@ -21,6 +22,8 @@ type RelativeAppearanceSectionProps = {
   glasses: boolean | null;
   setGlasses: (hasGlasses: boolean) => void;
   gender: RelativeGender;
+  physicalDetails?: string[];
+  setPhysicalDetails: (details: string[]) => void;
 };
 
 const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
@@ -38,7 +41,9 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
   setHairTypeCustom,
   glasses,
   setGlasses,
-  gender
+  gender,
+  physicalDetails,
+  setPhysicalDetails
 }) => {
   // Function to get gender-specific text
   const getGenderedText = (maleText: string, femaleText: string, neutralText: string) => {
@@ -209,6 +214,12 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Détails physiques */}
+      <PhysicalDetailsInput
+        value={physicalDetails}
+        onChange={setPhysicalDetails}
+      />
     </>
   );
 };
