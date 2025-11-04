@@ -179,7 +179,9 @@ export default function AjouterProche() {
             birthDate: relativeData.birthDate ? relativeData.birthDate.toISOString().split('T')[0] : null,
             job: relativeData.job,
             gender: relativeData.gender,
-            otherTypeName: relativeData.otherTypeName
+            otherTypeName: relativeData.otherTypeName,
+            physicalDetails: relativeData.physicalDetails || [],
+            clothingStyle: relativeData.clothingStyle || []
           }
         } as any)
         .select()

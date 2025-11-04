@@ -50,6 +50,7 @@ const ModifierProche: React.FC = () => {
   const [traits, setTraits] = useState<string[]>([]);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>({});
   const [physicalDetails, setPhysicalDetails] = useState<string[]>([]);
+  const [clothingStyle, setClothingStyle] = useState<string[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -149,6 +150,9 @@ const ModifierProche: React.FC = () => {
 
         // Charger les physical_details
         setPhysicalDetails(details.physicalDetails || []);
+
+        // Charger le clothing_style
+        setClothingStyle(details.clothingStyle || []);
 
         setChildData({ loaded: true });
 
@@ -279,7 +283,8 @@ const ModifierProche: React.FC = () => {
         job: job || null,
         gender,
         otherTypeName: otherTypeName || null,
-        physicalDetails: physicalDetails.length > 0 ? physicalDetails : []
+        physicalDetails: physicalDetails.length > 0 ? physicalDetails : [],
+        clothingStyle: clothingStyle.length > 0 ? clothingStyle : []
       };
 
       const updatePayload: any = {
@@ -404,6 +409,8 @@ const ModifierProche: React.FC = () => {
             gender={gender}
             physicalDetails={physicalDetails}
             setPhysicalDetails={setPhysicalDetails}
+            clothingStyle={clothingStyle}
+            setClothingStyle={setClothingStyle}
           />
 
           <RelativeTraitsSection

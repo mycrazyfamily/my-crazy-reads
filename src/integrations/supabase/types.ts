@@ -451,6 +451,7 @@ export type Database = {
         Row: {
           appearance: Json | null
           birth_date: string | null
+          clothing_style: Json | null
           created_at: string | null
           family_id: string | null
           first_name: string | null
@@ -467,6 +468,7 @@ export type Database = {
         Insert: {
           appearance?: Json | null
           birth_date?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           family_id?: string | null
           first_name?: string | null
@@ -483,6 +485,7 @@ export type Database = {
         Update: {
           appearance?: Json | null
           birth_date?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           family_id?: string | null
           first_name?: string | null
@@ -788,6 +791,7 @@ export type Database = {
       family_members: {
         Row: {
           avatar: string | null
+          clothing_style: Json | null
           created_at: string | null
           details: Json | null
           family_id: string | null
@@ -798,6 +802,7 @@ export type Database = {
         }
         Insert: {
           avatar?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           details?: Json | null
           family_id?: string | null
@@ -808,6 +813,7 @@ export type Database = {
         }
         Update: {
           avatar?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           details?: Json | null
           family_id?: string | null
@@ -1134,6 +1140,7 @@ export type Database = {
       pets: {
         Row: {
           breed: string | null
+          clothing_style: Json | null
           created_at: string | null
           emoji: string | null
           family_id: string | null
@@ -1144,6 +1151,7 @@ export type Database = {
         }
         Insert: {
           breed?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           emoji?: string | null
           family_id?: string | null
@@ -1154,6 +1162,7 @@ export type Database = {
         }
         Update: {
           breed?: string | null
+          clothing_style?: Json | null
           created_at?: string | null
           emoji?: string | null
           family_id?: string | null

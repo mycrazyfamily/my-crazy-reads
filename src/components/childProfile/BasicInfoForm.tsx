@@ -23,6 +23,7 @@ import { StepDatePicker } from "@/components/ui/step-date-picker";
 import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 import PhysicalDetailsInput from './PhysicalDetailsInput';
+import ClothingStyleInput from './ClothingStyleInput';
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -632,6 +633,22 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             <FormItem>
               <FormControl>
                 <PhysicalDetailsInput
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="clothingStyle"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ClothingStyleInput
                   value={field.value}
                   onChange={field.onChange}
                 />

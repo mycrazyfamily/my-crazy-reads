@@ -10,6 +10,7 @@ import { Dog, Cat, Rabbit, Bird, Fish } from 'lucide-react';
 import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import PhysicalDetailsInput from '../PhysicalDetailsInput';
+import ClothingStyleInput from '../ClothingStyleInput';
 
 type PetFormProps = {
   pet?: PetData;
@@ -26,6 +27,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [breed, setBreed] = useState(pet?.breed || '');
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(pet?.physicalDetails || []);
+  const [clothingStyle, setClothingStyle] = useState<string[]>(pet?.clothingStyle || []);
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
   
@@ -127,6 +129,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       otherType: type === 'other' ? otherType.trim() : undefined,
       breed: breed.trim() || undefined,
       physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined,
+      clothingStyle: clothingStyle.length > 0 ? clothingStyle : undefined,
       traits: selectedTraits,
       customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
     };
@@ -184,7 +187,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, otherType, breed, physicalDetails, selectedTraits, customTraits]);
+  }, [name, type, otherType, breed, physicalDetails, clothingStyle, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -264,6 +267,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         onChange={setPhysicalDetails}
         label="🧬 Des détails physiques marquants ?"
         placeholder="Ex : un grain de beauté sur la patte droite, une tache noire sur l'œil gauche, des poils blancs sur le museau..."
+      />
+
+      {/* Style vestimentaire de l'animal */}
+      <ClothingStyleInput
+        value={clothingStyle}
+        onChange={setClothingStyle}
       />
 
       {/* Traits de caractère */}
