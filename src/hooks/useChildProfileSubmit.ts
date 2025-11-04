@@ -579,6 +579,52 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
+        // 17. Sauvegarder les lieux de vie dans places et child_places
+        if (data.places && data.places.length > 0) {
+          console.log('📍 Saving places:', data.places);
+          
+          for (const place of data.places) {
+            // Créer le lieu dans la table places
+            const { data: createdPlace, error: placeError } = await supabase
+              .from('places')
+              .insert([{
+                label: place.label,
+                type: place.type,
+                description: place.description || null,
+                emoji: place.emoji || null,
+                address: place.address || null,
+                city: place.city || null,
+                country: place.country || null,
+                details: place.details || {},
+                created_by: userId,
+                family_id: familyId,
+                is_active: true
+              }])
+              .select()
+              .single();
+
+            if (placeError) {
+              console.error('Error creating place:', placeError);
+              toast.warning(`Erreur lors de l'enregistrement du lieu ${place.label}`);
+              continue;
+            }
+
+            // Créer le lien child_places
+            const { error: linkError } = await supabase
+              .from('child_places')
+              .insert([{
+                child_id: childId,
+                place_id: createdPlace.id,
+                label: place.childLabel || null
+              }]);
+
+            if (linkError) {
+              console.error('Error linking place to child:', linkError);
+              toast.warning(`Erreur lors de l'association du lieu ${place.label} à l'enfant`);
+            }
+          }
+        }
+        
         // Clear stored form data only after a successful save
         localStorage.removeItem(FORM_STORAGE_KEY);
       } catch (error) {

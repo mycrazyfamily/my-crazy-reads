@@ -104,7 +104,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         discoveries: [],
         customWorlds: {},
         customDiscoveries: {},
-      }
+      },
+      places: []
     },
   });
 
@@ -218,6 +219,48 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           
           const hasToys = comfortersData.length > 0;
 
+          // Charger les lieux de vie (places)
+          const { data: childPlaces } = await supabase
+            .from('child_places')
+            .select(`
+              id,
+              label,
+              places (
+                id,
+                label,
+                type,
+                description,
+                emoji,
+                address,
+                city,
+                country,
+                details
+              )
+            `)
+            .eq('child_id', editChildId);
+
+          const placesData: any[] = [];
+          if (childPlaces && childPlaces.length > 0) {
+            childPlaces.forEach(link => {
+              const place = (link as any).places;
+              if (place) {
+                placesData.push({
+                  id: place.id,
+                  label: place.label || '',
+                  type: place.type || 'maison_principale',
+                  description: place.description || '',
+                  emoji: place.emoji || '',
+                  address: place.address || '',
+                  city: place.city || '',
+                  country: place.country || '',
+                  details: place.details || {},
+                  childLabel: link.label || ''
+                });
+              }
+            });
+          }
+          console.log('📍 Loaded places:', placesData);
+
           // Mapper le surnom depuis la colonne text nickname
           const mapNickname = (raw: string | null | undefined) => {
             const preset = ['petitChou', 'tresor', 'boubou', 'none'];
@@ -279,7 +322,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             },
             family: { selectedRelatives: [], relatives: [], existingRelativeIds: [], existingRelativesData: [] },
             pets: { hasPets: childProfile.has_pet, pets: [] },
-            toys: { hasToys, toys: comfortersData }
+            toys: { hasToys, toys: comfortersData },
+            places: placesData
           };
 
           form.reset(formData);

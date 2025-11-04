@@ -7,6 +7,7 @@ import FamilyForm from '@/components/childProfile/FamilyForm';
 import PetsForm from '@/components/childProfile/PetsForm';
 import ToysForm from '@/components/childProfile/ToysForm';
 import WorldsForm from '@/components/childProfile/WorldsForm';
+import { PlacesForm } from '@/components/childProfile/PlacesForm';
 import FinalSummary from '@/components/childProfile/FinalSummary';
 import NavigationButtons from '@/components/childProfile/personality/NavigationButtons';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -62,10 +63,10 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
   };
 
   const stepLabels = editMode 
-    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Résumé']
-    : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Résumé'];
+    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Lieux', 'Résumé']
+    : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Lieux', 'Résumé'];
   
-  const totalSteps = editMode ? 5 : 7;
+  const totalSteps = editMode ? 6 : 8;
   const adjustedStep = editMode && formStep > 1 ? formStep - 2 : formStep;
 
   return (
@@ -128,6 +129,13 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
       )}
 
       {formStep === 6 && (
+        <PlacesForm
+          onNext={goNext}
+          onPrev={goPrev}
+        />
+      )}
+
+      {formStep === 7 && (
         <FinalSummary
           handlePreviousStep={handlePreviousStep}
           handleGoToStep={handleGoToStep}
