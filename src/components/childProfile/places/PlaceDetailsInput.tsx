@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
 
 type PlaceDetailsInputProps = {
@@ -10,6 +11,9 @@ type PlaceDetailsInputProps = {
   label: string;
   placeholder: string;
   description?: string;
+  onNoDetailsChange?: (hasNoDetails: boolean) => void;
+  noDetailsValue?: boolean;
+  noDetailsLabel?: string;
 };
 
 export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
@@ -17,10 +21,19 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
   onChange,
   label,
   placeholder,
-  description
+  description,
+  onNoDetailsChange,
+  noDetailsValue = false,
+  noDetailsLabel = "Aucun élément particulier"
 }) => {
   const MAX_DETAILS = 3;
+  const [noDetails, setNoDetails] = useState(noDetailsValue);
+  const [savedDetails, setSavedDetails] = useState<string[]>([]);
   const details = value.length > 0 ? value : [''];
+
+  useEffect(() => {
+    setNoDetails(noDetailsValue);
+  }, [noDetailsValue]);
 
   const handleAddDetail = () => {
     if (details.length < MAX_DETAILS) {
@@ -39,6 +52,26 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
     onChange(newDetails);
   };
 
+  const handleNoDetailsChange = (checked: boolean) => {
+    setNoDetails(checked);
+    if (onNoDetailsChange) {
+      onNoDetailsChange(checked);
+    }
+    if (checked) {
+      // Sauvegarder les détails actuels avant de les masquer
+      const currentDetails = details.filter(d => d.trim() !== '');
+      if (currentDetails.length > 0) {
+        setSavedDetails(currentDetails);
+      }
+      onChange(['']);
+    } else {
+      // Restaurer les détails sauvegardés si disponibles
+      if (savedDetails.length > 0) {
+        onChange(savedDetails);
+      }
+    }
+  };
+
   return (
     <div className="space-y-3">
       <div>
@@ -52,41 +85,59 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
         )}
       </div>
 
-      <div className="space-y-2">
-        {details.map((detail, index) => (
-          <div key={index} className="flex gap-2 items-center">
-            <Input
-              value={detail}
-              onChange={(e) => handleChangeDetail(index, e.target.value)}
-              placeholder={placeholder}
-              className="flex-1"
-            />
-            {details.length > 1 && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveDetail(index)}
-                className="shrink-0 text-muted-foreground hover:text-destructive"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        ))}
+      <div className="flex items-center space-x-2 p-3 border rounded-md bg-muted/30">
+        <Checkbox
+          id={`no-details-${label}`}
+          checked={noDetails}
+          onCheckedChange={handleNoDetailsChange}
+        />
+        <Label
+          htmlFor={`no-details-${label}`}
+          className="text-sm font-normal cursor-pointer"
+        >
+          {noDetailsLabel}
+        </Label>
       </div>
 
-      {details.length < MAX_DETAILS && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleAddDetail}
-          className="w-full"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Ajouter un autre détail ({details.length}/{MAX_DETAILS})
-        </Button>
+      {!noDetails && (
+        <>
+          <div className="space-y-2">
+            {details.map((detail, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <Input
+                  value={detail}
+                  onChange={(e) => handleChangeDetail(index, e.target.value)}
+                  placeholder={placeholder}
+                  className="flex-1"
+                />
+                {details.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveDetail(index)}
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {details.length < MAX_DETAILS && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAddDetail}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter un autre détail ({details.length}/{MAX_DETAILS})
+            </Button>
+          )}
+        </>
       )}
     </div>
   );

@@ -487,8 +487,11 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   updateDetails('jardin_autres_2', values[1] || '');
                   updateDetails('jardin_autres_3', values[2] || '');
                 }}
-                label="🎠 Autres éléments présents dans le jardin ?"
+                label="🎠 Autres éléments présents dans le jardin ? *"
                 placeholder="Ex: Trampoline, bac à sable..."
+                onNoDetailsChange={(hasNoDetails) => updateDetails('noJardinDetails', hasNoDetails)}
+                noDetailsValue={details.noJardinDetails}
+                noDetailsLabel="Aucun élément particulier"
               />
             </div>
           )}
@@ -531,8 +534,11 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               updateDetails('autre_detail_2', values[1] || '');
               updateDetails('autre_detail_3', values[2] || '');
             }}
-            label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ?"
+            label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ? *"
             placeholder="Ex: Grande cheminée en pierre..."
+            onNoDetailsChange={(hasNoDetails) => updateDetails('noAutreDetails', hasNoDetails)}
+            noDetailsValue={details.noAutreDetails}
+            noDetailsLabel="Aucun élément particulier"
           />
         </div>
       )}
