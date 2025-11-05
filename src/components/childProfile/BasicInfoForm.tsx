@@ -190,6 +190,11 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       errors.push("le surnom personnalisé");
     }
 
+    // Style vestimentaire favori (obligatoire)
+    if (!Array.isArray(formData.clothingStyle) || formData.clothingStyle.length === 0 || !String(formData.clothingStyle[0]).trim()) {
+      errors.push("le style vestimentaire favori");
+    }
+
     if (errors.length > 0) {
       toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
       return;
