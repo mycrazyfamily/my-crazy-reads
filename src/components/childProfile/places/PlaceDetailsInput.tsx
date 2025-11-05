@@ -29,27 +29,45 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
   const MAX_DETAILS = 3;
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   const [savedDetails, setSavedDetails] = useState<string[]>([]);
-  const details = value.length > 0 ? value : [''];
+  const [internalDetails, setInternalDetails] = useState<string[]>(
+    value && value.length > 0 ? value : ['']
+  );
 
   useEffect(() => {
     setNoDetails(noDetailsValue);
   }, [noDetailsValue]);
 
+  // Keep internal details in sync with external non-empty values without losing local placeholders
+  useEffect(() => {
+    const external = (value ?? []);
+    const extNonEmpty = external.filter((d) => (d ?? '').trim() !== '');
+    const intNonEmpty = internalDetails.filter((d) => d.trim() !== '');
+    if (!noDetails && extNonEmpty.join('|') !== intNonEmpty.join('|')) {
+      setInternalDetails(extNonEmpty.length > 0 ? extNonEmpty : ['']);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
   const handleAddDetail = () => {
-    if (details.length < MAX_DETAILS) {
-      onChange([...details, '']);
+    if (internalDetails.length < MAX_DETAILS) {
+      const next = [...internalDetails, ''];
+      setInternalDetails(next);
+      onChange(next);
     }
   };
 
   const handleRemoveDetail = (index: number) => {
-    const newDetails = details.filter((_, i) => i !== index);
-    onChange(newDetails.length > 0 ? newDetails : ['']);
+    const next = internalDetails.filter((_, i) => i !== index);
+    const normalized = next.length > 0 ? next : [''];
+    setInternalDetails(normalized);
+    onChange(normalized);
   };
 
   const handleChangeDetail = (index: number, newValue: string) => {
-    const newDetails = [...details];
-    newDetails[index] = newValue;
-    onChange(newDetails);
+    const next = [...internalDetails];
+    next[index] = newValue;
+    setInternalDetails(next);
+    onChange(next);
   };
 
   const handleNoDetailsChange = (checked: boolean) => {
@@ -59,19 +77,19 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
     }
     if (checked) {
       // Sauvegarder les détails actuels avant de les masquer
-      const currentDetails = details.filter(d => d.trim() !== '');
+      const currentDetails = internalDetails.filter(d => d.trim() !== '');
       if (currentDetails.length > 0) {
         setSavedDetails(currentDetails);
       }
+      setInternalDetails(['']);
       onChange(['']);
     } else {
       // Restaurer les détails sauvegardés si disponibles
-      if (savedDetails.length > 0) {
-        onChange(savedDetails);
-      }
+      const restored = savedDetails.length > 0 ? savedDetails : [''];
+      setInternalDetails(restored);
+      onChange(restored);
     }
   };
-
   return (
     <div className="space-y-3">
       <div>
@@ -102,7 +120,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
       {!noDetails && (
         <>
           <div className="space-y-2">
-            {details.map((detail, index) => (
+            {internalDetails.map((detail, index) => (
               <div key={index} className="flex gap-2 items-center">
                 <Input
                   value={detail}
@@ -110,7 +128,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
                   placeholder={placeholder}
                   className="flex-1"
                 />
-                {details.length > 1 && (
+                {internalDetails.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -125,7 +143,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
             ))}
           </div>
 
-          {details.length < MAX_DETAILS && (
+          {internalDetails.length < MAX_DETAILS && (
             <Button
               type="button"
               variant="outline"
@@ -134,7 +152,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
               className="w-full"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter un autre détail ({details.length}/{MAX_DETAILS})
+              Ajouter un autre détail ({internalDetails.length}/{MAX_DETAILS})
             </Button>
           )}
         </>
