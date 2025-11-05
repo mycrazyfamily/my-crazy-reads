@@ -20,10 +20,9 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
-    // Split by newlines and filter out empty strings
+    // Split by newlines without trimming during input to allow spaces
     const details = text
       .split('\n')
-      .map(line => line.trim())
       .filter(line => line.length > 0);
     onChange(details);
   };
