@@ -490,7 +490,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                 label="🎠 Autres éléments présents dans le jardin ? *"
                 placeholder="Ex: Trampoline, bac à sable..."
                 onNoDetailsChange={(hasNoDetails) => updateDetails('noJardinDetails', hasNoDetails)}
-                noDetailsValue={details.noJardinDetails}
+                noDetailsValue={details.noJardinDetails ?? false}
                 noDetailsLabel="Aucun élément particulier"
               />
             </div>
@@ -537,7 +537,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ? *"
             placeholder="Ex: Grande cheminée en pierre..."
             onNoDetailsChange={(hasNoDetails) => updateDetails('noAutreDetails', hasNoDetails)}
-            noDetailsValue={details.noAutreDetails}
+            noDetailsValue={details.noAutreDetails ?? false}
             noDetailsLabel="Aucun élément particulier"
           />
         </div>
