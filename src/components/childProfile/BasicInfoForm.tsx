@@ -51,6 +51,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [ageDisplay, setAgeDisplay] = useState<string>("");
   const [ageError, setAgeError] = useState<string>("");
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(form.getValues('noPhysicalDetails') || false);
   // Delay mounting of DatePicker/Calendar to avoid portal race conditions
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -188,6 +189,13 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     // Surnom
     if (formData.nickname?.type === 'custom' && !formData.nickname?.custom?.trim()) {
       errors.push("le surnom personnalisé");
+    }
+
+    // Détails physiques (obligatoire)
+    const hasPhysicalDetails = Array.isArray(formData.physicalDetails) && 
+      formData.physicalDetails.some(detail => detail.trim() !== '');
+    if (!formData.noPhysicalDetails && !hasPhysicalDetails) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
     }
 
     // Style vestimentaire favori (obligatoire)
@@ -637,6 +645,11 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 <PhysicalDetailsInput
                   value={field.value}
                   onChange={field.onChange}
+                  noDetailsValue={noPhysicalDetails}
+                  onNoDetailsChange={(checked) => {
+                    setNoPhysicalDetails(checked);
+                    form.setValue('noPhysicalDetails', checked);
+                  }}
                 />
               </FormControl>
               <FormMessage />

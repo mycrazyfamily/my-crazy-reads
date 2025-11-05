@@ -55,6 +55,7 @@ export type RelativeData = {
   hairTypeCustom?: string;
   otherTypeName?: string;
   physicalDetails?: string[];
+  noPhysicalDetails?: boolean;
   clothingStyle?: string[];
 };
 
@@ -173,6 +174,7 @@ export type ChildProfileFormData = {
   hairTypeCustom?: string;
   glasses: boolean;
   physicalDetails?: string[];
+  noPhysicalDetails?: boolean;
   clothingStyle?: string[];
   
   height: "small" | "medium" | "tall";
