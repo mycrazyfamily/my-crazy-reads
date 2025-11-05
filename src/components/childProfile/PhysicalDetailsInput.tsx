@@ -44,7 +44,7 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
           {label}
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
-          Grain de beauté, cicatrice, tache de naissance… Donne-nous tous les petits détails, et surtout dis-nous exactement où ils sont !
+          Boucles d'oreilles, cicatrice, tatouage… Donne-nous tous les petits détails, et surtout dis-nous exactement où ils sont !
         </p>
       </div>
 
