@@ -81,7 +81,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       <div>
         <h2 className="text-2xl font-bold mb-2">🏡 Lieux de vie</h2>
         <p className="text-muted-foreground">
-          Ajoutez les différents lieux où vit ou séjourne votre enfant (maison principale, maison de l'autre parent, lieux de vacances, etc.)
+          Ajoutez les différents lieux de vie de votre enfant (maison principale, maison secondaire, maison de l'autre parent si séparé, lieux de vacances, etc.)
         </p>
       </div>
 
