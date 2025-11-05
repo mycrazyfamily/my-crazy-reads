@@ -24,6 +24,7 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
 }) => {
   const MAX_DETAILS = 5;
   const [noDetails, setNoDetails] = useState(noDetailsValue);
+  const [savedDetails, setSavedDetails] = useState<string[]>([]);
   const details = value.length > 0 ? value : [''];
 
   useEffect(() => {
@@ -53,7 +54,17 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
       onNoDetailsChange(checked);
     }
     if (checked) {
+      // Sauvegarder les détails actuels avant de les masquer
+      const currentDetails = details.filter(d => d.trim() !== '');
+      if (currentDetails.length > 0) {
+        setSavedDetails(currentDetails);
+      }
       onChange(['']);
+    } else {
+      // Restaurer les détails sauvegardés si disponibles
+      if (savedDetails.length > 0) {
+        onChange(savedDetails);
+      }
     }
   };
 
