@@ -51,141 +51,53 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   };
 
   const handleSavePlace = () => {
-    if (!currentPlace.label.trim()) {
-      toast.error("Veuillez saisir un nom pour le lieu");
-      return;
-    }
+    const errors: string[] = [];
 
-    if (!currentPlace.city || !currentPlace.city.trim()) {
-      toast.error("Veuillez saisir une ville");
-      return;
-    }
-
-    if (!currentPlace.country || !currentPlace.country.trim()) {
-      toast.error("Veuillez saisir un pays");
-      return;
-    }
+    if (!currentPlace.label.trim()) errors.push("Nom du lieu");
+    if (!currentPlace.city || !currentPlace.city.trim()) errors.push("Ville");
+    if (!currentPlace.country || !currentPlace.country.trim()) errors.push("Pays");
 
     const details = currentPlace.details || {};
-    
+
     if (currentPlace.type === 'vacances') {
-      // Validation pour lieu de vacances
-      if (!details.type_vacances) {
-        toast.error("Veuillez sélectionner le type de lieu de vacances");
-        return;
-      }
-      if (!details.frequence_annuelle || !details.frequence_annuelle.trim()) {
-        toast.error("Veuillez indiquer la fréquence annuelle");
-        return;
-      }
-      if (details.hebergement_attitre === undefined) {
-        toast.error("Veuillez indiquer si vous avez un hébergement attitré");
-        return;
-      }
-      if (details.famille_complete === undefined) {
-        toast.error("Veuillez indiquer si la famille part toujours au complet");
-        return;
-      }
-      if (details.espace_partage === undefined) {
-        toast.error("Veuillez indiquer si l'espace est partagé");
-        return;
-      }
-      if (!details.activites || !details.activites.trim()) {
-        toast.error("Veuillez décrire les activités");
-        return;
-      }
-      if (!details.repas_ou) {
-        toast.error("Veuillez indiquer où vous prenez les repas");
-        return;
-      }
-      if (details.propre_lit === undefined) {
-        toast.error("Veuillez indiquer si l'enfant a son propre lit");
-        return;
-      }
-      if (details.objets_familiers === undefined) {
-        toast.error("Veuillez indiquer s'il y a des objets familiers");
-        return;
-      }
-      if (details.objets_familiers && (!details.objets_familiers_description || !details.objets_familiers_description.trim())) {
-        toast.error("Veuillez décrire les objets familiers");
-        return;
-      }
-      if (!details.souvenir_marquant || !details.souvenir_marquant.trim()) {
-        toast.error("Veuillez partager un souvenir marquant");
-        return;
-      }
+      if (!details.type_vacances) errors.push("Type de lieu de vacances");
+      if (!details.frequence_annuelle || !details.frequence_annuelle.trim()) errors.push("Fréquence annuelle");
+      if (details.hebergement_attitre === undefined) errors.push("Hébergement attitré (oui/non)");
+      if (details.famille_complete === undefined) errors.push("Famille au complet (oui/non)");
+      if (details.espace_partage === undefined) errors.push("Espace partagé (oui/non)");
+      if (!details.activites || !details.activites.trim()) errors.push("Activités habituelles");
+      if (!details.repas_ou) errors.push("Lieu des repas");
+      if (details.propre_lit === undefined) errors.push("Propre lit (oui/non)");
+      if (details.objets_familiers === undefined) errors.push("Objets familiers (oui/non)");
+      if (details.objets_familiers && (!details.objets_familiers_description || !details.objets_familiers_description.trim())) errors.push("Description des objets familiers");
+      if (!details.souvenir_marquant || !details.souvenir_marquant.trim()) errors.push("Souvenir marquant");
     } else {
-      // Validation pour lieu de vie régulier
-      if (!details.habitat_type) {
-        toast.error("Veuillez sélectionner le type de logement");
-        return;
-      }
-      if (details.habitat_type === 'Autre' && (!details.habitat_type_autre || !details.habitat_type_autre.trim())) {
-        toast.error("Veuillez préciser le type de logement");
-        return;
-      }
-      if (!details.luminosite) {
-        toast.error("Veuillez indiquer si le lieu est lumineux ou sombre");
-        return;
-      }
-      if (details.enfants_dans_meme_chambre === undefined) {
-        toast.error("Veuillez indiquer si l'enfant partage sa chambre");
-        return;
-      }
-      if (details.enfants_dans_meme_chambre && (!details.enfants_chambre_avec_qui || !details.enfants_chambre_avec_qui.trim())) {
-        toast.error("Veuillez indiquer avec qui l'enfant partage sa chambre");
-        return;
-      }
-      if (!details.nombre_pieces || !details.nombre_pieces.trim()) {
-        toast.error("Veuillez indiquer le nombre de pièces");
-        return;
-      }
-      if (!details.salon_details || !details.salon_details.trim()) {
-        toast.error("Veuillez décrire le salon");
-        return;
-      }
-      if (details.television === undefined) {
-        toast.error("Veuillez indiquer s'il y a une télévision");
-        return;
-      }
-      if (details.television && (!details.television_ou || !details.television_ou.trim())) {
-        toast.error("Veuillez indiquer où se trouve la télévision");
-        return;
-      }
-      if (details.piece_jeu === undefined) {
-        toast.error("Veuillez indiquer s'il y a une pièce de jeu");
-        return;
-      }
-      if (details.bruit_sol === undefined) {
-        toast.error("Veuillez indiquer si le sol fait du bruit");
-        return;
-      }
-      if (details.jardin === undefined) {
-        toast.error("Veuillez indiquer s'il y a un jardin ou une cour");
-        return;
-      }
+      if (!details.habitat_type) errors.push("Type de logement");
+      if (details.habitat_type === 'Autre' && (!details.habitat_type_autre || !details.habitat_type_autre.trim())) errors.push("Précision du type de logement");
+      if (!details.luminosite) errors.push("Lumineux ou sombre");
+      if (details.enfants_dans_meme_chambre === undefined) errors.push("Partage de la chambre (oui/non)");
+      if (details.enfants_dans_meme_chambre && (!details.enfants_chambre_avec_qui || !details.enfants_chambre_avec_qui.trim())) errors.push("Avec qui l'enfant partage sa chambre");
+      if (!details.nombre_pieces || !details.nombre_pieces.trim()) errors.push("Nombre de pièces");
+      if (!details.salon_details || !details.salon_details.trim()) errors.push("Description du salon");
+      if (details.television === undefined) errors.push("Présence d'une télévision (oui/non)");
+      if (details.television && (!details.television_ou || !details.television_ou.trim())) errors.push("Où se trouve la télévision");
+      if (details.piece_jeu === undefined) errors.push("Présence d'une pièce de jeu (oui/non)");
+      if (details.bruit_sol === undefined) errors.push("Le sol fait-il du bruit ? (oui/non)");
+      if (details.jardin === undefined) errors.push("Présence d'un jardin ou d'une cour (oui/non)");
       if (details.jardin) {
-        if (details.jardin_piscine === undefined) {
-          toast.error("Veuillez indiquer s'il y a une piscine dans le jardin");
-          return;
-        }
-        if (details.jardin_ping_pong === undefined) {
-          toast.error("Veuillez indiquer s'il y a une table de ping-pong dans le jardin");
-          return;
-        }
-        if (details.jardin_cabane === undefined) {
-          toast.error("Veuillez indiquer s'il y a une cabane dans le jardin");
-          return;
-        }
+        if (details.jardin_piscine === undefined) errors.push("Piscine dans le jardin (oui/non)");
+        if (details.jardin_ping_pong === undefined) errors.push("Table de ping-pong dans le jardin (oui/non)");
+        if (details.jardin_cabane === undefined) errors.push("Cabane/annexe dans le jardin (oui/non)");
       }
-      if (!details.environnement || !details.environnement.trim()) {
-        toast.error("Veuillez décrire l'environnement autour du logement");
-        return;
-      }
-      if (!details.frequence_utilisation) {
-        toast.error("Veuillez indiquer la fréquence d'utilisation du lieu");
-        return;
-      }
+      if (!details.environnement || !details.environnement.trim()) errors.push("Environnement autour du logement");
+      if (!details.frequence_utilisation) errors.push("Fréquence d'utilisation du lieu");
+    }
+
+    if (errors.length > 0) {
+      toast.error('Veuillez compléter les champs obligatoires', {
+        description: `Champs manquants:\n• ${errors.join('\n• ')}`,
+      });
+      return;
     }
 
     const placeToSave = { ...currentPlace, childLabel };
@@ -245,15 +157,15 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
             onDelete={handleDeletePlace}
           />
 
-          <Button onClick={handleAddPlace} variant="outline" className="w-full">
+          <Button onClick={handleAddPlace} variant="outline" className="w-full" type="button">
             + Ajouter un lieu
           </Button>
 
           <div className="flex gap-4">
-            <Button variant="outline" onClick={onPrev} className="flex-1">
+            <Button variant="outline" onClick={onPrev} className="flex-1" type="button">
               Précédent
             </Button>
-            <Button onClick={handleContinue} className="flex-1">
+            <Button onClick={handleContinue} className="flex-1" type="button">
               Suivant
             </Button>
           </div>
@@ -291,12 +203,14 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               variant="outline"
               onClick={handleCancelPlace}
               className="flex-1"
+              type="button"
             >
               Annuler
             </Button>
             <Button
               onClick={handleSavePlace}
               className="flex-1"
+              type="button"
             >
               {editingIndex !== null ? 'Modifier' : 'Ajouter'}
             </Button>
