@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlaceData, PlaceDetails } from '@/types/place';
+import { PlaceDetailsInput } from './PlaceDetailsInput';
 import {
   placeTypeOptions,
   habitatTypeOptions,
@@ -474,24 +475,21 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                 </RadioGroup>
               </div>
 
-              <div className="space-y-3">
-                <Label>🎠 Autres éléments présents dans le jardin ?</Label>
-                <Input
-                  value={details.jardin_autres_1 || ''}
-                  onChange={(e) => updateDetails('jardin_autres_1', e.target.value)}
-                  placeholder="Ex: Trampoline, bac à sable..."
-                />
-                <Input
-                  value={details.jardin_autres_2 || ''}
-                  onChange={(e) => updateDetails('jardin_autres_2', e.target.value)}
-                  placeholder="Ex: Balançoire, toboggan..."
-                />
-                <Input
-                  value={details.jardin_autres_3 || ''}
-                  onChange={(e) => updateDetails('jardin_autres_3', e.target.value)}
-                  placeholder="Ex: Cabane dans les arbres..."
-                />
-              </div>
+
+              <PlaceDetailsInput
+                value={[
+                  details.jardin_autres_1 || '',
+                  details.jardin_autres_2 || '',
+                  details.jardin_autres_3 || ''
+                ].filter(v => v !== '')}
+                onChange={(values) => {
+                  updateDetails('jardin_autres_1', values[0] || '');
+                  updateDetails('jardin_autres_2', values[1] || '');
+                  updateDetails('jardin_autres_3', values[2] || '');
+                }}
+                label="🎠 Autres éléments présents dans le jardin ?"
+                placeholder="Ex: Trampoline, bac à sable..."
+              />
             </div>
           )}
 
@@ -521,24 +519,21 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             </Select>
           </div>
 
-          <div className="space-y-3">
-            <Label>✏️ Y a-t-il des éléments ou détails marquants dans le logement ?</Label>
-            <Input
-              value={details.autre_detail_1 || ''}
-              onChange={(e) => updateDetails('autre_detail_1', e.target.value)}
-              placeholder="Ex: Grande cheminée en pierre..."
-            />
-            <Input
-              value={details.autre_detail_2 || ''}
-              onChange={(e) => updateDetails('autre_detail_2', e.target.value)}
-              placeholder="Ex: Escalier en colimaçon..."
-            />
-            <Input
-              value={details.autre_detail_3 || ''}
-              onChange={(e) => updateDetails('autre_detail_3', e.target.value)}
-              placeholder="Ex: Vue sur la mer..."
-            />
-          </div>
+
+          <PlaceDetailsInput
+            value={[
+              details.autre_detail_1 || '',
+              details.autre_detail_2 || '',
+              details.autre_detail_3 || ''
+            ].filter(v => v !== '')}
+            onChange={(values) => {
+              updateDetails('autre_detail_1', values[0] || '');
+              updateDetails('autre_detail_2', values[1] || '');
+              updateDetails('autre_detail_3', values[2] || '');
+            }}
+            label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ?"
+            placeholder="Ex: Grande cheminée en pierre..."
+          />
         </div>
       )}
     </div>
