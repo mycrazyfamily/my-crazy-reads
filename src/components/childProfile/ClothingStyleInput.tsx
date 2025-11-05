@@ -55,9 +55,6 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
         <Label className="text-base font-medium">
           {label}
         </Label>
-        <p className="text-sm text-muted-foreground mt-1">
-          Choisis le style qu'on retrouvera dans chaque histoire
-        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

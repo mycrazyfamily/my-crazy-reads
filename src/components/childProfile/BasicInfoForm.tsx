@@ -618,9 +618,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   </div>
                 ))}
               </div>
-              <FormDescription>
-                Sélectionnez si l'enfant porte des lunettes.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
