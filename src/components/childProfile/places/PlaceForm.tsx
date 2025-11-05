@@ -273,6 +273,14 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                 ))}
               </SelectContent>
             </Select>
+            {details.habitat_type === 'Autre' && (
+              <Input
+                className="mt-2"
+                value={details.habitat_type_autre || ''}
+                onChange={(e) => updateDetails('habitat_type_autre', e.target.value)}
+                placeholder="Précisez le type de logement..."
+              />
+            )}
           </div>
 
           <div>
@@ -291,24 +299,32 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           </div>
 
           <div>
-            <Label>🛏️ Les enfants partagent-ils une chambre ?</Label>
+            <Label>🛏️ L'enfant partage-t-il sa chambre ou est-il seul ?</Label>
             <RadioGroup
               value={details.enfants_dans_meme_chambre === undefined ? '' : details.enfants_dans_meme_chambre ? 'oui' : 'non'}
               onValueChange={(value) => updateDetails('enfants_dans_meme_chambre', value === 'oui')}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="oui" id="chambre-oui" />
-                <Label htmlFor="chambre-oui">Oui</Label>
+                <Label htmlFor="chambre-oui">Oui, il partage</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="non" id="chambre-non" />
-                <Label htmlFor="chambre-non">Non</Label>
+                <Label htmlFor="chambre-non">Non, il est seul</Label>
               </div>
             </RadioGroup>
+            {details.enfants_dans_meme_chambre && (
+              <Input
+                className="mt-2"
+                value={details.enfants_chambre_avec_qui || ''}
+                onChange={(e) => updateDetails('enfants_chambre_avec_qui', e.target.value)}
+                placeholder="Avec qui ? Ex: son frère, sa sœur..."
+              />
+            )}
           </div>
 
           <div>
-            <Label htmlFor="pieces">🚪 Combien de pièces ?</Label>
+            <Label htmlFor="pieces">🚪 Combien y a-t-il de pièces dans le logement ?</Label>
             <Input
               id="pieces"
               value={details.nombre_pieces || ''}
@@ -458,13 +474,22 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                 </RadioGroup>
               </div>
 
-              <div>
-                <Label htmlFor="jardin-autres">🎠 Autres éléments présents dans le jardin ?</Label>
-                <Textarea
-                  id="jardin-autres"
-                  value={details.jardin_autres || ''}
-                  onChange={(e) => updateDetails('jardin_autres', e.target.value)}
-                  placeholder="Ex: Trampoline, bac à sable, balançoire, toboggan..."
+              <div className="space-y-3">
+                <Label>🎠 Autres éléments présents dans le jardin ?</Label>
+                <Input
+                  value={details.jardin_autres_1 || ''}
+                  onChange={(e) => updateDetails('jardin_autres_1', e.target.value)}
+                  placeholder="Ex: Trampoline, bac à sable..."
+                />
+                <Input
+                  value={details.jardin_autres_2 || ''}
+                  onChange={(e) => updateDetails('jardin_autres_2', e.target.value)}
+                  placeholder="Ex: Balançoire, toboggan..."
+                />
+                <Input
+                  value={details.jardin_autres_3 || ''}
+                  onChange={(e) => updateDetails('jardin_autres_3', e.target.value)}
+                  placeholder="Ex: Cabane dans les arbres..."
                 />
               </div>
             </div>
@@ -496,13 +521,22 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="autre-detail">✏️ Autre détail notable</Label>
-            <Textarea
-              id="autre-detail"
-              value={details.autre_detail || ''}
-              onChange={(e) => updateDetails('autre_detail', e.target.value)}
-              placeholder="Ex: maison sur pilotis, escaliers glissants..."
+          <div className="space-y-3">
+            <Label>✏️ Y a-t-il des éléments ou détails marquants dans le logement ?</Label>
+            <Input
+              value={details.autre_detail_1 || ''}
+              onChange={(e) => updateDetails('autre_detail_1', e.target.value)}
+              placeholder="Ex: Grande cheminée en pierre..."
+            />
+            <Input
+              value={details.autre_detail_2 || ''}
+              onChange={(e) => updateDetails('autre_detail_2', e.target.value)}
+              placeholder="Ex: Escalier en colimaçon..."
+            />
+            <Input
+              value={details.autre_detail_3 || ''}
+              onChange={(e) => updateDetails('autre_detail_3', e.target.value)}
+              placeholder="Ex: Vue sur la mer..."
             />
           </div>
         </div>

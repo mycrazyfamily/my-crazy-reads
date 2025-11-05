@@ -8,7 +8,6 @@ export const placeTypeOptions = [
 export const habitatTypeOptions = [
   { value: 'Maison', label: 'Maison' },
   { value: 'Appartement', label: 'Appartement' },
-  { value: 'Maison mitoyenne', label: 'Maison mitoyenne' },
   { value: 'Autre', label: 'Autre' },
 ];
 
