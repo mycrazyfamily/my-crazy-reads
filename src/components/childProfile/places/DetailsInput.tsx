@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
+
+// Stateless, mirrors PhysicalDetailsInput behavior
+// - No local state, no effects
+// - Renders 1 field if no value provided
+// - Adds/removes by emitting updated arrays
+// - Hides inputs when noDetailsValue is true
 
 type DetailsInputProps = {
   value: string[] | undefined;
@@ -24,16 +30,14 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
   description,
   onNoDetailsChange,
   noDetailsValue = false,
-  noDetailsLabel = "Aucun élément particulier"
+  noDetailsLabel = "Aucun élément particulier",
 }) => {
   const MAX_DETAILS = 3;
-  const [noDetails, setNoDetails] = useState(noDetailsValue);
-  const [savedDetails, setSavedDetails] = useState<string[]>([]);
   const details = value.length > 0 ? value : [''];
 
-  useEffect(() => {
-    setNoDetails(noDetailsValue);
-  }, [noDetailsValue]);
+  // Debug log to inspect values flow during typing
+  // eslint-disable-next-line no-console
+  console.log('[DetailsInput]', { label, value, details, noDetailsValue });
 
   const handleAddDetail = () => {
     if (details.length < MAX_DETAILS) {
@@ -53,42 +57,25 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
   };
 
   const handleNoDetailsChange = (checked: boolean) => {
-    setNoDetails(checked);
-    if (onNoDetailsChange) {
-      onNoDetailsChange(checked);
-    }
+    onNoDetailsChange?.(checked);
     if (checked) {
-      // Sauvegarder les détails actuels avant de les masquer
-      const currentDetails = details.filter(d => d.trim() !== '');
-      if (currentDetails.length > 0) {
-        setSavedDetails(currentDetails);
-      }
       onChange(['']);
-    } else {
-      // Restaurer les détails sauvegardés si disponibles
-      if (savedDetails.length > 0) {
-        onChange(savedDetails);
-      }
     }
   };
 
   return (
     <div className="space-y-3">
       <div>
-        <Label className="text-base font-medium">
-          {label}
-        </Label>
+        <Label className="text-base font-medium">{label}</Label>
         {description && (
-          <p className="text-sm text-muted-foreground mt-1">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
       </div>
 
       <div className="flex items-center space-x-2 p-3 border rounded-md bg-muted/30">
         <Checkbox
           id={`no-details-${label}`}
-          checked={noDetails}
+          checked={noDetailsValue}
           onCheckedChange={handleNoDetailsChange}
         />
         <Label
@@ -99,7 +86,7 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
         </Label>
       </div>
 
-      {!noDetails && (
+      {!noDetailsValue && (
         <>
           <div className="space-y-2">
             {details.map((detail, index) => (
@@ -107,7 +94,7 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
                 <Input
                   value={detail}
                   onChange={(e) => handleChangeDetail(index, e.target.value)}
-                  placeholder={index === 0 ? placeholder : "Ajouter un autre détail..."}
+                  placeholder={index === 0 ? placeholder : 'Ajouter un autre détail...'}
                   className="flex-1"
                 />
                 {details.length > 1 && (
