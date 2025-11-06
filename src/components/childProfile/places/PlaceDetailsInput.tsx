@@ -29,8 +29,9 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
   const MAX_DETAILS = 3;
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   const [savedDetails, setSavedDetails] = useState<string[]>([]);
+  const initialNonEmpty = (value ?? []).filter((d) => (d ?? '').trim() !== '');
   const [internalDetails, setInternalDetails] = useState<string[]>(
-    value && value.length > 0 ? value : ['']
+    initialNonEmpty.length > 0 ? initialNonEmpty : ['']
   );
 
   useEffect(() => {
