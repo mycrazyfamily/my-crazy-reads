@@ -29,62 +29,27 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
   const MAX_DETAILS = 3;
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   const [savedDetails, setSavedDetails] = useState<string[]>([]);
-  const initialNonEmpty = (value ?? []).filter((d) => (d ?? '').trim() !== '');
-  const [internalDetails, setInternalDetails] = useState<string[]>(
-    initialNonEmpty.length > 0 ? initialNonEmpty : ['']
-  );
+  const details = (value && value.length > 0) ? value : [''];
 
   useEffect(() => {
     setNoDetails(noDetailsValue);
   }, [noDetailsValue]);
 
-  // Keep internal details in sync with external non-empty values without losing local placeholders
-  useEffect(() => {
-    if (noDetails) return;
-    const external = (value ?? []);
-    const extNonEmpty = external.filter((d) => (d ?? '').trim() !== '');
-
-    // Merge external non-empty values into current state WITHOUT shrinking the number of fields
-    // - Keeps existing placeholders so inputs don't disappear while typing
-    // - Expands only when external provides more values than current length (e.g., when editing saved data)
-    if (extNonEmpty.length === 0) {
-      if (internalDetails.length === 0) {
-        setInternalDetails(['']);
-      }
-      return;
-    }
-
-    const desiredLength = Math.max(internalDetails.length, extNonEmpty.length, 1);
-    const merged: string[] = Array.from({ length: desiredLength }, (_, i) =>
-      i < extNonEmpty.length ? extNonEmpty[i] : (internalDetails[i] ?? '')
-    );
-
-    if (merged.length !== internalDetails.length || merged.some((v, i) => v !== internalDetails[i])) {
-      setInternalDetails(merged);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, noDetails]);
-
   const handleAddDetail = () => {
-    if (internalDetails.length < MAX_DETAILS) {
-      const next = [...internalDetails, ''];
-      setInternalDetails(next);
-      onChange(next);
+    if (details.length < MAX_DETAILS) {
+      onChange([...details, '']);
     }
   };
 
   const handleRemoveDetail = (index: number) => {
-    const next = internalDetails.filter((_, i) => i !== index);
-    const normalized = next.length > 0 ? next : [''];
-    setInternalDetails(normalized);
-    onChange(normalized);
+    const newDetails = details.filter((_, i) => i !== index);
+    onChange(newDetails.length > 0 ? newDetails : ['']);
   };
 
   const handleChangeDetail = (index: number, newValue: string) => {
-    const next = [...internalDetails];
-    next[index] = newValue;
-    setInternalDetails(next);
-    onChange(next);
+    const newDetails = [...details];
+    newDetails[index] = newValue;
+    onChange(newDetails);
   };
 
   const handleNoDetailsChange = (checked: boolean) => {
@@ -94,17 +59,16 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
     }
     if (checked) {
       // Sauvegarder les détails actuels avant de les masquer
-      const currentDetails = internalDetails.filter(d => d.trim() !== '');
+      const currentDetails = details.filter(d => d.trim() !== '');
       if (currentDetails.length > 0) {
         setSavedDetails(currentDetails);
       }
-      setInternalDetails(['']);
       onChange(['']);
     } else {
       // Restaurer les détails sauvegardés si disponibles
-      const restored = savedDetails.length > 0 ? savedDetails : [''];
-      setInternalDetails(restored);
-      onChange(restored);
+      if (savedDetails.length > 0) {
+        onChange(savedDetails);
+      }
     }
   };
   return (
@@ -137,15 +101,15 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
       {!noDetails && (
         <>
           <div className="space-y-2">
-            {internalDetails.map((detail, index) => (
+            {details.map((detail, index) => (
               <div key={index} className="flex gap-2 items-center">
                 <Input
                   value={detail}
                   onChange={(e) => handleChangeDetail(index, e.target.value)}
-                  placeholder={placeholder}
+                  placeholder={index === 0 ? placeholder : "Ajouter un autre détail..."}
                   className="flex-1"
                 />
-                {internalDetails.length > 1 && (
+                {details.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -160,7 +124,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
             ))}
           </div>
 
-          {internalDetails.length < MAX_DETAILS && (
+          {details.length < MAX_DETAILS && (
             <Button
               type="button"
               variant="outline"
@@ -169,7 +133,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
               className="w-full"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter un autre détail ({internalDetails.length}/{MAX_DETAILS})
+              Ajouter un autre détail ({details.length}/{MAX_DETAILS})
             </Button>
           )}
         </>
