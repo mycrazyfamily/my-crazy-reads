@@ -24,9 +24,19 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
   const [details, setDetails] = useState<PlaceDetails>(place.details || {});
 
   const updateDetails = (key: keyof PlaceDetails, value: any) => {
-    const newDetails = { ...details, [key]: value };
-    setDetails(newDetails);
-    onChange({ ...place, details: newDetails });
+    setDetails((prev) => {
+      const newDetails = { ...prev, [key]: value };
+      onChange({ ...place, details: newDetails });
+      return newDetails;
+    });
+  };
+
+  const updateManyDetails = (patch: Partial<PlaceDetails>) => {
+    setDetails((prev) => {
+      const newDetails = { ...prev, ...patch };
+      onChange({ ...place, details: newDetails });
+      return newDetails;
+    });
   };
 
   const isVacationPlace = place.type === 'vacances';
@@ -483,13 +493,16 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   details.jardin_autres_3 || ''
                 ].filter((v) => v && v.trim() !== '')}
                 onChange={(values) => {
-                  updateDetails('jardin_autres_1', values[0] || '');
-                  updateDetails('jardin_autres_2', values[1] || '');
-                  updateDetails('jardin_autres_3', values[2] || '');
+                  const [v1, v2, v3] = values;
+                  updateManyDetails({
+                    jardin_autres_1: v1 || '',
+                    jardin_autres_2: v2 || '',
+                    jardin_autres_3: v3 || '',
+                  });
                 }}
                 label="🎠 Autres éléments présents dans le jardin ? *"
                 placeholder="Ex: Trampoline, bac à sable..."
-                onNoDetailsChange={(hasNoDetails) => updateDetails('noJardinDetails', hasNoDetails)}
+                onNoDetailsChange={(hasNoDetails) => updateDetails('noJardinDetails', !!hasNoDetails)}
                 noDetailsValue={details.noJardinDetails ?? false}
                 noDetailsLabel="Aucun élément particulier"
               />
@@ -530,13 +543,16 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               details.autre_detail_3 || ''
             ].filter((v) => v && v.trim() !== '')}
             onChange={(values) => {
-              updateDetails('autre_detail_1', values[0] || '');
-              updateDetails('autre_detail_2', values[1] || '');
-              updateDetails('autre_detail_3', values[2] || '');
+              const [v1, v2, v3] = values;
+              updateManyDetails({
+                autre_detail_1: v1 || '',
+                autre_detail_2: v2 || '',
+                autre_detail_3: v3 || '',
+              });
             }}
             label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ? *"
             placeholder="Ex: Grande cheminée en pierre..."
-            onNoDetailsChange={(hasNoDetails) => updateDetails('noAutreDetails', hasNoDetails)}
+            onNoDetailsChange={(hasNoDetails) => updateDetails('noAutreDetails', !!hasNoDetails)}
             noDetailsValue={details.noAutreDetails ?? false}
             noDetailsLabel="Aucun élément particulier"
           />
