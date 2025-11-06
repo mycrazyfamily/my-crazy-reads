@@ -29,42 +29,29 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
   const MAX_DETAILS = 3;
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   const [savedDetails, setSavedDetails] = useState<string[]>([]);
+  const details = value.length > 0 ? value : [''];
 
-  // Always work with a fixed-length array (3 slots) to keep indices stable
-  const normalized: string[] = Array.from({ length: MAX_DETAILS }, (_, i) => (value?.[i] ?? ''));
-
-  // Derive how many inputs should be visible by default
-  const nonEmptyCount = normalized.filter((v) => v.trim() !== '').length;
-  const defaultVisible = Math.max(1, Math.min(MAX_DETAILS, nonEmptyCount + (nonEmptyCount < MAX_DETAILS ? 1 : 0)));
-  const [visibleCount, setVisibleCount] = useState<number>(defaultVisible);
-
-  // We compute the actual number of rendered inputs from state OR derived default (no effect needed)
-  const renderCount = Math.max(visibleCount, defaultVisible);
+  useEffect(() => {
+    setNoDetails(noDetailsValue);
+  }, [noDetailsValue]);
 
   const handleAddDetail = () => {
-    if (renderCount < MAX_DETAILS) {
-      const nextCount = renderCount + 1;
-      // Ensure parent holds at least nextCount slots
-      const next = [...normalized];
-      while (next.length < nextCount) next.push('');
-      onChange(next);
-      setVisibleCount(nextCount);
+    if (details.length < MAX_DETAILS) {
+      onChange([...details, '']);
     }
   };
 
   const handleRemoveDetail = (index: number) => {
-    // Remove the slot and compact values to the left, keep fixed length
-    const compact = normalized.filter((_, i) => i !== index).filter((v) => v.trim() !== '');
-    while (compact.length < MAX_DETAILS) compact.push('');
-    onChange(compact);
-    setVisibleCount((c) => Math.max(1, Math.min(MAX_DETAILS, Math.min(c - 1, compact.filter((v) => v.trim() !== '').length + 1))));
+    const newDetails = details.filter((_, i) => i !== index);
+    onChange(newDetails.length > 0 ? newDetails : ['']);
   };
 
   const handleChangeDetail = (index: number, newValue: string) => {
-    const next = [...normalized];
-    next[index] = newValue;
-    onChange(next);
+    const newDetails = [...details];
+    newDetails[index] = newValue;
+    onChange(newDetails);
   };
+
   const handleNoDetailsChange = (checked: boolean) => {
     setNoDetails(checked);
     if (onNoDetailsChange) {
@@ -72,19 +59,15 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
     }
     if (checked) {
       // Sauvegarder les détails actuels avant de les masquer
-      const currentDetails = normalized.filter(d => d.trim() !== '');
+      const currentDetails = details.filter(d => d.trim() !== '');
       if (currentDetails.length > 0) {
         setSavedDetails(currentDetails);
       }
-      onChange(['', '', ''].slice(0, MAX_DETAILS));
-      setVisibleCount(1);
+      onChange(['']);
     } else {
       // Restaurer les détails sauvegardés si disponibles
       if (savedDetails.length > 0) {
-        const restored = [...savedDetails];
-        while (restored.length < MAX_DETAILS) restored.push('');
-        onChange(restored);
-        setVisibleCount(Math.max(1, Math.min(MAX_DETAILS, savedDetails.length + 1)));
+        onChange(savedDetails);
       }
     }
   };
@@ -118,7 +101,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
       {!noDetails && (
         <>
           <div className="space-y-2">
-            {normalized.slice(0, renderCount).map((detail, index) => (
+            {details.map((detail, index) => (
               <div key={index} className="flex gap-2 items-center">
                 <Input
                   value={detail}
@@ -126,7 +109,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
                   placeholder={index === 0 ? placeholder : "Ajouter un autre détail..."}
                   className="flex-1"
                 />
-                {renderCount > 1 && (
+                {details.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -141,7 +124,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
             ))}
           </div>
 
-          {renderCount < MAX_DETAILS && (
+          {details.length < MAX_DETAILS && (
             <Button
               type="button"
               variant="outline"
@@ -150,7 +133,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
               className="w-full"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter un autre détail ({renderCount}/{MAX_DETAILS})
+              Ajouter un autre détail ({details.length}/{MAX_DETAILS})
             </Button>
           )}
         </>
