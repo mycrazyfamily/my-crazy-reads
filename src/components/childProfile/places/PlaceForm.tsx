@@ -481,7 +481,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   details.jardin_autres_1 || '',
                   details.jardin_autres_2 || '',
                   details.jardin_autres_3 || ''
-                ]}
+                ].filter(v => v !== '')}
                 onChange={(values) => {
                   updateDetails('jardin_autres_1', values[0] || '');
                   updateDetails('jardin_autres_2', values[1] || '');
@@ -528,7 +528,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               details.autre_detail_1 || '',
               details.autre_detail_2 || '',
               details.autre_detail_3 || ''
-            ]}
+            ].filter(v => v !== '')}
             onChange={(values) => {
               updateDetails('autre_detail_1', values[0] || '');
               updateDetails('autre_detail_2', values[1] || '');

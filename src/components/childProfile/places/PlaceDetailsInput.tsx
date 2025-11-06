@@ -39,14 +39,30 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
 
   // Keep internal details in sync with external non-empty values without losing local placeholders
   useEffect(() => {
+    if (noDetails) return;
     const external = (value ?? []);
     const extNonEmpty = external.filter((d) => (d ?? '').trim() !== '');
-    const intNonEmpty = internalDetails.filter((d) => d.trim() !== '');
-    if (!noDetails && extNonEmpty.join('|') !== intNonEmpty.join('|')) {
-      setInternalDetails(extNonEmpty.length > 0 ? extNonEmpty : ['']);
+
+    // Merge external non-empty values into current state WITHOUT shrinking the number of fields
+    // - Keeps existing placeholders so inputs don't disappear while typing
+    // - Expands only when external provides more values than current length (e.g., when editing saved data)
+    if (extNonEmpty.length === 0) {
+      if (internalDetails.length === 0) {
+        setInternalDetails(['']);
+      }
+      return;
+    }
+
+    const desiredLength = Math.max(internalDetails.length, extNonEmpty.length, 1);
+    const merged: string[] = Array.from({ length: desiredLength }, (_, i) =>
+      i < extNonEmpty.length ? extNonEmpty[i] : (internalDetails[i] ?? '')
+    );
+
+    if (merged.length !== internalDetails.length || merged.some((v, i) => v !== internalDetails[i])) {
+      setInternalDetails(merged);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, noDetails]);
 
   const handleAddDetail = () => {
     if (internalDetails.length < MAX_DETAILS) {
