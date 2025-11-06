@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
 
-type PlaceDetailsInputProps = {
+type DetailsInputProps = {
   value: string[] | undefined;
   onChange: (value: string[]) => void;
   label: string;
@@ -16,7 +16,7 @@ type PlaceDetailsInputProps = {
   noDetailsLabel?: string;
 };
 
-export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
+export const DetailsInput: React.FC<DetailsInputProps> = ({
   value = [],
   onChange,
   label,
@@ -71,6 +71,7 @@ export const PlaceDetailsInput: React.FC<PlaceDetailsInputProps> = ({
       }
     }
   };
+
   return (
     <div className="space-y-3">
       <div>

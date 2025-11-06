@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlaceData, PlaceDetails } from '@/types/place';
-import { PlaceDetailsInput } from './PlaceDetailsInput';
+import { DetailsInput } from './DetailsInput';
 import {
   placeTypeOptions,
   habitatTypeOptions,
@@ -476,7 +476,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               </div>
 
 
-              <PlaceDetailsInput
+              <DetailsInput
                 value={[
                   details.jardin_autres_1 || '',
                   details.jardin_autres_2 || '',
@@ -523,7 +523,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           </div>
 
 
-          <PlaceDetailsInput
+          <DetailsInput
             value={[
               details.autre_detail_1 || '',
               details.autre_detail_2 || '',
