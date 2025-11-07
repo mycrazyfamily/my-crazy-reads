@@ -23,12 +23,34 @@ const FamilySummary: React.FC<FamilySummaryProps> = ({ data }) => {
   );
 };
 
+// Safe renderer to avoid crashing if a non-string sneaks in
+const SafeText: React.FC<{ value: any; className?: string }> = ({ value, className }) => {
+  if (typeof value === 'object' && value !== null) {
+    console.error('❌ Invalid JSX value in SafeText:', value);
+    return <span className={className}>[objet]</span>;
+  }
+  return <span className={className}>{value as any}</span>;
+};
+
 type RelativeSummaryItemProps = {
   relative: RelativeData;
 };
 
 const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) => {
-  console.log('🧩 RelativeSummaryItem relative data:', relative);
+  try {
+    console.group('🧩 DEBUG RelativeSummaryItem');
+    console.log('Raw relative:', relative);
+    for (const [key, value] of Object.entries(relative)) {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        console.warn(`⚠️ ${key} is an object`, value);
+      } else {
+        console.log(`✅ ${key}:`, value);
+      }
+    }
+    console.groupEnd();
+  } catch (error) {
+    console.error('❌ Failed to log relative data:', error);
+  }
   
   // Obtenir l'emoji du type de relation
   const getRelativeTypeIcon = (type: RelativeType) => {
@@ -101,10 +123,10 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
         <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(displayType as RelativeType)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <div className="font-medium text-sm text-gray-700 truncate">{displayFirstName}</div>
+        <div className="font-medium text-sm text-gray-700 truncate"><SafeText value={displayFirstName} /></div>
         <div className="text-xs text-gray-500 flex items-center gap-1">
-          <span>{getRelationshipLabel(displayType as RelativeType)}</span>
-          {getNickname() && <span className="text-mcf-orange-dark">· {getNickname()}</span>}
+          <span><SafeText value={getRelationshipLabel(displayType as RelativeType)} /></span>
+          {getNickname() && <span className="text-mcf-orange-dark">· <SafeText value={getNickname()} /></span>}
         </div>
       </div>
     </div>
