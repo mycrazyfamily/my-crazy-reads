@@ -67,7 +67,23 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
     : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Lieux', 'Résumé'];
   
   const totalSteps = editMode ? 5 : 8;
-  const adjustedStep = editMode && formStep > 1 ? formStep - 3 : formStep;
+  
+  // Mapping correct des étapes en mode édition
+  const getAdjustedStep = () => {
+    if (!editMode) return formStep;
+    
+    const stepMap: { [key: number]: number } = {
+      0: 0, // Infos
+      1: 1, // Personnalité
+      4: 2, // Jouets
+      5: 3, // Univers
+      7: 4, // Résumé
+    };
+    
+    return stepMap[formStep] ?? 0;
+  };
+  
+  const adjustedStep = getAdjustedStep();
 
   return (
     <>
