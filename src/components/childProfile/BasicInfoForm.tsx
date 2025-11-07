@@ -51,13 +51,36 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const [ageDisplay, setAgeDisplay] = useState<string>("");
   const [ageError, setAgeError] = useState<string>("");
-  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(form.getValues('noPhysicalDetails') || false);
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
   // Delay mounting of DatePicker/Calendar to avoid portal race conditions
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const id = window.setTimeout(() => setReady(true), 200);
     return () => window.clearTimeout(id);
   }, []);
+  
+  // Synchroniser noPhysicalDetails avec le formulaire
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'noPhysicalDetails' || name === 'physicalDetails') {
+        const formNoDetails = form.getValues('noPhysicalDetails');
+        const formPhysicalDetails = form.getValues('physicalDetails');
+        
+        // Si noPhysicalDetails est explicitement défini, l'utiliser
+        if (formNoDetails !== undefined) {
+          setNoPhysicalDetails(formNoDetails);
+        } 
+        // Sinon, détecter si physicalDetails est [""] (cas de rechargement)
+        else if (Array.isArray(formPhysicalDetails) && 
+                 formPhysicalDetails.length === 1 && 
+                 formPhysicalDetails[0] === '') {
+          setNoPhysicalDetails(true);
+          form.setValue('noPhysicalDetails', true, { shouldValidate: false });
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
