@@ -5,7 +5,7 @@ import { CLOTHING_STYLE_OPTIONS } from "@/constants/clothingStyleOptions";
 import OptionCard from "./personality/OptionCard";
 
 type ClothingStyleInputProps = {
-  value: string | undefined;
+  value: string | string[] | undefined;
   onChange: (value: string) => void;
   label?: string;
 };
@@ -15,13 +15,16 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
   onChange,
   label = "👕 Quel est son style vestimentaire favori ?"
 }) => {
+  // Normalize value: handle both old array format and new string format
+  const normalizedValue = Array.isArray(value) ? (value[0] || "") : (value || "");
+  
   // Check if the value is a predefined style
   const isPredefinedStyle = CLOTHING_STYLE_OPTIONS.some(opt => 
-    value?.startsWith(opt.emoji)
+    normalizedValue?.startsWith(opt.emoji)
   );
   
-  const [showCustomInput, setShowCustomInput] = useState(!!value && !isPredefinedStyle);
-  const [customText, setCustomText] = useState(!isPredefinedStyle ? value : '');
+  const [showCustomInput, setShowCustomInput] = useState(!!normalizedValue && !isPredefinedStyle);
+  const [customText, setCustomText] = useState(!isPredefinedStyle ? normalizedValue : '');
 
   const handleOptionClick = (optionValue: string, optionLabel: string, optionEmoji: string) => {
     const fullValue = `${optionEmoji} ${optionLabel}`;
@@ -42,7 +45,7 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
   };
 
   const isSelected = (optionEmoji: string) => {
-    return value?.startsWith(optionEmoji) || false;
+    return normalizedValue?.startsWith(optionEmoji) || false;
   };
 
   return (
