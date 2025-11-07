@@ -74,7 +74,7 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
         <span className="text-2xl">🎭</span> Personnalité et passions <span className="text-2xl">🚀</span>
       </h2>
       
-      <form className="space-y-8">
+      <div className="space-y-8" role="group" aria-label="Personnalité">
         {/* Taille par rapport à son âge */}
         <HeightSelector />
 
@@ -106,7 +106,7 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
           handlePreviousStep={handlePreviousStep}
           handleContinue={handleContinue}
         />
-      </form>
+      </div>
     </div>
   );
 };

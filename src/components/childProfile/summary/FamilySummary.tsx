@@ -68,9 +68,14 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
 
   // Obtenir le surnom formaté
   const getNickname = () => {
-    if (relative.nickname.type === 'none') return '';
-    if (relative.nickname.type === 'custom' && relative.nickname.custom) return relative.nickname.custom;
-    return relative.nickname.type;
+    const nk: any = (relative as any).nickname;
+    if (!nk) return '';
+    if (typeof nk === 'object') {
+      if (nk.type === 'none') return '';
+      return nk.custom || nk.type || '';
+    }
+    if (typeof nk === 'string') return nk;
+    return '';
   };
 
   const avatarBgColor = getAvatarColor(relative.type);

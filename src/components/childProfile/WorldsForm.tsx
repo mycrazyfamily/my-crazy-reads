@@ -121,7 +121,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
         <span className="text-2xl">🌍</span> Univers préféré & ouverture culturelle <span className="text-2xl">✨</span>
       </h2>
       
-      <form className="space-y-8">
+      <div className="space-y-8" role="group" aria-label="Univers et découvertes">
         {/* Univers préférés */}
         <div className="space-y-4">
           <div>
@@ -295,7 +295,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
             Voir le récapitulatif →
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

@@ -37,9 +37,14 @@ const BasicInfoSummary: React.FC<BasicInfoSummaryProps> = ({ data }) => {
 
   // Fonction pour obtenir le surnom formaté
   const getNickname = () => {
-    if (data.nickname.type === 'none') return 'Aucun';
-    if (data.nickname.type === 'custom' && data.nickname.custom) return data.nickname.custom;
-    return data.nickname.type;
+    const nk: any = (data as any).nickname;
+    if (!nk) return 'Aucun';
+    if (typeof nk === 'object') {
+      if (nk.type === 'none') return 'Aucun';
+      return nk.custom || nk.type || 'Aucun';
+    }
+    if (typeof nk === 'string') return nk || 'Aucun';
+    return 'Aucun';
   };
 
   return (
