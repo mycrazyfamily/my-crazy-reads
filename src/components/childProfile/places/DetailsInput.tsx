@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
   noDetailsLabel = "Aucun élément particulier",
 }) => {
   const MAX_DETAILS = 3;
+  const [savedDetails, setSavedDetails] = useState<string[]>([]);
 
   const handleAddDetail = () => {
     if (value.length < MAX_DETAILS) {
@@ -43,6 +44,20 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
     onChange(newDetails);
   };
 
+  const handleNoDetailsChange = (checked: boolean) => {
+    if (checked) {
+      // Save current values before clearing
+      setSavedDetails([...value]);
+      onChange(['']);
+    } else {
+      // Restore saved values if they exist
+      if (savedDetails.length > 0 && savedDetails.some(d => d.trim() !== '')) {
+        onChange(savedDetails);
+      }
+    }
+    onNoDetailsChange(checked);
+  };
+
   return (
     <div className="space-y-3">
       <div>
@@ -53,7 +68,7 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
         <Checkbox
           id={`no-details-${label}`}
           checked={noDetailsValue}
-          onCheckedChange={onNoDetailsChange}
+          onCheckedChange={handleNoDetailsChange}
         />
         <Label
           htmlFor={`no-details-${label}`}
