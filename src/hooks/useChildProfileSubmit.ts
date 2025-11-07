@@ -627,6 +627,27 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         
+        // 18. Gérer les lieux existants sélectionnés
+        const existingPlacesData = (data as any).existingPlacesData;
+        if (existingPlacesData && existingPlacesData.length > 0) {
+          console.log('📍 Linking existing places:', existingPlacesData);
+          
+          const placeLinks = existingPlacesData.map((place: any) => ({
+            child_id: childId,
+            place_id: place.id,
+            label: null // Peut être enrichi plus tard si nécessaire
+          }));
+
+          const { error: placeLinkError } = await supabase
+            .from('child_places')
+            .insert(placeLinks);
+
+          if (placeLinkError) {
+            console.error('Error linking existing places:', placeLinkError);
+            toast.warning("Profil créé mais erreur lors de l'association des lieux existants");
+          }
+        }
+        
         // Clear stored form data only after a successful save
         localStorage.removeItem(FORM_STORAGE_KEY);
       } catch (error) {

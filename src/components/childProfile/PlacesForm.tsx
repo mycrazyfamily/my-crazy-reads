@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { PlaceData } from '@/types/place';
 import { PlaceForm } from './places/PlaceForm';
 import { PlacesList } from './places/PlacesList';
+import ExistingPlacesList from './places/ExistingPlacesList';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 interface PlacesFormProps {
   onNext: () => void;
   onPrev: () => void;
 }
+
+type ExistingPlace = {
+  id: string;
+  label: string;
+  type: string;
+  emoji: string;
+  city?: string;
+  country?: string;
+  family_id: string;
+};
 
 export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   const { form } = useChildProfileForm();
@@ -23,8 +35,136 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
     details: {},
   });
   const [childLabel, setChildLabel] = useState('');
+  const [existingPlaces, setExistingPlaces] = useState<ExistingPlace[]>([]);
+  const [selectedExistingPlaceIds, setSelectedExistingPlaceIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const places = (form.watch('places') as PlaceData[] | undefined) || [];
+
+  // Charger les lieux existants de la famille
+  useEffect(() => {
+    const loadExistingPlaces = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.log('No user found');
+          setLoading(false);
+          return;
+        }
+
+        // Charger le family_id de l'utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error loading user profile:', profileError);
+          setLoading(false);
+          return;
+        }
+
+        let placesFromTable: ExistingPlace[] = [];
+
+        // Si l'utilisateur a un family_id, charger depuis places
+        if (profile?.family_id) {
+          console.log('Loading places for family_id:', profile.family_id);
+
+          const { data: places, error: placesError } = await supabase
+            .from('places')
+            .select('id, label, type, emoji, city, country, family_id')
+            .eq('family_id', profile.family_id);
+
+          if (placesError) {
+            console.error('Error loading places:', placesError);
+          } else if (places && places.length > 0) {
+            placesFromTable = places.map((place: any) => ({
+              id: place.id,
+              label: place.label || 'Sans nom',
+              type: place.type || 'maison_principale',
+              emoji: place.emoji || '🏠',
+              city: place.city,
+              country: place.country,
+              family_id: place.family_id || ''
+            }));
+            console.log('Loaded places:', placesFromTable);
+          }
+        }
+
+        // Fallback: si pas de family_id, chercher la famille créée par l'utilisateur
+        if (!profile?.family_id && placesFromTable.length === 0) {
+          console.log('No family_id, trying to find family...');
+          
+          const { data: families, error: familiesError } = await supabase
+            .from('families')
+            .select('id')
+            .eq('created_by', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (familiesError) {
+            console.error('Error loading families:', familiesError);
+          } else if (families && families.length > 0) {
+            const familyId = families[0].id;
+            console.log('Found family:', familyId);
+            
+            // Mémoriser sur le profil
+            await supabase
+              .from('user_profiles')
+              .update({ family_id: familyId })
+              .eq('id', user.id);
+
+            // Charger les lieux de cette famille
+            const { data: places, error: placesError } = await supabase
+              .from('places')
+              .select('id, label, type, emoji, city, country, family_id')
+              .eq('family_id', familyId);
+
+            if (placesError) {
+              console.error('Error loading places:', placesError);
+            } else if (places && places.length > 0) {
+              placesFromTable = places.map((place: any) => ({
+                id: place.id,
+                label: place.label || 'Sans nom',
+                type: place.type || 'maison_principale',
+                emoji: place.emoji || '🏠',
+                city: place.city,
+                country: place.country,
+                family_id: place.family_id || ''
+              }));
+              console.log('Loaded places from fallback:', placesFromTable);
+            }
+          }
+        }
+
+        if (placesFromTable.length > 0) {
+          setExistingPlaces(placesFromTable);
+        } else {
+          console.log('No places found');
+        }
+      } catch (error) {
+        console.error('Error loading existing places:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExistingPlaces();
+  }, []);
+
+  // Gérer la sélection/désélection des lieux existants
+  const handleToggleExistingPlace = (placeId: string) => {
+    setSelectedExistingPlaceIds(prev => {
+      if (prev.includes(placeId)) {
+        return prev.filter(id => id !== placeId);
+      } else {
+        return [...prev, placeId];
+      }
+    });
+  };
 
   const handleAddPlace = () => {
     setCurrentPlace({
@@ -141,8 +281,17 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   };
 
   const handleContinue = () => {
-    if (places.length === 0) {
-      toast.error("Veuillez ajouter au moins un lieu de vie pour votre enfant");
+    // Sauvegarder les IDs des lieux existants sélectionnés
+    form.setValue("selectedExistingPlaceIds" as any, selectedExistingPlaceIds);
+    
+    // Sauvegarder les données complètes pour référence
+    const selectedPlacesData = existingPlaces.filter(p => 
+      selectedExistingPlaceIds.includes(p.id)
+    );
+    form.setValue("existingPlacesData" as any, selectedPlacesData);
+    
+    if (places.length === 0 && selectedExistingPlaceIds.length === 0) {
+      toast.error("Veuillez ajouter ou sélectionner au moins un lieu de vie pour votre enfant");
       return;
     }
     onNext();
@@ -158,6 +307,15 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               Ajoutez les différents lieux de vie de votre enfant (maison principale, maison secondaire, maison de l'autre parent si séparés, lieux de vacances, etc.)
             </p>
           </div>
+
+          {/* Liste des lieux existants à sélectionner */}
+          {!loading && existingPlaces.length > 0 && (
+            <ExistingPlacesList 
+              existingPlaces={existingPlaces}
+              selectedPlaceIds={selectedExistingPlaceIds}
+              onTogglePlace={handleToggleExistingPlace}
+            />
+          )}
 
           <PlacesList
             places={places}

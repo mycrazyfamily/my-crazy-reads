@@ -412,6 +412,29 @@ const CreateChildProfile = ({
               }
             }
             
+            // Gérer les lieux existants sélectionnés (sans les créer dans places)
+            const existingPlacesData = (data as any).existingPlacesData;
+            if (existingPlacesData && existingPlacesData.length > 0) {
+              console.log('📍 Linking existing places to child in edit mode:', existingPlacesData);
+              
+              for (const place of existingPlacesData) {
+                const { error: linkError } = await supabase
+                  .from('child_places')
+                  .insert([{
+                    child_id: editChildId,
+                    place_id: place.id,
+                    label: null // Peut être enrichi plus tard
+                  }]);
+                
+                if (linkError) {
+                  console.error('❌ Error linking existing place:', linkError);
+                  toast.warning(`Erreur lors de l'association du lieu ${place.label}`);
+                } else {
+                  console.log(`✅ Linked existing place ${place.label} to child`);
+                }
+              }
+            }
+            
             toast.success('Lieux de vie enregistrés avec succès !');
           }
         }
