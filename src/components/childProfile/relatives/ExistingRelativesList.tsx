@@ -42,10 +42,17 @@ const translateRole = (role: string): string => {
     'sister': 'Sœur',
     'grandfather': 'Grand-père',
     'grandmother': 'Grand-mère',
+    'uncle': 'Oncle',
+    'aunt': 'Tante',
+    'otherParent': 'Autre parent',
     'maleCousin': 'Cousin',
     'femaleCousin': 'Cousine',
-    'maleFriend': 'Ami',
-    'femaleFriend': 'Amie',
+    'maleFriend': 'Meilleur ami',
+    'femaleFriend': 'Meilleure amie',
+    'partner': 'Petit copain / petite copine',
+    'teacher': 'Maîtresse / Maître',
+    'babysitter': 'Baby-sitter / Nounou',
+    'other': 'Proche',
   };
   return translations[role] || role;
 };
