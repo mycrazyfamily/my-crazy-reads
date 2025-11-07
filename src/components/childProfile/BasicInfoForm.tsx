@@ -241,7 +241,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     }
 
     // Style vestimentaire favori (obligatoire)
-    if (!Array.isArray(formData.clothingStyle) || formData.clothingStyle.length === 0 || !String(formData.clothingStyle[0]).trim()) {
+    if (!formData.clothingStyle || (typeof formData.clothingStyle === 'string' && !formData.clothingStyle.trim())) {
       errors.push("le style vestimentaire favori");
     }
 
