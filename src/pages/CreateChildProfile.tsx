@@ -306,7 +306,108 @@ const CreateChildProfile = ({
           }
         }
 
-        
+        // Gérer les lieux de vie (places) - création et mise à jour
+        if (data.places && data.places.length > 0) {
+          console.log('📍 Saving places in edit mode:', data.places);
+          
+          // Récupérer le family_id et le user_id de l'enfant
+          const { data: childData } = await supabase
+            .from('child_profiles')
+            .select('family_id, user_id')
+            .eq('id', editChildId)
+            .maybeSingle();
+          
+          if (!childData?.family_id) {
+            console.error('❌ No family_id found for child');
+            toast.error("Erreur : impossible de trouver la famille de l'enfant");
+          } else {
+            // Supprimer les anciens liens child_places
+            await supabase
+              .from('child_places')
+              .delete()
+              .eq('child_id', editChildId);
+            
+            // Pour chaque lieu dans le formulaire
+            for (const place of data.places) {
+              let placeId: string;
+              
+              if (place.id) {
+                // CAS 1: Mise à jour d'un lieu existant
+                console.log(`🔄 Updating existing place: ${place.label} (${place.id})`);
+                const { error: updateError } = await supabase
+                  .from('places')
+                  .update({
+                    label: place.label,
+                    type: place.type,
+                    description: place.description || null,
+                    emoji: place.emoji || null,
+                    address: place.address || null,
+                    city: place.city || null,
+                    country: place.country || null,
+                    details: place.details || {},
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('id', place.id);
+                
+                if (updateError) {
+                  console.error('❌ Error updating place:', updateError);
+                  toast.warning(`Erreur lors de la mise à jour du lieu ${place.label}`);
+                  continue;
+                }
+                
+                placeId = place.id;
+                console.log(`✅ Updated place: ${place.label}`);
+              } else {
+                // CAS 2: Création d'un nouveau lieu
+                console.log(`🆕 Creating new place: ${place.label}`);
+                const { data: createdPlace, error: createError } = await supabase
+                  .from('places')
+                  .insert([{
+                    label: place.label,
+                    type: place.type,
+                    description: place.description || null,
+                    emoji: place.emoji || null,
+                    address: place.address || null,
+                    city: place.city || null,
+                    country: place.country || null,
+                    details: place.details || {},
+                    created_by: childData.user_id,
+                    family_id: childData.family_id,
+                    is_active: true
+                  }])
+                  .select()
+                  .maybeSingle();
+                
+                if (createError || !createdPlace) {
+                  console.error('❌ Error creating place:', createError);
+                  toast.warning(`Erreur lors de la création du lieu ${place.label}`);
+                  continue;
+                }
+                
+                placeId = createdPlace.id;
+                console.log(`✅ Created place: ${place.label} with ID: ${placeId}`);
+              }
+              
+              // Créer le lien child_places
+              const { error: linkError } = await supabase
+                .from('child_places')
+                .insert([{
+                  child_id: editChildId,
+                  place_id: placeId,
+                  label: place.childLabel || null
+                }]);
+              
+              if (linkError) {
+                console.error('❌ Error linking place to child:', linkError);
+                toast.warning(`Erreur lors de l'association du lieu ${place.label}`);
+              } else {
+                console.log(`✅ Linked place ${place.label} to child`);
+              }
+            }
+            
+            toast.success('Lieux de vie enregistrés avec succès !');
+          }
+        }
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         setTimeout(() => {
