@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import PetsSummary from '@/components/childProfile/summary/PetsSummary';
 import ToysSummary from '@/components/childProfile/summary/ToysSummary';
 import WorldsSummary from '@/components/childProfile/summary/WorldsSummary';
 import PlacesSummary from '@/components/childProfile/summary/PlacesSummary';
+import { supabase } from '@/integrations/supabase/client';
 
 type FinalSummaryProps = {
   handlePreviousStep: () => void;
@@ -19,6 +20,8 @@ type FinalSummaryProps = {
   isGiftMode?: boolean;
   nextButtonText?: string;
   isSubmitting?: boolean;
+  editMode?: boolean;
+  editChildId?: string;
 };
 
 const FinalSummary: React.FC<FinalSummaryProps> = ({
@@ -27,15 +30,123 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   handleSubmit,
   isGiftMode = false,
   nextButtonText,
-  isSubmitting = false
+  isSubmitting = false,
+  editMode = false,
+  editChildId
 }) => {
   const form = useFormContext<ChildProfileFormData>();
   const formData = form.getValues();
+  const [completeData, setCompleteData] = useState<ChildProfileFormData>(formData);
+  const [isLoadingData, setIsLoadingData] = useState(editMode);
+
+  // En mode édition, charger toutes les données existantes
+  useEffect(() => {
+    const loadCompleteData = async () => {
+      if (!editMode || !editChildId) {
+        setCompleteData(formData);
+        setIsLoadingData(false);
+        return;
+      }
+
+      try {
+        // Charger les données de famille (relatives)
+        const { data: familyMembersLinks } = await supabase
+          .from('child_family_members')
+          .select('family_member_id, family_members(*)')
+          .eq('child_id', editChildId);
+
+        const relatives = familyMembersLinks?.map((link: any) => ({
+          id: link.family_member_id,
+          type: link.family_members.role,
+          firstName: link.family_members.name,
+          nickname: {
+            type: link.family_members.details?.nickname || 'none',
+            custom: link.family_members.details?.nickname || ''
+          },
+          skinColor: link.family_members.details?.skinColor || '',
+          hairColor: link.family_members.details?.hairColor || '',
+          hairType: link.family_members.details?.hairType || '',
+          hairTypeCustom: link.family_members.details?.hairTypeCustom || '',
+          glasses: link.family_members.details?.glasses || false,
+          traits: link.family_members.details?.traits || [],
+          customTraits: link.family_members.details?.customTraits || {},
+          age: link.family_members.details?.age || '',
+          birthDate: link.family_members.details?.birthDate ? new Date(link.family_members.details.birthDate) : undefined,
+          job: link.family_members.details?.job || '',
+          gender: link.family_members.details?.gender || '',
+          otherTypeName: link.family_members.details?.otherTypeName || '',
+          physicalDetails: link.family_members.details?.physicalDetails || []
+        })) || [];
+
+        // Charger les animaux (pets)
+        const { data: childPetsLinks } = await supabase
+          .from('child_pets')
+          .select('pet_id, pets(*)')
+          .eq('child_id', editChildId);
+
+        const pets = childPetsLinks?.map((link: any) => ({
+          id: link.pet_id,
+          name: link.pets.name,
+          type: link.pets.type,
+          breed: link.pets.breed,
+          physicalDetails: link.pets.physical_details || [],
+          traits: [] // Champ requis par le type PetData
+        })) || [];
+
+        // Charger les lieux (places)
+        const { data: childPlacesLinks } = await supabase
+          .from('child_places')
+          .select('place_id, label, places(*)')
+          .eq('child_id', editChildId);
+
+        const places = childPlacesLinks?.map((link: any) => ({
+          id: link.place_id,
+          label: link.label || link.places.label,
+          type: link.places.type,
+          emoji: link.places.emoji,
+          address: link.places.address,
+          city: link.places.city,
+          country: link.places.country,
+          description: link.places.description,
+          details: link.places.details
+        })) || [];
+
+        // Fusionner les données chargées avec les données du formulaire
+        setCompleteData({
+          ...formData,
+          family: {
+            ...formData.family,
+            relatives: relatives.length > 0 ? relatives : formData.family?.relatives || []
+          },
+          pets: {
+            hasPets: pets.length > 0 || formData.pets?.hasPets || false,
+            pets: pets.length > 0 ? pets : formData.pets?.pets || []
+          },
+          places: places.length > 0 ? places : formData.places || []
+        });
+      } catch (error) {
+        console.error('Error loading complete child data:', error);
+        setCompleteData(formData);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadCompleteData();
+  }, [editMode, editChildId, formData]);
   
   const handleStartAdventure = () => {
     console.log("Starting adventure button clicked");
     handleSubmit();
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="animate-fade-in flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-mcf-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -61,7 +172,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           onEdit={() => handleGoToStep(0)}
           className="lg:col-span-1"
         >
-          <BasicInfoSummary data={formData} />
+          <BasicInfoSummary data={completeData} />
         </SummaryBlock>
 
         <SummaryBlock 
@@ -70,7 +181,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           onEdit={() => handleGoToStep(1)}
           className="lg:col-span-1"
         >
-          <PersonalitySummary data={formData} />
+          <PersonalitySummary data={completeData} />
         </SummaryBlock>
 
         <SummaryBlock 
@@ -79,39 +190,39 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           onEdit={() => handleGoToStep(2)}
           className="lg:col-span-1"
         >
-          <FamilySummary data={formData} />
+          <FamilySummary data={completeData} />
         </SummaryBlock>
 
-        {formData.pets && formData.pets.hasPets && (
+        {completeData.pets && completeData.pets.hasPets && (
           <SummaryBlock 
             title="Animaux de compagnie" 
             icon={<Cat className="h-5 w-5 text-mcf-primary" />}
             onEdit={() => handleGoToStep(3)}
             className="lg:col-span-1"
           >
-            <PetsSummary data={formData} />
+            <PetsSummary data={completeData} />
           </SummaryBlock>
         )}
 
-        {formData.toys && formData.toys.hasToys && (
+        {completeData.toys && completeData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
             icon={<Sparkles className="h-5 w-5 text-mcf-primary" />}
             onEdit={() => handleGoToStep(4)}
             className="lg:col-span-1"
           >
-            <ToysSummary data={formData} />
+            <ToysSummary data={completeData} />
           </SummaryBlock>
         )}
 
-        {formData.places && formData.places.length > 0 && (
+        {completeData.places && completeData.places.length > 0 && (
           <SummaryBlock 
             title="Lieux de vie" 
             icon={<MapPin className="h-5 w-5 text-mcf-primary" />}
             onEdit={() => handleGoToStep(6)}
             className="lg:col-span-1"
           >
-            <PlacesSummary data={formData} />
+            <PlacesSummary data={completeData} />
           </SummaryBlock>
         )}
 
@@ -119,9 +230,9 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           title="Univers préféré & culture" 
           icon={<Globe className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(7)}
-          className={`${(!formData.pets?.hasPets && !formData.toys?.hasToys && (!formData.places || formData.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
+          className={`${(!completeData.pets?.hasPets && !completeData.toys?.hasToys && (!completeData.places || completeData.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
         >
-          <WorldsSummary data={formData} />
+          <WorldsSummary data={completeData} />
         </SummaryBlock>
       </div>
 

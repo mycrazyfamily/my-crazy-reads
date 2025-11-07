@@ -52,12 +52,18 @@ const PlacesSummary: React.FC<PlacesSummaryProps> = ({ data }) => {
 };
 
 const getPlaceTypeLabel = (type: string): string => {
+  // Formatter les types avec underscores
+  const formattedType = type.replace(/_/g, ' ');
+  
   const labels: Record<string, string> = {
-    house: 'Maison',
-    apartment: 'Appartement',
-    other: 'Autre'
+    'house': 'Maison',
+    'apartment': 'Appartement',
+    'maison secondaire': 'Maison secondaire',
+    'secondary house': 'Maison secondaire',
+    'other': 'Autre'
   };
-  return labels[type] || type;
+  
+  return labels[formattedType.toLowerCase()] || formattedType;
 };
 
 const renderDetails = (details: any) => {

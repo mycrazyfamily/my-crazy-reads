@@ -492,6 +492,7 @@ const CreateChildProfile = ({
             nextButtonText={isGiftMode ? "Continuer vers le choix du thème →" : undefined}
             onFormSubmit={isGiftMode ? () => {} : undefined}
             editMode={editMode}
+            editChildId={editChildId}
             isSubmitting={isSubmitting}
           />
         </ChildProfileFormProvider>
