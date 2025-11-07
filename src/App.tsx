@@ -42,6 +42,8 @@ import ModifierProche from './pages/ModifierProche'
 import ModifierAnimal from './pages/ModifierAnimal'
 import AjouterAnimal from './pages/AjouterAnimal'
 import AjouterProche from './pages/AjouterProche'
+import AjouterLieu from './pages/AjouterLieu'
+import ModifierLieu from './pages/ModifierLieu'
 
 function App() {
   const isDev = false; // Protection activée en production
@@ -145,6 +147,21 @@ function App() {
               <Route path="/ajouter-animal/:childId" element={
                 <AuthGuard>
                   <AjouterAnimal />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-lieu" element={
+                <AuthGuard>
+                  <AjouterLieu />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-lieu/:childId" element={
+                <AuthGuard>
+                  <AjouterLieu />
+                </AuthGuard>
+              } />
+              <Route path="/modifier-lieu/:childId/:placeId" element={
+                <AuthGuard>
+                  <ModifierLieu />
                 </AuthGuard>
               } />
 

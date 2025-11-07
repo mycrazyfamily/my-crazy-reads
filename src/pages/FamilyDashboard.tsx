@@ -25,6 +25,7 @@ import StoryCustomizationForm from '@/components/familyDashboard/StoryCustomizat
 import ManageSubscription from '@/components/familyDashboard/ManageSubscription';
 import RelativeProfileCard from '@/components/familyDashboard/RelativeProfileCard';
 import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
+import PlaceProfileCard from '@/components/familyDashboard/PlaceProfileCard';
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const FamilyDashboard: React.FC = () => {
     personalityEmoji: string;
     relatives?: any[];
     pets?: any[];
+    places?: any[];
     toysCount?: number;
     preferencesCount?: number;
     hasPets?: number;
@@ -149,6 +151,7 @@ const FamilyDashboard: React.FC = () => {
           personalityEmoji: '🧒',
           relatives: [],
           pets: [],
+          places: [],
           toysCount: 0,
           preferencesCount: 0,
           hasPets: 0,
@@ -160,7 +163,7 @@ const FamilyDashboard: React.FC = () => {
         await Promise.all(
           uniqueRows.map(async (profile: any) => {
             try {
-              const [{ data: childPets }, { data: childFamilyMembers }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+              const [{ data: childPets }, { data: childFamilyMembers }, { data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
                 supabase
                   .from('child_pets')
                   .select(`
@@ -189,6 +192,23 @@ const FamilyDashboard: React.FC = () => {
                     )
                   `)
                   .eq('child_id', profile.id),
+                supabase
+                  .from('child_places')
+                  .select(`
+                    label,
+                    places:place_id (
+                      id,
+                      label,
+                      type,
+                      emoji,
+                      address,
+                      city,
+                      country,
+                      description,
+                      details
+                    )
+                  `)
+                  .eq('child_id', profile.id),
                 supabase.from('child_superpowers').select('*').eq('child_id', profile.id),
                 supabase.from('child_likes').select('*').eq('child_id', profile.id),
                 supabase.from('child_challenges').select('*').eq('child_id', profile.id),
@@ -214,6 +234,19 @@ const FamilyDashboard: React.FC = () => {
                 relationToChild: cfm.relation_label,
               }));
 
+              const placesFromDb = (childPlaces || []).map((cp: any) => ({
+                id: cp.places?.id,
+                label: cp.places?.label,
+                type: cp.places?.type,
+                emoji: cp.places?.emoji,
+                address: cp.places?.address,
+                city: cp.places?.city,
+                country: cp.places?.country,
+                description: cp.places?.description,
+                details: cp.places?.details,
+                childLabel: cp.label,
+              }));
+
               const toysCount = 0; // pas de table jouets distincte ici
               const preferencesCount =
                 (superpowersRes.data?.length || 0) +
@@ -227,6 +260,7 @@ const FamilyDashboard: React.FC = () => {
                 ...c,
                 relatives: relativesFromDb,
                 pets: petsFromDb,
+                places: placesFromDb,
                 toysCount,
                 preferencesCount,
                 hasPets: petsFromDb.length,
@@ -568,6 +602,63 @@ const FamilyDashboard: React.FC = () => {
                 }}
               >
                 <Plus className="h-4 w-4" /> Ajouter un animal
+              </Button>
+            </section>
+          )}
+
+          {/* Section: Lieux de vie */}
+          {children.length > 0 && children.some(child => child.places && child.places.length > 0) && (
+            <section className="animate-fade-in animation-delay-85">
+              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
+                <span className="text-2xl">📍</span> Mes lieux de vie
+              </h2>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(() => {
+                  // Grouper les lieux par leur ID pour éviter les doublons
+                  const placesMap = new Map<string, { place: any; childrenNames: string[]; childrenIds: string[] }>();
+                  
+                  children.forEach((child) => {
+                    if (!child.places || child.places.length === 0) return;
+                    
+                    child.places.forEach((place: any) => {
+                      if (placesMap.has(place.id)) {
+                        const entry = placesMap.get(place.id)!;
+                        entry.childrenNames.push(child.firstName);
+                        entry.childrenIds.push(child.id);
+                      } else {
+                        placesMap.set(place.id, {
+                          place,
+                          childrenNames: [child.firstName],
+                          childrenIds: [child.id]
+                        });
+                      }
+                    });
+                  });
+                  
+                  return Array.from(placesMap.values()).map(({ place, childrenNames, childrenIds }) => (
+                    <PlaceProfileCard 
+                      key={place.id}
+                      place={place}
+                      childrenNames={childrenNames}
+                      primaryChildId={childrenIds[0]}
+                    />
+                  ));
+                })()}
+              </div>
+              
+              {/* Bouton pour ajouter un lieu */}
+              <Button 
+                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                onClick={() => {
+                  if (children.length === 1) {
+                    navigate(`/ajouter-lieu/${children[0].id}`);
+                  } else {
+                    navigate('/ajouter-lieu');
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" /> Ajouter un lieu de vie
               </Button>
             </section>
           )}
