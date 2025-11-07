@@ -55,14 +55,16 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           .select('family_member_id, family_members(*)')
           .eq('child_id', editChildId);
 
-        const relatives = familyMembersLinks?.map((link: any) => ({
-          id: link.family_member_id,
-          type: link.family_members.role,
-          firstName: link.family_members.name,
-          nickname: {
-            type: link.family_members.details?.nickname || 'none',
-            custom: link.family_members.details?.nickname || ''
-          },
+        const relatives = familyMembersLinks?.map((link: any) => {
+          const nicknameValue = link.family_members.details?.nickname;
+          return {
+            id: link.family_member_id,
+            type: link.family_members.role,
+            firstName: link.family_members.name,
+            nickname: {
+              type: (nicknameValue ? 'custom' : 'none') as 'custom' | 'none',
+              custom: nicknameValue || ''
+            },
           skinColor: link.family_members.details?.skinColor || '',
           hairColor: link.family_members.details?.hairColor || '',
           hairType: link.family_members.details?.hairType || '',
@@ -76,7 +78,8 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           gender: link.family_members.details?.gender || '',
           otherTypeName: link.family_members.details?.otherTypeName || '',
           physicalDetails: link.family_members.details?.physicalDetails || []
-        })) || [];
+        };
+        }) || [];
 
         // Charger les animaux (pets)
         const { data: childPetsLinks } = await supabase
