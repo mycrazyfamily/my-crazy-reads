@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2 } from 'lucide-react';
+import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -10,6 +10,7 @@ import FamilySummary from '@/components/childProfile/summary/FamilySummary';
 import PetsSummary from '@/components/childProfile/summary/PetsSummary';
 import ToysSummary from '@/components/childProfile/summary/ToysSummary';
 import WorldsSummary from '@/components/childProfile/summary/WorldsSummary';
+import PlacesSummary from '@/components/childProfile/summary/PlacesSummary';
 
 type FinalSummaryProps = {
   handlePreviousStep: () => void;
@@ -103,11 +104,22 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           </SummaryBlock>
         )}
 
+        {formData.places && formData.places.length > 0 && (
+          <SummaryBlock 
+            title="Lieux de vie" 
+            icon={<MapPin className="h-5 w-5 text-mcf-primary" />}
+            onEdit={() => handleGoToStep(6)}
+            className="lg:col-span-1"
+          >
+            <PlacesSummary data={formData} />
+          </SummaryBlock>
+        )}
+
         <SummaryBlock 
           title="Univers préféré & culture" 
           icon={<Globe className="h-5 w-5 text-mcf-primary" />}
-          onEdit={() => handleGoToStep(5)}
-          className={`${(!formData.pets?.hasPets && !formData.toys?.hasToys) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
+          onEdit={() => handleGoToStep(7)}
+          className={`${(!formData.pets?.hasPets && !formData.toys?.hasToys && (!formData.places || formData.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
         >
           <WorldsSummary data={formData} />
         </SummaryBlock>
