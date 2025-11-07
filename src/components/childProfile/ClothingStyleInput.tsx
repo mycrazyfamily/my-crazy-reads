@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CLOTHING_STYLE_OPTIONS } from "@/constants/clothingStyleOptions";
@@ -25,6 +25,20 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
   
   const [showCustomInput, setShowCustomInput] = useState(!!normalizedValue && !isPredefinedStyle);
   const [customText, setCustomText] = useState(!isPredefinedStyle ? normalizedValue : '');
+
+  // Update local state when value prop changes (e.g., when loading from database)
+  useEffect(() => {
+    const normalized = Array.isArray(value) ? (value[0] || "") : (value || "");
+    const isPredefined = CLOTHING_STYLE_OPTIONS.some(opt => normalized?.startsWith(opt.emoji));
+    
+    if (!isPredefined && normalized) {
+      setShowCustomInput(true);
+      setCustomText(normalized);
+    } else if (isPredefined) {
+      setShowCustomInput(false);
+      setCustomText('');
+    }
+  }, [value]);
 
   const handleOptionClick = (optionValue: string, optionLabel: string, optionEmoji: string) => {
     const fullValue = `${optionEmoji} ${optionLabel}`;
