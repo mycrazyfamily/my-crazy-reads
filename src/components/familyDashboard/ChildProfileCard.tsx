@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ShoppingBag, Edit, Users, Palette, Cat, Dog, PlusSquare, Gamepad2 } from 'lucide-react';
+import { ShoppingBag, Edit, Users, Palette, Cat, Dog, PlusSquare, Gamepad2, MapPin } from 'lucide-react';
 
 interface Child {
   id: string;
@@ -13,6 +13,7 @@ interface Child {
   avatar: string | null;
   personalityEmoji: string;
   relatives?: any[];
+  places?: any[];
   toysCount?: number;
   preferencesCount?: number;
   hasPets?: number;
@@ -55,6 +56,13 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
                 <Dog className="h-4 w-4 text-mcf-orange" />
               )}
               <span>{child.hasPets} anim{child.hasPets > 1 ? 'aux' : 'al'}</span>
+            </div>
+          )}
+          
+          {child.places && child.places.length > 0 && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-mcf-orange" />
+              <span>{child.places.length} lieu{child.places.length > 1 ? 'x' : ''}</span>
             </div>
           )}
           
