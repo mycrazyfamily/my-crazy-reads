@@ -491,7 +491,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   details.jardin_autres_1 || '',
                   details.jardin_autres_2 || '',
                   details.jardin_autres_3 || ''
-                ].filter((v) => v && v.trim() !== '')}
+                ]}
                 onChange={(values) => {
                   const [v1, v2, v3] = values;
                   updateManyDetails({
@@ -536,12 +536,12 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           </div>
 
 
-          <DetailsInput
+            <DetailsInput
             value={[
               details.autre_detail_1 || '',
               details.autre_detail_2 || '',
               details.autre_detail_3 || ''
-            ].filter((v) => v && v.trim() !== '')}
+            ]}
             onChange={(values) => {
               const [v1, v2, v3] = values;
               updateManyDetails({
