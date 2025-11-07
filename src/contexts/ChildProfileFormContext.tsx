@@ -80,6 +80,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       hairTypeCustom: undefined,
       glasses: undefined,
       physicalDetails: [],
+      noPhysicalDetails: false,
       clothingStyle: [],
       height: undefined as unknown as "small" | "medium" | "tall",
       superpowers: [],
@@ -273,11 +274,18 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
 
           // Parser physical_details (jsonb)
           let physicalDetails: string[] = [];
+          let noPhysicalDetails = false;
           if (childProfile.physical_details) {
             try {
               physicalDetails = typeof childProfile.physical_details === 'string' 
                 ? JSON.parse(childProfile.physical_details)
                 : childProfile.physical_details;
+              
+              // Détecter si "Aucun détail physique" était coché ([""] signifie no details)
+              if (physicalDetails.length === 1 && physicalDetails[0] === '') {
+                noPhysicalDetails = true;
+                physicalDetails = [];
+              }
             } catch (e) {
               console.error('Failed to parse physical_details:', e);
               physicalDetails = [];
@@ -310,6 +318,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             hairTypeCustom: appearance.hairTypeCustom,
             glasses: appearance.glasses ?? false,
             physicalDetails,
+            noPhysicalDetails,
             clothingStyle,
             superpowers,
             passions,
