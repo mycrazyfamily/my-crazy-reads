@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlaceData, PlaceDetails } from '@/types/place';
+import { DetailsInput } from './DetailsInput';
 
 import {
   placeTypeOptions,
@@ -22,6 +23,34 @@ interface PlaceFormProps {
 
 export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
   const [details, setDetails] = useState<PlaceDetails>(place.details || {});
+  const [gardenDetails, setGardenDetails] = useState<string[]>(['']);
+  const [noGardenDetails, setNoGardenDetails] = useState(false);
+  const [placeDetails, setPlaceDetails] = useState<string[]>(['']);
+  const [noPlaceDetails, setNoPlaceDetails] = useState(false);
+
+  // Initialize local states from place.details on mount or when place changes
+  useEffect(() => {
+    const d = place.details || {};
+    
+    // Initialize garden details
+    const gDetails = [d.jardin_autres_1, d.jardin_autres_2, d.jardin_autres_3].filter(v => v && v.trim() !== '');
+    if (gDetails.length > 0) {
+      setGardenDetails(gDetails);
+    } else {
+      setGardenDetails(['']);
+    }
+    setNoGardenDetails(d.noJardinDetails || false);
+    
+    // Initialize place details
+    const pDetails = [d.autre_detail_1, d.autre_detail_2, d.autre_detail_3].filter(v => v && v.trim() !== '');
+    if (pDetails.length > 0) {
+      setPlaceDetails(pDetails);
+    } else {
+      setPlaceDetails(['']);
+    }
+    setNoPlaceDetails(d.noAutreDetails || false);
+  }, [place.id]);
+
 
   const updateDetails = (key: keyof PlaceDetails, value: any) => {
     setDetails((prev) => {
@@ -37,6 +66,50 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
       onChange({ ...place, details: newDetails });
       return newDetails;
     });
+  };
+
+  const handleGardenDetailsChange = (values: string[]) => {
+    setGardenDetails(values);
+    updateManyDetails({
+      jardin_autres_1: values[0] || '',
+      jardin_autres_2: values[1] || '',
+      jardin_autres_3: values[2] || '',
+    });
+  };
+
+  const handleNoGardenDetailsChange = (checked: boolean) => {
+    setNoGardenDetails(checked);
+    updateDetails('noJardinDetails', checked);
+    if (checked) {
+      setGardenDetails(['']);
+      updateManyDetails({
+        jardin_autres_1: '',
+        jardin_autres_2: '',
+        jardin_autres_3: '',
+      });
+    }
+  };
+
+  const handlePlaceDetailsChange = (values: string[]) => {
+    setPlaceDetails(values);
+    updateManyDetails({
+      autre_detail_1: values[0] || '',
+      autre_detail_2: values[1] || '',
+      autre_detail_3: values[2] || '',
+    });
+  };
+
+  const handleNoPlaceDetailsChange = (checked: boolean) => {
+    setNoPlaceDetails(checked);
+    updateDetails('noAutreDetails', checked);
+    if (checked) {
+      setPlaceDetails(['']);
+      updateManyDetails({
+        autre_detail_1: '',
+        autre_detail_2: '',
+        autre_detail_3: '',
+      });
+    }
   };
 
   const isVacationPlace = place.type === 'vacances';
@@ -484,6 +557,16 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   </div>
                 </RadioGroup>
               </div>
+
+              <DetailsInput
+                value={gardenDetails}
+                onChange={handleGardenDetailsChange}
+                label="🎠 Autres éléments présents dans le jardin ? *"
+                placeholder="Ex: Trampoline, bac à sable..."
+                onNoDetailsChange={handleNoGardenDetailsChange}
+                noDetailsValue={noGardenDetails}
+                noDetailsLabel="Aucun élément particulier"
+              />
             </div>
           )}
 
@@ -512,6 +595,16 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               </SelectContent>
             </Select>
           </div>
+
+          <DetailsInput
+            value={placeDetails}
+            onChange={handlePlaceDetailsChange}
+            label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ? *"
+            placeholder="Ex: Grande cheminée en pierre..."
+            onNoDetailsChange={handleNoPlaceDetailsChange}
+            noDetailsValue={noPlaceDetails}
+            noDetailsLabel="Aucun élément particulier"
+          />
         </div>
       )}
     </div>
