@@ -75,10 +75,10 @@ const CreateChildProfile = ({
               glasses: data.glasses
             },
             physical_details: data.noPhysicalDetails 
-              ? JSON.stringify(['']) 
+              ? [''] 
               : (data.physicalDetails && data.physicalDetails.length > 0 
-                ? JSON.stringify(data.physicalDetails) 
-                : JSON.stringify([])),
+                ? data.physicalDetails 
+                : []),
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);

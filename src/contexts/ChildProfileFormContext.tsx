@@ -272,17 +272,28 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
 
           const appearance = (childProfile.appearance as any) || {};
 
-          // Parser physical_details (jsonb)
+          // Parser physical_details (jsonb) - robuste pour anciennes données stringifiées
           let physicalDetails: string[] = [];
           let noPhysicalDetails = false;
           if (childProfile.physical_details) {
             try {
-              physicalDetails = typeof childProfile.physical_details === 'string' 
+              // Si c'est une string, parser (anciennes données avec double encodage)
+              let parsed = typeof childProfile.physical_details === 'string' 
                 ? JSON.parse(childProfile.physical_details)
                 : childProfile.physical_details;
               
-              // Détecter si "Aucun détail physique" était coché ([""] signifie no details)
-              if (physicalDetails.length === 1 && physicalDetails[0] === '') {
+              // Si après parsing c'est encore une string, re-parser (double encodage)
+              if (typeof parsed === 'string') {
+                parsed = JSON.parse(parsed);
+              }
+              
+              physicalDetails = Array.isArray(parsed) ? parsed : [];
+              
+              // Détecter si "Aucun détail physique" était coché ([""] ou [] signifie no details)
+              if (
+                physicalDetails.length === 0 ||
+                (physicalDetails.length === 1 && physicalDetails[0] === '')
+              ) {
                 noPhysicalDetails = true;
                 physicalDetails = [];
               }
