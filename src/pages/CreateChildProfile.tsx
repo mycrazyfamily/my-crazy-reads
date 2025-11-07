@@ -57,6 +57,8 @@ const CreateChildProfile = ({
         });
         
         // Mettre à jour child_profiles
+        console.log('[SAVE] clothing_style value before update:', data.clothingStyle);
+        
         const { error: updateError } = await supabase
           .from('child_profiles')
           .update({
@@ -79,10 +81,13 @@ const CreateChildProfile = ({
               : (data.physicalDetails && data.physicalDetails.length > 0 
                 ? data.physicalDetails 
                 : []),
+            clothing_style: data.clothingStyle || '',
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);
 
+        console.log('[SAVE] Supabase response:', updateError ? updateError.message : '✅ success');
+        
         if (updateError) throw updateError;
         
         // Mettre à jour les relations (sélections multiples)

@@ -173,6 +173,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
         // 3. Créer le profil enfant dans child_profiles
+        console.log('[SAVE] clothing_style value before insert:', data.clothingStyle);
+        
         const { data: childProfile, error: childError } = await supabase
           .from('child_profiles')
           .insert([
@@ -202,6 +204,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           ])
           .select()
           .single();
+
+        console.log('[SAVE] Supabase response:', childError ? childError.message : '✅ success');
 
         if (childError) {
           console.error('Error creating child profile:', childError);

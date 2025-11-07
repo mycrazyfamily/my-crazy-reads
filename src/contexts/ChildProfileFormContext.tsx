@@ -304,6 +304,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           }
 
           // Parser clothing_style (text) - normaliser ancien format array vers string
+          console.log('[LOAD] clothing_style from DB:', childProfile.clothing_style);
+          
           let clothingStyle: string = '';
           if (childProfile.clothing_style) {
             try {
