@@ -56,7 +56,7 @@ export type RelativeData = {
   otherTypeName?: string;
   physicalDetails?: string[];
   noPhysicalDetails?: boolean;
-  clothingStyle?: string[];
+  clothingStyle?: string;
 };
 
 export type FamilyData = {
@@ -84,7 +84,7 @@ export type PetData = {
   physicalDetails?: string[];
   traits: PetTrait[];
   customTraits?: Record<string, string>; // Added custom traits field
-  clothingStyle?: string[];
+  clothingStyle?: string;
 };
 
 export type PetsData = {
@@ -175,7 +175,7 @@ export type ChildProfileFormData = {
   glasses: boolean;
   physicalDetails?: string[];
   noPhysicalDetails?: boolean;
-  clothingStyle?: string[];
+  clothingStyle?: string;
   
   height: "small" | "medium" | "tall";
   superpowers: string[];

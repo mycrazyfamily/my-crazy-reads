@@ -50,7 +50,7 @@ const ModifierProche: React.FC = () => {
   const [traits, setTraits] = useState<string[]>([]);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>({});
   const [physicalDetails, setPhysicalDetails] = useState<string[]>([]);
-  const [clothingStyle, setClothingStyle] = useState<string[]>([]);
+  const [clothingStyle, setClothingStyle] = useState<string>('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -152,7 +152,7 @@ const ModifierProche: React.FC = () => {
         setPhysicalDetails(details.physicalDetails || []);
 
         // Charger le clothing_style
-        setClothingStyle(details.clothingStyle || []);
+        setClothingStyle(details.clothingStyle || '');
 
         setChildData({ loaded: true });
 

@@ -49,7 +49,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     relative.customTraits || {}
   );
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(relative.physicalDetails || []);
-  const [clothingStyle, setClothingStyle] = useState<string[]>(relative.clothingStyle || []);
+  const [clothingStyle, setClothingStyle] = useState<string>(relative.clothingStyle || '');
 
   // Pour la sélection d'enfants existants
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
@@ -212,7 +212,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       },
       customTraits: customTraits,
       physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined,
-      clothingStyle: clothingStyle.length > 0 ? clothingStyle : undefined
+      clothingStyle: clothingStyle ? clothingStyle : undefined
     };
     
     onSave(updatedRelative, isCreatingNewChild ? selectedChildrenIds : undefined);

@@ -81,7 +81,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       glasses: undefined,
       physicalDetails: [],
       noPhysicalDetails: false,
-      clothingStyle: [],
+      clothingStyle: '',
       height: undefined as unknown as "small" | "medium" | "tall",
       superpowers: [],
       passions: [],

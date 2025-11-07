@@ -5,48 +5,44 @@ import { CLOTHING_STYLE_OPTIONS } from "@/constants/clothingStyleOptions";
 import OptionCard from "./personality/OptionCard";
 
 type ClothingStyleInputProps = {
-  value: string[] | undefined;
-  onChange: (value: string[]) => void;
+  value: string | undefined;
+  onChange: (value: string) => void;
   label?: string;
 };
 
 const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
-  value = [],
+  value = "",
   onChange,
   label = "👕 Quel est son style vestimentaire favori ?"
 }) => {
-  // Get the selected predefined style or custom text
-  const selectedPredefined = value.find(v => 
-    CLOTHING_STYLE_OPTIONS.some(opt => v.startsWith(opt.emoji))
+  // Check if the value is a predefined style
+  const isPredefinedStyle = CLOTHING_STYLE_OPTIONS.some(opt => 
+    value?.startsWith(opt.emoji)
   );
   
-  const customValue = value.find(v => 
-    !CLOTHING_STYLE_OPTIONS.some(opt => v.startsWith(opt.emoji))
-  );
-  
-  const [showCustomInput, setShowCustomInput] = useState(!!customValue && !selectedPredefined);
-  const [customText, setCustomText] = useState(customValue || '');
+  const [showCustomInput, setShowCustomInput] = useState(!!value && !isPredefinedStyle);
+  const [customText, setCustomText] = useState(!isPredefinedStyle ? value : '');
 
   const handleOptionClick = (optionValue: string, optionLabel: string, optionEmoji: string) => {
     const fullValue = `${optionEmoji} ${optionLabel}`;
-    onChange([fullValue]);
+    onChange(fullValue);
     setShowCustomInput(false);
     setCustomText('');
   };
 
   const handleCustomClick = () => {
     setShowCustomInput(true);
-    onChange(customText ? [customText] : []);
+    onChange(customText || '');
   };
 
   const handleCustomTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setCustomText(text);
-    onChange(text ? [text] : []);
+    onChange(text);
   };
 
   const isSelected = (optionEmoji: string) => {
-    return selectedPredefined?.startsWith(optionEmoji) || false;
+    return value?.startsWith(optionEmoji) || false;
   };
 
   return (
@@ -70,7 +66,7 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
         ))}
         
         <OptionCard
-          isSelected={showCustomInput && !selectedPredefined}
+          isSelected={showCustomInput && !isPredefinedStyle}
           isDisabled={false}
           onClick={handleCustomClick}
           icon="✏️"

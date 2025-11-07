@@ -69,14 +69,16 @@ const ModifierAnimal: React.FC = () => {
         }
         
         // Parser clothing_style (jsonb)
-        let clothingStyle: string[] = [];
+        let clothingStyle: string = '';
         if ((data.pets as any).clothing_style) {
           try {
             const raw = (data.pets as any).clothing_style;
-            clothingStyle = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            // Si c'est un array avec un élément, prendre le premier élément
+            clothingStyle = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : (typeof parsed === 'string' ? parsed : '');
           } catch (e) {
             console.error('Failed to parse clothing_style:', e);
-            clothingStyle = [];
+            clothingStyle = '';
           }
         }
         
@@ -149,9 +151,7 @@ const ModifierAnimal: React.FC = () => {
           physical_details: updatedPet.physicalDetails && updatedPet.physicalDetails.length > 0
             ? JSON.stringify(updatedPet.physicalDetails)
             : JSON.stringify([]),
-          clothing_style: updatedPet.clothingStyle && updatedPet.clothingStyle.length > 0
-            ? JSON.stringify(updatedPet.clothingStyle)
-            : JSON.stringify([])
+          clothing_style: updatedPet.clothingStyle || null
         })
         .eq('id', petId);
 

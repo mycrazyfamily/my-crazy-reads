@@ -25,8 +25,8 @@ type RelativeAppearanceSectionProps = {
   gender: RelativeGender;
   physicalDetails?: string[];
   setPhysicalDetails: (details: string[]) => void;
-  clothingStyle?: string[];
-  setClothingStyle: (style: string[]) => void;
+  clothingStyle?: string;
+  setClothingStyle: (style: string) => void;
 };
 
 const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({

@@ -27,7 +27,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [breed, setBreed] = useState(pet?.breed || '');
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(pet?.physicalDetails || []);
-  const [clothingStyle, setClothingStyle] = useState<string[]>(pet?.clothingStyle || []);
+  const [clothingStyle, setClothingStyle] = useState<string>(pet?.clothingStyle || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
   
