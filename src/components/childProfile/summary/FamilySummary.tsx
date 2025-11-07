@@ -28,6 +28,8 @@ type RelativeSummaryItemProps = {
 };
 
 const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) => {
+  console.log('🧩 RelativeSummaryItem relative data:', relative);
+  
   // Obtenir l'emoji du type de relation
   const getRelativeTypeIcon = (type: RelativeType) => {
     const icons: Record<RelativeType, string> = {
@@ -80,15 +82,28 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
 
   const avatarBgColor = getAvatarColor(relative.type);
 
+  // Normaliser les valeurs pour éviter d'afficher des objets directement
+  const normalizeValue = (value: any): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object' && value !== null) {
+      return value.custom || value.type || '';
+    }
+    return String(value);
+  };
+
+  const displayType = normalizeValue(relative.type);
+  const displayFirstName = normalizeValue(relative.firstName);
+
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors">
       <Avatar className="h-9 w-9 bg-mcf-amber/20 text-lg flex-shrink-0">
-        <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(relative.type)}</AvatarFallback>
+        <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(displayType as RelativeType)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <div className="font-medium text-sm text-gray-700 truncate">{relative.firstName}</div>
+        <div className="font-medium text-sm text-gray-700 truncate">{displayFirstName}</div>
         <div className="text-xs text-gray-500 flex items-center gap-1">
-          <span>{getRelationshipLabel(relative.type)}</span>
+          <span>{getRelationshipLabel(displayType as RelativeType)}</span>
           {getNickname() && <span className="text-mcf-orange-dark">· {getNickname()}</span>}
         </div>
       </div>
