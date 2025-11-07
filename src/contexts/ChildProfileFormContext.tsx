@@ -444,10 +444,12 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     if (isValidNow) {
       let nextStep = formStep + 1;
       
-      // En mode édition, skip les étapes 2 (famille) et 3 (pets)
+      // En mode édition, skip les étapes 2 (famille), 3 (pets) et 6 (places)
       if (editMode) {
         if (formStep === 1) {
           nextStep = 4; // De Personalité (1) à Toys (4)
+        } else if (formStep === 5) {
+          nextStep = 7; // De Univers (5) à Résumé (7), skip Places (6)
         }
       }
       
@@ -461,10 +463,12 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   const handlePreviousStep = () => {
     let prevStep = formStep - 1;
     
-    // En mode édition, skip les étapes 2 (famille) et 3 (pets)
+    // En mode édition, skip les étapes 2 (famille), 3 (pets) et 6 (places)
     if (editMode) {
       if (formStep === 4) {
         prevStep = 1; // De Toys (4) à Personalité (1)
+      } else if (formStep === 7) {
+        prevStep = 5; // De Résumé (7) à Univers (5), skip Places (6)
       }
     }
     
