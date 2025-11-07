@@ -303,16 +303,20 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             }
           }
 
-          // Parser clothing_style (jsonb)
-          let clothingStyle: string[] = [];
+          // Parser clothing_style (text) - normaliser ancien format array vers string
+          let clothingStyle: string = '';
           if (childProfile.clothing_style) {
             try {
-              clothingStyle = typeof childProfile.clothing_style === 'string' 
-                ? JSON.parse(childProfile.clothing_style)
-                : childProfile.clothing_style;
+              // Si c'est un array (ancien format), prendre le premier élément
+              if (Array.isArray(childProfile.clothing_style)) {
+                clothingStyle = String(childProfile.clothing_style[0] || '');
+              } else if (typeof childProfile.clothing_style === 'string') {
+                // Si c'est déjà une string, l'utiliser directement
+                clothingStyle = childProfile.clothing_style;
+              }
             } catch (e) {
               console.error('Failed to parse clothing_style:', e);
-              clothingStyle = [];
+              clothingStyle = '';
             }
           }
 

@@ -196,9 +196,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               physical_details: data.physicalDetails && data.physicalDetails.length > 0 
                 ? JSON.stringify(data.physicalDetails) 
                 : JSON.stringify([]),
-              clothing_style: data.clothingStyle && data.clothingStyle.length > 0 
-                ? JSON.stringify(data.clothingStyle) 
-                : JSON.stringify([]),
+              clothing_style: data.clothingStyle || '',
               has_pet: data.pets?.hasPets || false
             }
           ])
