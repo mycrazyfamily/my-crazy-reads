@@ -63,11 +63,11 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
   };
 
   const stepLabels = editMode 
-    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Lieux', 'Résumé']
+    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Résumé']
     : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Lieux', 'Résumé'];
   
-  const totalSteps = editMode ? 6 : 8;
-  const adjustedStep = editMode && formStep > 1 ? formStep - 2 : formStep;
+  const totalSteps = editMode ? 5 : 8;
+  const adjustedStep = editMode && formStep > 1 ? formStep - 3 : formStep;
 
   return (
     <>
@@ -128,7 +128,7 @@ const FormSteps: React.FC<FormStepsProps> = ({ isGiftMode = false, nextButtonTex
         />
       )}
 
-      {formStep === 6 && (
+      {formStep === 6 && !editMode && (
         <PlacesForm
           onNext={goNext}
           onPrev={goPrev}
