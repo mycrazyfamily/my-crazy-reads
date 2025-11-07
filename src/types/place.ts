@@ -19,14 +19,6 @@ export interface PlaceDetails {
   piece_jeu?: boolean;
   environnement?: string;
   frequence_utilisation?: string;
-  autre_detail_1?: string;
-  autre_detail_2?: string;
-  autre_detail_3?: string;
-  noAutreDetails?: boolean;
-  jardin_autres_1?: string;
-  jardin_autres_2?: string;
-  jardin_autres_3?: string;
-  noJardinDetails?: boolean;
   habitat_type_autre?: string;
   enfants_chambre_avec_qui?: string;
   luminosite?: 'lumineux' | 'sombre';

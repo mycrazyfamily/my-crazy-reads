@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlaceData, PlaceDetails } from '@/types/place';
-import { DetailsInput } from './DetailsInput';
+
 import {
   placeTypeOptions,
   habitatTypeOptions,
@@ -484,28 +484,6 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
                   </div>
                 </RadioGroup>
               </div>
-
-
-            <DetailsInput
-            value={[
-              details.jardin_autres_1,
-              details.jardin_autres_2,
-              details.jardin_autres_3
-            ].filter(v => v && v.trim() !== '')}
-                onChange={(values) => {
-                  const [v1, v2, v3] = values;
-                  updateManyDetails({
-                    jardin_autres_1: v1 || '',
-                    jardin_autres_2: v2 || '',
-                    jardin_autres_3: v3 || '',
-                  });
-                }}
-                label="🎠 Autres éléments présents dans le jardin ? *"
-                placeholder="Ex: Trampoline, bac à sable..."
-                onNoDetailsChange={(hasNoDetails) => updateDetails('noJardinDetails', !!hasNoDetails)}
-                noDetailsValue={details.noJardinDetails ?? false}
-                noDetailsLabel="Aucun élément particulier"
-              />
             </div>
           )}
 
@@ -534,28 +512,6 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               </SelectContent>
             </Select>
           </div>
-
-
-            <DetailsInput
-            value={[
-              details.autre_detail_1,
-              details.autre_detail_2,
-              details.autre_detail_3
-            ].filter(v => v && v.trim() !== '')}
-            onChange={(values) => {
-              const [v1, v2, v3] = values;
-              updateManyDetails({
-                autre_detail_1: v1 || '',
-                autre_detail_2: v2 || '',
-                autre_detail_3: v3 || '',
-              });
-            }}
-            label="✏️ Y a-t-il des éléments ou détails marquants dans le logement ? *"
-            placeholder="Ex: Grande cheminée en pierre..."
-            onNoDetailsChange={(hasNoDetails) => updateDetails('noAutreDetails', !!hasNoDetails)}
-            noDetailsValue={details.noAutreDetails ?? false}
-            noDetailsLabel="Aucun élément particulier"
-          />
         </div>
       )}
     </div>

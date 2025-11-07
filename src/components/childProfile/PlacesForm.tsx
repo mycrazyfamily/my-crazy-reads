@@ -88,19 +88,9 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
         if (details.jardin_piscine === undefined) errors.push("Piscine dans le jardin (oui/non)");
         if (details.jardin_ping_pong === undefined) errors.push("Table de ping-pong dans le jardin (oui/non)");
         if (details.jardin_cabane === undefined) errors.push("Cabane/annexe dans le jardin (oui/non)");
-        // Vérifier les détails du jardin
-        const hasJardinDetails = [details.jardin_autres_1, details.jardin_autres_2, details.jardin_autres_3].some(d => d && d.trim() !== '');
-        if (!hasJardinDetails && !details.noJardinDetails) {
-          errors.push("Autres éléments du jardin (ou cochez 'Aucun élément particulier')");
-        }
       }
       if (!details.environnement || !details.environnement.trim()) errors.push("Environnement autour du logement");
       if (!details.frequence_utilisation) errors.push("Fréquence d'utilisation du lieu");
-      // Vérifier les détails marquants du logement
-      const hasAutreDetails = [details.autre_detail_1, details.autre_detail_2, details.autre_detail_3].some(d => d && d.trim() !== '');
-      if (!hasAutreDetails && !details.noAutreDetails) {
-        errors.push("Éléments marquants du logement (ou cochez 'Aucun élément particulier')");
-      }
     }
 
     if (errors.length > 0) {
