@@ -28,26 +28,22 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
   const [placeDetails, setPlaceDetails] = useState<string[]>(['']);
   const [noPlaceDetails, setNoPlaceDetails] = useState(false);
 
-  // Initialize local states from place.details on mount or when place changes
+  // Initialize local states from place.details ONLY on place.id change (edit mode)
+  // Do NOT call onChange here to prevent setState during render warning
   useEffect(() => {
     const d = place.details || {};
     
+    // Only sync local state, don't propagate to parent
+    setDetails(d);
+    
     // Initialize garden details
     const gDetails = [d.jardin_autres_1, d.jardin_autres_2, d.jardin_autres_3].filter(v => v && v.trim() !== '');
-    if (gDetails.length > 0) {
-      setGardenDetails(gDetails);
-    } else {
-      setGardenDetails(['']);
-    }
+    setGardenDetails(gDetails.length > 0 ? gDetails : ['']);
     setNoGardenDetails(d.noJardinDetails || false);
     
     // Initialize place details
     const pDetails = [d.autre_detail_1, d.autre_detail_2, d.autre_detail_3].filter(v => v && v.trim() !== '');
-    if (pDetails.length > 0) {
-      setPlaceDetails(pDetails);
-    } else {
-      setPlaceDetails(['']);
-    }
+    setPlaceDetails(pDetails.length > 0 ? pDetails : ['']);
     setNoPlaceDetails(d.noAutreDetails || false);
   }, [place.id]);
 
