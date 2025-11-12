@@ -487,16 +487,24 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         // 14. Créer les liens child_pets pour les nouveaux animaux créés
         if (createdPetIds.length > 0 && data.pets?.pets) {
-          const newPetLinks = createdPetIds.map((petId, index) => ({
-            child_id: childId,
-            pet_id: petId,
-            name: data.pets!.pets[index].name,
-            traits: data.pets!.pets[index].traits?.join(', ') || null,
-            traits_custom: data.pets!.pets[index].customTraits || null,
-            relation_label: data.pets!.pets[index].type || data.pets!.pets[index].otherType || null,
-            birth_month_year: data.pets!.pets[index].birthMonthYear || null,
-            race: data.pets!.pets[index].breed || null
-          }));
+          const newPetLinks = createdPetIds.map((petId, index) => {
+            const pet = data.pets!.pets[index];
+            // Si le type est "other", utiliser le type personnalisé (otherType), sinon utiliser le type standard
+            const relationLabel = pet.type === 'other' && pet.otherType 
+              ? pet.otherType 
+              : pet.type || null;
+            
+            return {
+              child_id: childId,
+              pet_id: petId,
+              name: pet.name,
+              traits: pet.traits?.join(', ') || null,
+              traits_custom: pet.customTraits || null,
+              relation_label: relationLabel,
+              birth_month_year: pet.birthMonthYear || null,
+              race: pet.breed || null
+            };
+          });
 
           const { error: newPetLinkError } = await supabase
             .from('child_pets')
@@ -533,18 +541,25 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           
           Object.entries(data.pets.petChildLinks).forEach(([petId, childIds]) => {
             const pet = data.pets!.pets.find(p => p.id === petId);
-            childIds.forEach(existingChildId => {
-              links.push({
-                child_id: existingChildId,
-                pet_id: createdPetIds[data.pets!.pets.indexOf(pet!)] || petId,
-                name: pet?.name || '',
-                traits: pet?.traits?.join(', ') || null,
-                traits_custom: pet?.customTraits || null,
-                relation_label: pet?.type || pet?.otherType || null,
-                birth_month_year: pet?.birthMonthYear || null,
-                race: pet?.breed || null
+            if (pet) {
+              // Si le type est "other", utiliser le type personnalisé (otherType), sinon utiliser le type standard
+              const relationLabel = pet.type === 'other' && pet.otherType 
+                ? pet.otherType 
+                : pet.type || null;
+              
+              childIds.forEach(existingChildId => {
+                links.push({
+                  child_id: existingChildId,
+                  pet_id: createdPetIds[data.pets!.pets.indexOf(pet)] || petId,
+                  name: pet.name || '',
+                  traits: pet.traits?.join(', ') || null,
+                  traits_custom: pet.customTraits || null,
+                  relation_label: relationLabel,
+                  birth_month_year: pet.birthMonthYear || null,
+                  race: pet.breed || null
+                });
               });
-            });
+            }
           });
 
           if (links.length > 0) {
