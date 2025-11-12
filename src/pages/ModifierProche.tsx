@@ -70,7 +70,9 @@ const ModifierProche: React.FC = () => {
               role,
               avatar,
               family_id,
-              details
+              details,
+              physical_details,
+              clothing_style
             )
         `)
         .eq('child_id', childId)
@@ -84,7 +86,7 @@ const ModifierProche: React.FC = () => {
       if (!relative) {
         const { data: relativeDirect, error: relErr } = await supabase
           .from('family_members')
-          .select('id, name, role, avatar, family_id, details')
+          .select('id, name, role, avatar, family_id, details, physical_details, clothing_style')
           .eq('id', relativeId)
           .maybeSingle();
         if (relErr) throw relErr;
@@ -148,11 +150,24 @@ const ModifierProche: React.FC = () => {
         setTraits(details.traits || []);
         setCustomTraits(details.customTraits || {});
 
-        // Charger les physical_details
-        setPhysicalDetails(details.physicalDetails || []);
+        // Charger les physical_details depuis la colonne dédiée (avec fallback sur details)
+        let physicalDetailsData: string[] = [];
+        if (relative.physical_details) {
+          try {
+            physicalDetailsData = typeof relative.physical_details === 'string' 
+              ? JSON.parse(relative.physical_details) 
+              : relative.physical_details;
+          } catch {
+            physicalDetailsData = [];
+          }
+        } else if (details.physicalDetails) {
+          physicalDetailsData = details.physicalDetails;
+        }
+        setPhysicalDetails(physicalDetailsData);
 
-        // Charger le clothing_style
-        setClothingStyle(details.clothingStyle || '');
+        // Charger le clothing_style depuis la colonne dédiée (avec fallback sur details)
+        const clothingStyleData = relative.clothing_style || details.clothingStyle || '';
+        setClothingStyle(clothingStyleData);
 
         setChildData({ loaded: true });
 
@@ -282,14 +297,14 @@ const ModifierProche: React.FC = () => {
         birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
         job: job || null,
         gender,
-        otherTypeName: otherTypeName || null,
-        physicalDetails: physicalDetails.length > 0 ? physicalDetails : [],
-        clothingStyle: clothingStyle.length > 0 ? clothingStyle : []
+        otherTypeName: otherTypeName || null
       };
 
       const updatePayload: any = {
         name: firstName,
         role: type,
+        physical_details: physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([]),
+        clothing_style: clothingStyle || '',
         details: detailsPayload
       };
 

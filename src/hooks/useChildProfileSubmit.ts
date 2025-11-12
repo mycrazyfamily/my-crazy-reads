@@ -135,7 +135,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: relative.firstName,
             role: relative.type,
             avatar: '👤',
-            // Persist full relative profile for edit prefill
+            physical_details: relative.physicalDetails && relative.physicalDetails.length > 0 
+              ? JSON.stringify(relative.physicalDetails) 
+              : JSON.stringify([]),
+            clothing_style: relative.clothingStyle || '',
+            // Persist remaining profile data for edit prefill
             details: {
               nickname: relative.nickname,
               skinColor: relative.skinColor,
@@ -149,9 +153,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               birthDate: relative.birthDate ? relative.birthDate.toISOString().split('T')[0] : null,
               job: relative.job,
               gender: relative.gender,
-              otherTypeName: relative.otherTypeName,
-              physicalDetails: relative.physicalDetails || [],
-              clothingStyle: relative.clothingStyle || ''
+              otherTypeName: relative.otherTypeName
             }
           }));
 

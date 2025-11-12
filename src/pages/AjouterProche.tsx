@@ -165,7 +165,11 @@ export default function AjouterProche() {
           name: relativeData.firstName,
           role: relativeData.type,
           avatar: null,
-          // Persist full relative profile for edit prefill
+          physical_details: relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
+            ? JSON.stringify(relativeData.physicalDetails) 
+            : JSON.stringify([]),
+          clothing_style: relativeData.clothingStyle || '',
+          // Persist remaining relative profile for edit prefill
           details: {
             nickname: relativeData.nickname, // Already an object with type/custom
             skinColor: relativeData.skinColor, // Already an object with type/custom
@@ -179,9 +183,7 @@ export default function AjouterProche() {
             birthDate: relativeData.birthDate ? relativeData.birthDate.toISOString().split('T')[0] : null,
             job: relativeData.job,
             gender: relativeData.gender,
-            otherTypeName: relativeData.otherTypeName,
-            physicalDetails: relativeData.physicalDetails || [],
-            clothingStyle: relativeData.clothingStyle || []
+            otherTypeName: relativeData.otherTypeName
           }
         } as any)
         .select()
