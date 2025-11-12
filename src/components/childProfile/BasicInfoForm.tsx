@@ -60,47 +60,23 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     return () => window.clearTimeout(id);
   }, []);
   
-  // Marquer que le composant a été monté après le premier rendu
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialMount(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-  
   // Synchroniser noPhysicalDetails avec physicalDetails du formulaire
   useEffect(() => {
     const physicalDetails = form.watch('physicalDetails');
     const formNoDetails = form.watch('noPhysicalDetails');
     
-    console.log('🔍 Syncing noPhysicalDetails:', { physicalDetails, formNoDetails, isInitialMount });
+    console.info('🔍 Syncing noPhysicalDetails:', { physicalDetails, formNoDetails });
     
-    // Si on a des détails physiques réels (non vides), alors décocher la case
-    if (Array.isArray(physicalDetails) && physicalDetails.length > 0) {
-      const hasRealDetails = physicalDetails.some(d => d && d.trim() !== '');
-      if (hasRealDetails) {
-        console.log('✅ Has real physical details - unchecking noPhysicalDetails');
-        setNoPhysicalDetails(false);
-        if (formNoDetails === true) {
-          form.setValue('noPhysicalDetails', false, { shouldValidate: false });
-        }
-      } else if (!isInitialMount) {
-        // Pas de détails réels ([""] ou []) - ne cocher automatiquement qu'après le montage initial
-        console.log('✅ No real physical details - checking noPhysicalDetails');
-        setNoPhysicalDetails(true);
-        if (formNoDetails !== true) {
-          form.setValue('noPhysicalDetails', true, { shouldValidate: false });
-        }
+    // Si on a des détails physiques réels (non vides), forcer le décochage
+    const hasRealDetails = Array.isArray(physicalDetails) && physicalDetails.some(d => d && d.trim() !== '');
+    if (hasRealDetails) {
+      if (formNoDetails === true) {
+        form.setValue('noPhysicalDetails', false, { shouldValidate: false });
       }
-    } else if (!isInitialMount) {
-      // Pas de tableau ou tableau vide - ne cocher automatiquement qu'après le montage initial
-      console.log('✅ Empty physicalDetails - checking noPhysicalDetails');
-      setNoPhysicalDetails(true);
-      if (formNoDetails !== true) {
-        form.setValue('noPhysicalDetails', true, { shouldValidate: false });
-      }
+      setNoPhysicalDetails(false);
     }
-  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails'), isInitialMount]);
+    // Important: si vide, ne pas cocher automatiquement; on laisse le choix utilisateur
+  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails')]);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");

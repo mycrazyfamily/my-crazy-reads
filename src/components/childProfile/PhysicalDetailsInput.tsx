@@ -49,6 +49,11 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
   };
 
   const handleNoDetailsChange = (checked: boolean) => {
+    console.info('👆 noPhysicalDetails toggled', {
+      checked,
+      previous: noDetails,
+      currentDetails: details,
+    });
     setNoDetails(checked);
     if (onNoDetailsChange) {
       onNoDetailsChange(checked);
