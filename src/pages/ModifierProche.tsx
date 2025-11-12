@@ -50,6 +50,7 @@ const ModifierProche: React.FC = () => {
   const [traits, setTraits] = useState<string[]>([]);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>({});
   const [physicalDetails, setPhysicalDetails] = useState<string[]>([]);
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
   const [clothingStyle, setClothingStyle] = useState<string>('');
 
   useEffect(() => {
@@ -164,6 +165,9 @@ const ModifierProche: React.FC = () => {
           physicalDetailsData = details.physicalDetails;
         }
         setPhysicalDetails(physicalDetailsData);
+        
+        // Charger le flag noPhysicalDetails depuis details
+        setNoPhysicalDetails(details.noPhysicalDetails === true);
 
         // Charger le clothing_style depuis la colonne dédiée (avec fallback sur details)
         const clothingStyleData = relative.clothing_style || details.clothingStyle || '';
@@ -271,6 +275,12 @@ const ModifierProche: React.FC = () => {
       }
     }
 
+    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+    const hasPhysicalDetails = physicalDetails.length > 0 && physicalDetails.some(d => d.trim() !== '');
+    if (!hasPhysicalDetails && !noPhysicalDetails) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+    }
+
     // Validation de la sélection des enfants
     if (selectedChildrenIds.length === 0) {
       errors.push("au moins un enfant associé à ce proche");
@@ -297,7 +307,8 @@ const ModifierProche: React.FC = () => {
         birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : null,
         job: job || null,
         gender,
-        otherTypeName: otherTypeName || null
+        otherTypeName: otherTypeName || null,
+        noPhysicalDetails: noPhysicalDetails
       };
 
       const updatePayload: any = {
@@ -428,6 +439,8 @@ const ModifierProche: React.FC = () => {
             setPhysicalDetails={setPhysicalDetails}
             clothingStyle={clothingStyle}
             setClothingStyle={setClothingStyle}
+            noPhysicalDetails={noPhysicalDetails}
+            setNoPhysicalDetails={setNoPhysicalDetails}
           />
 
           <RelativeTraitsSection

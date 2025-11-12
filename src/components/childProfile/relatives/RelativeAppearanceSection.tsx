@@ -27,6 +27,8 @@ type RelativeAppearanceSectionProps = {
   setPhysicalDetails: (details: string[]) => void;
   clothingStyle?: string;
   setClothingStyle: (style: string) => void;
+  noPhysicalDetails?: boolean;
+  setNoPhysicalDetails?: (value: boolean) => void;
 };
 
 const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
@@ -48,7 +50,9 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
   physicalDetails,
   setPhysicalDetails,
   clothingStyle,
-  setClothingStyle
+  setClothingStyle,
+  noPhysicalDetails,
+  setNoPhysicalDetails
 }) => {
   // Function to get gender-specific text
   const getGenderedText = (maleText: string, femaleText: string, neutralText: string) => {
@@ -224,6 +228,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       <PhysicalDetailsInput
         value={physicalDetails}
         onChange={setPhysicalDetails}
+        noDetailsValue={noPhysicalDetails}
+        onNoDetailsChange={setNoPhysicalDetails}
       />
 
       {/* Style vestimentaire */}

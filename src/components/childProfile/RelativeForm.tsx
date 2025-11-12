@@ -49,6 +49,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     relative.customTraits || {}
   );
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(relative.physicalDetails || []);
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
   const [clothingStyle, setClothingStyle] = useState<string>(relative.clothingStyle || '');
 
   // Pour la sélection d'enfants existants
@@ -185,6 +186,12 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         errors.push(`le trait personnalisé "${traitKey}"`);
       }
     }
+
+    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+    const hasPhysicalDetails = physicalDetails.length > 0 && physicalDetails.some(d => d.trim() !== '');
+    if (!hasPhysicalDetails && !noPhysicalDetails) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+    }
     
     // Pendant la création d'un nouvel enfant, l'association aux enfants existants est facultative.
     // La validation d'association est gérée par les pages dédiées (Ajouter/Modifier Proche).
@@ -211,7 +218,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
       },
       customTraits: customTraits,
-      physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined,
+      physicalDetails: physicalDetails.length > 0 && !noPhysicalDetails ? physicalDetails : undefined,
+      noPhysicalDetails: noPhysicalDetails,
       clothingStyle: clothingStyle ? clothingStyle : undefined
     };
     
@@ -290,6 +298,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setPhysicalDetails={setPhysicalDetails}
           clothingStyle={clothingStyle}
           setClothingStyle={setClothingStyle}
+          noPhysicalDetails={noPhysicalDetails}
+          setNoPhysicalDetails={setNoPhysicalDetails}
         />
         
         <RelativeTraitsSection 

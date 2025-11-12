@@ -135,6 +135,13 @@ export default function AjouterProche() {
       }
     }
 
+    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+    const hasPhysicalDetails = relativeData.physicalDetails && relativeData.physicalDetails.length > 0 && relativeData.physicalDetails.some(d => d.trim() !== '');
+    const hasNoDetailsFlag = relativeData.noPhysicalDetails === true;
+    if (!hasPhysicalDetails && !hasNoDetailsFlag) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+    }
+
     if (selectedChildIds.length === 0) {
       errors.push("au moins un enfant sélectionné");
     }
@@ -183,7 +190,8 @@ export default function AjouterProche() {
             birthDate: relativeData.birthDate ? relativeData.birthDate.toISOString().split('T')[0] : null,
             job: relativeData.job,
             gender: relativeData.gender,
-            otherTypeName: relativeData.otherTypeName
+            otherTypeName: relativeData.otherTypeName,
+            noPhysicalDetails: relativeData.noPhysicalDetails
           }
         } as any)
         .select()

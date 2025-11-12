@@ -46,6 +46,14 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
     const newDetails = [...details];
     newDetails[index] = newValue;
     onChange(newDetails);
+    
+    // Décocher automatiquement "aucun détail" quand on commence à remplir un détail
+    if (newValue.trim() !== '' && noDetails) {
+      setNoDetails(false);
+      if (onNoDetailsChange) {
+        onNoDetailsChange(false);
+      }
+    }
   };
 
   const handleNoDetailsChange = (checked: boolean) => {
