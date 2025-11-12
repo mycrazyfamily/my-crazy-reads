@@ -74,8 +74,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         form.setValue('noPhysicalDetails', false, { shouldValidate: false });
       }
       setNoPhysicalDetails(false);
+    } else if (formNoDetails === true) {
+      // Si le formulaire indique "noPhysicalDetails" = true, synchroniser l'état local
+      setNoPhysicalDetails(true);
     }
-    // Important: si vide, ne pas cocher automatiquement; on laisse le choix utilisateur
   }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails')]);
   
   useEffect(() => {
