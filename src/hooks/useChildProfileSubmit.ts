@@ -47,6 +47,15 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     });
   };
 
+  // Helper pour normaliser une date (string ou Date) en format ISO date (YYYY-MM-DD)
+  const normalizeDateToISO = (date: string | Date | undefined | null): string | null => {
+    if (!date) return null;
+    if (typeof date === 'string') {
+      return date.split('T')[0];
+    }
+    return date.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (data: ChildProfileFormData) => {
     // Empêcher les soumissions multiples
     if (isSubmitting) {
@@ -156,7 +165,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               traits: relative.traits,
               customTraits: relative.customTraits || {},
               age: relative.age,
-              birthDate: relative.birthDate ? relative.birthDate.toISOString().split('T')[0] : null,
+              birthDate: normalizeDateToISO(relative.birthDate),
               job: relative.job,
               gender: relative.gender,
               otherTypeName: relative.otherTypeName
@@ -193,7 +202,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               first_name: data.firstName,
               nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
                        data.nickname?.type !== 'none' ? data.nickname?.type : null,
-              birth_date: data.birthDate ? data.birthDate.toISOString().split('T')[0] : null,
+              birth_date: normalizeDateToISO(data.birthDate),
               gender: data.gender,
               height: data.height,
               height_relative_to_age: data.height, // Enregistrer aussi dans le champ height_relative_to_age
