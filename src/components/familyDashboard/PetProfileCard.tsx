@@ -77,10 +77,10 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
       </CardHeader>
       
       <CardContent className="p-4">
-        {pet.physicalDetails && (
+        {pet.breed && (
           <div className="text-sm text-gray-600 mb-3">
             <span className="font-medium">Apparence : </span>
-            <span>{pet.physicalDetails}</span>
+            <span>{pet.breed}</span>
           </div>
         )}
         
