@@ -56,32 +56,6 @@ const ModifierAnimal: React.FC = () => {
         const predefinedTypes = ['dog', 'cat', 'rabbit', 'bird', 'fish', 'reptile', 'other'];
         const isCustomType = storedType && !predefinedTypes.includes(storedType);
         
-        // Parser physical_details (jsonb)
-        let physicalDetails: string[] = [];
-        if ((data.pets as any).physical_details) {
-          try {
-            const raw = (data.pets as any).physical_details;
-            physicalDetails = typeof raw === 'string' ? JSON.parse(raw) : raw;
-          } catch (e) {
-            console.error('Failed to parse physical_details:', e);
-            physicalDetails = [];
-          }
-        }
-        
-        // Parser clothing_style (jsonb)
-        let clothingStyle: string = '';
-        if ((data.pets as any).clothing_style) {
-          try {
-            const raw = (data.pets as any).clothing_style;
-            const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-            // Si c'est un array avec un élément, prendre le premier élément
-            clothingStyle = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : (typeof parsed === 'string' ? parsed : '');
-          } catch (e) {
-            console.error('Failed to parse clothing_style:', e);
-            clothingStyle = '';
-          }
-        }
-        
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
@@ -89,8 +63,6 @@ const ModifierAnimal: React.FC = () => {
           otherType: isCustomType ? storedType : undefined,
           birthMonthYear: data.birth_month_year || undefined,
           breed: data.race || (data.pets as any).breed || undefined,
-          physicalDetails,
-          clothingStyle,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
           customTraits: (data as any).traits_custom || undefined
         };
@@ -148,11 +120,7 @@ const ModifierAnimal: React.FC = () => {
         .update({
           name: updatedPet.name,
           type: finalType,
-          breed: updatedPet.breed || null,
-          physical_details: updatedPet.physicalDetails && updatedPet.physicalDetails.length > 0
-            ? JSON.stringify(updatedPet.physicalDetails)
-            : JSON.stringify([]),
-          clothing_style: updatedPet.clothingStyle || null
+          breed: updatedPet.breed || null
         })
         .eq('id', petId);
 
@@ -266,10 +234,13 @@ const ModifierAnimal: React.FC = () => {
     }
 
     // Vérifier que les traits personnalisés sont remplis
-    const hasEmptyCustomTrait = currentPetData.traits?.some(trait => 
-      (trait === 'other' || trait === 'other2') && 
-      (!currentPetData.customTraits?.[trait] || !currentPetData.customTraits[trait].trim())
-    );
+    const hasEmptyCustomTrait = currentPetData.traits?.some(trait => {
+      if (trait === 'other' || trait === 'other2') {
+        const value = currentPetData.customTraits?.[trait];
+        return !value || (typeof value === 'string' && !value.trim());
+      }
+      return false;
+    });
 
     if (hasEmptyCustomTrait) {
       errors.push("tous les traits personnalisés");

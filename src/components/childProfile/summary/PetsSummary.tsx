@@ -62,8 +62,14 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
       gentle: { label: 'Doux', icon: '💕' },
       noisy: { label: 'Bruyant', icon: '📢' },
       talkative: { label: 'Bavard', icon: '💬' },
-      other: { label: pet.customTraits?.other || 'Autre', icon: '✨' },
-      other2: { label: pet.customTraits?.other2 || 'Autre', icon: '✨' }
+      other: { 
+        label: typeof pet.customTraits?.other === 'string' ? pet.customTraits.other : 'Autre', 
+        icon: '✨' 
+      },
+      other2: { 
+        label: typeof pet.customTraits?.other2 === 'string' ? pet.customTraits.other2 : 'Autre', 
+        icon: '✨' 
+      }
     };
     return traitData[trait] || { label: trait, icon: '❓' };
   };

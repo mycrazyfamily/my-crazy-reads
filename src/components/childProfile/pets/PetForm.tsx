@@ -9,8 +9,7 @@ import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 import { Dog, Cat, Rabbit, Bird, Fish } from 'lucide-react';
 import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
-import PhysicalDetailsInput from '../PhysicalDetailsInput';
-import ClothingStyleInput from '../ClothingStyleInput';
+import PetPhysicalDetailsInput from './PetPhysicalDetailsInput';
 
 type PetFormProps = {
   pet?: PetData;
@@ -27,10 +26,18 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [birthMonthYear, setBirthMonthYear] = useState(pet?.birthMonthYear || '');
   const [breed, setBreed] = useState(pet?.breed || '');
-  const [physicalDetails, setPhysicalDetails] = useState<string[]>(pet?.physicalDetails || []);
-  const [clothingStyle, setClothingStyle] = useState<string>(pet?.clothingStyle || '');
+  const [petPhysicalDetails, setPetPhysicalDetails] = useState<string[]>(() => {
+    const details = pet?.customTraits?.physicalDetails;
+    if (Array.isArray(details)) return details;
+    return [];
+  });
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
-  const [customTraits, setCustomTraits] = useState<Record<string, string>>(pet?.customTraits || {});
+  const [customTraits, setCustomTraits] = useState<Record<string, string | string[]>>(() => {
+    if (!pet?.customTraits) return {};
+    // Filtrer physicalDetails qui sera géré séparément
+    const { physicalDetails, ...rest } = pet.customTraits;
+    return rest;
+  });
   
   const MAX_TRAITS = 2;
   const hasReachedMaxTraits = selectedTraits.length >= MAX_TRAITS;
@@ -123,6 +130,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   };
 
   const getPetData = (): PetData => {
+    // Fusionner les traits custom avec les détails physiques
+    const mergedCustomTraits = {
+      ...customTraits,
+      ...(petPhysicalDetails.length > 0 ? { physicalDetails: petPhysicalDetails } : {})
+    };
+
     return {
       id: pet?.id || Date.now().toString(),
       name: name.trim(),
@@ -130,10 +143,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       otherType: type === 'other' ? otherType.trim() : undefined,
       birthMonthYear: birthMonthYear || undefined,
       breed: breed.trim() || undefined,
-      physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined,
-      clothingStyle: clothingStyle.length > 0 ? clothingStyle : undefined,
       traits: selectedTraits,
-      customTraits: Object.keys(customTraits).length > 0 ? customTraits : undefined,
+      customTraits: Object.keys(mergedCustomTraits).length > 0 ? mergedCustomTraits : undefined,
     };
   };
 
@@ -165,9 +176,13 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     }
 
     // Vérifier que les traits personnalisés sont remplis
-    const hasEmptyCustomTrait = selectedTraits.some(trait => 
-      (trait === 'other' || trait === 'other2') && (!customTraits[trait] || !customTraits[trait].trim())
-    );
+    const hasEmptyCustomTrait = selectedTraits.some(trait => {
+      if (trait === 'other' || trait === 'other2') {
+        const value = customTraits[trait];
+        return !value || (typeof value === 'string' && !value.trim());
+      }
+      return false;
+    });
 
     if (hasEmptyCustomTrait) {
       errors.push("tous les traits personnalisés");
@@ -193,7 +208,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, otherType, birthMonthYear, breed, physicalDetails, clothingStyle, selectedTraits, customTraits]);
+  }, [name, type, otherType, birthMonthYear, breed, petPhysicalDetails, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -282,11 +297,9 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       </div>
 
       {/* Détails physiques de l'animal */}
-      <PhysicalDetailsInput
-        value={physicalDetails}
-        onChange={setPhysicalDetails}
-        label="🧬 Des détails physiques marquants ?"
-        placeholder="Ex : un grain de beauté sur la patte droite, une tache noire sur l'œil gauche, des poils blancs sur le museau..."
+      <PetPhysicalDetailsInput
+        value={petPhysicalDetails}
+        onChange={setPetPhysicalDetails}
       />
 
       {/* Traits de caractère */}
