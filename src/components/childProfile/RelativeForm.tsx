@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type RelativeFormProps = {
-  relative: RelativeData;
+  relative: RelativeData & { linkedChildrenIds?: string[] };
   onSave: (relative: RelativeData, selectedChildrenIds?: string[]) => void;
   onCancel: () => void;
   isCreatingNewChild?: boolean;
@@ -54,7 +54,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
 
   // Pour la sélection d'enfants existants
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
-  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>(relative.linkedChildrenIds || []);
 
   // Charger les enfants existants
   useEffect(() => {
@@ -99,6 +99,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setHairTypeUI(relative.hairType);
       setGlassesUI(relative.glasses);
       setCustomTraits(relative.customTraits || {});
+      // Réinitialiser les enfants liés lors de l'édition
+      setSelectedChildrenIds(relative.linkedChildrenIds || []);
     } else {
       setTypeUI('');
       setSelectedNickname('');
@@ -107,8 +109,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setHairTypeUI('');
       setGlassesUI(null);
       setCustomTraits({});
+      setSelectedChildrenIds([]);
     }
-  }, [relative.id]);
+  }, [relative.id, relative.linkedChildrenIds]);
   
   const updateFormData = <K extends keyof RelativeData>(field: K, value: RelativeData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));

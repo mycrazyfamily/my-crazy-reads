@@ -210,7 +210,9 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     // Ensure the relative has a gender property
     const relativeWithGender = {
       ...relative,
-      gender: relative.gender || getRelativeGender(relative.type)
+      gender: relative.gender || getRelativeGender(relative.type),
+      // Préserver les enfants liés existants
+      linkedChildrenIds: form.getValues().family?.relativeChildLinks?.[relative.id || ''] || []
     };
     setCurrentRelative(relativeWithGender);
     setIsEditingRelative(true);
