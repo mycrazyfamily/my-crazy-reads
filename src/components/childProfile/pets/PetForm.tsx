@@ -19,9 +19,10 @@ type PetFormProps = {
   isCreatingNewChild?: boolean;
   showButtons?: boolean;
   onDataChange?: (pet: PetData) => void;
+  linkedChildrenIds?: string[]; // IDs des enfants déjà liés à cet animal
 };
 
-const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange }) => {
+const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange, linkedChildrenIds }) => {
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
@@ -50,7 +51,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
   // Pour la sélection d'enfants existants
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
-  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>(pet?.linkedChildrenIds || linkedChildrenIds || []);
 
   // Charger les enfants existants
   useEffect(() => {
@@ -79,6 +80,13 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
     loadExistingChildren();
   }, [isCreatingNewChild]);
+
+  // Synchroniser selectedChildrenIds avec les linkedChildrenIds de pet
+  useEffect(() => {
+    if (pet?.linkedChildrenIds) {
+      setSelectedChildrenIds(pet.linkedChildrenIds);
+    }
+  }, [pet?.linkedChildrenIds]);
 
   const handleToggleChild = (childId: string) => {
     setSelectedChildrenIds(prev => {

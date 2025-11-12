@@ -151,14 +151,26 @@ const PetsForm: React.FC<PetsFormProps> = ({
     loadExistingPets();
   }, []);
 
+  // Restaurer les sélections d'animaux existants depuis le formulaire
+  useEffect(() => {
+    const savedIds = form.getValues().pets?.existingPetsData?.map((pet: any) => pet.id) || [];
+    if (savedIds.length > 0) {
+      setSelectedExistingPetIds(savedIds);
+    }
+  }, [form]);
+
   // Gérer la sélection/désélection des animaux existants
   const handleToggleExistingPet = (petId: string) => {
     setSelectedExistingPetIds(prev => {
-      if (prev.includes(petId)) {
-        return prev.filter(id => id !== petId);
-      } else {
-        return [...prev, petId];
-      }
+      const newIds = prev.includes(petId)
+        ? prev.filter(id => id !== petId)
+        : [...prev, petId];
+      
+      // Sauvegarder immédiatement dans le formulaire
+      const selectedPetsData = existingPets.filter(p => newIds.includes(p.id));
+      form.setValue("pets.existingPetsData", selectedPetsData as any, { shouldDirty: true });
+      
+      return newIds;
     });
   };
 
@@ -166,9 +178,11 @@ const PetsForm: React.FC<PetsFormProps> = ({
     const hasPetsValue = value === "true";
     form.setValue("pets.hasPets", hasPetsValue, { shouldDirty: true });
     
-    // Si "Non" est sélectionné, réinitialiser la liste des animaux
+    // Si "Non" est sélectionné, réinitialiser la liste des animaux et les sélections
     if (!hasPetsValue) {
       form.setValue("pets.pets", [], { shouldDirty: true });
+      setSelectedExistingPetIds([]);
+      form.setValue("pets.existingPetsData", [], { shouldDirty: true });
     }
   };
 
@@ -178,7 +192,17 @@ const PetsForm: React.FC<PetsFormProps> = ({
   };
 
   const handleEditPet = (pet: PetData) => {
-    setCurrentPet(pet);
+    // Récupérer les liens d'enfants depuis le formulaire
+    const petChildLinks = form.getValues().pets?.petChildLinks || {};
+    const linkedChildrenIds = petChildLinks[pet.id || ''] || [];
+    
+    // Passer les liens au formulaire d'édition
+    const petWithLinks = {
+      ...pet,
+      linkedChildrenIds
+    };
+    
+    setCurrentPet(petWithLinks);
     setIsAddingPet(true);
   };
 
@@ -259,7 +283,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
             </Label>
             
             <RadioGroup 
-              defaultValue={hasPets ? "true" : "false"}
+              value={hasPets === true ? "true" : hasPets === false ? "false" : undefined}
               onValueChange={handleHasPetsChange}
               className="flex gap-6"
             >

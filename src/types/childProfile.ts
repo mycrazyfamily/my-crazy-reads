@@ -86,6 +86,7 @@ export type PetData = {
   traits: PetTrait[];
   customTraits?: Record<string, string | string[] | boolean>; // Allows string, string[], and boolean values
   clothingStyle?: string;
+  linkedChildrenIds?: string[]; // IDs des enfants liés à cet animal
 };
 
 export type PetsData = {

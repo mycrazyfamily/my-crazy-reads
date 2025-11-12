@@ -193,14 +193,30 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
     loadExistingPlaces();
   }, []);
 
+  // Restaurer les sélections de lieux existants depuis le formulaire
+  useEffect(() => {
+    const savedIds = placesData?.existingPlacesData?.map((place: any) => place.id) || [];
+    if (savedIds.length > 0) {
+      setSelectedExistingPlaceIds(savedIds);
+    }
+  }, [placesData?.existingPlacesData]);
+
   // Gérer la sélection/désélection des lieux existants
   const handleToggleExistingPlace = (placeId: string) => {
     setSelectedExistingPlaceIds(prev => {
-      if (prev.includes(placeId)) {
-        return prev.filter(id => id !== placeId);
-      } else {
-        return [...prev, placeId];
-      }
+      const newIds = prev.includes(placeId)
+        ? prev.filter(id => id !== placeId)
+        : [...prev, placeId];
+      
+      // Sauvegarder immédiatement dans le formulaire
+      const selectedPlacesData = existingPlaces.filter(p => newIds.includes(p.id));
+      form.setValue('places', {
+        places: places,
+        existingPlacesData: selectedPlacesData,
+        placeChildLinks: placesData?.placeChildLinks || {}
+      }, { shouldDirty: true });
+      
+      return newIds;
     });
   };
 
