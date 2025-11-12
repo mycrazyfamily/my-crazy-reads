@@ -166,8 +166,9 @@ const ModifierProche: React.FC = () => {
         }
         setPhysicalDetails(physicalDetailsData);
         
-        // Charger le flag noPhysicalDetails depuis details
-        setNoPhysicalDetails(details.noPhysicalDetails === true);
+        // Déterminer le flag "aucun détail" à partir de details.noPhysicalDetails OU du format [""] en base
+        const computedNoPhysical = (details.noPhysicalDetails === true) || (Array.isArray(physicalDetailsData) && physicalDetailsData.length === 1 && physicalDetailsData[0] === "");
+        setNoPhysicalDetails(computedNoPhysical);
 
         // Charger le clothing_style depuis la colonne dédiée (avec fallback sur details)
         let clothingStyleData = '';
@@ -326,7 +327,9 @@ const ModifierProche: React.FC = () => {
       const updatePayload: any = {
         name: firstName,
         role: type,
-        physical_details: physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([]),
+        physical_details: noPhysicalDetails
+          ? JSON.stringify([""])
+          : (physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([])),
         clothing_style: clothingStyle ? JSON.stringify([clothingStyle]) : JSON.stringify([]),
         details: detailsPayload
       };

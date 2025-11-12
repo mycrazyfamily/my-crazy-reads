@@ -172,9 +172,11 @@ export default function AjouterProche() {
           name: relativeData.firstName,
           role: relativeData.type,
           avatar: null,
-          physical_details: relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
-            ? JSON.stringify(relativeData.physicalDetails) 
-            : JSON.stringify([]),
+          physical_details: relativeData.noPhysicalDetails
+            ? JSON.stringify([""])
+            : (relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
+              ? JSON.stringify(relativeData.physicalDetails) 
+              : JSON.stringify([])),
           clothing_style: relativeData.clothingStyle 
             ? JSON.stringify([relativeData.clothingStyle]) 
             : JSON.stringify([]),

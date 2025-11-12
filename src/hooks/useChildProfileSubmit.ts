@@ -170,7 +170,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               birthDate: normalizeDateToISO(relative.birthDate),
               job: relative.job,
               gender: relative.gender,
-              otherTypeName: relative.otherTypeName
+              otherTypeName: relative.otherTypeName,
+              noPhysicalDetails: !!relative.noPhysicalDetails
             }
           }));
 
