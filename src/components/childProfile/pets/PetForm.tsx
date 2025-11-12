@@ -10,6 +10,7 @@ import { Dog, Cat, Rabbit, Bird, Fish } from 'lucide-react';
 import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import PetPhysicalDetailsInput from './PetPhysicalDetailsInput';
+import { PetMonthYearPicker } from './PetMonthYearPicker';
 
 type PetFormProps = {
   pet?: PetData;
@@ -271,14 +272,11 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Date de naissance de l'animal */}
       <div className="space-y-2">
         <Label htmlFor="pet-birth" className="text-base font-medium">
-          Quand est né cet animal ? <span className="text-red-500">*</span>
+          🐾 Date de naissance
         </Label>
-        <Input
-          id="pet-birth"
-          type="month"
+        <PetMonthYearPicker
           value={birthMonthYear}
-          onChange={(e) => setBirthMonthYear(e.target.value)}
-          className="text-base"
+          onChange={setBirthMonthYear}
         />
       </div>
 
