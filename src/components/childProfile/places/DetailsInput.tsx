@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,8 @@ export const DetailsInput: React.FC<DetailsInputProps> = ({
         onChange(savedDetails);
       }
     }
-    onNoDetailsChange(checked);
+    // Defer parent notification to avoid setState during render warning
+    setTimeout(() => onNoDetailsChange(checked), 0);
   };
 
   return (
