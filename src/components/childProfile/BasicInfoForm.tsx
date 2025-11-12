@@ -52,7 +52,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   const [ageDisplay, setAgeDisplay] = useState<string>("");
   const [ageError, setAgeError] = useState<string>("");
   const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
-  const [physicalDetailsInitialized, setPhysicalDetailsInitialized] = useState<boolean>(false);
   // Delay mounting of DatePicker/Calendar to avoid portal race conditions
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -60,46 +59,39 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     return () => window.clearTimeout(id);
   }, []);
   
-  // Initialiser noPhysicalDetails uniquement au chargement initial
+  // Synchroniser noPhysicalDetails avec physicalDetails du formulaire
   useEffect(() => {
-    if (physicalDetailsInitialized) return;
+    const physicalDetails = form.watch('physicalDetails');
+    const formNoDetails = form.watch('noPhysicalDetails');
     
-    const formNoDetails = form.getValues('noPhysicalDetails');
-    const formPhysicalDetails = form.getValues('physicalDetails');
+    console.log('🔍 Syncing noPhysicalDetails:', { physicalDetails, formNoDetails });
     
-    console.log('🔍 Initializing noPhysicalDetails:', { formNoDetails, formPhysicalDetails });
-    
-    // Si noPhysicalDetails est explicitement true
-    if (formNoDetails === true) {
-      console.log('✅ noPhysicalDetails is true');
-      setNoPhysicalDetails(true);
-      setPhysicalDetailsInitialized(true);
-    }
-    // Sinon, détecter si physicalDetails est [""] ou [] (cas de rechargement)
-    else if (Array.isArray(formPhysicalDetails)) {
-      if ((formPhysicalDetails.length === 1 && formPhysicalDetails[0] === '') || 
-          formPhysicalDetails.length === 0) {
-        console.log('✅ Detected [""] or [] - setting noPhysicalDetails to true');
-        setNoPhysicalDetails(true);
-        form.setValue('noPhysicalDetails', true, { shouldValidate: false });
-        setPhysicalDetailsInitialized(true);
-      } else if (formPhysicalDetails.length > 0 && formPhysicalDetails.some(d => d.trim() !== '')) {
-        // Il y a des détails réels
-        console.log('✅ Has real physical details');
+    // Si on a des détails physiques réels (non vides), alors décocher la case
+    if (Array.isArray(physicalDetails) && physicalDetails.length > 0) {
+      const hasRealDetails = physicalDetails.some(d => d && d.trim() !== '');
+      if (hasRealDetails) {
+        console.log('✅ Has real physical details - unchecking noPhysicalDetails');
         setNoPhysicalDetails(false);
-        setPhysicalDetailsInitialized(true);
+        if (formNoDetails === true) {
+          form.setValue('noPhysicalDetails', false, { shouldValidate: false });
+        }
+      } else {
+        // Pas de détails réels ([""] ou [])
+        console.log('✅ No real physical details - checking noPhysicalDetails');
+        setNoPhysicalDetails(true);
+        if (formNoDetails !== true) {
+          form.setValue('noPhysicalDetails', true, { shouldValidate: false });
+        }
+      }
+    } else {
+      // Pas de tableau ou tableau vide
+      console.log('✅ Empty physicalDetails - checking noPhysicalDetails');
+      setNoPhysicalDetails(true);
+      if (formNoDetails !== true) {
+        form.setValue('noPhysicalDetails', true, { shouldValidate: false });
       }
     }
-    
-    // Si rien n'a été détecté après un délai, on considère comme initialisé
-    const timeout = setTimeout(() => {
-      if (!physicalDetailsInitialized) {
-        setPhysicalDetailsInitialized(true);
-      }
-    }, 500);
-    
-    return () => clearTimeout(timeout);
-  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails'), physicalDetailsInitialized]);
+  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails')]);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
