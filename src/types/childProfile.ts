@@ -150,6 +150,12 @@ export type WorldsData = {
   };
 };
 
+export type PlacesData = {
+  places: any[];
+  existingPlacesData?: any[];
+  placeChildLinks?: Record<string, string[]>; // Liens entre lieux et enfants existants (placeId -> childIds[])
+};
+
 export type ChildProfileFormData = {
   firstName: string;
   nickname: {
@@ -187,5 +193,5 @@ export type ChildProfileFormData = {
   pets: PetsData;
   toys: ToysData; // Ajout des doudous et objets magiques
   worlds: WorldsData; // Ajout des univers préférés et découvertes
-  places?: any[]; // Ajout des lieux de vie
+  places?: PlacesData; // Ajout des lieux de vie
 };

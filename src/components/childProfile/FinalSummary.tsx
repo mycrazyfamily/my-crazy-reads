@@ -125,7 +125,15 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
             hasPets: pets.length > 0 || formData.pets?.hasPets || false,
             pets: pets.length > 0 ? pets : formData.pets?.pets || []
           },
-          places: places.length > 0 ? places : formData.places || []
+          places: places.length > 0 ? {
+            places: places,
+            existingPlacesData: [],
+            placeChildLinks: {}
+          } : formData.places || {
+            places: [],
+            existingPlacesData: [],
+            placeChildLinks: {}
+          }
         });
       } catch (error) {
         console.error('Error loading complete child data:', error);
@@ -218,7 +226,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           </SummaryBlock>
         )}
 
-        {completeData.places && completeData.places.length > 0 && (
+        {completeData.places && completeData.places.places && completeData.places.places.length > 0 && (
           <SummaryBlock 
             title="Lieux de vie" 
             icon={<MapPin className="h-5 w-5 text-mcf-primary" />}
@@ -233,7 +241,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           title="Univers préféré & culture" 
           icon={<Globe className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(7)}
-          className={`${(!completeData.pets?.hasPets && !completeData.toys?.hasToys && (!completeData.places || completeData.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
+          className={`${(!completeData.pets?.hasPets && !completeData.toys?.hasToys && (!completeData.places?.places || completeData.places.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
         >
           <WorldsSummary data={completeData} />
         </SummaryBlock>

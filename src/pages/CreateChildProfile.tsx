@@ -316,8 +316,8 @@ const CreateChildProfile = ({
         }
 
         // Gérer les lieux de vie (places) - création et mise à jour
-        if (data.places && data.places.length > 0) {
-          console.log('📍 Saving places in edit mode:', data.places);
+        if (data.places?.places && data.places.places.length > 0) {
+          console.log('📍 Saving places in edit mode:', data.places.places);
           
           // Récupérer le family_id et le user_id de l'enfant
           const { data: childData } = await supabase
@@ -337,7 +337,7 @@ const CreateChildProfile = ({
               .eq('child_id', editChildId);
             
             // Pour chaque lieu dans le formulaire
-            for (const place of data.places) {
+            for (const place of data.places.places) {
               let placeId: string;
               
               if (place.id) {

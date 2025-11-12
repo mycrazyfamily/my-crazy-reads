@@ -638,10 +638,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         }
         
         // 17. Sauvegarder les lieux de vie dans places et child_places
-        if (data.places && data.places.length > 0) {
-          console.log('📍 Saving places:', data.places);
+        if (data.places?.places && data.places.places.length > 0) {
+          console.log('📍 Saving places:', data.places.places);
           
-          for (const place of data.places) {
+          const createdPlaceIds: string[] = [];
+          
+          for (const place of data.places.places) {
             // Créer le lieu dans la table places
             const { data: createdPlace, error: placeError } = await supabase
               .from('places')
@@ -667,6 +669,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               continue;
             }
 
+            createdPlaceIds.push(createdPlace.id);
+
             // Créer le lien child_places
             const { error: linkError } = await supabase
               .from('child_places')
@@ -681,10 +685,36 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               toast.warning(`Erreur lors de l'association du lieu ${place.label} à l'enfant`);
             }
           }
+
+          // 17b. Gérer les liens supplémentaires pour les lieux (enfants existants)
+          if (data.places.placeChildLinks) {
+            const links: Array<{ child_id: string; place_id: string; label: string | null }> = [];
+            
+            Object.entries(data.places.placeChildLinks).forEach(([placeId, childIds]) => {
+              const place = data.places!.places.find(p => p.id === placeId);
+              if (place) {
+                childIds.forEach(existingChildId => {
+                  links.push({
+                    child_id: existingChildId,
+                    place_id: createdPlaceIds[data.places!.places.indexOf(place)] || placeId,
+                    label: place.childLabel || null
+                  });
+                });
+              }
+            });
+
+            if (links.length > 0) {
+              const { error } = await supabase
+                .from('child_places')
+                .insert(links);
+              
+              if (error) console.error('Error creating additional place links:', error);
+            }
+          }
         }
         
         // 18. Gérer les lieux existants sélectionnés
-        const existingPlacesData = (data as any).existingPlacesData;
+        const existingPlacesData = data.places?.existingPlacesData;
         if (existingPlacesData && existingPlacesData.length > 0) {
           console.log('📍 Linking existing places:', existingPlacesData);
           

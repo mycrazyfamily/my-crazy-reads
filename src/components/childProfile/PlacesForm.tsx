@@ -6,9 +6,11 @@ import { PlaceData } from '@/types/place';
 import { PlaceForm } from './places/PlaceForm';
 import { PlacesList } from './places/PlacesList';
 import ExistingPlacesList from './places/ExistingPlacesList';
+import ChildrenSelector from './ChildrenSelector';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
+import { useLocation } from 'react-router-dom';
 
 interface PlacesFormProps {
   onNext: () => void;
@@ -27,6 +29,9 @@ type ExistingPlace = {
 
 export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   const { form } = useChildProfileForm();
+  const location = useLocation();
+  const isCreatingNewChild = location.pathname.includes('/creer-profil-enfant') || location.pathname.includes('/nouvel-enfant');
+  
   const [isAddingPlace, setIsAddingPlace] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [currentPlace, setCurrentPlace] = useState<PlaceData>({
@@ -38,8 +43,41 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   const [existingPlaces, setExistingPlaces] = useState<ExistingPlace[]>([]);
   const [selectedExistingPlaceIds, setSelectedExistingPlaceIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pour la sélection d'enfants existants
+  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
 
-  const places = (form.watch('places') as PlaceData[] | undefined) || [];
+  const placesData = form.watch('places');
+  const places = placesData?.places || [];
+
+  // Charger les enfants existants
+  useEffect(() => {
+    const loadExistingChildren = async () => {
+      if (!isCreatingNewChild) return;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profiles, error } = await supabase
+          .from('child_profiles')
+          .select('id, first_name')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading children:', error);
+        } else if (profiles) {
+          setExistingChildren(profiles);
+        }
+      } catch (error) {
+        console.error('Error loading existing children:', error);
+      }
+    };
+
+    loadExistingChildren();
+  }, [isCreatingNewChild]);
 
   // Charger les lieux existants de la famille
   useEffect(() => {
@@ -166,6 +204,16 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
     });
   };
 
+  const handleToggleChild = (childId: string) => {
+    setSelectedChildrenIds(prev => {
+      if (prev.includes(childId)) {
+        return prev.filter(id => id !== childId);
+      } else {
+        return [...prev, childId];
+      }
+    });
+  };
+
   const handleAddPlace = () => {
     setCurrentPlace({
       label: '',
@@ -248,7 +296,11 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       return;
     }
 
-    const placeToSave = { ...currentPlace, childLabel };
+    const placeToSave = { 
+      ...currentPlace, 
+      childLabel,
+      id: currentPlace.id || Date.now().toString() // Ajouter un ID si pas déjà présent
+    };
     let newPlaces: PlaceData[];
 
     if (editingIndex !== null) {
@@ -258,7 +310,27 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       newPlaces = [...places, placeToSave];
     }
 
-    form.setValue('places', newPlaces as any);
+    // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
+    if (isCreatingNewChild && selectedChildrenIds.length > 0) {
+      const existingLinks = placesData?.placeChildLinks || {};
+      const updatedLinks = {
+        ...existingLinks,
+        [placeToSave.id]: selectedChildrenIds
+      };
+      
+      form.setValue('places', {
+        places: newPlaces,
+        existingPlacesData: placesData?.existingPlacesData || [],
+        placeChildLinks: updatedLinks
+      });
+    } else {
+      form.setValue('places', {
+        places: newPlaces,
+        existingPlacesData: placesData?.existingPlacesData || [],
+        placeChildLinks: placesData?.placeChildLinks || {}
+      });
+    }
+    
     setIsAddingPlace(false);
     setCurrentPlace({
       label: '',
@@ -267,6 +339,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
     });
     setChildLabel('');
     setEditingIndex(null);
+    setSelectedChildrenIds([]);
   };
 
   const handleCancelPlace = () => {
@@ -281,14 +354,16 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   };
 
   const handleContinue = () => {
-    // Sauvegarder les IDs des lieux existants sélectionnés
-    form.setValue("selectedExistingPlaceIds" as any, selectedExistingPlaceIds);
-    
     // Sauvegarder les données complètes pour référence
     const selectedPlacesData = existingPlaces.filter(p => 
       selectedExistingPlaceIds.includes(p.id)
     );
-    form.setValue("existingPlacesData" as any, selectedPlacesData);
+    
+    form.setValue('places', {
+      places: places,
+      existingPlacesData: selectedPlacesData,
+      placeChildLinks: placesData?.placeChildLinks || {}
+    });
     
     if (places.length === 0 && selectedExistingPlaceIds.length === 0) {
       toast.error("Veuillez ajouter ou sélectionner au moins un lieu de vie pour votre enfant");
@@ -363,6 +438,16 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               Ce nom sera utilisé dans les histoires pour que l'enfant reconnaisse le lieu
             </p>
           </div>
+
+          {/* Sélection des enfants existants (uniquement lors de la création d'un nouvel enfant) */}
+          {isCreatingNewChild && existingChildren.length > 0 && (
+            <ChildrenSelector
+              children={existingChildren}
+              selectedChildrenIds={selectedChildrenIds}
+              onToggleChild={handleToggleChild}
+              label="Ce lieu est aussi le lieu de vie de :"
+            />
+          )}
 
           <div className="flex gap-4">
             <Button

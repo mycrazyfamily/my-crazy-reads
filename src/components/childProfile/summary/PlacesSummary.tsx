@@ -7,13 +7,13 @@ type PlacesSummaryProps = {
 };
 
 const PlacesSummary: React.FC<PlacesSummaryProps> = ({ data }) => {
-  if (!data.places || data.places.length === 0) {
+  if (!data.places?.places || data.places.places.length === 0) {
     return <p className="text-gray-500 text-xs">Aucun lieu de vie ajouté.</p>;
   }
 
   return (
     <div className="space-y-3">
-      {data.places.map((place, index) => (
+      {data.places.places.map((place, index) => (
         <div key={index} className="bg-mcf-amber/5 rounded-lg p-2.5 border border-mcf-amber/20">
           <div className="flex items-start gap-2">
             {place.emoji && (

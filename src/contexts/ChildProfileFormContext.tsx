@@ -106,7 +106,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         customWorlds: {},
         customDiscoveries: {},
       },
-      places: []
+      places: {
+        places: [],
+        existingPlacesData: [],
+        placeChildLinks: {}
+      }
     },
   });
 
