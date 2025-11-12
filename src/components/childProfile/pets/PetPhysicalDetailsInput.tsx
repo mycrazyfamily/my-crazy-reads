@@ -163,11 +163,15 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder="Ex : Cicatrice sur la patte avant droite..."
                 className="flex-1"
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     handleAddCustom();
                   }
+                }}
+                onBlur={() => {
+                  // Ajouter automatiquement la valeur saisie si l'utilisateur oublie de cliquer sur +
+                  handleAddCustom();
                 }}
               />
               <Button
