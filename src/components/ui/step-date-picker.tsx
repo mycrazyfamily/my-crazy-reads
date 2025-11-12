@@ -26,16 +26,23 @@ export const StepDatePicker: React.FC<StepDatePickerProps> = ({
   maxYear = new Date().getFullYear(),
   className
 }) => {
+  // Convertir la valeur en Date si nécessaire et valider
+  const dateValue = value instanceof Date ? value : (value ? new Date(value) : undefined);
+  const isValidDate = dateValue instanceof Date && !isNaN(dateValue.getTime());
+  
   const [step, setStep] = useState<Step>('year');
-  const [selectedYear, setSelectedYear] = useState<number | null>(value?.getFullYear() ?? null);
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(value ? value.getMonth() : null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(value?.getDate() ?? null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(isValidDate ? dateValue.getFullYear() : null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(isValidDate ? dateValue.getMonth() : null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(isValidDate ? dateValue.getDate() : null);
 
   useEffect(() => {
     if (value) {
-      setSelectedYear(value.getFullYear());
-      setSelectedMonth(value.getMonth());
-      setSelectedDay(value.getDate());
+      const date = value instanceof Date ? value : new Date(value);
+      if (!isNaN(date.getTime())) {
+        setSelectedYear(date.getFullYear());
+        setSelectedMonth(date.getMonth());
+        setSelectedDay(date.getDate());
+      }
     }
   }, [value]);
 

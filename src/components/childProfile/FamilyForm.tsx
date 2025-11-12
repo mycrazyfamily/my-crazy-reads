@@ -109,14 +109,25 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
     loadExistingRelatives();
   }, []);
 
+  // Restaurer les sélections de proches existants depuis le formulaire
+  useEffect(() => {
+    const savedIds = form.getValues().family?.existingRelativeIds;
+    if (savedIds && savedIds.length > 0) {
+      setSelectedExistingRelativeIds(savedIds);
+    }
+  }, [form]);
+
   // Gérer la sélection/désélection des proches existants
   const handleToggleExistingRelative = (relativeId: string) => {
     setSelectedExistingRelativeIds(prev => {
-      if (prev.includes(relativeId)) {
-        return prev.filter(id => id !== relativeId);
-      } else {
-        return [...prev, relativeId];
-      }
+      const newIds = prev.includes(relativeId)
+        ? prev.filter(id => id !== relativeId)
+        : [...prev, relativeId];
+      
+      // Sauvegarder immédiatement dans le formulaire
+      form.setValue("family.existingRelativeIds", newIds);
+      
+      return newIds;
     });
   };
   const handleAddRelative = (relativeType: RelativeType) => {
