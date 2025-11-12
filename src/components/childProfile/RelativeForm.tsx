@@ -49,7 +49,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     relative.customTraits || {}
   );
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(relative.physicalDetails || []);
-  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(() => {
+    if (relative.noPhysicalDetails === true) return true;
+    if (Array.isArray(relative.physicalDetails) && relative.physicalDetails.length === 1 && relative.physicalDetails[0] === '') return true;
+    return false;
+  });
   const [clothingStyle, setClothingStyle] = useState<string>(relative.clothingStyle || '');
 
   // Pour la sélection d'enfants existants
@@ -101,6 +105,12 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setCustomTraits(relative.customTraits || {});
       // Réinitialiser les enfants liés lors de l'édition
       setSelectedChildrenIds(relative.linkedChildrenIds || []);
+      // Synchroniser les détails physiques et le flag "aucun détail"
+      setPhysicalDetails(relative.physicalDetails || []);
+      const computedNoDetails = (relative.noPhysicalDetails === true) || (Array.isArray(relative.physicalDetails) && relative.physicalDetails.length === 1 && relative.physicalDetails[0] === '');
+      setNoPhysicalDetails(computedNoDetails);
+      // Synchroniser le style vestimentaire
+      setClothingStyle(relative.clothingStyle || '');
     } else {
       setTypeUI('');
       setSelectedNickname('');
@@ -110,6 +120,9 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setGlassesUI(null);
       setCustomTraits({});
       setSelectedChildrenIds([]);
+      setPhysicalDetails([]);
+      setNoPhysicalDetails(false);
+      setClothingStyle('');
     }
   }, [relative.id, relative.linkedChildrenIds]);
   
