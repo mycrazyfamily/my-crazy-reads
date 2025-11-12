@@ -215,7 +215,8 @@ export default function AjouterAnimal() {
         birth_month_year: petData.birthMonthYear || null,
         traits: petData.traits?.join(', ') || null,
         traits_custom: petData.customTraits || null,
-        relation_label: finalType
+        relation_label: finalType,
+        race: petData.breed || null
       }));
       
       console.log('Saving pet with customTraits:', petData.customTraits);
