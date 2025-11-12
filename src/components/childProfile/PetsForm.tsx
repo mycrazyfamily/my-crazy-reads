@@ -188,6 +188,9 @@ const PetsForm: React.FC<PetsFormProps> = ({
   };
 
   const handleSavePet = (pet: PetData, selectedChildrenIds?: string[]) => {
+    console.log('🐕 handleSavePet - pet reçu:', pet);
+    console.log('🐕 handleSavePet - pet.customTraits:', pet.customTraits);
+    
     // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
     if (selectedChildrenIds && selectedChildrenIds.length > 0) {
       const existingLinks = form.getValues().pets?.petChildLinks || {};
@@ -208,6 +211,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
       updatedPets = [...pets, pet];
     }
     
+    console.log('🐕 handleSavePet - updatedPets:', updatedPets);
     form.setValue("pets.pets", updatedPets, { shouldDirty: true });
     setIsAddingPet(false);
     setCurrentPet(null);

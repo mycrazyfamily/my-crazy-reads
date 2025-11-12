@@ -461,16 +461,25 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         const createdPetIds: string[] = [];
         
         if (data.pets?.pets && data.pets.pets.length > 0) {
-          const petsToCreate = data.pets.pets.map(pet => ({
-            family_id: familyId,
-            name: pet.name,
-            type: pet.type || pet.otherType || 'autre',
-            breed: pet.breed || null,
-            physical_details: (pet.customTraits?.physicalDetails && Array.isArray(pet.customTraits.physicalDetails) && pet.customTraits.physicalDetails.length > 0)
-              ? JSON.stringify(pet.customTraits.physicalDetails) 
-              : JSON.stringify([]),
-            emoji: null
-          }));
+          console.log('🦴 Création des animaux - data.pets.pets:', data.pets.pets);
+          
+          const petsToCreate = data.pets.pets.map((pet, index) => {
+            console.log(`🦴 Animal ${index} - customTraits:`, pet.customTraits);
+            console.log(`🦴 Animal ${index} - customTraits.physicalDetails:`, pet.customTraits?.physicalDetails);
+            
+            return {
+              family_id: familyId,
+              name: pet.name,
+              type: pet.type || pet.otherType || 'autre',
+              breed: pet.breed || null,
+              physical_details: (pet.customTraits?.physicalDetails && Array.isArray(pet.customTraits.physicalDetails) && pet.customTraits.physicalDetails.length > 0)
+                ? JSON.stringify(pet.customTraits.physicalDetails) 
+                : JSON.stringify([]),
+              emoji: null
+            };
+          });
+          
+          console.log('🦴 petsToCreate:', petsToCreate);
 
           const { data: createdPets, error: petsError } = await supabase
             .from('pets')
