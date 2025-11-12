@@ -158,28 +158,63 @@ const ModifierAnimal: React.FC = () => {
 
       if (updatePetError) throw updatePetError;
 
-      // Supprimer toutes les anciennes relations
-      const { error: deleteError } = await supabase
+      // Charger les relations existantes pour cet animal
+      const { data: existingRelations, error: fetchError } = await supabase
         .from('child_pets')
-        .delete()
+        .select('id, child_id')
         .eq('pet_id', petId);
 
-      if (deleteError) throw deleteError;
+      if (fetchError) throw fetchError;
+
+      const existingChildIds = existingRelations?.map(r => r.child_id) || [];
+      const childPetUpdates = {
+        name: updatedPet.name,
+        birth_month_year: updatedPet.birthMonthYear || null,
+        traits: updatedPet.traits?.join(', ') || null,
+        traits_custom: updatedPet.customTraits || null,
+        relation_label: finalType
+      };
+
+      // Identifier les enfants à supprimer (qui ne sont plus sélectionnés)
+      const childIdsToRemove = existingChildIds.filter(id => !selectedChildrenIds.includes(id));
+      
+      // Identifier les enfants à mettre à jour (qui existaient déjà)
+      const childIdsToUpdate = selectedChildrenIds.filter(id => existingChildIds.includes(id));
+      
+      // Identifier les enfants à créer (nouveaux)
+      const childIdsToCreate = selectedChildrenIds.filter(id => !existingChildIds.includes(id));
+
+      // Supprimer les relations qui ne sont plus nécessaires
+      if (childIdsToRemove.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('child_pets')
+          .delete()
+          .eq('pet_id', petId)
+          .in('child_id', childIdsToRemove);
+
+        if (deleteError) throw deleteError;
+      }
+
+      // Mettre à jour les relations existantes
+      if (childIdsToUpdate.length > 0) {
+        for (const childId of childIdsToUpdate) {
+          const { error: updateError } = await supabase
+            .from('child_pets')
+            .update(childPetUpdates)
+            .eq('pet_id', petId)
+            .eq('child_id', childId);
+
+          if (updateError) throw updateError;
+        }
+      }
 
       // Créer les nouvelles relations
-      if (selectedChildrenIds.length > 0) {
-        const childPetsData = selectedChildrenIds.map(childId => ({
+      if (childIdsToCreate.length > 0) {
+        const childPetsData = childIdsToCreate.map(childId => ({
           child_id: childId,
           pet_id: petId,
-          name: updatedPet.name,
-          birth_month_year: updatedPet.birthMonthYear || null,
-          traits: updatedPet.traits?.join(', ') || null,
-          traits_custom: updatedPet.customTraits || null,
-          relation_label: finalType
+          ...childPetUpdates
         }));
-        
-        console.log('Saving pet with customTraits:', updatedPet.customTraits);
-        console.log('childPetsData:', childPetsData);
 
         const { error: insertError } = await supabase
           .from('child_pets')
