@@ -42,6 +42,10 @@ const CreateChildProfile = ({
       return;
     }
     
+    console.log('🎯 [FORM-SUBMIT] Starting form submission');
+    console.log('🎯 [FORM-SUBMIT] Edit mode:', editMode, 'Edit child ID:', editChildId);
+    console.log('🎯 [FORM-SUBMIT] Form data:', JSON.stringify(data, null, 2));
+    
     setIsSubmitting(true);
     if (editMode && editChildId) {
       // Mode édition : mettre à jour le profil existant dans child_profiles
@@ -446,16 +450,35 @@ const CreateChildProfile = ({
         setTimeout(() => {
           navigate('/espace-famille');
         }, 500);
-      } catch (error) {
-        console.error('Error updating child profile:', error);
-        toast.error("Erreur lors de la mise à jour");
+      } catch (error: any) {
+        console.error('❌ [CREATE-CHILD] Error updating child profile:', error);
+        console.error('❌ [CREATE-CHILD] Error details:', {
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint,
+          stack: error?.stack
+        });
+        toast.error(`Une erreur est survenue lors de l'enregistrement: ${error?.message || 'Erreur inconnue'}`);
       } finally {
         setIsSubmitting(false);
       }
     } else {
       // Mode création : utiliser la logique normale
+      console.log('🚀 [CREATE-CHILD] Calling handleSubmit in creation mode');
+      console.log('🚀 [CREATE-CHILD] Data being submitted:', JSON.stringify(data, null, 2));
       try {
         await handleSubmit(data);
+      } catch (error: any) {
+        console.error('❌ [CREATE-CHILD] Error in handleSubmit:', error);
+        console.error('❌ [CREATE-CHILD] Error details:', {
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint,
+          stack: error?.stack
+        });
+        toast.error(`Une erreur est survenue lors de l'enregistrement: ${error?.message || 'Erreur inconnue'}`);
       } finally {
         setIsSubmitting(false);
       }

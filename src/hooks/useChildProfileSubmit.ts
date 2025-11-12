@@ -55,7 +55,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     }
     
     setIsSubmitting(true);
-    console.log("Handling form submission with data:", data);
+    console.log("🚀 [SUBMIT] Handling form submission with data:", data);
+    console.log("🚀 [SUBMIT] Data.family:", data.family);
+    console.log("🚀 [SUBMIT] Data.pets:", data.pets);
+    console.log("🚀 [SUBMIT] Data.places:", data.places);
+    console.log("🚀 [SUBMIT] Relatives:", data.family?.relatives);
 
     try {
       // Utiliser la session du contexte d'authentification
@@ -736,9 +740,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         
         // Clear stored form data only after a successful save
         localStorage.removeItem(FORM_STORAGE_KEY);
-      } catch (error) {
-        console.error('Error in handleSubmit:', error);
-        toast.error("Une erreur est survenue lors de l'enregistrement");
+      } catch (error: any) {
+        console.error('❌ [SUBMIT] Error in handleSubmit:', error);
+        console.error('❌ [SUBMIT] Error message:', error?.message);
+        console.error('❌ [SUBMIT] Error code:', error?.code);
+        console.error('❌ [SUBMIT] Error details:', error?.details);
+        console.error('❌ [SUBMIT] Error hint:', error?.hint);
+        console.error('❌ [SUBMIT] Full error object:', JSON.stringify(error, null, 2));
+        toast.error(`Une erreur est survenue lors de l'enregistrement: ${error?.message || error?.code || 'Erreur inconnue'}`);
         setIsSubmitting(false);
         return;
       }
