@@ -289,12 +289,6 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         placeholder="Ex : un grain de beauté sur la patte droite, une tache noire sur l'œil gauche, des poils blancs sur le museau..."
       />
 
-      {/* Style vestimentaire de l'animal */}
-      <ClothingStyleInput
-        value={clothingStyle}
-        onChange={setClothingStyle}
-      />
-
       {/* Traits de caractère */}
       <div className="space-y-3">
         <Label className="text-base font-medium block">
