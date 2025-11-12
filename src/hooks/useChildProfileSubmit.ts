@@ -150,7 +150,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               job: relative.job,
               gender: relative.gender,
               otherTypeName: relative.otherTypeName,
-              physicalDetails: relative.physicalDetails || []
+              physicalDetails: relative.physicalDetails || [],
+              clothingStyle: relative.clothingStyle || ''
             }
           }));
 
