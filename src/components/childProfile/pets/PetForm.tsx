@@ -88,6 +88,39 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     }
   }, [pet?.linkedChildrenIds]);
 
+  // Synchroniser les détails physiques quand pet change
+  useEffect(() => {
+    if (pet) {
+      // Restaurer name, type, etc.
+      setName(pet.name || '');
+      setType(pet.type || 'dog');
+      setOtherType(pet.otherType || '');
+      setBirthMonthYear(pet.birthMonthYear || '');
+      setBreed(pet.breed || '');
+      setSelectedTraits(pet.traits || []);
+      
+      // Restaurer petPhysicalDetails
+      const details = pet.customTraits?.physicalDetails;
+      if (Array.isArray(details)) {
+        setPetPhysicalDetails(details);
+      } else {
+        setPetPhysicalDetails([]);
+      }
+      
+      // Restaurer noPhysicalDetails
+      const customTraitsAny = pet.customTraits as any;
+      setNoPhysicalDetails(customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true');
+      
+      // Restaurer customTraits (sans physicalDetails)
+      if (pet.customTraits) {
+        const { physicalDetails, noPhysicalDetails: _, ...rest } = pet.customTraits;
+        setCustomTraits(rest);
+      } else {
+        setCustomTraits({});
+      }
+    }
+  }, [pet]);
+
   const handleToggleChild = (childId: string) => {
     setSelectedChildrenIds(prev => {
       if (prev.includes(childId)) {
