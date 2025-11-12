@@ -444,8 +444,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: pet.name,
             type: pet.type || pet.otherType || 'autre',
             breed: pet.breed || null,
-            physical_details: pet.physicalDetails && pet.physicalDetails.length > 0 
-              ? JSON.stringify(pet.physicalDetails) 
+            physical_details: (pet.customTraits?.physicalDetails && Array.isArray(pet.customTraits.physicalDetails) && pet.customTraits.physicalDetails.length > 0)
+              ? JSON.stringify(pet.customTraits.physicalDetails) 
               : JSON.stringify([]),
             emoji: null
           }));
@@ -471,7 +471,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: data.pets!.pets[index].name,
             traits: data.pets!.pets[index].traits?.join(', ') || null,
             traits_custom: data.pets!.pets[index].customTraits || null,
-            relation_label: data.pets!.pets[index].type || data.pets!.pets[index].otherType || null
+            relation_label: data.pets!.pets[index].type || data.pets!.pets[index].otherType || null,
+            birth_month_year: data.pets!.pets[index].birthMonthYear || null,
+            race: data.pets!.pets[index].breed || null
           }));
 
           const { error: newPetLinkError } = await supabase
@@ -505,7 +507,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
 
         // 15b. Gérer les liens supplémentaires pour les animaux (enfants existants)
         if (data.pets?.petChildLinks) {
-          const links: Array<{ child_id: string; pet_id: string; name: string }> = [];
+          const links: Array<{ child_id: string; pet_id: string; name: string; traits: string | null; traits_custom: any; relation_label: string | null; birth_month_year: string | null; race: string | null }> = [];
           
           Object.entries(data.pets.petChildLinks).forEach(([petId, childIds]) => {
             const pet = data.pets!.pets.find(p => p.id === petId);
@@ -513,7 +515,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               links.push({
                 child_id: existingChildId,
                 pet_id: createdPetIds[data.pets!.pets.indexOf(pet!)] || petId,
-                name: pet?.name || ''
+                name: pet?.name || '',
+                traits: pet?.traits?.join(', ') || null,
+                traits_custom: pet?.customTraits || null,
+                relation_label: pet?.type || pet?.otherType || null,
+                birth_month_year: pet?.birthMonthYear || null,
+                race: pet?.breed || null
               });
             });
           });
