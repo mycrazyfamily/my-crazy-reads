@@ -434,10 +434,11 @@ const CreateChildProfile = ({
                 }
               }
             }
-            
-            toast.success('Lieux de vie enregistrés avec succès !');
           }
         }
+        
+        // Message de succès général après toutes les mises à jour
+        toast.success('Profil modifié avec succès !');
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         setTimeout(() => {

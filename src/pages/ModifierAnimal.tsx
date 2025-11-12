@@ -185,6 +185,8 @@ const ModifierAnimal: React.FC = () => {
 
         if (insertError) throw insertError;
       }
+      
+      toast.success('Animal modifié avec succès !');
       navigate('/espace-famille');
     } catch (error) {
       console.error('Error saving pet:', error);
