@@ -52,6 +52,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
   const [ageDisplay, setAgeDisplay] = useState<string>("");
   const [ageError, setAgeError] = useState<string>("");
   const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
+  const [isInitialMount, setIsInitialMount] = useState<boolean>(true);
   // Delay mounting of DatePicker/Calendar to avoid portal race conditions
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -59,12 +60,20 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     return () => window.clearTimeout(id);
   }, []);
   
+  // Marquer que le composant a été monté après le premier rendu
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialMount(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+  
   // Synchroniser noPhysicalDetails avec physicalDetails du formulaire
   useEffect(() => {
     const physicalDetails = form.watch('physicalDetails');
     const formNoDetails = form.watch('noPhysicalDetails');
     
-    console.log('🔍 Syncing noPhysicalDetails:', { physicalDetails, formNoDetails });
+    console.log('🔍 Syncing noPhysicalDetails:', { physicalDetails, formNoDetails, isInitialMount });
     
     // Si on a des détails physiques réels (non vides), alors décocher la case
     if (Array.isArray(physicalDetails) && physicalDetails.length > 0) {
@@ -75,23 +84,23 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         if (formNoDetails === true) {
           form.setValue('noPhysicalDetails', false, { shouldValidate: false });
         }
-      } else {
-        // Pas de détails réels ([""] ou [])
+      } else if (!isInitialMount) {
+        // Pas de détails réels ([""] ou []) - ne cocher automatiquement qu'après le montage initial
         console.log('✅ No real physical details - checking noPhysicalDetails');
         setNoPhysicalDetails(true);
         if (formNoDetails !== true) {
           form.setValue('noPhysicalDetails', true, { shouldValidate: false });
         }
       }
-    } else {
-      // Pas de tableau ou tableau vide
+    } else if (!isInitialMount) {
+      // Pas de tableau ou tableau vide - ne cocher automatiquement qu'après le montage initial
       console.log('✅ Empty physicalDetails - checking noPhysicalDetails');
       setNoPhysicalDetails(true);
       if (formNoDetails !== true) {
         form.setValue('noPhysicalDetails', true, { shouldValidate: false });
       }
     }
-  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails')]);
+  }, [form.watch('physicalDetails'), form.watch('noPhysicalDetails'), isInitialMount]);
   
   useEffect(() => {
     const birthDate = form.watch("birthDate");
