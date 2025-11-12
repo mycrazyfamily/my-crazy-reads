@@ -148,9 +148,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: relative.firstName,
             role: relative.type,
             avatar: '👤',
-            physical_details: relative.physicalDetails && relative.physicalDetails.length > 0 
-              ? JSON.stringify(relative.physicalDetails) 
-              : JSON.stringify([]),
+            physical_details: relative.noPhysicalDetails
+              ? JSON.stringify([""])
+              : (relative.physicalDetails && relative.physicalDetails.length > 0 
+                ? JSON.stringify(relative.physicalDetails) 
+                : JSON.stringify([])),
             clothing_style: relative.clothingStyle 
               ? JSON.stringify([relative.clothingStyle]) 
               : JSON.stringify([]),
