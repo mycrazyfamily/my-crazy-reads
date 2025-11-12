@@ -138,7 +138,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             physical_details: relative.physicalDetails && relative.physicalDetails.length > 0 
               ? JSON.stringify(relative.physicalDetails) 
               : JSON.stringify([]),
-            clothing_style: relative.clothingStyle || '',
+            clothing_style: relative.clothingStyle 
+              ? JSON.stringify([relative.clothingStyle]) 
+              : JSON.stringify([]),
             // Persist remaining profile data for edit prefill
             details: {
               nickname: relative.nickname,
@@ -201,7 +203,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               physical_details: data.physicalDetails && data.physicalDetails.length > 0 
                 ? JSON.stringify(data.physicalDetails) 
                 : JSON.stringify([]),
-              clothing_style: data.clothingStyle || '',
+              clothing_style: data.clothingStyle 
+                ? JSON.stringify([data.clothingStyle]) 
+                : JSON.stringify([]),
               has_pet: data.pets?.hasPets || false
             }
           ])

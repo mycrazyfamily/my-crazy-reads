@@ -175,7 +175,9 @@ export default function AjouterProche() {
           physical_details: relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
             ? JSON.stringify(relativeData.physicalDetails) 
             : JSON.stringify([]),
-          clothing_style: relativeData.clothingStyle || '',
+          clothing_style: relativeData.clothingStyle 
+            ? JSON.stringify([relativeData.clothingStyle]) 
+            : JSON.stringify([]),
           // Persist remaining relative profile for edit prefill
           details: {
             nickname: relativeData.nickname, // Already an object with type/custom

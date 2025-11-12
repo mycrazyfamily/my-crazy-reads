@@ -170,7 +170,19 @@ const ModifierProche: React.FC = () => {
         setNoPhysicalDetails(details.noPhysicalDetails === true);
 
         // Charger le clothing_style depuis la colonne dédiée (avec fallback sur details)
-        const clothingStyleData = relative.clothing_style || details.clothingStyle || '';
+        let clothingStyleData = '';
+        if (relative.clothing_style) {
+          try {
+            const parsed = typeof relative.clothing_style === 'string' 
+              ? JSON.parse(relative.clothing_style) 
+              : relative.clothing_style;
+            clothingStyleData = Array.isArray(parsed) ? (parsed[0] || '') : '';
+          } catch {
+            clothingStyleData = '';
+          }
+        } else if (details.clothingStyle) {
+          clothingStyleData = details.clothingStyle;
+        }
         setClothingStyle(clothingStyleData);
 
         setChildData({ loaded: true });
@@ -315,7 +327,7 @@ const ModifierProche: React.FC = () => {
         name: firstName,
         role: type,
         physical_details: physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([]),
-        clothing_style: clothingStyle || '',
+        clothing_style: clothingStyle ? JSON.stringify([clothingStyle]) : JSON.stringify([]),
         details: detailsPayload
       };
 

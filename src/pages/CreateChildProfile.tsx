@@ -81,7 +81,9 @@ const CreateChildProfile = ({
               : (data.physicalDetails && data.physicalDetails.length > 0 
                 ? data.physicalDetails 
                 : []),
-            clothing_style: data.clothingStyle || '',
+            clothing_style: data.clothingStyle 
+              ? JSON.stringify([data.clothingStyle]) 
+              : JSON.stringify([]),
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);
