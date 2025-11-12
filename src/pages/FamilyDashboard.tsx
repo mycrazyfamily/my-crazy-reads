@@ -490,9 +490,11 @@ const FamilyDashboard: React.FC = () => {
             ) : children.length > 0 ? (
               <>
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  {children.map((child) => (
-                    <ChildProfileCard key={child.id} child={child} />
-                  ))}
+                  {children
+                    .sort((a, b) => a.firstName.localeCompare(b.firstName, 'fr'))
+                    .map((child) => (
+                      <ChildProfileCard key={child.id} child={child} />
+                    ))}
                 </div>
                 
                 <Button 
@@ -557,14 +559,16 @@ const FamilyDashboard: React.FC = () => {
                     });
                   });
                   
-                  return Array.from(relativesMap.values()).map(({ relative, childrenNames, childrenIds }) => (
-                    <RelativeProfileCard 
-                      key={relative.id}
-                      relative={relative}
-                      childrenNames={childrenNames}
-                      primaryChildId={childrenIds[0]}
-                    />
-                  ));
+                  return Array.from(relativesMap.values())
+                    .sort((a, b) => (a.relative.firstName || '').localeCompare(b.relative.firstName || '', 'fr'))
+                    .map(({ relative, childrenNames, childrenIds }) => (
+                      <RelativeProfileCard 
+                        key={relative.id}
+                        relative={relative}
+                        childrenNames={childrenNames}
+                        primaryChildId={childrenIds[0]}
+                      />
+                    ));
                 })()}
               </div>
               
@@ -608,14 +612,16 @@ const FamilyDashboard: React.FC = () => {
                     });
                   });
                   
-                  return Array.from(petsMap.values()).map(({ pet, childrenNames, childrenIds }) => (
-                    <PetProfileCard 
-                      key={pet.id || pet.name}
-                      pet={pet}
-                      childrenNames={childrenNames}
-                      primaryChildId={childrenIds[0]}
-                    />
-                  ));
+                  return Array.from(petsMap.values())
+                    .sort((a, b) => (a.pet.name || '').localeCompare(b.pet.name || '', 'fr'))
+                    .map(({ pet, childrenNames, childrenIds }) => (
+                      <PetProfileCard 
+                        key={pet.id || pet.name}
+                        pet={pet}
+                        childrenNames={childrenNames}
+                        primaryChildId={childrenIds[0]}
+                      />
+                    ));
                 })()}
               </div>
               
@@ -665,14 +671,16 @@ const FamilyDashboard: React.FC = () => {
                     });
                   });
                   
-                  return Array.from(placesMap.values()).map(({ place, childrenNames, childrenIds }) => (
-                    <PlaceProfileCard 
-                      key={place.id}
-                      place={place}
-                      childrenNames={childrenNames}
-                      primaryChildId={childrenIds[0]}
-                    />
-                  ));
+                  return Array.from(placesMap.values())
+                    .sort((a, b) => (a.place.label || '').localeCompare(b.place.label || '', 'fr'))
+                    .map(({ place, childrenNames, childrenIds }) => (
+                      <PlaceProfileCard 
+                        key={place.id}
+                        place={place}
+                        childrenNames={childrenNames}
+                        primaryChildId={childrenIds[0]}
+                      />
+                    ));
                 })()}
               </div>
               
