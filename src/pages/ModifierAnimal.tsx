@@ -88,7 +88,7 @@ const ModifierAnimal: React.FC = () => {
           type: isCustomType ? 'other' : (storedType as PetType),
           otherType: isCustomType ? storedType : undefined,
           birthMonthYear: data.birth_month_year || undefined,
-          breed: (data.pets as any).breed || undefined,
+          breed: data.race || (data.pets as any).breed || undefined,
           physicalDetails,
           clothingStyle,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
@@ -172,7 +172,8 @@ const ModifierAnimal: React.FC = () => {
         birth_month_year: updatedPet.birthMonthYear || null,
         traits: updatedPet.traits?.join(', ') || null,
         traits_custom: updatedPet.customTraits || null,
-        relation_label: finalType
+        relation_label: finalType,
+        race: updatedPet.breed || null
       };
 
       // Identifier les enfants à supprimer (qui ne sont plus sélectionnés)

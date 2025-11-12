@@ -407,6 +407,7 @@ export type Database = {
           id: string
           name: string | null
           pet_id: string | null
+          race: string | null
           relation_label: string | null
           traits: string | null
           traits_custom: Json | null
@@ -418,6 +419,7 @@ export type Database = {
           id?: string
           name?: string | null
           pet_id?: string | null
+          race?: string | null
           relation_label?: string | null
           traits?: string | null
           traits_custom?: Json | null
@@ -429,6 +431,7 @@ export type Database = {
           id?: string
           name?: string | null
           pet_id?: string | null
+          race?: string | null
           relation_label?: string | null
           traits?: string | null
           traits_custom?: Json | null
