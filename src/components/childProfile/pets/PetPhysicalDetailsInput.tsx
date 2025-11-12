@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
 
 type PetPhysicalDetailsInputProps = {
   value: string[];
   onChange: (value: string[]) => void;
+  onNoDetailsChange?: (hasNoDetails: boolean) => void;
+  noDetailsValue?: boolean;
 };
 
 const SUGGESTIONS = [
@@ -27,9 +30,12 @@ const SUGGESTIONS = [
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   value = [],
   onChange,
+  onNoDetailsChange,
+  noDetailsValue = false
 }) => {
   const MAX_DETAILS = 5;
   const [customInput, setCustomInput] = useState('');
+  const [noDetails, setNoDetails] = useState(noDetailsValue);
   const details = value.length > 0 ? value : [];
 
   const handleAddSuggestion = (suggestion: string) => {
@@ -50,19 +56,48 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
     onChange(details.filter(d => d !== detailToRemove));
   };
 
+  const handleNoDetailsChange = (checked: boolean) => {
+    console.info('👆 noPhysicalDetails (animal) toggled', {
+      checked,
+      previous: noDetails,
+      currentDetails: details,
+    });
+    setNoDetails(checked);
+    if (onNoDetailsChange) {
+      onNoDetailsChange(checked);
+    }
+    if (checked) {
+      onChange([]);
+    }
+  };
+
   return (
     <div className="space-y-3">
       <div>
         <Label className="text-base font-medium">
-          🐾 Des détails physiques marquants ?
+          🐾 Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
           Couleur du pelage, taches, grande taille, oreille coupée, etc.
         </p>
       </div>
 
+      <div className="flex items-center space-x-2 p-3 border rounded-md bg-muted/30">
+        <Checkbox
+          id="no-physical-details-pet"
+          checked={noDetails}
+          onCheckedChange={handleNoDetailsChange}
+        />
+        <Label
+          htmlFor="no-physical-details-pet"
+          className="text-sm font-normal cursor-pointer"
+        >
+          Aucun détail physique particulier
+        </Label>
+      </div>
+
       {/* Détails sélectionnés */}
-      {details.length > 0 && (
+      {!noDetails && details.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {details.map((detail, index) => (
             <div
@@ -83,7 +118,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
       )}
 
       {/* Suggestions */}
-      {details.length < MAX_DETAILS && (
+      {!noDetails && details.length < MAX_DETAILS && (
         <>
           <div>
             <Label className="text-sm text-muted-foreground mb-2 block">
@@ -135,7 +170,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
         </>
       )}
 
-      {details.length >= MAX_DETAILS && (
+      {!noDetails && details.length >= MAX_DETAILS && (
         <p className="text-sm text-muted-foreground">
           Maximum de {MAX_DETAILS} détails atteint
         </p>

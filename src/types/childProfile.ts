@@ -84,7 +84,7 @@ export type PetData = {
   breed?: string;
   physicalDetails?: string[];
   traits: PetTrait[];
-  customTraits?: Record<string, string | string[]>; // Allows both string and string[] values
+  customTraits?: Record<string, string | string[] | boolean>; // Allows string, string[], and boolean values
   clothingStyle?: string;
 };
 

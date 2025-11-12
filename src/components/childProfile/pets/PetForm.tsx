@@ -32,8 +32,13 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     if (Array.isArray(details)) return details;
     return [];
   });
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(() => {
+    // Charger le flag depuis les customTraits si présent
+    const customTraitsAny = pet?.customTraits as any;
+    return customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true';
+  });
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
-  const [customTraits, setCustomTraits] = useState<Record<string, string | string[]>>(() => {
+  const [customTraits, setCustomTraits] = useState<Record<string, string | string[] | boolean>>(() => {
     if (!pet?.customTraits) return {};
     // Filtrer physicalDetails qui sera géré séparément
     const { physicalDetails, ...rest } = pet.customTraits;
@@ -131,10 +136,11 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   };
 
   const getPetData = (): PetData => {
-    // Fusionner les traits custom avec les détails physiques
+    // Fusionner les traits custom avec les détails physiques et le flag noPhysicalDetails
     const mergedCustomTraits = {
       ...customTraits,
-      ...(petPhysicalDetails.length > 0 ? { physicalDetails: petPhysicalDetails } : {})
+      ...(petPhysicalDetails.length > 0 ? { physicalDetails: petPhysicalDetails } : {}),
+      ...(noPhysicalDetails ? { noPhysicalDetails: true } : {})
     };
 
     return {
@@ -189,6 +195,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       errors.push("tous les traits personnalisés");
     }
 
+    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+    const hasPhysicalDetails = petPhysicalDetails.length > 0 && petPhysicalDetails.some(d => d.trim() !== '');
+    if (!hasPhysicalDetails && !noPhysicalDetails) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+    }
+
     if (errors.length > 0) {
       toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
       return false;
@@ -209,7 +221,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, otherType, birthMonthYear, breed, petPhysicalDetails, selectedTraits, customTraits]);
+  }, [name, type, otherType, birthMonthYear, breed, petPhysicalDetails, noPhysicalDetails, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -298,6 +310,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       <PetPhysicalDetailsInput
         value={petPhysicalDetails}
         onChange={setPetPhysicalDetails}
+        onNoDetailsChange={setNoPhysicalDetails}
+        noDetailsValue={noPhysicalDetails}
       />
 
       {/* Traits de caractère */}
@@ -332,7 +346,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
                 {isTraitSelected && (trait.value === 'other' || trait.value === 'other2') && (
                   <Input
                     placeholder="Précisez le trait de caractère"
-                    value={customTraits[trait.value] || ''}
+                    value={(typeof customTraits[trait.value] === 'string' ? customTraits[trait.value] : '') as string}
                     onChange={(e) => handleCustomTraitChange(trait.value as PetTrait, e.target.value)}
                     className="mt-1 text-sm"
                   />

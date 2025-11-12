@@ -246,6 +246,16 @@ const ModifierAnimal: React.FC = () => {
       errors.push("tous les traits personnalisés");
     }
 
+    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+    const petPhysicalDetails = currentPetData.customTraits?.physicalDetails;
+    const hasPhysicalDetails = Array.isArray(petPhysicalDetails) && petPhysicalDetails.length > 0 && petPhysicalDetails.some((d: string) => d.trim() !== '');
+    // Vérifier si noPhysicalDetails est présent et true (peut être boolean ou string selon la source)
+    const customTraitsAny = currentPetData.customTraits as any;
+    const noPhysicalDetails = customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true';
+    if (!hasPhysicalDetails && !noPhysicalDetails) {
+      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+    }
+
     // Vérifier qu'au moins un enfant est associé
     if (selectedChildrenIds.length === 0) {
       errors.push("au moins un enfant associé à cet animal");
