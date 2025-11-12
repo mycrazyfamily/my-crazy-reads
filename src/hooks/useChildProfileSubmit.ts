@@ -127,7 +127,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         }
 
         // 2. Créer les family_members pour les nouveaux proches
-        const createdFamilyMembers: Array<{ id: string; relativeType: string }> = [];
+        const createdFamilyMembers: Array<{ id: string; relativeType: string; tempId: string }> = [];
         
         if (data.family?.relatives && data.family.relatives.length > 0) {
           const familyMembersToCreate = data.family.relatives.map(relative => ({
@@ -168,11 +168,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             console.error('Error creating family members:', membersError);
             toast.warning("Proches créés mais erreur lors de l'enregistrement");
           } else if (createdMembers) {
-            // Stocker l'id et le type de chaque membre créé pour le lien ultérieur
+            // Stocker l'id, le type et le tempId de chaque membre créé pour le lien ultérieur
             createdFamilyMembers.push(
               ...createdMembers.map((m, index) => ({
                 id: m.id,
-                relativeType: data.family!.relatives[index].type
+                relativeType: data.family!.relatives[index].type,
+                tempId: data.family!.relatives[index].id // L'ID temporaire du formulaire
               }))
             );
           }
@@ -397,21 +398,38 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         if (data.family?.relativeChildLinks) {
           const links: Array<{ child_id: string; family_member_id: string }> = [];
           
-          Object.entries(data.family.relativeChildLinks).forEach(([relativeId, childIds]) => {
-            childIds.forEach(existingChildId => {
-              links.push({
-                child_id: existingChildId,
-                family_member_id: createdFamilyMembers.find(m => m.relativeType === relativeId)?.id || relativeId
+          console.log('🔗 Processing relativeChildLinks:', data.family.relativeChildLinks);
+          console.log('🔗 Created family members:', createdFamilyMembers);
+          
+          Object.entries(data.family.relativeChildLinks).forEach(([relativeTempId, childIds]) => {
+            // Trouver le family_member_id réel en utilisant le tempId
+            const createdMember = createdFamilyMembers.find(m => m.tempId === relativeTempId);
+            
+            if (createdMember) {
+              console.log(`🔗 Found created member for tempId ${relativeTempId}:`, createdMember.id);
+              childIds.forEach(existingChildId => {
+                links.push({
+                  child_id: existingChildId,
+                  family_member_id: createdMember.id
+                });
               });
-            });
+            } else {
+              console.warn(`⚠️ Could not find created member for tempId ${relativeTempId}`);
+            }
           });
 
           if (links.length > 0) {
+            console.log('🔗 Creating additional relative links:', links);
             const { error } = await supabase
               .from('child_family_members')
               .insert(links);
             
-            if (error) console.error('Error creating additional relative links:', error);
+            if (error) {
+              console.error('❌ Error creating additional relative links:', error);
+              toast.warning("Profil créé mais erreur lors de l'association des proches aux enfants existants");
+            } else {
+              console.log('✅ Successfully created additional relative links');
+            }
           }
         }
 
