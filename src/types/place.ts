@@ -56,4 +56,5 @@ export interface PlaceData {
   country?: string;
   details?: PlaceDetails;
   childLabel?: string; // Label for child_places pivot
+  linkedChildrenIds?: string[]; // IDs of children linked to this place
 }

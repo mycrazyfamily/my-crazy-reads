@@ -237,14 +237,20 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       details: {},
     });
     setChildLabel('');
+    setSelectedChildrenIds([]); // Réinitialiser les enfants sélectionnés
     setEditingIndex(null);
     setIsAddingPlace(true);
   };
 
   const handleEditPlace = (index: number) => {
     const place = places[index];
-    setCurrentPlace(place);
+    const placesData = form.getValues('places');
+    const placeChildLinks = placesData?.placeChildLinks || {};
+    const linkedChildrenIds = placeChildLinks[place.id || ''] || [];
+    
+    setCurrentPlace({ ...place, linkedChildrenIds });
     setChildLabel(place.childLabel || '');
+    setSelectedChildrenIds(linkedChildrenIds); // Restaurer les enfants liés
     setEditingIndex(index);
     setIsAddingPlace(true);
   };
@@ -366,6 +372,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       details: {},
     });
     setChildLabel('');
+    setSelectedChildrenIds([]); // Réinitialiser les enfants sélectionnés
     setEditingIndex(null);
   };
 

@@ -28,10 +28,10 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
   const [placeDetails, setPlaceDetails] = useState<string[]>(['']);
   const [noPlaceDetails, setNoPlaceDetails] = useState(false);
 
-  // Initialize local states from place.details ONLY on place.id change (edit mode)
-  // Do NOT call onChange here to prevent setState during render warning
+  // Synchroniser les détails physiques et autres champs quand place change
   useEffect(() => {
-    const d = place.details || {};
+    if (place) {
+      const d = place.details || {};
     
     // Only sync local state, don't propagate to parent
     setDetails(d);
@@ -45,6 +45,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
     const pDetails = [d.autre_detail_1, d.autre_detail_2, d.autre_detail_3].filter(v => v && v.trim() !== '');
     setPlaceDetails(pDetails.length > 0 ? pDetails : ['']);
     setNoPlaceDetails(d.noAutreDetails || false);
+    }
   }, [place.id]);
 
 
