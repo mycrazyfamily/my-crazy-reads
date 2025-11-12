@@ -41,6 +41,13 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   const handleAddSuggestion = (suggestion: string) => {
     if (!details.includes(suggestion) && details.length < MAX_DETAILS) {
       onChange([...details, suggestion]);
+      // Décocher automatiquement "aucun détail" quand on ajoute un détail
+      if (noDetails) {
+        setNoDetails(false);
+        if (onNoDetailsChange) {
+          onNoDetailsChange(false);
+        }
+      }
     }
   };
 
@@ -49,6 +56,13 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
     if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
       onChange([...details, trimmed]);
       setCustomInput('');
+      // Décocher automatiquement "aucun détail" quand on ajoute un détail
+      if (noDetails) {
+        setNoDetails(false);
+        if (onNoDetailsChange) {
+          onNoDetailsChange(false);
+        }
+      }
     }
   };
 

@@ -56,6 +56,21 @@ const ModifierAnimal: React.FC = () => {
         const predefinedTypes = ['dog', 'cat', 'rabbit', 'bird', 'fish', 'reptile', 'other'];
         const isCustomType = storedType && !predefinedTypes.includes(storedType);
         
+        // Nettoyer les customTraits pour éviter d'avoir à la fois physicalDetails et noPhysicalDetails
+        let cleanedCustomTraits = (data as any).traits_custom || undefined;
+        if (cleanedCustomTraits) {
+          const hasPhysicalDetails = Array.isArray(cleanedCustomTraits.physicalDetails) && 
+                                      cleanedCustomTraits.physicalDetails.length > 0 &&
+                                      cleanedCustomTraits.physicalDetails.some((d: string) => d.trim() !== '');
+          
+          if (hasPhysicalDetails && cleanedCustomTraits.noPhysicalDetails) {
+            // Si les deux sont présents, garder uniquement physicalDetails (dernière info saisie)
+            const { noPhysicalDetails, ...rest } = cleanedCustomTraits;
+            cleanedCustomTraits = rest;
+            console.log('🧹 Nettoyage des données incohérentes : suppression du flag noPhysicalDetails');
+          }
+        }
+        
         const pet: PetData = {
           id: data.pets.id,
           name: data.name || data.pets.name,
@@ -64,7 +79,7 @@ const ModifierAnimal: React.FC = () => {
           birthMonthYear: data.birth_month_year || undefined,
           breed: data.race || (data.pets as any).breed || undefined,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
-          customTraits: (data as any).traits_custom || undefined
+          customTraits: cleanedCustomTraits
         };
         setPetData(pet);
 

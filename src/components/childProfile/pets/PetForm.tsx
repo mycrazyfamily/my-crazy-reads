@@ -136,12 +136,16 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   };
 
   const getPetData = (): PetData => {
-    // Fusionner les traits custom avec les détails physiques et le flag noPhysicalDetails
-    const mergedCustomTraits = {
-      ...customTraits,
-      ...(petPhysicalDetails.length > 0 ? { physicalDetails: petPhysicalDetails } : {}),
-      ...(noPhysicalDetails ? { noPhysicalDetails: true } : {})
-    };
+    // Ne sauvegarder que l'un ou l'autre, jamais les deux
+    const mergedCustomTraits = { ...customTraits };
+    
+    if (noPhysicalDetails) {
+      // Si "aucun détail" est coché, ne sauvegarder que ce flag
+      mergedCustomTraits.noPhysicalDetails = true;
+    } else if (petPhysicalDetails.length > 0 && petPhysicalDetails.some(d => d.trim() !== '')) {
+      // Si on a des détails physiques, les sauvegarder et ne pas inclure le flag noPhysicalDetails
+      mergedCustomTraits.physicalDetails = petPhysicalDetails;
+    }
 
     return {
       id: pet?.id || Date.now().toString(),
