@@ -87,6 +87,7 @@ const ModifierAnimal: React.FC = () => {
           name: data.name || data.pets.name,
           type: isCustomType ? 'other' : (storedType as PetType),
           otherType: isCustomType ? storedType : undefined,
+          birthMonthYear: data.birth_month_year || undefined,
           breed: (data.pets as any).breed || undefined,
           physicalDetails,
           clothingStyle,
@@ -171,6 +172,7 @@ const ModifierAnimal: React.FC = () => {
           child_id: childId,
           pet_id: petId,
           name: updatedPet.name,
+          birth_month_year: updatedPet.birthMonthYear || null,
           traits: updatedPet.traits?.join(', ') || null,
           traits_custom: updatedPet.customTraits || null,
           relation_label: finalType

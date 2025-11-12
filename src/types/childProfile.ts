@@ -80,6 +80,7 @@ export type PetData = {
   name: string;
   type: PetType;
   otherType?: string;
+  birthMonthYear?: string; // Format: YYYY-MM (ex: 2025-11)
   breed?: string;
   physicalDetails?: string[];
   traits: PetTrait[];

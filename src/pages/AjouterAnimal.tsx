@@ -212,6 +212,7 @@ export default function AjouterAnimal() {
         child_id: childProfileId,
         pet_id: pet.id,
         name: petData.name,
+        birth_month_year: petData.birthMonthYear || null,
         traits: petData.traits?.join(', ') || null,
         traits_custom: petData.customTraits || null,
         relation_label: finalType

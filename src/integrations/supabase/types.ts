@@ -401,6 +401,7 @@ export type Database = {
       }
       child_pets: {
         Row: {
+          birth_month_year: string | null
           child_id: string | null
           created_at: string | null
           id: string
@@ -411,6 +412,7 @@ export type Database = {
           traits_custom: Json | null
         }
         Insert: {
+          birth_month_year?: string | null
           child_id?: string | null
           created_at?: string | null
           id?: string
@@ -421,6 +423,7 @@ export type Database = {
           traits_custom?: Json | null
         }
         Update: {
+          birth_month_year?: string | null
           child_id?: string | null
           created_at?: string | null
           id?: string

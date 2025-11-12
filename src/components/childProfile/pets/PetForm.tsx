@@ -25,6 +25,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
+  const [birthMonthYear, setBirthMonthYear] = useState(pet?.birthMonthYear || '');
   const [breed, setBreed] = useState(pet?.breed || '');
   const [physicalDetails, setPhysicalDetails] = useState<string[]>(pet?.physicalDetails || []);
   const [clothingStyle, setClothingStyle] = useState<string>(pet?.clothingStyle || '');
@@ -127,6 +128,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       name: name.trim(),
       type,
       otherType: type === 'other' ? otherType.trim() : undefined,
+      birthMonthYear: birthMonthYear || undefined,
       breed: breed.trim() || undefined,
       physicalDetails: physicalDetails.length > 0 ? physicalDetails : undefined,
       clothingStyle: clothingStyle.length > 0 ? clothingStyle : undefined,
@@ -148,6 +150,10 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
     if (type === 'other' && !otherType.trim()) {
       errors.push("le type d'animal personnalisé");
+    }
+
+    if (!birthMonthYear) {
+      errors.push("la date de naissance de l'animal");
     }
 
     if (!breed.trim()) {
@@ -187,7 +193,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, otherType, breed, physicalDetails, clothingStyle, selectedTraits, customTraits]);
+  }, [name, type, otherType, birthMonthYear, breed, physicalDetails, clothingStyle, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -245,6 +251,20 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             />
           </div>
         )}
+      </div>
+
+      {/* Date de naissance de l'animal */}
+      <div className="space-y-2">
+        <Label htmlFor="pet-birth" className="text-base font-medium">
+          Quand est né cet animal ? <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="pet-birth"
+          type="month"
+          value={birthMonthYear}
+          onChange={(e) => setBirthMonthYear(e.target.value)}
+          className="text-base"
+        />
       </div>
 
       {/* Race de l'animal */}
