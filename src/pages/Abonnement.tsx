@@ -264,7 +264,7 @@ const Abonnement: React.FC = () => {
                 </ul>
                 <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
                   <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
-                    <span>🎁</span> Cadeaux fidélité
+                    <span>🎁</span> Cadeaux de fidélité
                   </h3>
                   <ul className="space-y-1 text-sm">
                     <li className="flex items-start gap-2">
@@ -321,7 +321,7 @@ const Abonnement: React.FC = () => {
                 </ul>
                 <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
                   <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
-                    <span>🎁</span> Cadeaux fidélité
+                    <span>🎁</span> Cadeaux de fidélité
                   </h3>
                   <ul className="space-y-1 text-sm">
                     <li className="flex items-start gap-2">
