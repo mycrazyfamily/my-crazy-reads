@@ -40,10 +40,28 @@ const NosHistoires: React.FC = () => {
             </div>
             
             <div className="space-y-6 text-mcf-text/80 leading-relaxed">
-              <p className="text-lg">Chaque livre repose sur un tronc commun narratif, spécifiquement adapté à chaque tranche d’âge de 0 à 10 ans.<strong>tronc commun narratif</strong>, spécifiquement adapté 
+              <p className="text-lg">Chaque livre repose sur un tronc commun narratif, spécifiquement adapté à toutes les tranches d’âge de 0 à 10 ans.     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              <strong>tronc commun narratif</strong>, spécifiquement adapté 
                 à chaque tranche d'âge de 0 à 10 ans.
               </p>
-              <p className="text-lg">Ces histoires sont conçues avec l’appui de psychologues de l’enfance, chercheurs en développement et enseignants.<strong>psychologues de l'enfance</strong>, 
+              <p className="text-lg">Ces histoires sont conçues avec l’appui de psychologues de l’enfance, chercheurs en développement et enseignants.    <strong>psychologues de l'enfance</strong>, 
                 chercheurs en développement et enseignants.
               </p>
               <p className="text-lg">
