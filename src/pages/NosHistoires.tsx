@@ -30,7 +30,7 @@ const NosHistoires: React.FC = () => {
             </h1>
             <p className="text-lg md:text-xl text-mcf-text/80 leading-relaxed max-w-3xl mx-auto">
               Chez My Crazy Family, chaque livre est plus qu'un récit : c'est une expérience personnalisée, 
-              conçue pour nourrir l'imaginaire, la confiance et l'expression des enfants de 0 à 10 ans.
+              conçue pour nourrir l'imaginaire, la confiance en soi et l'expression des enfants de 0 à 10 ans.
             </p>
           </section>
 
