@@ -247,7 +247,7 @@ const Abonnement: React.FC = () => {
                 className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-100 border-mcf-mint hover:border-mcf-primary/50 flex flex-col"
               >
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement mensuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">19,99€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
+                <p className="text-3xl font-bold mb-4 text-mcf-secondary">25,99€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
                 <ul className="space-y-3 mb-6 flex-grow">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
@@ -262,6 +262,25 @@ const Abonnement: React.FC = () => {
                     <span>Livraison incluse</span>
                   </li>
                 </ul>
+                <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
+                  <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
+                    <span>🎁</span> Cadeaux fidélité
+                  </h3>
+                  <ul className="space-y-1 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                    </li>
+                  </ul>
+                </div>
                 <button 
                   onClick={() => handleSelectPlan('monthly')}
                   disabled={isLoading}
@@ -278,10 +297,10 @@ const Abonnement: React.FC = () => {
                 className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-200 border-mcf-secondary hover:border-mcf-secondary/70 flex flex-col"
               >
                 <div className="text-sm font-bold py-1 px-3 rounded-full inline-block mb-3 bg-mcf-mint text-mcf-primary">
-                  ÉCONOMIE DE 20%
+                  ÉCONOMIE DE 10%
                 </div>
                 <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement annuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">219,99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
+                <p className="text-3xl font-bold mb-4 text-mcf-secondary">285,99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
                 <ul className="space-y-3 mb-6 flex-grow">
                   <li className="flex items-center gap-2">
                     <span className="text-mcf-secondary font-bold">✓</span>
@@ -300,6 +319,25 @@ const Abonnement: React.FC = () => {
                     <span>Livraison incluse</span>
                   </li>
                 </ul>
+                <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
+                  <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
+                    <span>🎁</span> Cadeaux fidélité
+                  </h3>
+                  <ul className="space-y-1 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-mcf-secondary">•</span>
+                      <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                    </li>
+                  </ul>
+                </div>
                 <button 
                   onClick={() => handleSelectPlan('yearly')}
                   disabled={isLoading}

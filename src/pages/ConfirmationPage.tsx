@@ -91,6 +91,40 @@ const ConfirmationPage = () => {
           </CardContent>
         </Card>
 
+        {/* Section Cadeaux fidélité */}
+        <Card className="border-2 border-mcf-mint/30 mb-8 overflow-hidden animate-fade-in animation-delay-350">
+          <div className="bg-mcf-mint/10 border-b border-mcf-mint/20 py-4 px-6">
+            <h2 className="text-xl font-semibold text-mcf-orange-dark flex items-center gap-2">
+              <span>🎁</span> Vos cadeaux fidélité
+            </h2>
+          </div>
+          <CardContent className="p-6">
+            <p className="text-gray-700 mb-4">
+              En tant qu'abonné, vous recevrez des cadeaux spéciaux pour célébrer le parcours de votre enfant :
+            </p>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="text-mcf-secondary font-bold text-xl">•</span>
+                <span className="text-gray-700">
+                  <strong>Au bout de 3 ans d'abonnement :</strong> un livre magique retraçant les 3 ans d'aventure de votre enfant offert
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-mcf-secondary font-bold text-xl">•</span>
+                <span className="text-gray-700">
+                  <strong>Au bout de 6 ans d'abonnement :</strong> un livre magique retraçant les 6 ans d'aventure de votre enfant offert
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-mcf-secondary font-bold text-xl">•</span>
+                <span className="text-gray-700">
+                  <strong>Au bout de 10 ans d'abonnement :</strong> une BD magique retraçant les 10 ans d'aventure de votre enfant offerte
+                </span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+
         {/* CTA Bouton */}
         <div className="flex flex-col items-center space-y-6 animate-fade-in animation-delay-400">
           <Button
