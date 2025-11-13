@@ -23,7 +23,7 @@ const NosHistoires: React.FC = () => {
       
       <main className="relative">
         {/* SECTION 1 - Hero Section */}
-        <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
+        <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/20 via-mcf-mint/30 to-mcf-secondary/20">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-30 mix-blend-overlay" />
@@ -48,15 +48,46 @@ const NosHistoires: React.FC = () => {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="absolute bottom-16 md:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="w-6 h-10 border-2 border-mcf-primary/50 rounded-full flex items-start justify-center p-2">
               <div className="w-1.5 h-3 bg-mcf-primary/50 rounded-full" />
             </div>
           </div>
         </section>
 
-        {/* SECTION 2 - Fonctionnement & méthode */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/5 to-transparent">
+        {/* SECTION 2 - Nos livres en images */}
+        <section className="py-24 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5 animate-fade-in">
+          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Palette className="w-10 h-10 text-mcf-secondary" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+                Nos livres en images
+              </h2>
+              <p className="text-lg text-mcf-text/70">
+                Découvrez la magie de nos histoires illustrées
+              </p>
+            </div>
+            
+            <div className="relative">
+              <div className="bg-gradient-to-br from-mcf-secondary/10 to-mcf-primary/10 rounded-3xl p-16 border-2 border-dashed border-mcf-secondary/30 text-center overflow-hidden">
+                <div className="absolute top-8 right-8 w-24 h-24 bg-mcf-primary/20 rounded-full blur-2xl" />
+                <div className="absolute bottom-8 left-8 w-28 h-28 bg-mcf-mint/20 rounded-full blur-2xl" />
+                <Book className="w-16 h-16 text-mcf-secondary/40 mx-auto mb-4" />
+                <p className="text-xl text-mcf-text/60 italic mb-2">
+                  Galerie d'illustrations à venir
+                </p>
+                <p className="text-sm text-mcf-text/50">
+                  Enfants avec leurs livres • Scènes de lecture en famille • Mise en scène créative
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 - Fonctionnement & méthode */}
+        <section className="py-24 bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/5 to-transparent animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16 animate-fade-in">
               <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
@@ -125,88 +156,8 @@ const NosHistoires: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 3 - Implication des parents */}
-        <section className="py-24 bg-white">
-          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Users className="w-10 h-10 text-mcf-primary" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
-                Deux façons de vivre l'aventure
-              </h2>
-              <p className="text-lg text-mcf-text/70">
-                Choisissez votre niveau d'implication
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
-              {/* Option 1 - Flemmard */}
-              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-mint/5 to-white">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <CardContent className="pt-8 relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Heart className="w-7 h-7 text-mcf-mint" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-mcf-secondary">
-                      Mode "flemmard"
-                    </h3>
-                  </div>
-                  <ul className="space-y-4 text-mcf-text/80">
-                    <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous suivez le thème proposé chaque mois</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Le livre reste 100% personnalisé (prénoms, animaux, proches, lieux, etc.)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous pouvez enrichir avec quelques détails… ou laisser MCF tout gérer</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Option 2 - Action */}
-              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-secondary/5 to-white">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <CardContent className="pt-8 relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Zap className="w-7 h-7 text-mcf-secondary" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-mcf-primary">
-                      Mode "action"
-                    </h3>
-                  </div>
-                  <ul className="space-y-4 text-mcf-text/80">
-                    <li className="flex items-start gap-3">
-                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous proposez un thème ou une idée totalement différente</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
-                      <span className="text-base">L'équipe crée un livre personnalisé en fonction de votre demande</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="text-center bg-gradient-to-r from-mcf-primary/10 via-mcf-mint/10 to-mcf-secondary/10 rounded-2xl p-8 max-w-4xl mx-auto">
-              <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
-                Que vous soyez ultra impliqué… ou un peu flemmard, <br className="hidden md:block" />
-                chaque mois devient une aventure personnalisée.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 4 - Points qui font la différence */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/10 via-transparent to-mcf-secondary/10">
+        {/* SECTION 4 - Ce qui rend My Crazy Family unique */}
+        <section className="py-24 bg-gradient-to-br from-mcf-mint/10 via-transparent to-mcf-secondary/10 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
@@ -286,8 +237,88 @@ const NosHistoires: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 5 - Témoignages (à venir) */}
-        <section className="py-24 bg-white">
+        {/* SECTION 5 - Deux façons de vivre l'aventure */}
+        <section className="py-24 bg-white animate-fade-in">
+          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Users className="w-10 h-10 text-mcf-primary" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+                Deux façons de vivre l'aventure
+              </h2>
+              <p className="text-lg text-mcf-text/70">
+                Choisissez votre niveau d'implication
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
+              {/* Option 1 - Flemmard */}
+              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-mint/5 to-white">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                <CardContent className="pt-8 relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Heart className="w-7 h-7 text-mcf-mint" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-mcf-secondary">
+                      Mode "flemmard"
+                    </h3>
+                  </div>
+                  <ul className="space-y-4 text-mcf-text/80">
+                    <li className="flex items-start gap-3">
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-base">Vous suivez le thème proposé chaque mois</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-base">Le livre reste 100% personnalisé (prénoms, animaux, proches, lieux, etc.)</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-base">Vous pouvez enrichir avec quelques détails… ou laisser MCF tout gérer</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Option 2 - Action */}
+              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-secondary/5 to-white">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                <CardContent className="pt-8 relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Zap className="w-7 h-7 text-mcf-secondary" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-mcf-primary">
+                      Mode "action"
+                    </h3>
+                  </div>
+                  <ul className="space-y-4 text-mcf-text/80">
+                    <li className="flex items-start gap-3">
+                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
+                      <span className="text-base">Vous proposez un thème ou une idée totalement différente</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
+                      <span className="text-base">L'équipe crée un livre personnalisé en fonction de votre demande</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center bg-gradient-to-r from-mcf-primary/10 via-mcf-mint/10 to-mcf-secondary/10 rounded-2xl p-8 max-w-4xl mx-auto">
+              <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
+                Que vous soyez ultra impliqué… ou un peu flemmard, <br className="hidden md:block" />
+                chaque mois devient une aventure personnalisée.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 6 - Témoignages */}
+        <section className="py-24 bg-gradient-to-br from-mcf-mint/5 via-transparent to-mcf-secondary/5 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
@@ -317,39 +348,8 @@ const NosHistoires: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 6 - Illustrations IA (à venir) */}
-        <section className="py-24 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5">
-          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Palette className="w-10 h-10 text-mcf-secondary" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
-                Nos livres en images
-              </h2>
-              <p className="text-lg text-mcf-text/70">
-                Découvrez la magie de nos histoires illustrées
-              </p>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-gradient-to-br from-mcf-secondary/10 to-mcf-primary/10 rounded-3xl p-16 border-2 border-dashed border-mcf-secondary/30 text-center overflow-hidden">
-                <div className="absolute top-8 right-8 w-24 h-24 bg-mcf-primary/20 rounded-full blur-2xl" />
-                <div className="absolute bottom-8 left-8 w-28 h-28 bg-mcf-mint/20 rounded-full blur-2xl" />
-                <Book className="w-16 h-16 text-mcf-secondary/40 mx-auto mb-4" />
-                <p className="text-xl text-mcf-text/60 italic mb-2">
-                  Galerie d'illustrations à venir
-                </p>
-                <p className="text-sm text-mcf-text/50">
-                  Enfants avec leurs livres • Scènes de lecture en famille • Mise en scène créative
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* SECTION 7 - Call-to-action */}
-        <section className="py-24 bg-white">
+        <section className="py-24 bg-white animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-5xl">
             <div className="relative overflow-hidden bg-gradient-to-br from-mcf-primary via-mcf-secondary to-mcf-mint rounded-3xl p-12 md:p-16 text-center text-white shadow-2xl">
               {/* Decorative elements */}
