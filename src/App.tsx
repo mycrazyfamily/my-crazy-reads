@@ -44,6 +44,7 @@ import AjouterAnimal from './pages/AjouterAnimal'
 import AjouterProche from './pages/AjouterProche'
 import AjouterLieu from './pages/AjouterLieu'
 import ModifierLieu from './pages/ModifierLieu'
+import NosHistoires from './pages/NosHistoires'
 
 function App() {
   const isDev = false; // Protection activée en production
@@ -82,6 +83,7 @@ function App() {
               
               {/* Public routes */}
               <Route path="/" element={<Index />} />
+              <Route path="/histoires" element={<NosHistoires />} />
               <Route path="/authentification" element={<Authentication />} />
               <Route path="/check-email" element={<CheckEmail />} />
               <Route path="/reset-password" element={<ResetPassword />} />
