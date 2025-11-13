@@ -4,17 +4,20 @@ import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Book, Heart, Sparkles, Users, Award, MessageCircle } from 'lucide-react';
+
 const NosHistoires: React.FC = () => {
-  const {
-    isAuthenticated
-  } = useAuth();
+  const { isAuthenticated } = useAuth();
+
   const getDestinationPath = () => {
     return isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
   };
+
   const getButtonText = () => {
     return isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
   };
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       <main className="pt-24 pb-16">
@@ -40,12 +43,12 @@ const NosHistoires: React.FC = () => {
             </div>
             
             <div className="space-y-6 text-mcf-text/80 leading-relaxed">
-              <p className="text-lg">Chaque livre repose sur un tronc commun narratif, spécifiquement adapté à toutes les tranches d’âge de 0 à 10 ans. 
-              <strong>tronc commun narratif</strong>, spécifiquement adapté 
+              <p className="text-lg">
+                Chaque livre repose sur un <strong>tronc commun narratif</strong>, spécifiquement adapté 
                 à chaque tranche d'âge de 0 à 10 ans.
               </p>
-              <p className="text-lg">Ces histoires sont conçues avec l’appui de psychologues de l’enfance, chercheurs en développement et enseignants.    <strong>psychologues de l'enfance</strong>, 
-                chercheurs en développement et enseignants.
+              <p className="text-lg">
+                Ces histoires sont conçues avec l'appui de <strong>psychologues de l'enfance, chercheurs en développement personnel et enseignants</strong>.
               </p>
               <p className="text-lg">
                 Elles sont relues par des <strong>auteurs jeunesse</strong> pour un rythme et un ton 
@@ -226,7 +229,10 @@ const NosHistoires: React.FC = () => {
                 Rejoignez les familles qui offrent à leurs enfants des histoires uniques, 
                 créées rien que pour eux.
               </p>
-              <Link to={getDestinationPath()} className="inline-block bg-white text-mcf-primary font-bold text-lg px-10 py-4 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-lg">
+              <Link
+                to={getDestinationPath()}
+                className="inline-block bg-white text-mcf-primary font-bold text-lg px-10 py-4 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
                 {getButtonText()}
               </Link>
             </div>
@@ -236,6 +242,8 @@ const NosHistoires: React.FC = () => {
       </main>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default NosHistoires;
