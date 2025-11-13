@@ -91,11 +91,11 @@ const ConfirmationPage = () => {
           </CardContent>
         </Card>
 
-        {/* Section Cadeaux fidélité */}
+        {/* Section Cadeaux de fidélité */}
         <Card className="border-2 border-mcf-mint/30 mb-8 overflow-hidden animate-fade-in animation-delay-350">
           <div className="bg-mcf-mint/10 border-b border-mcf-mint/20 py-4 px-6">
             <h2 className="text-xl font-semibold text-mcf-orange-dark flex items-center gap-2">
-              <span>🎁</span> Vos cadeaux fidélité
+              <span>🎁</span> Vos cadeaux de fidélité
             </h2>
           </div>
           <CardContent className="p-6">
