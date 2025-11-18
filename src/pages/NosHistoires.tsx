@@ -297,14 +297,14 @@ const NosHistoires: React.FC = () => {
                     <div className="w-16 h-16 bg-mcf-mint/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Sparkles className="w-8 h-8 text-mcf-mint" />
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-mcf-secondary">
+                    <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
                       Qualité premium
                     </h3>
                   </div>
                   <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
                       <span className="text-mcf-mint text-2xl">•</span>
-                      <span className="text-base">Livres <strong className="text-mcf-primary">imprimés en France</strong></span>
+                      <span className="text-base">Livres <strong className="text-mcf-primary">imprimés en France</strong> 🇫🇷</span>
                     </li>
                     <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
                       <span className="text-mcf-mint text-2xl">•</span>
@@ -313,10 +313,6 @@ const NosHistoires: React.FC = () => {
                     <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
                       <span className="text-mcf-mint text-2xl">•</span>
                       <span className="text-base">Papier épais, formats adaptés, finitions haut de gamme</span>
-                    </li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-mint text-2xl">•</span>
-                      <span className="text-base">Justifie pleinement le prix</span>
                     </li>
                   </ul>
                 </CardContent>
@@ -341,7 +337,7 @@ const NosHistoires: React.FC = () => {
                     </li>
                     <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
                       <span className="text-mcf-secondary text-2xl">•</span>
-                      <span className="text-base">Outils de sensibilisation pour enfants et parents</span>
+                      <span className="text-base">Outils de sensibilisation accessibles pour enfants et parents</span>
                     </li>
                     <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
                       <span className="text-mcf-secondary text-2xl">•</span>
