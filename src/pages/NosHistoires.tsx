@@ -61,27 +61,6 @@ const NosHistoires: React.FC = () => {
                 🇫🇷 <em>Made in France</em>
               </p>
               <p className="text-lg text-mcf-text/80 max-w-4xl mx-auto leading-relaxed">
-                Chaque livre est une base qui s'adapte à votre enfant : prénom, famille, âge, animal préféré, passions… Tout change pour créer des livres vraiment uniques.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
               <br />
                 Voici quelques exemples inspirants parmi des centaines d'histoires disponibles :
               </p>
