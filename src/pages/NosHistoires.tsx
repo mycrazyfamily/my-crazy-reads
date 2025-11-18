@@ -176,27 +176,27 @@ const NosHistoires: React.FC = () => {
             {/* Callout final */}
             <div className="max-w-4xl mx-auto">
               <div className="bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/10 to-mcf-primary/10 rounded-2xl p-8 md:p-12 border-2 border-mcf-mint/30 shadow-lg">
-                <div className="flex items-start gap-4 mb-4">
-                  <MessageCircle className="w-8 h-8 text-mcf-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-mcf-primary mb-4">
-                      Chaque histoire commence par vous
-                    </h3>
-                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
-                      Ces livres sont conçus comme des <strong className="text-mcf-primary">trames personnalisables</strong>, 
-                      enrichies grâce à <strong className="text-mcf-primary">vos échanges avec My Crazy Family</strong>, 
-                      et selon les éléments que <strong className="text-mcf-primary">vous choisissez de partager</strong> (âge, 
-                      lien familial, souvenirs, traits de caractère…).
-                    </p>
-                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
-                      Vous pouvez même sortir du cadre et demander un <strong className="text-mcf-primary">scénario 
-                      100 % inédit</strong> imaginé pour votre famille.
-                    </p>
-                    <p className="text-lg text-mcf-text/80 leading-relaxed flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-mcf-secondary" />
-                      <em>L'aventure MCF se construit dans la durée, avec vous.</em>
-                    </p>
-                  </div>
+                <div className="mb-6">
+                  <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary mb-6 flex items-center gap-3">
+                    <span className="bg-mcf-primary/10 p-2 rounded-lg">
+                      <MessageCircle className="w-6 h-6 text-mcf-primary" />
+                    </span>
+                    Chaque histoire commence par vous
+                  </h3>
+                  <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
+                    Ces livres sont conçus comme des <strong className="text-mcf-primary">trames personnalisables</strong>, 
+                    enrichies grâce à <strong className="text-mcf-primary">vos échanges avec My Crazy Family</strong>, 
+                    et selon les éléments que <strong className="text-mcf-primary">vous choisissez de partager</strong> (âge, 
+                    lien familial, souvenirs, traits de caractère…).
+                  </p>
+                  <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
+                    Vous pouvez même sortir du cadre et demander un <strong className="text-mcf-primary">scénario 
+                    100 % inédit</strong> imaginé pour votre famille.
+                  </p>
+                  <p className="text-lg text-mcf-text/80 leading-relaxed flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-mcf-secondary" />
+                    <em>L'aventure MCF se construit dans la durée, avec vous.</em>
+                  </p>
                 </div>
               </div>
             </div>
