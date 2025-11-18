@@ -5,20 +5,17 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Book, Heart, Sparkles, Users, Award, MessageCircle, Brain, Palette, GraduationCap, Zap, Leaf, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
 const NosHistoires: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-
+  const {
+    isAuthenticated
+  } = useAuth();
   const getDestinationPath = () => {
     return isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
   };
-
   const getButtonText = () => {
     return isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       <main className="relative">
@@ -38,10 +35,7 @@ const NosHistoires: React.FC = () => {
               Chez My Crazy Family, chaque livre est plus qu'un récit : c'est une expérience personnalisée, 
               conçue pour nourrir l'imaginaire, la confiance en soi et l'expression des enfants de 0 à 10 ans.
             </p>
-            <Link
-              to={getDestinationPath()}
-              className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
-            >
+            <Link to={getDestinationPath()} className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
               <Sparkles className="w-5 h-5" />
               {getButtonText()}
             </Link>
@@ -67,8 +61,19 @@ const NosHistoires: React.FC = () => {
                 🇫🇷 <em>Made in France</em>
               </p>
               <p className="text-lg text-mcf-text/80 max-w-4xl mx-auto leading-relaxed">
-                Chaque livre est une base qui s'adapte à votre enfant : prénom, famille, âge, animal préféré, passions… 
-                Tout change pour créer des livres vraiment uniques.<br />
+                Chaque livre est une base qui s'adapte à votre enfant : prénom, famille, âge, animal préféré, passions… Tout change pour créer des livres vraiment uniques.
+
+
+
+
+
+
+
+
+
+
+
+              <br />
                 Voici quelques exemples inspirants parmi des centaines d'histoires disponibles :
               </p>
             </div>
@@ -78,11 +83,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 1 - Les super-parents d'Ambre */}
               <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-ambre.png" 
-                    alt="Les super-parents d'Ambre"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-ambre.png" alt="Les super-parents d'Ambre" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -100,11 +101,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 2 - Les aventures de Gabriel et Biscuit */}
               <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-gabriel.png" 
-                    alt="Les aventures de Gabriel et Biscuit"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-gabriel.png" alt="Les aventures de Gabriel et Biscuit" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -122,11 +119,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 3 - Le Noël des petits lutins */}
               <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-noel.png" 
-                    alt="Le Noël des petits lutins"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-noel.png" alt="Le Noël des petits lutins" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -144,11 +137,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 4 - Jules et les protecteurs */}
               <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-jules.png" 
-                    alt="Jules et les protecteurs de la planète bleue"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-jules.png" alt="Jules et les protecteurs de la planète bleue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -166,11 +155,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 5 - Léna et le mystère */}
               <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-lena.png" 
-                    alt="Léna et le mystère de la pyramide endormie"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-lena.png" alt="Léna et le mystère de la pyramide endormie" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -188,11 +173,7 @@ const NosHistoires: React.FC = () => {
               {/* Livre 6 - Les secrets de la forêt */}
               <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/book-foret.png" 
-                    alt="Les secrets de la forêt endormie"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src="/lovable-uploads/book-foret.png" alt="Les secrets de la forêt endormie" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
@@ -406,10 +387,7 @@ const NosHistoires: React.FC = () => {
                   Rejoignez les familles qui offrent à leurs enfants des histoires uniques, 
                   créées rien que pour eux.
                 </p>
-                <Link
-                  to={getDestinationPath()}
-                  className="inline-flex items-center gap-3 bg-white text-mcf-primary font-bold text-lg md:text-xl px-12 py-5 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl"
-                >
+                <Link to={getDestinationPath()} className="inline-flex items-center gap-3 bg-white text-mcf-primary font-bold text-lg md:text-xl px-12 py-5 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl">
                   <Heart className="w-5 h-5" />
                   {getButtonText()}
                 </Link>
@@ -420,8 +398,6 @@ const NosHistoires: React.FC = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default NosHistoires;
