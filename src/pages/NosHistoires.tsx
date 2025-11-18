@@ -73,6 +73,15 @@ const NosHistoires: React.FC = () => {
 
 
 
+
+
+
+
+
+
+
+
+
               <br />
                 Voici quelques exemples inspirants parmi des centaines d'histoires disponibles :
               </p>
