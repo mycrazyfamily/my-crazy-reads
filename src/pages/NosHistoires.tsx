@@ -60,10 +60,6 @@ const NosHistoires: React.FC = () => {
               <p className="text-xl text-mcf-text/70 mb-6">
                 🇫🇷 <em>Made in France</em>
               </p>
-              <p className="text-lg text-mcf-text/80 max-w-4xl mx-auto leading-relaxed">
-              <br />
-                Voici quelques exemples inspirants parmi des centaines d'histoires disponibles :
-              </p>
             </div>
             
             {/* Galerie de livres */}
