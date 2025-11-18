@@ -188,13 +188,13 @@ const NosHistoires: React.FC = () => {
                       et selon les éléments que <strong className="text-mcf-primary">vous choisissez de partager</strong> (âge, 
                       lien familial, souvenirs, traits de caractère…).
                     </p>
-                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-mcf-secondary" />
-                      <em>L'aventure MCF se construit dans la durée, avec vous.</em>
-                    </p>
-                    <p className="text-lg text-mcf-text/80 leading-relaxed">
+                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
                       Vous pouvez même sortir du cadre et demander un <strong className="text-mcf-primary">scénario 
                       100 % inédit</strong> imaginé pour votre famille.
+                    </p>
+                    <p className="text-lg text-mcf-text/80 leading-relaxed flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-mcf-secondary" />
+                      <em>L'aventure MCF se construit dans la durée, avec vous.</em>
                     </p>
                   </div>
                 </div>
