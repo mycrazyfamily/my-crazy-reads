@@ -367,38 +367,7 @@ const NosHistoires: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 5 - Témoignages */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/5 via-transparent to-mcf-secondary/5 animate-fade-in">
-          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <MessageCircle className="w-10 h-10 text-mcf-primary" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
-                Ils ont adopté My Crazy Family
-              </h2>
-              <p className="text-lg text-mcf-text/70">
-                Les témoignages de nos familles heureuses
-              </p>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-gradient-to-br from-mcf-mint/10 to-mcf-secondary/10 rounded-3xl p-16 border-2 border-dashed border-mcf-mint/30 text-center overflow-hidden">
-                <div className="absolute top-4 left-4 w-20 h-20 bg-mcf-mint/20 rounded-full blur-2xl" />
-                <div className="absolute bottom-4 right-4 w-32 h-32 bg-mcf-secondary/20 rounded-full blur-2xl" />
-                <Heart className="w-16 h-16 text-mcf-mint/40 mx-auto mb-4" />
-                <p className="text-xl text-mcf-text/60 italic mb-2">
-                  Galerie de témoignages à venir
-                </p>
-                <p className="text-sm text-mcf-text/50">
-                  Photos d'enfants et parents • Témoignages clients • Citations inspirantes
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 7 - Call-to-action */}
+        {/* SECTION 5 - Call-to-action */}
         <section className="py-24 bg-white animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-5xl">
             <div className="relative overflow-hidden bg-gradient-to-br from-mcf-primary via-mcf-secondary to-mcf-mint rounded-3xl p-12 md:p-16 text-center text-white shadow-2xl">
