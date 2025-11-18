@@ -58,159 +58,181 @@ const NosHistoires: React.FC = () => {
         {/* SECTION 2 - Nos livres en images */}
         <section className="py-24 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Palette className="w-10 h-10 text-mcf-secondary" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
-                Nos livres en images
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4 flex items-center justify-center gap-3">
+                <Sparkles className="w-10 h-10" />
+                Quelques exemples d'histoires personnalisées
               </h2>
-              <p className="text-xl text-mcf-text/70 mb-3">
-                Made in France 🇫🇷
+              <p className="text-xl text-mcf-text/70 mb-6">
+                🇫🇷 <em>Made in France</em>
+              </p>
+              <p className="text-lg text-mcf-text/80 max-w-4xl mx-auto leading-relaxed">
+                Chaque livre est une base qui s'adapte à votre enfant : prénom, famille, âge, animal préféré, passions… 
+                Tout change pour créer des livres vraiment uniques.<br />
+                Voici quelques exemples inspirants parmi des centaines d'histoires disponibles :
               </p>
             </div>
             
-            {/* Ligne 1 - Thématique familiale et émotionnelle */}
-            <div className="mb-12">
-              <div className="grid md:grid-cols-3 gap-8 mb-6">
-                {/* Livre 1 - Les super-parents d'Ambre */}
-                <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-ambre.png" 
-                      alt="Les super-parents d'Ambre"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Les super-parents d'Ambre
-                    </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">0-3 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Une histoire tendre pour construire la sécurité affective
-                    </p>
-                  </CardContent>
-                </Card>
+            {/* Galerie de livres */}
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              {/* Livre 1 - Les super-parents d'Ambre */}
+              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-ambre.png" 
+                    alt="Les super-parents d'Ambre"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Les super-parents d'Ambre
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Une histoire tendre pour valoriser le lien parent-enfant
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    💖 Sécurité affective
+                  </p>
+                </CardContent>
+              </Card>
 
-                {/* Livre 2 - Les aventures de Gabriel et Biscuit */}
-                <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-gabriel.png" 
-                      alt="Les aventures de Gabriel et Biscuit"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Les aventures de Gabriel et Biscuit
-                    </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">3-6 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Un lien unique entre enfant et animal pour grandir ensemble
-                    </p>
-                  </CardContent>
-                </Card>
+              {/* Livre 2 - Les aventures de Gabriel et Biscuit */}
+              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-gabriel.png" 
+                    alt="Les aventures de Gabriel et Biscuit"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Les aventures de Gabriel et Biscuit
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Un lien unique entre enfant et animal pour grandir ensemble
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    🐾 Lien enfant-animal
+                  </p>
+                </CardContent>
+              </Card>
 
-                {/* Livre 3 - Le Noël des petits lutins */}
-                <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-noel.png" 
-                      alt="Le Noël des petits lutins"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Le Noël des petits lutins
-                    </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">4-7 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Une magie de Noël où aider compte autant que recevoir
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Intentions éducatives ligne 1 */}
-              <div className="bg-gradient-to-r from-mcf-mint/10 to-mcf-secondary/10 rounded-2xl p-6 border border-mcf-mint/30">
-                <p className="text-center text-mcf-text/80 font-medium">
-                  💖 Sécurité affective • 🐾 Lien affectif enfant-animal • 🎁 Entraide et participation
-                </p>
-              </div>
+              {/* Livre 3 - Le Noël des petits lutins */}
+              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-noel.png" 
+                    alt="Le Noël des petits lutins"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Le Noël des petits lutins
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Une magie de Noël où aider compte autant que recevoir
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    🎁 Entraide et participation
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Livre 4 - Jules et les protecteurs */}
+              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-jules.png" 
+                    alt="Jules et les protecteurs de la planète bleue"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Jules et les protecteurs de la planète bleue
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Une aventure écologique pour sauver la planète, ensemble
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    🌱 Éveil à la nature & responsabilité collective
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Livre 5 - Léna et le mystère */}
+              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-lena.png" 
+                    alt="Léna et le mystère de la pyramide endormie"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Léna et le mystère de la pyramide endormie
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Une plongée dans l'Égypte ancienne pour les petits explorateurs
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    🔍 Curiosité historique & esprit d'équipe
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Livre 6 - Les secrets de la forêt */}
+              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src="/lovable-uploads/book-foret.png" 
+                    alt="Les secrets de la forêt endormie"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="pt-6 pb-8">
+                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
+                    Les secrets de la forêt endormie
+                  </h3>
+                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
+                    Réveiller la nature avec des rires et des histoires
+                  </p>
+                  <p className="text-sm text-mcf-secondary font-semibold">
+                    👥 Coopération joyeuse avec la nature
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Ligne 2 - Engagement, culture et imagination */}
-            <div>
-              <div className="grid md:grid-cols-3 gap-8 mb-6">
-                {/* Livre 4 - Jules et les protecteurs */}
-                <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-jules.png" 
-                      alt="Jules et les protecteurs de la planète bleue"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Jules et les protecteurs de la planète bleue
+            {/* Callout final */}
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/10 to-mcf-primary/10 rounded-2xl p-8 md:p-12 border-2 border-mcf-mint/30 shadow-lg">
+                <div className="flex items-start gap-4 mb-4">
+                  <MessageCircle className="w-8 h-8 text-mcf-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-2xl font-bold text-mcf-primary mb-4">
+                      Chaque histoire commence par vous
                     </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">6-9 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Une mission pour sauver la planète, ensemble
+                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
+                      Ces livres sont conçus comme des <strong className="text-mcf-primary">trames personnalisables</strong>, 
+                      enrichies grâce à <strong className="text-mcf-primary">vos échanges avec My Crazy Family</strong>, 
+                      et selon les éléments que <strong className="text-mcf-primary">vous choisissez de partager</strong> (âge, 
+                      lien familial, souvenirs, traits de caractère…).
                     </p>
-                  </CardContent>
-                </Card>
-
-                {/* Livre 5 - Léna et le mystère */}
-                <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-lena.png" 
-                      alt="Léna et le mystère de la pyramide endormie"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-mcf-secondary" />
+                      <em>L'aventure MCF se construit dans la durée, avec vous.</em>
+                    </p>
+                    <p className="text-lg text-mcf-text/80 leading-relaxed">
+                      Vous pouvez même sortir du cadre et demander un <strong className="text-mcf-primary">scénario 
+                      100 % inédit</strong> imaginé pour votre famille.
+                    </p>
                   </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Léna et le mystère de la pyramide endormie
-                    </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">6-10 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Une plongée dans l'Égypte ancienne pour les petits explorateurs
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Livre 6 - Les secrets de la forêt */}
-                <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/book-foret.png" 
-                      alt="Les secrets de la forêt endormie"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="pt-6 pb-8">
-                    <h3 className="text-xl font-bold text-mcf-primary mb-2">
-                      Les secrets de la forêt endormie
-                    </h3>
-                    <p className="text-sm text-mcf-secondary font-semibold mb-3">4-8 ans</p>
-                    <p className="text-mcf-text/80 mb-4 leading-relaxed">
-                      Réveiller la nature avec des rires et des histoires
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Intentions éducatives ligne 2 */}
-              <div className="bg-gradient-to-r from-mcf-secondary/10 to-mcf-primary/10 rounded-2xl p-6 border border-mcf-secondary/30">
-                <p className="text-center text-mcf-text/80 font-medium">
-                  🌱 Écologie et responsabilité collective • 🔍 Curiosité historique • 👥 Coopération joyeuse avec la nature
-                </p>
+                </div>
               </div>
             </div>
           </div>
