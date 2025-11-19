@@ -89,31 +89,31 @@ const NewIndex: React.FC = () => {
 
             <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
               {/* Option 1 - Guidé */}
-              <div className="relative overflow-hidden border-2 border-white/30 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/10 backdrop-blur-sm rounded-lg">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
                       🪄
                     </div>
-                    <h3 className="text-2xl font-bold text-white">
+                    <h3 className="text-2xl font-bold text-mcf-primary">
                       Mode "guidé"
                     </h3>
                   </div>
-                  <p className="text-sm text-white/90 font-semibold mb-4 ml-[4.5rem]">
+                  <p className="text-sm text-mcf-secondary font-semibold mb-4 ml-[4.5rem]">
                     Pour ceux qui préfèrent la simplicité
                   </p>
-                  <ul className="space-y-4 text-white/90">
+                  <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3">
-                      <span className="text-white text-xl mt-0.5">✓</span>
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous suivez le thème proposé par My Crazy Family chaque mois</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-white text-xl mt-0.5">✓</span>
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
                       <span className="text-base">Le livre reste 100 % personnalisé (prénoms, proches, lieux, animaux…)</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-white text-xl mt-0.5">✓</span>
+                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous pouvez ajouter des détails ou simplement vous laisser porter</span>
                     </li>
                   </ul>
@@ -121,27 +121,27 @@ const NewIndex: React.FC = () => {
               </div>
 
               {/* Option 2 - Créatif */}
-              <div className="relative overflow-hidden border-2 border-white/30 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/10 backdrop-blur-sm rounded-lg">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
                       🎨
                     </div>
-                    <h3 className="text-2xl font-bold text-white">
+                    <h3 className="text-2xl font-bold text-mcf-primary">
                       Mode "créatif"
                     </h3>
                   </div>
-                  <p className="text-sm text-white/90 font-semibold mb-4 ml-[4.5rem]">
+                  <p className="text-sm text-mcf-secondary font-semibold mb-4 ml-[4.5rem]">
                     Pour ceux qui veulent façonner l'histoire
                   </p>
-                  <ul className="space-y-4 text-white/90">
+                  <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3">
-                      <span className="text-white text-xl mt-0.5">✓</span>
+                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous proposez un thème ou une idée totalement différente chaque mois où vous le souhaitez</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-white text-xl mt-0.5">✓</span>
+                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
                       <span className="text-base">L'équipe crée un livre personnalisé sur mesure, selon votre demande</span>
                     </li>
                   </ul>
@@ -149,7 +149,7 @@ const NewIndex: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto border border-white/20">
+            <div className="text-center bg-white/95 rounded-2xl p-8 max-w-4xl mx-auto border border-white/50">
               <p className="text-xl md:text-2xl font-semibold text-white italic leading-relaxed">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
                 chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
