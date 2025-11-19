@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  Baby, Book, Gift, User, Clock, Truck, Edit, Plus, Settings, 
-  LogOut, Home, Heart, HelpCircle, Copy, ExternalLink, MessageSquarePlus,
+  Baby, User, Clock, Truck, Edit, Plus, Settings, 
+  LogOut, Home, Heart, HelpCircle, Copy, ExternalLink,
   ShoppingBag, Sparkles
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -19,9 +19,6 @@ import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChildProfileCard from '@/components/familyDashboard/ChildProfileCard';
-import BookTimeline from '@/components/familyDashboard/BookTimeline';
-import FamilyCodeShare from '@/components/familyDashboard/FamilyCodeShare';
-import StoryCustomizationForm from '@/components/familyDashboard/StoryCustomizationForm';
 import ManageSubscription from '@/components/familyDashboard/ManageSubscription';
 import RelativeProfileCard from '@/components/familyDashboard/RelativeProfileCard';
 import PetProfileCard from '@/components/familyDashboard/PetProfileCard';
@@ -56,9 +53,6 @@ const FamilyDashboard: React.FC = () => {
     preferencesCount?: number;
     hasPets?: number;
   }>>([]);
-  const books: any[] = []; // Empty for new users
-  const familyCode = null; // Will be generated when first child is added
-  const subscription = null; // Will be set when user subscribes
 
   useEffect(() => {
     const calculateExactAge = (birthDate: string | Date) => {
@@ -750,99 +744,6 @@ const FamilyDashboard: React.FC = () => {
             </section>
           )}
           
-          {/* Section 2: Books */}
-          <section className="animate-fade-in animation-delay-100">
-            <div className="mb-6">
-              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
-                <div className="bg-gradient-to-br from-mcf-secondary/20 to-mcf-primary/10 p-2.5 rounded-xl">
-                  <Book className="h-7 w-7 text-mcf-secondary" strokeWidth={2.5} />
-                </div>
-                Mes livres MCF
-              </h2>
-              <div className="h-1 w-12 bg-gradient-to-r from-mcf-secondary to-mcf-primary rounded-full mt-3 ml-1" />
-            </div>
-            
-            {books.length > 0 ? (
-              <BookTimeline />
-            ) : (
-              <Card className="p-10 text-center bg-gradient-to-br from-mcf-secondary/5 to-mcf-cream/30 border-2 border-dashed border-mcf-secondary/40 shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex flex-col items-center gap-5">
-                  <div className="p-6 rounded-full bg-mcf-secondary/20">
-                    <Book className="h-16 w-16 text-mcf-secondary" strokeWidth={2} />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xl font-bold text-mcf-orange-dark">
-                      Aucune histoire n'a encore été créée pour vos enfants
-                    </p>
-                    <p className="text-gray-600 text-base max-w-md mx-auto">
-                      Les histoires que vous lirez avec vos enfants apparaîtront ici.
-                    </p>
-                  </div>
-                  {children.length > 0 && (
-                    <Button 
-                      className="bg-mcf-secondary hover:bg-mcf-secondary/90 text-white gap-2 text-lg px-8 py-6 mt-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                      onClick={() => navigate('/personnaliser-histoire')}
-                    >
-                      <Sparkles className="h-6 w-6" strokeWidth={2.5} /> Créer ma première histoire
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            )}
-          </section>
-          
-          {/* Section 3: Family Code Sharing */}
-          <section className="animate-fade-in animation-delay-200">
-            <div className="mb-6">
-              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
-                <div className="bg-gradient-to-br from-mcf-amber/20 to-mcf-orange/10 p-2.5 rounded-xl">
-                  <Gift className="h-7 w-7 text-mcf-orange" strokeWidth={2.5} />
-                </div>
-                Offrir un livre avec mon code famille
-              </h2>
-              <div className="h-1 w-12 bg-gradient-to-r from-mcf-amber to-mcf-orange rounded-full mt-3 ml-1" />
-            </div>
-            
-            {familyCode ? (
-              <FamilyCodeShare familyCode={familyCode} />
-            ) : (
-              <Card className={`p-10 text-center bg-gradient-to-br from-mcf-amber/5 to-mcf-cream/30 border-2 border-dashed border-mcf-amber/40 shadow-lg hover:shadow-xl transition-shadow ${children.length === 0 ? 'opacity-60' : ''}`}>
-                <div className="flex flex-col items-center gap-5">
-                  <div className="p-6 rounded-full bg-mcf-amber/20">
-                    <Gift className="h-16 w-16 text-mcf-orange" strokeWidth={2} />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xl font-bold text-mcf-orange-dark">
-                      {children.length === 0 
-                        ? "Ajoutez un enfant pour générer votre code famille"
-                        : "Votre code famille sera généré automatiquement"
-                      }
-                    </p>
-                    <p className="text-gray-600 text-base max-w-md mx-auto">
-                      Partagez la magie des histoires personnalisées avec votre famille.
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            )}
-          </section>
-          
-          {/* Section 4: Story Customization - Only show if user has children */}
-          {children.length > 0 && (
-            <section className="animate-fade-in animation-delay-300">
-              <div className="mb-6">
-                <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
-                  <div className="bg-gradient-to-br from-mcf-primary/20 to-mcf-mint/10 p-2.5 rounded-xl">
-                    <MessageSquarePlus className="h-7 w-7 text-mcf-primary" strokeWidth={2.5} />
-                  </div>
-                  Personnaliser encore plus les prochaines histoires
-                </h2>
-                <div className="h-1 w-12 bg-gradient-to-r from-mcf-primary to-mcf-mint rounded-full mt-3 ml-1" />
-              </div>
-              
-              <StoryCustomizationForm />
-            </section>
-          )}
           
           {/* Section 5: Subscription Management */}
           <section className="animate-fade-in animation-delay-400">
