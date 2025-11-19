@@ -60,7 +60,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <button
               type="button"
               onClick={onResetPassword}
-              className="text-sm text-mcf-secondary hover:text-mcf-primary transition-colors font-semibold"
+              className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-semibold"
               disabled={isLoading}
             >
               Mot de passe oublié ?
