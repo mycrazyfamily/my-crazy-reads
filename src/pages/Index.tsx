@@ -73,47 +73,47 @@ const NewIndex: React.FC = () => {
         <HowItWorks />
         
         {/* Deux façons de vivre l'aventure */}
-        <section className="py-24 bg-gradient-to-br from-mcf-primary/10 via-mcf-mint/5 to-mcf-secondary/10 animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-primary via-mcf-mint to-mcf-secondary animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Users className="w-10 h-10 text-mcf-primary" />
+                <Users className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
                 Deux façons de vivre l'aventure
               </h2>
-              <p className="text-lg text-mcf-text/70">
+              <p className="text-lg text-white/90">
                 Choisissez le niveau d'implication qui vous convient
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
               {/* Option 1 - Guidé */}
-              <div className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-mint/5 to-white rounded-lg">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative overflow-hidden border-2 border-white/30 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/10 backdrop-blur-sm rounded-lg">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
                       🪄
                     </div>
-                    <h3 className="text-2xl font-bold text-mcf-secondary">
+                    <h3 className="text-2xl font-bold text-white">
                       Mode "guidé"
                     </h3>
                   </div>
-                  <p className="text-sm text-mcf-primary font-semibold mb-4 ml-[4.5rem]">
+                  <p className="text-sm text-white/90 font-semibold mb-4 ml-[4.5rem]">
                     Pour ceux qui préfèrent la simplicité
                   </p>
-                  <ul className="space-y-4 text-mcf-text/80">
+                  <ul className="space-y-4 text-white/90">
                     <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-white text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous suivez le thème proposé par My Crazy Family chaque mois</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-white text-xl mt-0.5">✓</span>
                       <span className="text-base">Le livre reste 100 % personnalisé (prénoms, proches, lieux, animaux…)</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-mcf-mint text-xl mt-0.5">✓</span>
+                      <span className="text-white text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous pouvez ajouter des détails ou simplement vous laisser porter</span>
                     </li>
                   </ul>
@@ -121,27 +121,27 @@ const NewIndex: React.FC = () => {
               </div>
 
               {/* Option 2 - Créatif */}
-              <div className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-secondary/5 to-white rounded-lg">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+              <div className="relative overflow-hidden border-2 border-white/30 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/10 backdrop-blur-sm rounded-lg">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
                       🎨
                     </div>
-                    <h3 className="text-2xl font-bold text-mcf-primary">
+                    <h3 className="text-2xl font-bold text-white">
                       Mode "créatif"
                     </h3>
                   </div>
-                  <p className="text-sm text-mcf-primary font-semibold mb-4 ml-[4.5rem]">
+                  <p className="text-sm text-white/90 font-semibold mb-4 ml-[4.5rem]">
                     Pour ceux qui veulent façonner l'histoire
                   </p>
-                  <ul className="space-y-4 text-mcf-text/80">
+                  <ul className="space-y-4 text-white/90">
                     <li className="flex items-start gap-3">
-                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
+                      <span className="text-white text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous proposez un thème ou une idée totalement différente chaque mois où vous le souhaitez</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
+                      <span className="text-white text-xl mt-0.5">✓</span>
                       <span className="text-base">L'équipe crée un livre personnalisé sur mesure, selon votre demande</span>
                     </li>
                   </ul>
@@ -149,8 +149,8 @@ const NewIndex: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-center bg-gradient-to-r from-mcf-primary/10 via-mcf-mint/10 to-mcf-secondary/10 rounded-2xl p-8 max-w-4xl mx-auto">
-              <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
+            <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto border border-white/20">
+              <p className="text-xl md:text-2xl font-semibold text-white italic leading-relaxed">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
                 chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
               </p>
@@ -187,29 +187,29 @@ const NewIndex: React.FC = () => {
         </section>
         
         {/* Témoignages */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/15 via-mcf-primary/5 to-mcf-secondary/15 animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-mint via-mcf-primary to-mcf-secondary animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <MessageCircle className="w-10 h-10 text-mcf-primary" />
+                <MessageCircle className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
                 Ils ont adopté My Crazy Family
               </h2>
-              <p className="text-lg text-mcf-text/70">
+              <p className="text-lg text-white/90">
                 Les témoignages de nos familles heureuses
               </p>
             </div>
             
             <div className="relative">
-              <div className="bg-gradient-to-br from-mcf-mint/10 to-mcf-secondary/10 rounded-3xl p-16 border-2 border-dashed border-mcf-mint/30 text-center overflow-hidden">
-                <div className="absolute top-4 left-4 w-20 h-20 bg-mcf-mint/20 rounded-full blur-2xl" />
-                <div className="absolute bottom-4 right-4 w-32 h-32 bg-mcf-secondary/20 rounded-full blur-2xl" />
-                <Heart className="w-16 h-16 text-mcf-mint/40 mx-auto mb-4" />
-                <p className="text-xl text-mcf-text/60 italic mb-2">
+              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-16 border-2 border-dashed border-white/30 text-center overflow-hidden">
+                <div className="absolute top-4 left-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+                <div className="absolute bottom-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                <Heart className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                <p className="text-xl text-white/90 italic mb-2">
                   Galerie de témoignages à venir
                 </p>
-                <p className="text-sm text-mcf-text/50">
+                <p className="text-sm text-white/80">
                   Photos d'enfants et parents • Témoignages clients • Citations inspirantes
                 </p>
               </div>
