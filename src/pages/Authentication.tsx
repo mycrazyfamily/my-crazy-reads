@@ -47,25 +47,7 @@ const Authentication: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="relative h-[40vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
-          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-          </div>
-          
-          <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="w-10 h-10 text-white drop-shadow-md" strokeWidth={2.5} />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-              Mon compte My Crazy Family
-            </h1>
-            <p className="text-lg md:text-xl text-white/95 font-light drop-shadow-md">
-              Connectez-vous ou créez un compte pour accéder à votre espace famille
-            </p>
-          </div>
-        </section>
+      <main className="flex-grow pt-32 pb-16">
 
         <div className="container mx-auto px-4 py-12 max-w-4xl">
           <Button 

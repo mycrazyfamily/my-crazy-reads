@@ -209,32 +209,7 @@ const Abonnement: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
-          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-          </div>
-          
-          <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Star className="w-10 h-10 text-white drop-shadow-md" strokeWidth={2.5} />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
-              {isFromAdventure ? "Prêt à démarrer l'aventure" : "Nos formules d'abonnement"}
-            </h1>
-            <p className="text-xl md:text-2xl text-white/95 font-light drop-shadow-md max-w-3xl mx-auto">
-              Recevez chaque mois un livre unique, personnalisé pour votre enfant
-            </p>
-          </div>
-
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
-              <div className="w-1.5 h-3 bg-white/50 rounded-full" />
-            </div>
-          </div>
-        </section>
-
+      <main className="flex-grow pt-32 pb-16">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-6xl mx-auto">
             {/* Sélection de l'enfant à abonner */}
