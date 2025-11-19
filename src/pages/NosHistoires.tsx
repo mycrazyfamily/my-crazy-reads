@@ -207,20 +207,20 @@ const NosHistoires: React.FC = () => {
         <section className="py-24 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16 animate-fade-in">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">
                 Une collection pensée par des spécialistes de l'enfance
               </h2>
-              <p className="text-lg text-white/90 max-w-2xl mx-auto">
+              <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto font-light drop-shadow-md">
                 Des histoires élaborées avec rigueur et passion
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               {/* Psychologues */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-white/95 backdrop-blur">
-                <CardContent className="pt-8 text-center">
-                  <div className="w-16 h-16 bg-mcf-mint/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Brain className="w-8 h-8 text-mcf-primary" />
+              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
+                <CardContent className="pt-8 pb-8 text-center">
+                  <div className="w-20 h-20 bg-mcf-mint/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                    <Brain className="w-10 h-10 text-mcf-primary" />
                   </div>
                   <h3 className="text-xl font-bold text-mcf-primary mb-2">Psychologues</h3>
                   <p className="text-mcf-text/70">de l'enfance</p>
@@ -228,10 +228,10 @@ const NosHistoires: React.FC = () => {
               </Card>
 
               {/* Chercheurs */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-white/95 backdrop-blur">
-                <CardContent className="pt-8 text-center">
-                  <div className="w-16 h-16 bg-mcf-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-8 h-8 text-mcf-secondary" />
+              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
+                <CardContent className="pt-8 pb-8 text-center">
+                  <div className="w-20 h-20 bg-mcf-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                    <Sparkles className="w-10 h-10 text-mcf-secondary" />
                   </div>
                   <h3 className="text-xl font-bold text-mcf-primary mb-2">Chercheurs</h3>
                   <p className="text-mcf-text/70">en développement personnel</p>
@@ -239,10 +239,10 @@ const NosHistoires: React.FC = () => {
               </Card>
 
               {/* Enseignants */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-white/95 backdrop-blur">
-                <CardContent className="pt-8 text-center">
-                  <div className="w-16 h-16 bg-mcf-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <GraduationCap className="w-8 h-8 text-mcf-primary" />
+              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
+                <CardContent className="pt-8 pb-8 text-center">
+                  <div className="w-20 h-20 bg-mcf-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                    <GraduationCap className="w-10 h-10 text-mcf-primary" />
                   </div>
                   <h3 className="text-xl font-bold text-mcf-primary mb-2">Enseignants</h3>
                   <p className="text-mcf-text/70">& auteurs jeunesse</p>
@@ -250,22 +250,28 @@ const NosHistoires: React.FC = () => {
               </Card>
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-6 text-center">
-              <p className="text-lg text-white/90 leading-relaxed">
-                Chaque livre repose sur un <strong className="text-white">tronc commun narratif</strong>, 
-                spécifiquement adapté à chaque tranche d'âge de 0 à 10 ans.
-              </p>
-              <p className="text-lg text-white/90 leading-relaxed">
-                Elles sont relues par des <strong className="text-white">auteurs jeunesse</strong> pour 
-                un rythme et un ton parfaitement adaptés.
-              </p>
-              
-              <div className="bg-white/95 rounded-2xl p-8 border border-mcf-primary/20 mt-8">
-                <p className="text-xl font-bold text-mcf-primary flex items-center justify-center gap-2 mb-3">
-                  <Sparkles className="w-6 h-6" />
-                  Notre objectif
+            <div className="max-w-4xl mx-auto space-y-8 text-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-8 space-y-4 border border-white/30">
+                <p className="text-lg md:text-xl text-white leading-relaxed drop-shadow-md">
+                  Chaque livre repose sur un <strong className="text-white font-semibold">tronc commun narratif</strong>, 
+                  spécifiquement adapté à chaque tranche d'âge de 0 à 10 ans.
                 </p>
-                <p className="text-lg text-mcf-text/80">
+                <p className="text-lg md:text-xl text-white leading-relaxed drop-shadow-md">
+                  Elles sont relues par des <strong className="text-white font-semibold">auteurs jeunesse</strong> pour 
+                  un rythme et un ton parfaitement adaptés.
+                </p>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-10 shadow-xl border-2 border-mcf-primary/20">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-mcf-mint/20 rounded-xl flex items-center justify-center">
+                    <Sparkles className="w-7 h-7 text-mcf-primary" />
+                  </div>
+                  <p className="text-2xl font-bold text-mcf-primary">
+                    Notre objectif
+                  </p>
+                </div>
+                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
                   Renforcer la confiance, stimuler la curiosité, encourager l'expression de soi.
                 </p>
               </div>
