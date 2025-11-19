@@ -20,19 +20,22 @@ const HowItWorks: React.FC = () => {
       number: "1",
       icon: "👨‍👩‍👧‍👦",
       title: "Créez votre famille",
-      description: "Personnalisez les profils de vos enfants et de votre famille pour une histoire unique."
+      description: "Personnalisez les profils de vos enfants, proches, animaux ou amis. Chaque histoire s'ajuste aux liens qui l'entourent, pour des aventures riches de sens.",
+      highlight: "🧠 Un héros qu'il connaît, c'est un héros qui l'aide à grandir."
     },
     {
       number: "2", 
       icon: "✨",
       title: "Personnalisez l'histoire",
-      description: "Choisissez les thèmes, les personnages et les aventures qui plairont à votre enfant."
+      description: "Chaque livre repose sur une trame conçue par des spécialistes de l'enfance. Chaque mois, vous pouvez y ajoutez des éléments, ce qui rend l'histoire vraiment unique à ses et vos yeux.",
+      highlight: "✏️ Plus vous partagez, plus l'histoire devient la sienne."
     },
     {
       number: "3",
       icon: "📚",
       title: "Recevez votre livre chaque mois",
-      description: "Un livre de qualité imprimé et personnalisé livré directement chez vous."
+      description: "Un vrai beau livre, personnalisé à chaque détail, imprimé en France 🇫🇷 avec des finitions haut de gamme et livré directement chez vous.",
+      highlight: "🧿 Illustré, durable, pensé pour être relu encore et encore même 15 ans plus tard pour retourner en enfance."
     }
   ];
 
@@ -44,7 +47,7 @@ const HowItWorks: React.FC = () => {
             Comment ça marche
           </h2>
           <p className="text-lg md:text-xl text-mcf-text/70 max-w-3xl mx-auto">
-            Trois étapes simples pour offrir des aventures personnalisées à votre enfant
+            Trois étapes simples pour offrir à votre enfant des histoires qui lui ressemblent et qui l'aident à grandir.
           </p>
         </div>
         
@@ -71,8 +74,13 @@ const HowItWorks: React.FC = () => {
               </h3>
               
               {/* Description */}
-              <p className="text-mcf-text/70 leading-relaxed">
+              <p className="text-mcf-text/70 leading-relaxed mb-4">
                 {step.description}
+              </p>
+              
+              {/* Highlight text */}
+              <p className="text-mcf-primary font-semibold text-sm">
+                {step.highlight}
               </p>
             </div>
           ))}
