@@ -96,11 +96,7 @@ function App() {
                   <NouvelEnfant />
                 </RouteGuard>
               } />
-              <Route path="/abonnement" element={
-                <RouteGuard bypassProtection={isDev}>
-                  <Abonnement />
-                </RouteGuard>
-              } />
+              <Route path="/abonnement" element={<Abonnement />} />
               
               {/* Protected routes - require authentication */}
               <Route path="/finaliser-abonnement" element={
