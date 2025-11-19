@@ -40,13 +40,6 @@ const NosHistoires: React.FC = () => {
               {getButtonText()}
             </Link>
           </div>
-
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-16 md:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-mcf-primary/50 rounded-full flex items-start justify-center p-2">
-              <div className="w-1.5 h-3 bg-mcf-primary/50 rounded-full" />
-            </div>
-          </div>
         </section>
 
         {/* SECTION 2 - Nos livres en images */}
