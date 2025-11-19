@@ -83,60 +83,66 @@ const NewIndex: React.FC = () => {
                 Deux façons de vivre l'aventure
               </h2>
               <p className="text-lg text-mcf-text/70">
-                Choisissez votre niveau d'implication
+                Choisissez le niveau d'implication qui vous convient
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
-              {/* Option 1 - Flemmard */}
+              {/* Option 1 - Guidé */}
               <div className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-mint/5 to-white rounded-lg">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Heart className="w-7 h-7 text-mcf-mint" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                      🪄
                     </div>
                     <h3 className="text-2xl font-bold text-mcf-secondary">
-                      Mode "flemmard"
+                      Mode "guidé"
                     </h3>
                   </div>
+                  <p className="text-sm text-mcf-primary font-semibold mb-4 ml-[4.5rem]">
+                    Pour ceux qui préfèrent la simplicité
+                  </p>
                   <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous suivez le thème proposé chaque mois</span>
+                      <span className="text-base">Vous suivez le thème proposé par My Crazy Family chaque mois</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Le livre reste 100% personnalisé (prénoms, animaux, proches, lieux, etc.)</span>
+                      <span className="text-base">Le livre reste 100 % personnalisé (prénoms, proches, lieux, animaux…)</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous pouvez enrichir avec quelques détails… ou laisser MCF tout gérer</span>
+                      <span className="text-base">Vous pouvez ajouter des détails ou simplement vous laisser porter</span>
                     </li>
                   </ul>
                 </div>
               </div>
 
-              {/* Option 2 - Action */}
+              {/* Option 2 - Créatif */}
               <div className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-gradient-to-br from-mcf-secondary/5 to-white rounded-lg">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <div className="pt-8 p-6 relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Zap className="w-7 h-7 text-mcf-secondary" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                      🎨
                     </div>
                     <h3 className="text-2xl font-bold text-mcf-primary">
-                      Mode "action"
+                      Mode "créatif"
                     </h3>
                   </div>
+                  <p className="text-sm text-mcf-primary font-semibold mb-4 ml-[4.5rem]">
+                    Pour ceux qui veulent façonner l'histoire
+                  </p>
                   <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous proposez un thème ou une idée totalement différente</span>
+                      <span className="text-base">Vous proposez un thème ou une idée totalement différente chaque mois où vous le souhaitez</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
-                      <span className="text-base">L'équipe crée un livre personnalisé en fonction de votre demande</span>
+                      <span className="text-base">L'équipe crée un livre personnalisé sur mesure, selon votre demande</span>
                     </li>
                   </ul>
                 </div>
@@ -145,8 +151,8 @@ const NewIndex: React.FC = () => {
 
             <div className="text-center bg-gradient-to-r from-mcf-primary/10 via-mcf-mint/10 to-mcf-secondary/10 rounded-2xl p-8 max-w-4xl mx-auto">
               <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
-                Que vous soyez ultra impliqué… ou un peu flemmard, <br className="hidden md:block" />
-                chaque mois devient une aventure personnalisée.
+                Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
+                chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
               </p>
             </div>
           </div>
