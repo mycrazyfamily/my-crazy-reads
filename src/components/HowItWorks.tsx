@@ -35,7 +35,7 @@ const HowItWorks: React.FC = () => {
       icon: "📚",
       title: "Recevez votre livre chaque mois",
       description: "Un vrai beau livre, personnalisé à chaque détail, imprimé en France 🇫🇷 avec des finitions haut de gamme et livré directement chez vous.",
-      highlight: "🧿 Illustré, durable, pensé pour être relu encore et encore même 15 ans plus tard pour retourner en enfance."
+      highlight: "🧿 Illustré, durable, pensé pour être relu encore et encore même 15 ans plus tard."
     }
   ];
 
