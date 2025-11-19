@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Baby, Book, Gift, User, Clock, Truck, Edit, Plus, Settings, 
   LogOut, Home, Heart, HelpCircle, Copy, ExternalLink, MessageSquarePlus,
-  ShoppingBag
+  ShoppingBag, Sparkles
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -288,16 +288,19 @@ const FamilyDashboard: React.FC = () => {
   
   console.log('🏠 FamilyDashboard: Composant chargé pour user:', user);
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-mcf-mint/5 to-white">
       <Navbar />
       
       <main className="container mx-auto px-4 py-20 max-w-5xl">
-        <div className="flex items-center justify-between mb-8 mt-10">
-          <div className="flex items-center gap-3">
-            <div className="bg-mcf-amber/20 p-2.5 rounded-full">
-              <Home className="h-7 w-7 text-mcf-orange" />
+        <div className="flex items-center justify-between mb-8 mt-10 animate-fade-in">
+          <div className="flex items-center gap-4">
+            <div className="bg-gradient-to-br from-mcf-mint/30 to-mcf-primary/20 p-3 rounded-2xl shadow-md">
+              <Home className="h-8 w-8 text-mcf-primary drop-shadow-sm" strokeWidth={2.5} />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-mcf-orange-dark">Mon Espace Famille</h1>
+            <div>
+              <h1 className="text-4xl font-bold text-mcf-orange-dark drop-shadow-sm">Mon Espace Famille</h1>
+              <div className="h-1 w-16 bg-gradient-to-r from-mcf-orange via-mcf-primary to-mcf-mint rounded-full mt-2" />
+            </div>
           </div>
           
           {/* Menu Paramètres */}
@@ -456,13 +459,19 @@ const FamilyDashboard: React.FC = () => {
           
           {/* Section 1: Children Profiles */}
           <section className="animate-fade-in">
-            <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-              <Baby className="h-6 w-6" /> Mes enfants
-            </h2>
+            <div className="mb-6">
+              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                <div className="bg-gradient-to-br from-mcf-primary/20 to-mcf-mint/10 p-2.5 rounded-xl">
+                  <Baby className="h-7 w-7 text-mcf-primary" strokeWidth={2.5} />
+                </div>
+                Mes enfants
+              </h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-mcf-orange to-mcf-primary rounded-full mt-3 ml-1" />
+            </div>
             
             {isLoading ? (
               <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <Card className="p-6">
+                <Card className="p-6 shadow-lg border-2">
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <Skeleton className="h-16 w-16 rounded-full" />
@@ -474,7 +483,7 @@ const FamilyDashboard: React.FC = () => {
                     <Skeleton className="h-10 w-full" />
                   </div>
                 </Card>
-                <Card className="p-6">
+                <Card className="p-6 shadow-lg border-2">
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <Skeleton className="h-16 w-16 rounded-full" />
