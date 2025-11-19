@@ -252,11 +252,11 @@ const NosHistoires: React.FC = () => {
 
             <div className="max-w-4xl mx-auto space-y-8 text-center">
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-10 md:p-12 space-y-6 shadow-lg border border-white/50">
-                <p className="text-xl md:text-2xl text-mcf-text leading-relaxed">
+                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
                   ✏️ Chaque histoire suit un <strong className="text-mcf-primary font-semibold">tronc narratif structuré</strong>, 
                   conçu avec des spécialistes de l'enfance et spécifiquement adapté à chaque tranche d'âge de 0 à 10 ans.
                 </p>
-                <p className="text-xl md:text-2xl text-mcf-text leading-relaxed">
+                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
                   📖 Elles sont relues et enrichies par des <strong className="text-mcf-primary font-semibold">auteurs jeunesse</strong> pour 
                   assurer un ton et un rythme parfaitement adaptés.
                 </p>
