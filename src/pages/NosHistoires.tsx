@@ -301,7 +301,7 @@ const NosHistoires: React.FC = () => {
                 <CardContent className="pt-10 pb-8">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-16 h-16 bg-mcf-mint/50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Sparkles className="w-8 h-8 text-mcf-mint" />
+                      <Sparkles className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
                       Qualité premium
