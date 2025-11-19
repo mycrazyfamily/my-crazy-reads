@@ -42,7 +42,7 @@ const NewHero: React.FC = () => {
                 
                 {/* Sous-titre */}
                 <p className="text-base md:text-lg lg:text-xl text-white/90 mb-8 max-w-3xl mx-auto drop-shadow-md animate-fade-in animation-delay-200">
-                  Chaque mois, un livre personnalisé avec sa famille et ses héros préférés.
+                  Chaque mois, un livre personnalisé où sa famille, ses amis et son monde deviennent les héros de l'histoire.
                 </p>
                 
                 {/* CTAs */}
