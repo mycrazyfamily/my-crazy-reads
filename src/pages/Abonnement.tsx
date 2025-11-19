@@ -7,6 +7,8 @@ import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
+import { Sparkles, Gift, Check, Star, Heart, Zap } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Abonnement: React.FC = () => {
   const navigate = useNavigate();
@@ -204,161 +206,239 @@ const Abonnement: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-12 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 text-mcf-primary animate-fade-in">
-            {isFromAdventure ? "Prêt à démarrer l'aventure" : "Nos formules d'abonnement"}
-          </h1>
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
+          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay" />
+          </div>
           
-          <div className="max-w-5xl mx-auto mt-8">
+          <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Star className="w-10 h-10 text-white drop-shadow-md" strokeWidth={2.5} />
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+              {isFromAdventure ? "Prêt à démarrer l'aventure" : "Nos formules d'abonnement"}
+            </h1>
+            <p className="text-xl md:text-2xl text-white/95 font-light drop-shadow-md max-w-3xl mx-auto">
+              Recevez chaque mois un livre unique, personnalisé pour votre enfant
+            </p>
+          </div>
+
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
+              <div className="w-1.5 h-3 bg-white/50 rounded-full" />
+            </div>
+          </div>
+        </section>
+
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-6xl mx-auto">
             {/* Sélection de l'enfant à abonner */}
             {isAuthenticated && (
-              <div className="mb-8 p-4 border rounded-xl bg-white shadow-sm">
-                <h2 className="text-xl font-semibold mb-3 text-mcf-primary">Sélectionnez l'enfant à abonner</h2>
-                {children.length === 0 ? (
-                  <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-3">
-                    {children.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedChildId(c.id)}
-                        className={`px-4 py-2 rounded-full border transition ${
-                          selectedChildId === c.id ? 'bg-mcf-primary text-white border-mcf-primary' : 'bg-white hover:bg-mcf-mint border-mcf-mint'
-                        }`}
-                      >
-                        <span>{c.first_name}</span>
-                        {subscribedChildIds.includes(c.id) && (
-                          <span className="ml-2 text-xs font-semibold text-mcf-secondary">Déjà abonné</span>
-                        )}
-                      </button>
-                    ))}
+              <Card className="mb-12 border-2 border-mcf-mint/30 shadow-lg animate-fade-in">
+                <CardContent className="pt-8 pb-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-mcf-mint/30 rounded-xl flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-mcf-secondary" strokeWidth={2.5} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-mcf-primary">Sélectionnez l'enfant à abonner</h2>
                   </div>
-                )}
-                <p className="text-xs text-muted-foreground mt-2">L'abonnement est lié à l'enfant sélectionné.</p>
-              </div>
+                  {children.length === 0 ? (
+                    <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-3">
+                      {children.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedChildId(c.id)}
+                          className={`px-6 py-3 rounded-full border-2 transition-all duration-300 hover:scale-105 font-semibold ${
+                            selectedChildId === c.id 
+                              ? 'bg-mcf-primary text-white border-mcf-primary shadow-lg' 
+                              : 'bg-white hover:bg-mcf-mint/20 border-mcf-mint text-mcf-primary'
+                          }`}
+                        >
+                          <span>{c.first_name}</span>
+                          {subscribedChildIds.includes(c.id) && (
+                            <span className="ml-2 text-xs font-semibold">✓ Déjà abonné</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-4 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    L'abonnement est lié à l'enfant sélectionné.
+                  </p>
+                </CardContent>
+              </Card>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Formule mensuelle */}
-              <div 
-                className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-100 border-mcf-mint hover:border-mcf-primary/50 flex flex-col"
-              >
-                <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement mensuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">25,99€<span className="text-base font-normal text-muted-foreground">/mois</span></p>
-                <ul className="space-y-3 mb-6 flex-grow">
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Un livre personnalisé chaque mois</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Sans engagement de durée</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Livraison incluse</span>
-                  </li>
-                </ul>
-                <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
-                  <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
-                    <span>🎁</span> Cadeaux de fidélité
-                  </h3>
-                  <ul className="space-y-1 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-100">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                <CardContent className="pt-10 pb-8 flex flex-col h-full relative z-10">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 bg-mcf-mint/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Zap className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement mensuel</h2>
+                  </div>
+                  <p className="text-4xl font-bold mb-6 text-mcf-secondary">
+                    25,99€<span className="text-lg font-normal text-muted-foreground">/mois</span>
+                  </p>
+                  <ul className="space-y-4 mb-8 flex-grow">
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Un livre personnalisé chaque mois</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Sans engagement de durée</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Livraison incluse</span>
                     </li>
                   </ul>
-                </div>
-                <button 
-                  onClick={() => handleSelectPlan('monthly')}
-                  disabled={isLoading}
-                  className={`w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isLoading ? 'Chargement...' : 'Choisir cette formule'}
-                </button>
-              </div>
+                  <div className="mb-8 p-6 bg-gradient-to-br from-mcf-mint/20 to-mcf-mint/10 rounded-xl border-2 border-mcf-mint/30">
+                    <h3 className="font-bold text-mcf-primary mb-4 flex items-center gap-2 text-lg">
+                      <Gift className="w-5 h-5" strokeWidth={2.5} />
+                      Cadeaux de fidélité
+                    </h3>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <button 
+                    onClick={() => handleSelectPlan('monthly')}
+                    disabled={isLoading}
+                    className={`w-full bg-mcf-primary hover:bg-mcf-primary/90 text-white font-bold py-5 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl text-lg mt-auto flex items-center justify-center gap-2 ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    {isLoading ? 'Chargement...' : 'Choisir cette formule'}
+                  </button>
+                </CardContent>
+              </Card>
               
               {/* Formule annuelle */}
-              <div 
-                className="border rounded-xl p-6 shadow-md bg-white hover:shadow-lg transition-all duration-300 animate-fade-in animation-delay-200 border-mcf-secondary hover:border-mcf-secondary/70 flex flex-col"
-              >
-                <div className="text-sm font-bold py-1 px-3 rounded-full inline-block mb-3 bg-mcf-mint text-mcf-primary">
+              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-200">
+                <div className="absolute top-0 left-0 bg-gradient-to-r from-mcf-mint to-mcf-secondary text-white font-bold py-2 px-6 rounded-br-xl shadow-lg flex items-center gap-2 z-20">
+                  <Star className="w-4 h-4" strokeWidth={3} />
                   ÉCONOMIE DE 10%
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-mcf-primary">Abonnement annuel</h2>
-                <p className="text-3xl font-bold mb-4 text-mcf-secondary">285,99€<span className="text-base font-normal text-muted-foreground">/an</span></p>
-                <ul className="space-y-3 mb-6 flex-grow">
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Un livre personnalisé chaque mois</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Cadeau de bienvenue offert</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>1 mois gratuit</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-mcf-secondary font-bold">✓</span>
-                    <span>Livraison incluse</span>
-                  </li>
-                </ul>
-                <div className="mb-6 p-4 bg-mcf-mint/20 rounded-lg border border-mcf-mint">
-                  <h3 className="font-bold text-mcf-primary mb-2 flex items-center gap-2">
-                    <span>🎁</span> Cadeaux de fidélité
-                  </h3>
-                  <ul className="space-y-1 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                <CardContent className="pt-16 pb-8 flex flex-col h-full relative z-10">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 bg-mcf-secondary/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Gift className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement annuel</h2>
+                  </div>
+                  <p className="text-4xl font-bold mb-6 text-mcf-secondary">
+                    285,99€<span className="text-lg font-normal text-muted-foreground">/an</span>
+                  </p>
+                  <ul className="space-y-4 mb-8 flex-grow">
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Un livre personnalisé chaque mois</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Cadeau de bienvenue offert</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-mcf-secondary">•</span>
-                      <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">1 mois gratuit</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
+                      </div>
+                      <span className="text-base">Livraison incluse</span>
                     </li>
                   </ul>
-                </div>
-                <button 
-                  onClick={() => handleSelectPlan('yearly')}
-                  disabled={isLoading}
-                  className={`w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg text-base mt-auto ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isLoading ? 'Chargement...' : 'Choisir cette formule'}
-                </button>
-              </div>
+                  <div className="mb-8 p-6 bg-gradient-to-br from-mcf-mint/20 to-mcf-mint/10 rounded-xl border-2 border-mcf-mint/30">
+                    <h3 className="font-bold text-mcf-primary mb-4 flex items-center gap-2 text-lg">
+                      <Gift className="w-5 h-5" strokeWidth={2.5} />
+                      Cadeaux de fidélité
+                    </h3>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <button 
+                    onClick={() => handleSelectPlan('yearly')}
+                    disabled={isLoading}
+                    className={`w-full bg-mcf-primary hover:bg-mcf-primary/90 text-white font-bold py-5 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl text-lg mt-auto flex items-center justify-center gap-2 ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    {isLoading ? 'Chargement...' : 'Choisir cette formule'}
+                  </button>
+                </CardContent>
+              </Card>
             </div>
             
-            <div className="mt-12 text-center">
-              <h3 className="text-xl font-semibold mb-3 text-mcf-primary">Vous souhaitez offrir un livre unique ?</h3>
-              <button 
-                onClick={() => navigate('/offrir-livre')}
-                className="inline-flex items-center bg-white border-2 border-mcf-secondary hover:bg-mcf-mint text-mcf-primary font-bold py-2 px-6 rounded-full transition-all duration-300 hover:scale-105"
-              >
-                Découvrir nos livres cadeaux
-              </button>
-            </div>
+            <Card className="mt-16 relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl group animate-fade-in animation-delay-300">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-mcf-secondary/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500" />
+              <CardContent className="pt-10 pb-10 text-center relative z-10">
+                <div className="w-20 h-20 bg-mcf-mint/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Gift className="w-10 h-10 text-mcf-secondary" strokeWidth={2.5} />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-mcf-primary">Vous souhaitez offrir un livre unique ?</h3>
+                <p className="text-lg text-mcf-text/70 mb-6 max-w-2xl mx-auto">
+                  Offrez une expérience magique avec nos livres personnalisés à l'unité
+                </p>
+                <button 
+                  onClick={() => navigate('/offrir-livre')}
+                  className="inline-flex items-center gap-2 bg-white border-2 border-mcf-secondary hover:bg-mcf-mint/20 text-mcf-primary font-bold py-4 px-8 rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Découvrir nos livres cadeaux
+                </button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
