@@ -73,7 +73,7 @@ const NewIndex: React.FC = () => {
         <HowItWorks />
         
         {/* Deux façons de vivre l'aventure */}
-        <section className="py-24 bg-white animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-primary/10 via-mcf-mint/5 to-mcf-secondary/10 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
@@ -187,7 +187,7 @@ const NewIndex: React.FC = () => {
         </section>
         
         {/* Témoignages */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/5 via-transparent to-mcf-secondary/5 animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-mint/15 via-mcf-primary/5 to-mcf-secondary/15 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
