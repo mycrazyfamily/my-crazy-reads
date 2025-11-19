@@ -3,11 +3,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
+import { Card } from "@/components/ui/card";
 
 import { useAuthForm } from '@/hooks/useAuthForm';
 
@@ -43,52 +44,78 @@ const Authentication: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-24 max-w-4xl">
-        <Button 
-          variant="ghost" 
-          onClick={handleGoBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-mcf-orange-dark hover:bg-mcf-amber/10 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour
-        </Button>
-        
-        <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-mcf-orange-dark">
-          Mon compte My Crazy Family
-        </h1>
-        <p className="text-center text-gray-600 mb-8">
-          Connectez-vous ou créez un compte pour accéder à votre espace famille
-        </p>
-        
-        <div className="mx-auto max-w-md">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Se connecter</TabsTrigger>
-              <TabsTrigger value="register">Créer un compte</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
-              <LoginForm
-                formData={formData}
-                isLoading={isLoading}
-                onInputChange={handleInputChange}
-                onSubmit={handleLogin}
-                onResetPassword={handleResetPassword}
-              />
-            </TabsContent>
-            
-            <TabsContent value="register">
-              <RegisterForm
-                formData={formData}
-                isLoading={isLoading}
-                onInputChange={handleInputChange}
-                onSubmit={handleRegister}
-              />
-            </TabsContent>
-          </Tabs>
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative h-[40vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
+          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay" />
+          </div>
+          
+          <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Sparkles className="w-10 h-10 text-white drop-shadow-md" strokeWidth={2.5} />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+              Mon compte My Crazy Family
+            </h1>
+            <p className="text-lg md:text-xl text-white/95 font-light drop-shadow-md">
+              Connectez-vous ou créez un compte pour accéder à votre espace famille
+            </p>
+          </div>
+        </section>
+
+        <div className="container mx-auto px-4 py-12 max-w-4xl">
+          <Button 
+            variant="ghost" 
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-mcf-primary hover:text-mcf-secondary hover:bg-mcf-mint/20 mb-8 font-semibold"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+          
+          <div className="mx-auto max-w-md">
+            <Card className="border-2 border-mcf-mint/30 shadow-xl overflow-hidden animate-fade-in">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 rounded-none border-b-2 border-mcf-mint/20 bg-gradient-to-r from-mcf-mint/10 to-mcf-secondary/10 p-1">
+                  <TabsTrigger 
+                    value="login" 
+                    className="data-[state=active]:bg-white data-[state=active]:text-mcf-primary data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-mcf-mint/50 rounded-lg font-bold transition-all"
+                  >
+                    Se connecter
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="register"
+                    className="data-[state=active]:bg-white data-[state=active]:text-mcf-primary data-[state=active]:shadow-md data-[state=active]:border-2 data-[state=active]:border-mcf-mint/50 rounded-lg font-bold transition-all"
+                  >
+                    Créer un compte
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="login" className="p-6">
+                  <LoginForm
+                    formData={formData}
+                    isLoading={isLoading}
+                    onInputChange={handleInputChange}
+                    onSubmit={handleLogin}
+                    onResetPassword={handleResetPassword}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="register" className="p-6">
+                  <RegisterForm
+                    formData={formData}
+                    isLoading={isLoading}
+                    onInputChange={handleInputChange}
+                    onSubmit={handleRegister}
+                  />
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </div>
         </div>
       </main>
       
