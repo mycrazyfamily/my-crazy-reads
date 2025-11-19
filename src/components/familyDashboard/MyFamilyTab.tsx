@@ -1,0 +1,330 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Plus, Baby, Users, Heart, MapPin } from 'lucide-react';
+import ChildProfileCard from './ChildProfileCard';
+import RelativeProfileCard from './RelativeProfileCard';
+import PetProfileCard from './PetProfileCard';
+import PlaceProfileCard from './PlaceProfileCard';
+
+interface Child {
+  id: string;
+  firstName: string;
+  age: string;
+  avatar: string | null;
+  personalityEmoji: string;
+  relatives?: any[];
+  pets?: any[];
+  places?: any[];
+  toysCount?: number;
+  preferencesCount?: number;
+  hasPets?: number;
+}
+
+interface MyFamilyTabProps {
+  children: Child[];
+}
+
+const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
+  const navigate = useNavigate();
+
+  // Extraire tous les proches uniques
+  const allRelatives = React.useMemo(() => {
+    const relativesMap = new Map<string, { relative: any; childrenNames: string[]; childrenIds: string[] }>();
+    
+    children.forEach((child) => {
+      if (!child.relatives || child.relatives.length === 0) return;
+      
+      child.relatives.forEach((relative: any) => {
+        const relKey = `${relative.firstName}-${relative.type}`;
+        if (relativesMap.has(relKey)) {
+          const entry = relativesMap.get(relKey)!;
+          entry.childrenNames.push(child.firstName);
+          entry.childrenIds.push(child.id);
+        } else {
+          relativesMap.set(relKey, {
+            relative,
+            childrenNames: [child.firstName],
+            childrenIds: [child.id]
+          });
+        }
+      });
+    });
+    
+    return Array.from(relativesMap.values())
+      .sort((a, b) => (a.relative.firstName || '').localeCompare(b.relative.firstName || '', 'fr'));
+  }, [children]);
+
+  // Extraire tous les animaux uniques
+  const allPets = React.useMemo(() => {
+    const petsMap = new Map<string, { pet: any; childrenNames: string[]; childrenIds: string[] }>();
+    
+    children.forEach((child) => {
+      if (!child.pets || child.pets.length === 0) return;
+      
+      child.pets.forEach((pet: any) => {
+        const petKey = pet.id || pet.name;
+        if (petsMap.has(petKey)) {
+          const entry = petsMap.get(petKey)!;
+          entry.childrenNames.push(child.firstName);
+          entry.childrenIds.push(child.id);
+        } else {
+          petsMap.set(petKey, {
+            pet,
+            childrenNames: [child.firstName],
+            childrenIds: [child.id]
+          });
+        }
+      });
+    });
+    
+    return Array.from(petsMap.values())
+      .sort((a, b) => (a.pet.name || '').localeCompare(b.pet.name || '', 'fr'));
+  }, [children]);
+
+  // Extraire tous les lieux uniques
+  const allPlaces = React.useMemo(() => {
+    const placesMap = new Map<string, { place: any; childrenNames: string[]; childrenIds: string[] }>();
+    
+    children.forEach((child) => {
+      if (!child.places || child.places.length === 0) return;
+      
+      child.places.forEach((place: any) => {
+        if (placesMap.has(place.id)) {
+          const entry = placesMap.get(place.id)!;
+          entry.childrenNames.push(child.firstName);
+          entry.childrenIds.push(child.id);
+        } else {
+          placesMap.set(place.id, {
+            place,
+            childrenNames: [child.firstName],
+            childrenIds: [child.id]
+          });
+        }
+      });
+    });
+    
+    return Array.from(placesMap.values())
+      .sort((a, b) => (a.place.label || '').localeCompare(b.place.label || '', 'fr'));
+  }, [children]);
+
+  const SectionHeader = ({ icon: Icon, title, color }: { icon: any; title: string; color: string }) => (
+    <div className="flex items-center gap-3 mb-6">
+      <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color}`}>
+        <Icon className="h-6 w-6" strokeWidth={2.5} />
+      </div>
+      <h2 className="text-2xl font-bold text-mcf-orange-dark">{title}</h2>
+    </div>
+  );
+
+  const EmptyState = ({ 
+    icon: Icon, 
+    title, 
+    description, 
+    buttonText, 
+    onClick,
+    gradient 
+  }: { 
+    icon: any; 
+    title: string; 
+    description: string; 
+    buttonText: string; 
+    onClick: () => void;
+    gradient: string;
+  }) => (
+    <Card className={`p-10 text-center border-2 border-dashed bg-gradient-to-br ${gradient} transition-all duration-300 hover:shadow-lg`}>
+      <div className="flex flex-col items-center gap-5">
+        <div className="p-5 rounded-full bg-white/80 shadow-sm">
+          <Icon className="h-12 w-12 text-mcf-orange" strokeWidth={1.5} />
+        </div>
+        <div className="space-y-2">
+          <p className="text-lg font-bold text-mcf-orange-dark">{title}</p>
+          <p className="text-sm text-gray-600 max-w-md mx-auto">{description}</p>
+        </div>
+        <Button
+          onClick={onClick}
+          className="bg-mcf-primary hover:bg-mcf-primary/90 shadow-md hover:shadow-lg hover:scale-105 transition-all gap-2"
+        >
+          <Plus className="h-4 w-4" strokeWidth={2.5} />
+          {buttonText}
+        </Button>
+      </div>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-12">
+      {/* Section Enfants */}
+      <section className="animate-fade-in">
+        <SectionHeader 
+          icon={Baby} 
+          title="Mes enfants" 
+          color="from-mcf-primary/20 to-mcf-mint/20 text-mcf-primary"
+        />
+        
+        {children.length === 0 ? (
+          <EmptyState
+            icon={Baby}
+            title="Commencez votre aventure"
+            description="Créez le profil de votre premier enfant pour découvrir ses histoires personnalisées"
+            buttonText="Ajouter mon premier enfant"
+            onClick={() => navigate('/creer-profil-enfant')}
+            gradient="from-mcf-primary/5 to-mcf-mint/10"
+          />
+        ) : (
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {children.map((child) => (
+                <ChildProfileCard key={child.id} child={child} />
+              ))}
+            </div>
+            
+            <Button
+              onClick={() => navigate('/creer-profil-enfant')}
+              variant="outline"
+              className="w-full border-2 border-dashed border-mcf-primary/40 hover:border-mcf-primary hover:bg-mcf-primary/5 text-mcf-primary font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+            >
+              <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+              Ajouter un autre enfant
+            </Button>
+          </>
+        )}
+      </section>
+
+      {/* Section Proches */}
+      {children.length > 0 && (
+        <section className="animate-fade-in animation-delay-100">
+          <SectionHeader 
+            icon={Users} 
+            title="Ma famille et mes proches" 
+            color="from-mcf-secondary/20 to-mcf-mint/20 text-mcf-secondary"
+          />
+          
+          {allRelatives.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="Ajoutez vos proches"
+              description="Grands-parents, oncles, tantes, amis... Ils feront partie des histoires !"
+              buttonText="Ajouter un proche"
+              onClick={() => navigate(children.length === 1 ? `/ajouter-proche/${children[0].id}` : '/ajouter-proche')}
+              gradient="from-mcf-secondary/5 to-mcf-mint/10"
+            />
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {allRelatives.map(({ relative, childrenNames, childrenIds }) => (
+                  <RelativeProfileCard 
+                    key={relative.id}
+                    relative={relative}
+                    childrenNames={childrenNames}
+                    primaryChildId={childrenIds[0]}
+                  />
+                ))}
+              </div>
+              
+              <Button
+                onClick={() => navigate(children.length === 1 ? `/ajouter-proche/${children[0].id}` : '/ajouter-proche')}
+                variant="outline"
+                className="w-full border-2 border-dashed border-mcf-secondary/40 hover:border-mcf-secondary hover:bg-mcf-secondary/5 text-mcf-secondary font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+              >
+                <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+                Ajouter un autre proche
+              </Button>
+            </>
+          )}
+        </section>
+      )}
+
+      {/* Section Animaux */}
+      {children.length > 0 && (
+        <section className="animate-fade-in animation-delay-200">
+          <SectionHeader 
+            icon={Heart} 
+            title="Nos animaux de compagnie" 
+            color="from-mcf-orange/20 to-mcf-amber/20 text-mcf-orange"
+          />
+          
+          {allPets.length === 0 ? (
+            <EmptyState
+              icon={Heart}
+              title="Ajoutez vos compagnons"
+              description="Chat, chien, lapin... Vos animaux peuvent aussi être les héros des histoires !"
+              buttonText="Ajouter un animal"
+              onClick={() => navigate(children.length === 1 ? `/ajouter-animal/${children[0].id}` : '/ajouter-animal')}
+              gradient="from-mcf-orange/5 to-mcf-amber/10"
+            />
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {allPets.map(({ pet, childrenNames, childrenIds }) => (
+                  <PetProfileCard 
+                    key={pet.id || pet.name}
+                    pet={pet}
+                    childrenNames={childrenNames}
+                    primaryChildId={childrenIds[0]}
+                  />
+                ))}
+              </div>
+              
+              <Button
+                onClick={() => navigate(children.length === 1 ? `/ajouter-animal/${children[0].id}` : '/ajouter-animal')}
+                variant="outline"
+                className="w-full border-2 border-dashed border-mcf-orange/40 hover:border-mcf-orange hover:bg-mcf-orange/5 text-mcf-orange font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+              >
+                <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+                Ajouter un autre animal
+              </Button>
+            </>
+          )}
+        </section>
+      )}
+
+      {/* Section Lieux */}
+      {children.length > 0 && (
+        <section className="animate-fade-in animation-delay-300">
+          <SectionHeader 
+            icon={MapPin} 
+            title="Mes lieux de vie" 
+            color="from-mcf-amber/20 to-mcf-cream/40 text-mcf-amber"
+          />
+          
+          {allPlaces.length === 0 ? (
+            <EmptyState
+              icon={MapPin}
+              title="Ajoutez vos lieux"
+              description="Maison, école, parc, lieu de vacances... Créez l'univers de vos histoires"
+              buttonText="Ajouter un lieu"
+              onClick={() => navigate(children.length === 1 ? `/ajouter-lieu/${children[0].id}` : '/ajouter-lieu')}
+              gradient="from-mcf-amber/5 to-mcf-cream/20"
+            />
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {allPlaces.map(({ place, childrenNames, childrenIds }) => (
+                  <PlaceProfileCard 
+                    key={place.id}
+                    place={place}
+                    childrenNames={childrenNames}
+                    primaryChildId={childrenIds[0]}
+                  />
+                ))}
+              </div>
+              
+              <Button
+                onClick={() => navigate(children.length === 1 ? `/ajouter-lieu/${children[0].id}` : '/ajouter-lieu')}
+                variant="outline"
+                className="w-full border-2 border-dashed border-mcf-amber/40 hover:border-mcf-amber hover:bg-mcf-amber/5 text-mcf-amber font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+              >
+                <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+                Ajouter un autre lieu
+              </Button>
+            </>
+          )}
+        </section>
+      )}
+    </div>
+  );
+};
+
+export default MyFamilyTab;
