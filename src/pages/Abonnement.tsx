@@ -419,26 +419,6 @@ const Abonnement: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-            
-            <Card className="mt-16 relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl group animate-fade-in animation-delay-300">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-mcf-secondary/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500" />
-              <CardContent className="pt-10 pb-10 text-center relative z-10">
-                <div className="w-20 h-20 bg-mcf-mint/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Gift className="w-10 h-10 text-mcf-secondary" strokeWidth={2.5} />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-mcf-primary">Vous souhaitez offrir un livre unique ?</h3>
-                <p className="text-lg text-mcf-text/70 mb-6 max-w-2xl mx-auto">
-                  Offrez une expérience magique avec nos livres personnalisés à l'unité
-                </p>
-                <button 
-                  onClick={() => navigate('/offrir-livre')}
-                  className="inline-flex items-center gap-2 bg-white border-2 border-mcf-secondary hover:bg-mcf-mint/20 text-mcf-primary font-bold py-4 px-8 rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Découvrir nos livres cadeaux
-                </button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </main>
