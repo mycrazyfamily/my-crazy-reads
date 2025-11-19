@@ -231,19 +231,12 @@ const NewIndex: React.FC = () => {
                 Abonnez votre enfant et recevez chaque mois son livre personnalisé.
               </p>
               
-              <div className="flex flex-col sm:flex-row justify-center gap-6">
+              <div className="flex justify-center">
                 <Link 
                   to={getDestinationPath()} 
                   className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
                 >
                   {getButtonText()}
-                </Link>
-                
-                <Link 
-                  to="/offrir-livre" 
-                  className="bg-white hover:bg-mcf-gradient-start/20 text-mcf-text font-medium py-4 px-10 rounded-full border-2 border-mcf-secondary hover:border-mcf-primary transition-all duration-300 transform hover:scale-105 text-lg"
-                >
-                  Offrir un livre
                 </Link>
               </div>
               
