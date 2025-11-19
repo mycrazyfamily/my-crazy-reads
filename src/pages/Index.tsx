@@ -73,7 +73,7 @@ const NewIndex: React.FC = () => {
         <HowItWorks />
         
         {/* Deux façons de vivre l'aventure */}
-        <section className="py-24 bg-gradient-to-br from-mcf-primary via-mcf-mint to-mcf-secondary animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
@@ -149,8 +149,8 @@ const NewIndex: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-center bg-white/95 rounded-2xl p-8 max-w-4xl mx-auto border border-white/50">
-              <p className="text-xl md:text-2xl font-semibold text-white italic leading-relaxed">
+            <div className="text-center bg-white/95 rounded-2xl p-8 max-w-4xl mx-auto border border-mcf-primary/20">
+              <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
                 chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
               </p>
