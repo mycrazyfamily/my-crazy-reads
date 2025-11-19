@@ -106,7 +106,7 @@ const NewIndex: React.FC = () => {
                   <ul className="space-y-4 text-mcf-text/80">
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
-                      <span className="text-base">Vous suivez le thème proposé par My Crazy Family chaque mois</span>
+                      <span className="text-base">Vous suivez le thème proposé par My Crazy Family et nos spécialistes de l'enfance chaque mois</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
