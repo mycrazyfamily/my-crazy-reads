@@ -77,33 +77,35 @@ const NewIndex: React.FC = () => {
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Users className="w-10 h-10 text-white" />
+                <Users className="w-10 h-10 text-white drop-shadow-md" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">
                 Deux façons de vivre l'aventure
               </h2>
-              <p className="text-lg text-white/90">
+              <p className="text-xl md:text-2xl text-white/95 font-light drop-shadow-md">
                 Choisissez le niveau d'implication qui vous convient
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
               {/* Option 1 - Guidé */}
-              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
+              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <div className="pt-8 p-6 relative z-10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                <div className="pt-10 p-8 relative z-10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-20 h-20 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-4xl shadow-md">
                       🪄
                     </div>
-                    <h3 className="text-2xl font-bold text-mcf-primary">
-                      Mode "guidé"
-                    </h3>
+                    <div>
+                      <h3 className="text-2xl font-bold text-mcf-primary">
+                        Mode "guidé"
+                      </h3>
+                      <p className="text-base text-mcf-secondary/90 font-semibold mt-1">
+                        Pour ceux qui préfèrent la simplicité
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-mcf-secondary font-semibold mb-4 ml-[4.5rem]">
-                    Pour ceux qui préfèrent la simplicité
-                  </p>
-                  <ul className="space-y-4 text-mcf-text/80">
+                  <ul className="space-y-4 text-mcf-text/80 mt-6">
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-mint text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous suivez le thème proposé par My Crazy Family et nos spécialistes de l'enfance chaque mois</span>
@@ -121,21 +123,23 @@ const NewIndex: React.FC = () => {
               </div>
 
               {/* Option 2 - Créatif */}
-              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
+              <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <div className="pt-8 p-6 relative z-10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-14 h-14 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-3xl">
+                <div className="pt-10 p-8 relative z-10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-20 h-20 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-4xl shadow-md">
                       🎨
                     </div>
-                    <h3 className="text-2xl font-bold text-mcf-primary">
-                      Mode "créatif"
-                    </h3>
+                    <div>
+                      <h3 className="text-2xl font-bold text-mcf-primary">
+                        Mode "créatif"
+                      </h3>
+                      <p className="text-base text-mcf-secondary/90 font-semibold mt-1">
+                        Pour ceux qui veulent façonner l'histoire
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-mcf-secondary font-semibold mb-4 ml-[4.5rem]">
-                    Pour ceux qui veulent façonner l'histoire
-                  </p>
-                  <ul className="space-y-4 text-mcf-text/80">
+                  <ul className="space-y-4 text-mcf-text/80 mt-6">
                     <li className="flex items-start gap-3">
                       <span className="text-mcf-secondary text-xl mt-0.5">✓</span>
                       <span className="text-base">Vous proposez un thème ou une idée totalement différente chaque mois où vous le souhaitez</span>
@@ -149,7 +153,7 @@ const NewIndex: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-center bg-white/95 rounded-2xl p-8 max-w-4xl mx-auto border border-mcf-primary/20">
+            <div className="text-center bg-white rounded-2xl p-10 max-w-4xl mx-auto shadow-xl border-2 border-mcf-primary/20">
               <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
                 chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
