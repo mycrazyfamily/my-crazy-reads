@@ -78,27 +78,16 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2">
+      <CardFooter className="flex justify-center p-4 pt-2">
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center gap-1 w-full border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
+          className="flex items-center gap-1 border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
           asChild
         >
           <Link to={`/creer-profil-enfant?edit=${child.id}`}>
             <Edit className="h-3.5 w-3.5" />
             <span>Modifier</span>
-          </Link>
-        </Button>
-        
-        <Button 
-          size="sm" 
-          className="flex items-center gap-1 w-full bg-mcf-orange hover:bg-mcf-orange-dark text-white"
-          asChild
-        >
-          <Link to={`/offrir/theme?child=${child.id}`}>
-            <ShoppingBag className="h-3.5 w-3.5" />
-            <span>Commander</span>
           </Link>
         </Button>
       </CardFooter>
