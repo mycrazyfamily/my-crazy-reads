@@ -338,33 +338,58 @@ const FamilyDashboard: React.FC = () => {
         </div>
         
         <div className="grid gap-8">
-          {/* Quick action buttons */}
-          <section className="animate-fade-in">
+          {/* Section "Actions rapides" */}
+          <section className="mb-10 animate-fade-in">
+            <div className="mb-6">
+              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                <div className="bg-gradient-to-br from-mcf-orange/20 to-mcf-primary/10 p-2.5 rounded-xl">
+                  <Clock className="h-7 w-7 text-mcf-primary" strokeWidth={2.5} />
+                </div>
+                Actions rapides
+              </h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-mcf-orange to-mcf-primary rounded-full mt-3 ml-1" />
+            </div>
+            
             <TooltipProvider delayDuration={0}>
-              <div className="flex flex-wrap gap-3 mb-6">
-                {/* 1. Ajouter un nouvel enfant - toujours visible */}
-                <Button 
-                  className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {/* 1. Ajouter un enfant - toujours actif */}
+                <button
                   onClick={() => navigate('/creer-profil-enfant')}
+                  className="group relative bg-white border-2 border-mcf-primary/30 hover:border-mcf-primary rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gradient-to-br hover:from-mcf-primary/5 hover:to-mcf-mint/5"
                 >
-                  <Plus className="h-4 w-4" /> Ajouter un enfant
-                </Button>
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <div className="p-3 rounded-full bg-mcf-primary/20 group-hover:bg-mcf-primary/30 transition-colors">
+                      <Baby className="h-6 w-6 text-mcf-primary" strokeWidth={2.5} />
+                    </div>
+                    <span className="font-semibold text-mcf-orange-dark text-sm">Ajouter un enfant</span>
+                  </div>
+                </button>
                 
                 {/* 2. Ajouter un proche - désactivé si pas d'enfant */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div>
-                      <Button 
-                        className={`gap-2 ${children.length === 0 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
-                          : 'bg-mcf-primary hover:bg-mcf-primary/90 text-white'
-                        }`}
-                        onClick={children.length > 0 ? () => navigate('/ajouter-proche') : undefined}
-                        disabled={children.length === 0}
-                      >
-                        <Plus className="h-4 w-4" /> Ajouter un proche
-                      </Button>
-                    </div>
+                    <button
+                      onClick={children.length > 0 ? () => navigate('/ajouter-proche') : undefined}
+                      disabled={children.length === 0}
+                      className={`group relative border-2 rounded-xl p-5 shadow-lg transition-all duration-300 ${
+                        children.length === 0
+                          ? 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-60'
+                          : 'bg-white border-mcf-mint/30 hover:border-mcf-mint hover:shadow-xl hover:scale-105 hover:bg-gradient-to-br hover:from-mcf-mint/5 hover:to-mcf-primary/5'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-3 text-center">
+                        <div className={`p-3 rounded-full transition-colors ${
+                          children.length === 0
+                            ? 'bg-gray-300'
+                            : 'bg-mcf-mint/20 group-hover:bg-mcf-mint/30'
+                        }`}>
+                          <User className={`h-6 w-6 ${children.length === 0 ? 'text-gray-500' : 'text-mcf-mint'}`} strokeWidth={2.5} />
+                        </div>
+                        <span className={`font-semibold text-sm ${children.length === 0 ? 'text-gray-500' : 'text-mcf-orange-dark'}`}>
+                          Ajouter un proche
+                        </span>
+                      </div>
+                    </button>
                   </TooltipTrigger>
                   {children.length === 0 && (
                     <TooltipContent>
@@ -373,27 +398,37 @@ const FamilyDashboard: React.FC = () => {
                   )}
                 </Tooltip>
                 
-                {/* 2.5 Ajouter un animal - désactivé si pas d'enfant */}
+                {/* 3. Ajouter un animal - désactivé si pas d'enfant */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div>
-                      <Button 
-                        className={`gap-2 ${children.length === 0 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
-                          : 'bg-mcf-primary hover:bg-mcf-primary/90 text-white'
-                        }`}
-                        onClick={children.length > 0 ? () => {
-                          if (children.length === 1) {
-                            navigate(`/ajouter-animal/${children[0].id}`);
-                          } else {
-                            navigate('/ajouter-animal');
-                          }
-                        } : undefined}
-                        disabled={children.length === 0}
-                      >
-                        <Plus className="h-4 w-4" /> Ajouter un animal
-                      </Button>
-                    </div>
+                    <button
+                      onClick={children.length > 0 ? () => {
+                        if (children.length === 1) {
+                          navigate(`/ajouter-animal/${children[0].id}`);
+                        } else {
+                          navigate('/ajouter-animal');
+                        }
+                      } : undefined}
+                      disabled={children.length === 0}
+                      className={`group relative border-2 rounded-xl p-5 shadow-lg transition-all duration-300 ${
+                        children.length === 0
+                          ? 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-60'
+                          : 'bg-white border-mcf-secondary/30 hover:border-mcf-secondary hover:shadow-xl hover:scale-105 hover:bg-gradient-to-br hover:from-mcf-secondary/5 hover:to-mcf-cream/30'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-3 text-center">
+                        <div className={`p-3 rounded-full transition-colors ${
+                          children.length === 0
+                            ? 'bg-gray-300'
+                            : 'bg-mcf-secondary/20 group-hover:bg-mcf-secondary/30'
+                        }`}>
+                          <Heart className={`h-6 w-6 ${children.length === 0 ? 'text-gray-500' : 'text-mcf-secondary'}`} strokeWidth={2.5} />
+                        </div>
+                        <span className={`font-semibold text-sm ${children.length === 0 ? 'text-gray-500' : 'text-mcf-orange-dark'}`}>
+                          Ajouter un animal
+                        </span>
+                      </div>
+                    </button>
                   </TooltipTrigger>
                   {children.length === 0 && (
                     <TooltipContent>
@@ -402,27 +437,37 @@ const FamilyDashboard: React.FC = () => {
                   )}
                 </Tooltip>
                 
-                {/* 2.7 Ajouter un lieu de vie - désactivé si pas d'enfant */}
+                {/* 4. Ajouter un lieu de vie - désactivé si pas d'enfant */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div>
-                      <Button 
-                        className={`gap-2 ${children.length === 0 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
-                          : 'bg-mcf-primary hover:bg-mcf-primary/90 text-white'
-                        }`}
-                        onClick={children.length > 0 ? () => {
-                          if (children.length === 1) {
-                            navigate(`/ajouter-lieu/${children[0].id}`);
-                          } else {
-                            navigate('/ajouter-lieu');
-                          }
-                        } : undefined}
-                        disabled={children.length === 0}
-                      >
-                        <Plus className="h-4 w-4" /> Ajouter un lieu de vie
-                      </Button>
-                    </div>
+                    <button
+                      onClick={children.length > 0 ? () => {
+                        if (children.length === 1) {
+                          navigate(`/ajouter-lieu/${children[0].id}`);
+                        } else {
+                          navigate('/ajouter-lieu');
+                        }
+                      } : undefined}
+                      disabled={children.length === 0}
+                      className={`group relative border-2 rounded-xl p-5 shadow-lg transition-all duration-300 ${
+                        children.length === 0
+                          ? 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-60'
+                          : 'bg-white border-mcf-orange/30 hover:border-mcf-orange hover:shadow-xl hover:scale-105 hover:bg-gradient-to-br hover:from-mcf-amber/5 hover:to-mcf-orange/5'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-3 text-center">
+                        <div className={`p-3 rounded-full transition-colors ${
+                          children.length === 0
+                            ? 'bg-gray-300'
+                            : 'bg-mcf-orange/20 group-hover:bg-mcf-orange/30'
+                        }`}>
+                          <Home className={`h-6 w-6 ${children.length === 0 ? 'text-gray-500' : 'text-mcf-orange'}`} strokeWidth={2.5} />
+                        </div>
+                        <span className={`font-semibold text-sm ${children.length === 0 ? 'text-gray-500' : 'text-mcf-orange-dark'}`}>
+                          Ajouter un lieu
+                        </span>
+                      </div>
+                    </button>
                   </TooltipTrigger>
                   {children.length === 0 && (
                     <TooltipContent>
@@ -431,28 +476,6 @@ const FamilyDashboard: React.FC = () => {
                   )}
                 </Tooltip>
                 
-                {/* 3. Offrir un nouveau livre - désactivé si pas d'enfant */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Button 
-                        className={`gap-2 ${children.length === 0 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300' 
-                          : 'bg-mcf-secondary hover:bg-mcf-secondary/90 text-white'
-                        }`}
-                        onClick={children.length > 0 ? () => navigate('/offrir/profil-enfant') : undefined}
-                        disabled={children.length === 0}
-                      >
-                        <ShoppingBag className="h-4 w-4" /> Offrir un nouveau livre
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  {children.length === 0 && (
-                    <TooltipContent>
-                      <p>Créez d'abord le profil d'un enfant pour lui offrir un livre personnalisé.</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
               </div>
             </TooltipProvider>
           </section>
@@ -514,24 +537,24 @@ const FamilyDashboard: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <Card className="p-8 text-center bg-gradient-to-br from-mcf-mint/10 to-mcf-cream/50 border-mcf-mint">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="bg-mcf-mint/20 p-4 rounded-full">
-                    <Baby className="h-8 w-8 text-mcf-primary" />
+              <Card className="p-10 text-center bg-gradient-to-br from-mcf-primary/5 to-mcf-mint/10 border-2 border-dashed border-mcf-primary/40 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center gap-5">
+                  <div className="p-6 rounded-full bg-mcf-primary/20">
+                    <Baby className="h-16 w-16 text-mcf-primary" strokeWidth={2} />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-lg font-medium text-mcf-orange-dark">
-                      Vous n'avez encore ajouté aucun enfant.
+                    <p className="text-xl font-bold text-mcf-orange-dark">
+                      Vous n'avez pas encore ajouté de profil d'enfant
                     </p>
-                    <p className="text-gray-600">
-                      Cliquez sur le bouton ci-dessous pour commencer.
+                    <p className="text-gray-600 text-base max-w-md mx-auto">
+                      Créez le profil de votre enfant pour commencer à recevoir des histoires personnalisées.
                     </p>
                   </div>
                   <Button 
-                    className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 text-lg px-6 py-3 mt-2"
+                    className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 text-lg px-8 py-6 mt-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                     onClick={() => navigate('/creer-profil-enfant')}
                   >
-                    <Plus className="h-5 w-5" /> Ajouter mon premier enfant
+                    <Sparkles className="h-6 w-6" strokeWidth={2.5} /> Créer le profil de mon enfant
                   </Button>
                 </div>
               </Card>
@@ -541,9 +564,15 @@ const FamilyDashboard: React.FC = () => {
           {/* Section: Ma famille - Affichage des proches */}
           {children.length > 0 && children.some(child => child.relatives && child.relatives.length > 0) && (
             <section className="animate-fade-in animation-delay-50">
-              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <Heart className="h-6 w-6" /> Ma famille et mes proches
-              </h2>
+              <div className="mb-6">
+                <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                  <div className="bg-gradient-to-br from-mcf-mint/20 to-mcf-primary/10 p-2.5 rounded-xl">
+                    <User className="h-7 w-7 text-mcf-mint" strokeWidth={2.5} />
+                  </div>
+                  Ma famille et mes proches
+                </h2>
+                <div className="h-1 w-12 bg-gradient-to-r from-mcf-mint to-mcf-primary rounded-full mt-3 ml-1" />
+              </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(() => {
@@ -582,10 +611,10 @@ const FamilyDashboard: React.FC = () => {
               </div>
               
               <Button 
-                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                className="gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all mt-4"
                 onClick={() => navigate('/ajouter-proche')}
               >
-                <Plus className="h-4 w-4" /> Ajouter un proche
+                <Plus className="h-5 w-5" strokeWidth={2.5} /> Ajouter un proche
               </Button>
             </section>
           )}
@@ -593,9 +622,15 @@ const FamilyDashboard: React.FC = () => {
           {/* Section: Animaux de compagnie */}
           {children.length > 0 && children.some(child => child.pets && child.pets.length > 0) && (
             <section className="animate-fade-in animation-delay-75">
-              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <span className="text-2xl">🐾</span> Nos animaux de compagnie
-              </h2>
+              <div className="mb-6">
+                <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                  <div className="bg-gradient-to-br from-mcf-secondary/20 to-mcf-cream/20 p-2.5 rounded-xl">
+                    <Heart className="h-7 w-7 text-mcf-secondary" strokeWidth={2.5} />
+                  </div>
+                  Nos animaux de compagnie
+                </h2>
+                <div className="h-1 w-12 bg-gradient-to-r from-mcf-secondary to-mcf-primary rounded-full mt-3 ml-1" />
+              </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(() => {
@@ -636,7 +671,7 @@ const FamilyDashboard: React.FC = () => {
               
               {/* Bouton pour ajouter un animal */}
               <Button 
-                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                className="gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all mt-4"
                 onClick={() => {
                   if (children.length === 1) {
                     navigate(`/ajouter-animal/${children[0].id}`);
@@ -645,7 +680,7 @@ const FamilyDashboard: React.FC = () => {
                   }
                 }}
               >
-                <Plus className="h-4 w-4" /> Ajouter un animal
+                <Plus className="h-5 w-5" strokeWidth={2.5} /> Ajouter un animal
               </Button>
             </section>
           )}
@@ -653,9 +688,15 @@ const FamilyDashboard: React.FC = () => {
           {/* Section: Lieux de vie */}
           {children.length > 0 && children.some(child => child.places && child.places.length > 0) && (
             <section className="animate-fade-in animation-delay-85">
-              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <span className="text-2xl">📍</span> Mes lieux de vie
-              </h2>
+              <div className="mb-6">
+                <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                  <div className="bg-gradient-to-br from-mcf-orange/20 to-mcf-amber/20 p-2.5 rounded-xl">
+                    <Home className="h-7 w-7 text-mcf-orange" strokeWidth={2.5} />
+                  </div>
+                  Mes lieux de vie
+                </h2>
+                <div className="h-1 w-12 bg-gradient-to-r from-mcf-orange to-mcf-amber rounded-full mt-3 ml-1" />
+              </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(() => {
@@ -695,7 +736,7 @@ const FamilyDashboard: React.FC = () => {
               
               {/* Bouton pour ajouter un lieu */}
               <Button 
-                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white gap-2 mt-4"
+                className="gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all mt-4"
                 onClick={() => {
                   if (children.length === 1) {
                     navigate(`/ajouter-lieu/${children[0].id}`);
@@ -704,39 +745,45 @@ const FamilyDashboard: React.FC = () => {
                   }
                 }}
               >
-                <Plus className="h-4 w-4" /> Ajouter un lieu de vie
+                <Plus className="h-5 w-5" strokeWidth={2.5} /> Ajouter un lieu de vie
               </Button>
             </section>
           )}
           
           {/* Section 2: Books */}
           <section className="animate-fade-in animation-delay-100">
-            <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-              <Book className="h-6 w-6" /> Mes livres MCF
-            </h2>
+            <div className="mb-6">
+              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                <div className="bg-gradient-to-br from-mcf-secondary/20 to-mcf-primary/10 p-2.5 rounded-xl">
+                  <Book className="h-7 w-7 text-mcf-secondary" strokeWidth={2.5} />
+                </div>
+                Mes livres MCF
+              </h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-mcf-secondary to-mcf-primary rounded-full mt-3 ml-1" />
+            </div>
             
             {books.length > 0 ? (
               <BookTimeline />
             ) : (
-              <Card className="p-8 text-center bg-gradient-to-br from-mcf-secondary/10 to-mcf-cream/50 border-mcf-secondary">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="bg-mcf-secondary/20 p-4 rounded-full">
-                    <Book className="h-8 w-8 text-mcf-secondary" />
+              <Card className="p-10 text-center bg-gradient-to-br from-mcf-secondary/5 to-mcf-cream/30 border-2 border-dashed border-mcf-secondary/40 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center gap-5">
+                  <div className="p-6 rounded-full bg-mcf-secondary/20">
+                    <Book className="h-16 w-16 text-mcf-secondary" strokeWidth={2} />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-lg font-medium text-mcf-orange-dark">
-                      Aucune histoire n'a encore été créée pour vos enfants.
+                    <p className="text-xl font-bold text-mcf-orange-dark">
+                      Aucune histoire n'a encore été créée pour vos enfants
                     </p>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 text-base max-w-md mx-auto">
                       Les histoires que vous lirez avec vos enfants apparaîtront ici.
                     </p>
                   </div>
                   {children.length > 0 && (
                     <Button 
-                      className="bg-mcf-secondary hover:bg-mcf-secondary/90 text-white gap-2 text-lg px-6 py-3 mt-2"
+                      className="bg-mcf-secondary hover:bg-mcf-secondary/90 text-white gap-2 text-lg px-8 py-6 mt-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                       onClick={() => navigate('/personnaliser-histoire')}
                     >
-                      <MessageSquarePlus className="h-5 w-5" /> Créer ma première histoire
+                      <Sparkles className="h-6 w-6" strokeWidth={2.5} /> Créer ma première histoire
                     </Button>
                   )}
                 </div>
@@ -746,26 +793,32 @@ const FamilyDashboard: React.FC = () => {
           
           {/* Section 3: Family Code Sharing */}
           <section className="animate-fade-in animation-delay-200">
-            <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-              <Gift className="h-6 w-6" /> Offrir un livre avec mon code famille
-            </h2>
+            <div className="mb-6">
+              <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                <div className="bg-gradient-to-br from-mcf-amber/20 to-mcf-orange/10 p-2.5 rounded-xl">
+                  <Gift className="h-7 w-7 text-mcf-orange" strokeWidth={2.5} />
+                </div>
+                Offrir un livre avec mon code famille
+              </h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-mcf-amber to-mcf-orange rounded-full mt-3 ml-1" />
+            </div>
             
             {familyCode ? (
               <FamilyCodeShare familyCode={familyCode} />
             ) : (
-              <Card className={`p-8 text-center bg-gradient-to-br from-mcf-amber/10 to-mcf-cream/50 border-mcf-mint ${children.length === 0 ? 'opacity-60' : ''}`}>
-                <div className="flex flex-col items-center gap-4">
-                  <div className="bg-mcf-amber/20 p-4 rounded-full">
-                    <Gift className="h-8 w-8 text-mcf-orange" />
+              <Card className={`p-10 text-center bg-gradient-to-br from-mcf-amber/5 to-mcf-cream/30 border-2 border-dashed border-mcf-amber/40 shadow-lg hover:shadow-xl transition-shadow ${children.length === 0 ? 'opacity-60' : ''}`}>
+                <div className="flex flex-col items-center gap-5">
+                  <div className="p-6 rounded-full bg-mcf-amber/20">
+                    <Gift className="h-16 w-16 text-mcf-orange" strokeWidth={2} />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-lg font-medium text-mcf-orange-dark">
+                    <p className="text-xl font-bold text-mcf-orange-dark">
                       {children.length === 0 
-                        ? "Ajoutez un enfant pour générer votre code famille et offrir un livre à vos proches."
-                        : "Votre code famille sera généré automatiquement."
+                        ? "Ajoutez un enfant pour générer votre code famille"
+                        : "Votre code famille sera généré automatiquement"
                       }
                     </p>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 text-base max-w-md mx-auto">
                       Partagez la magie des histoires personnalisées avec votre famille.
                     </p>
                   </div>
@@ -777,9 +830,15 @@ const FamilyDashboard: React.FC = () => {
           {/* Section 4: Story Customization - Only show if user has children */}
           {children.length > 0 && (
             <section className="animate-fade-in animation-delay-300">
-              <h2 className="flex items-center gap-2 text-2xl font-bold mb-4 text-mcf-orange-dark">
-                <MessageSquarePlus className="h-6 w-6" /> Personnaliser encore plus les prochaines histoires
-              </h2>
+              <div className="mb-6">
+                <h2 className="flex items-center gap-3 text-3xl font-bold text-mcf-orange-dark">
+                  <div className="bg-gradient-to-br from-mcf-primary/20 to-mcf-mint/10 p-2.5 rounded-xl">
+                    <MessageSquarePlus className="h-7 w-7 text-mcf-primary" strokeWidth={2.5} />
+                  </div>
+                  Personnaliser encore plus les prochaines histoires
+                </h2>
+                <div className="h-1 w-12 bg-gradient-to-r from-mcf-primary to-mcf-mint rounded-full mt-3 ml-1" />
+              </div>
               
               <StoryCustomizationForm />
             </section>
