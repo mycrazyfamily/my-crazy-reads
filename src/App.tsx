@@ -8,6 +8,7 @@ import RouteGuard from './components/RouteGuard'
 import SubscriptionGuard from './components/SubscriptionGuard'
 import DevMenu from './components/DevMenu'
 import ErrorBoundary from './components/util/ErrorBoundary'
+import ScrollToTop from './components/ScrollToTop'
 
 // Auth Components - Import at the TOP LEVEL to ensure bundling
 import Callback from './pages/auth/Callback'
@@ -73,6 +74,7 @@ function App() {
     }>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <div>
             <Routes>
               {/* Auth callback route - explicitly defined FIRST in the routes for priority */}
