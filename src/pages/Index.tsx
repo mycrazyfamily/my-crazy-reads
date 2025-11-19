@@ -153,16 +153,20 @@ const NewIndex: React.FC = () => {
         </section>
         
         {/* Pourquoi choisir MCF */}
-        <section className="py-20 px-4 bg-mcf-gradient-start/30">
-          <div className="container mx-auto">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-mcf-text mb-6">
-              Pourquoi choisir My Crazy Family ?
-            </h2>
-            <p className="text-lg md:text-xl text-mcf-text/70 text-center max-w-3xl mx-auto mb-12">
-              Plus qu'un simple livre personnalisé, My Crazy Family est une invitation à créer des souvenirs durables avec votre enfant.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="py-24 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5 animate-fade-in">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Heart className="w-10 h-10 text-mcf-primary" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+                Pourquoi choisir My Crazy Family ?
+              </h2>
+              <p className="text-lg text-mcf-text/70">
+                Un abonnement qui grandit avec votre famille
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
               {benefits.map((benefit, index) => (
                 <BenefitCard
                   key={index}
@@ -208,10 +212,13 @@ const NewIndex: React.FC = () => {
         </section>
         
         {/* Section finale - Profitez pleinement */}
-        <section className="py-20 px-4 bg-white">
-          <div className="container mx-auto text-center">
+        <section className="py-24 bg-white">
+          <div className="container mx-auto px-4 md:px-6 text-center">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mcf-text mb-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Zap className="w-10 h-10 text-mcf-primary" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-8">
                 Profitez de l'expérience MCF
               </h2>
               <p className="text-lg md:text-xl text-mcf-text/70 max-w-3xl mx-auto mb-12">

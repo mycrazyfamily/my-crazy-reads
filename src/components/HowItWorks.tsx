@@ -40,7 +40,7 @@ const HowItWorks: React.FC = () => {
     <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mcf-text mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mcf-primary mb-6">
             Comment ça marche
           </h2>
           <p className="text-lg md:text-xl text-mcf-text/70 max-w-3xl mx-auto">
