@@ -300,7 +300,7 @@ const NosHistoires: React.FC = () => {
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-mcf-mint to-mcf-secondary" />
                 <CardContent className="pt-10 pb-8">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-mcf-mint/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-mcf-mint/50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Sparkles className="w-8 h-8 text-mcf-mint" />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
