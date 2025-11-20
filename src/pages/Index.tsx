@@ -194,6 +194,17 @@ const NewIndex: React.FC = () => {
         {/* Témoignages */}
         <section className="py-24 bg-gradient-to-br from-mcf-mint via-mcf-primary to-mcf-secondary animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <MessageCircle className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Ils ont adopté My Crazy Family
+              </h2>
+              <p className="text-lg text-white/90">
+                Les témoignages de nos familles heureuses
+              </p>
+            </div>
             <Testimonials />
           </div>
         </section>
