@@ -212,6 +212,16 @@ const Abonnement: React.FC = () => {
       <main className="flex-grow pt-32 pb-16">
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-6xl mx-auto">
+            {/* Titre principal */}
+            <div className="mb-12 text-center">
+              <h1 className="text-5xl font-bold text-mcf-orange-dark mb-4">
+                Choisissez votre abonnement
+              </h1>
+              <p className="text-gray-700 text-xl font-medium">
+                Recevez chaque mois une histoire personnalisée pour votre enfant
+              </p>
+            </div>
+
             {/* Sélection de l'enfant à abonner */}
             {isAuthenticated && (
               <Card className="mb-12 border-2 border-mcf-mint/30 shadow-lg animate-fade-in">
