@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ShoppingBag, Edit, Users, Palette, Cat, Dog, PlusSquare, Gamepad2, MapPin } from 'lucide-react';
+import { Edit, Users, Palette, Cat, Gamepad2, MapPin } from 'lucide-react';
 
 interface Child {
   id: string;
@@ -41,39 +41,29 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
       
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
-          {child.relatives && child.relatives.length > 0 && (
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-mcf-orange" />
-              <span>{child.relatives.length} proche{child.relatives.length > 1 ? 's' : ''}</span>
-            </div>
-          )}
-          
-          {child.hasPets !== undefined && child.hasPets > 0 && (
-            <div className="flex items-center gap-2">
-              {child.hasPets > 1 ? (
-                <Cat className="h-4 w-4 text-mcf-orange" />
-              ) : (
-                <Dog className="h-4 w-4 text-mcf-orange" />
-              )}
-              <span>{child.hasPets} anim{child.hasPets > 1 ? 'aux' : 'al'}</span>
-            </div>
-          )}
-          
-          {child.places && child.places.length > 0 && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-mcf-orange" />
-              <span>{child.places.length} lieu{child.places.length > 1 ? 'x' : ''}</span>
-            </div>
-          )}
-          
           <div className="flex items-center gap-2">
-            <Gamepad2 className="h-4 w-4 text-mcf-orange" />
-            <span>Jouets préférés {child.toysCount !== undefined ? child.toysCount : 0}</span>
+            <Users className="h-4 w-4 text-mcf-orange" />
+            <span>Proches {child.relatives ? child.relatives.length : 0}</span>
           </div>
           
           <div className="flex items-center gap-2">
+            <Cat className="h-4 w-4 text-mcf-orange" />
+            <span>Animaux {child.hasPets || 0}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-mcf-orange" />
+            <span>Lieux {child.places ? child.places.length : 0}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Gamepad2 className="h-4 w-4 text-mcf-orange" />
+            <span>Jouets préférés {child.toysCount || 0}</span>
+          </div>
+          
+          <div className="flex items-center gap-2 col-span-2">
             <Palette className="h-4 w-4 text-mcf-orange" />
-            <span>Préférences {child.preferencesCount !== undefined ? child.preferencesCount : 0}</span>
+            <span>Préférences {child.preferencesCount || 0}</span>
           </div>
         </div>
       </CardContent>
