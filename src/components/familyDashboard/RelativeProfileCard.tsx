@@ -55,16 +55,20 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       case 'aunt': return 'Tante';
       case 'femaleCousin': return 'Cousine';
       case 'maleCousin': return 'Cousin';
-      case 'femaleFriend': return 'Meilleure amie';
-      case 'maleFriend': return 'Meilleur ami';
+      case 'femaleFriend': return 'Amie';
+      case 'maleFriend': return 'Ami';
       case 'partner': return 'Petit copain / petite copine';
       case 'teacher': return 'Maîtresse / Maître';
       case 'babysitter': return 'Baby-sitter / Nounou';
+      case 'other': return 'Autre proche';
+      case 'otherParent': return 'Autre parent';
       default: return 'Proche';
     }
   };
 
-  const nickname = relative.nickname?.custom || relative.nickname?.type || getRelativeTypeLabel(relative.type);
+  // Traduire le type du nickname s'il existe
+  const nicknameType = relative.nickname?.type ? getRelativeTypeLabel(relative.nickname.type) : null;
+  const nickname = relative.nickname?.custom || nicknameType || getRelativeTypeLabel(relative.type);
 
   return (
     <Card className="overflow-hidden border-mcf-mint hover:shadow-lg transition-shadow">
