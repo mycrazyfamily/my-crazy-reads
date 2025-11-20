@@ -222,7 +222,7 @@ const FamilyDashboard: React.FC = () => {
                     id: fm.id,
                     firstName: fm.name,
                     type: fm.role,
-                    nickname: { custom: cfm.relation_label },
+                    nickname: cfm.relation_label,
                     avatar: fm.avatar,
                   };
                 })
