@@ -5,6 +5,7 @@ import NewHero from '../components/NewHero';
 import ExpertQuote from '../components/ExpertQuote';
 import HowItWorks from '../components/HowItWorks';
 import BenefitCard from '../components/BenefitCard';
+import Testimonials from '../components/Testimonials';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 import { Users, Heart, Zap, MessageCircle } from 'lucide-react';
@@ -205,19 +206,7 @@ const NewIndex: React.FC = () => {
               </p>
             </div>
             
-            <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-16 border-2 border-dashed border-white/30 text-center overflow-hidden">
-                <div className="absolute top-4 left-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
-                <div className="absolute bottom-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                <Heart className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <p className="text-xl text-white/90 italic mb-2">
-                  Galerie de témoignages à venir
-                </p>
-                <p className="text-sm text-white/80">
-                  Photos d'enfants et parents • Témoignages clients • Citations inspirantes
-                </p>
-              </div>
-            </div>
+            <Testimonials />
           </div>
         </section>
         
