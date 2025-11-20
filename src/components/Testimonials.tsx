@@ -80,7 +80,7 @@ const Testimonials: React.FC = () => {
                   <img 
                     src={testimonial.image}
                     alt={`Photo de ${testimonial.author}`}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-border shadow-sm"
+                    className="w-28 h-28 rounded-full object-cover border-2 border-border shadow-sm"
                   />
                 </div>
 
