@@ -378,10 +378,10 @@ const FamilyDashboard: React.FC = () => {
             
             <Button 
               variant="outline" 
-              className="border-2 border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-orange/5 gap-2 font-semibold rounded-xl hover:scale-105 transition-all"
+              className="border-2 border-mcf-orange/30 text-white hover:bg-mcf-orange/5 gap-2 font-semibold rounded-xl hover:scale-105 transition-all"
               onClick={handleLogout}
             >
-              <LogOut className="h-4 w-4" /> Déconnexion
+              <LogOut className="h-4 w-4 text-white" /> Déconnexion
             </Button>
           </div>
           
