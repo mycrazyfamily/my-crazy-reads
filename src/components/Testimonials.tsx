@@ -1,5 +1,4 @@
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -57,19 +56,6 @@ const Testimonials: React.FC = () => {
 
   return (
     <div className="relative w-full">
-      {/* Titre de section */}
-      <div className="text-center mb-12">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <MessageCircle className="w-8 h-8 text-primary" />
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Ils ont adopté My Crazy Family
-          </h2>
-        </div>
-        <p className="text-lg text-muted-foreground">
-          Les témoignages de nos familles heureuses
-        </p>
-      </div>
-
       {/* Carousel */}
       <Carousel
         opts={{
