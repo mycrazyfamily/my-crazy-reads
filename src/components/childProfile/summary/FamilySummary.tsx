@@ -96,7 +96,11 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
     if (!nk) return '';
     if (typeof nk === 'object') {
       if (nk.type === 'none') return '';
-      return nk.custom || nk.type || '';
+      // Traduire le type s'il n'y a pas de custom
+      if (!nk.custom && nk.type) {
+        return getRelationshipLabel(nk.type as RelativeType);
+      }
+      return nk.custom || '';
     }
     if (typeof nk === 'string') return nk;
     return '';
