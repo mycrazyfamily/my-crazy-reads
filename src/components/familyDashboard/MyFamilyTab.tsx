@@ -109,9 +109,11 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       .sort((a, b) => (a.place.label || '').localeCompare(b.place.label || '', 'fr'));
   }, [children]);
 
-  const SectionHeader = ({ emoji, title }: { emoji: string; title: string }) => (
+  const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
     <div className="flex items-center gap-3 mb-6">
-      <span className="text-3xl">{emoji}</span>
+      <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+        <Icon className="h-6 w-6 text-blue-500" strokeWidth={2} />
+      </div>
       <h2 className="text-2xl font-bold text-[#2574EA]">{title}</h2>
     </div>
   );
@@ -156,7 +158,7 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {/* Section Enfants */}
       <section className="animate-fade-in">
         <SectionHeader 
-          emoji="👶" 
+          icon={Baby} 
           title="Mes enfants"
         />
         
@@ -193,7 +195,7 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-100">
           <SectionHeader 
-            emoji="👪" 
+            icon={Users} 
             title="Ma famille et mes proches"
           />
           
@@ -236,7 +238,7 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-200">
           <SectionHeader 
-            emoji="🐾" 
+            icon={Heart} 
             title="Nos animaux de compagnie"
           />
           
@@ -279,7 +281,7 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-300">
           <SectionHeader 
-            emoji="🏠" 
+            icon={MapPin} 
             title="Mes lieux de vie"
           />
           
