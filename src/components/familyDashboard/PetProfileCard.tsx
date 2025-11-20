@@ -56,6 +56,21 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
     return traitMap[trait] || trait;
   };
 
+  // Normaliser les traits en tableau
+  const normalizedTraits = React.useMemo(() => {
+    if (!pet.traits) return [];
+    if (Array.isArray(pet.traits)) return pet.traits;
+    if (typeof pet.traits === 'string') {
+      try {
+        const parsed = JSON.parse(pet.traits);
+        return Array.isArray(parsed) ? parsed : [pet.traits];
+      } catch {
+        return [pet.traits];
+      }
+    }
+    return [];
+  }, [pet.traits]);
+
   return (
     <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
       <CardHeader className="p-4">
@@ -84,9 +99,9 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
           </div>
         )}
         
-        {pet.traits && pet.traits.length > 0 && (
+        {normalizedTraits.length > 0 && (
           <div className="flex flex-wrap gap-1 justify-center mb-4">
-            {pet.traits.slice(0, 3).map((trait, idx) => (
+            {normalizedTraits.slice(0, 3).map((trait, idx) => (
               <span 
                 key={idx}
                 className="text-xs text-gray-700 px-2 py-1"
