@@ -105,9 +105,10 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
             <Button 
               variant="outline" 
               size="sm"
-              className="w-full border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10 gap-1"
+              className="w-full flex items-center justify-center gap-2 border-[#B3D4F5] text-[#4A90E2] hover:bg-[#F8FBFF] hover:border-[#4A90E2] rounded-full font-semibold transition-all duration-300"
             >
-              <Edit className="h-3 w-3" /> Modifier
+              <Edit className="h-4 w-4" />
+              Modifier
             </Button>
           </Link>
         </div>
