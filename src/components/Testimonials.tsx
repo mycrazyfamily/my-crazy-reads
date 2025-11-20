@@ -12,6 +12,7 @@ interface Testimonial {
   content: string;
   author: string;
   subtitle: string;
+  image: string;
 }
 
 const Testimonials: React.FC = () => {
@@ -20,37 +21,43 @@ const Testimonials: React.FC = () => {
       id: 1,
       content: "C'est moi qui suis dans le livre ! Avec papa, maman, et même mon doudou. J'ai lu trois fois la même histoire ce soir !",
       author: "Léna",
-      subtitle: "5 ans"
+      subtitle: "5 ans",
+      image: "/lovable-uploads/testimonials/lena.png"
     },
     {
       id: 2,
       content: "Ce que j'aime dans My Crazy Family, c'est qu'on ne reçoit pas juste un livre. C'est une surprise pleine d'amour, un moment de complicité qu'on attend chaque mois avec ma fille.",
       author: "Sophie L.",
-      subtitle: "maman de Camille (6 ans)"
+      subtitle: "maman de Camille (6 ans)",
+      image: "/lovable-uploads/testimonials/sophie.png"
     },
     {
       id: 3,
       content: "Les histoires sont belles, adaptées à l'âge, et en plus il y a une petite morale à la fin. Mon fils adore, et moi aussi.",
       author: "Karim D.",
-      subtitle: "papa de Yanis (4 ans)"
+      subtitle: "papa de Yanis (4 ans)",
+      image: "/lovable-uploads/testimonials/karim.png"
     },
     {
       id: 4,
       content: "C'est mon chat Mistigri qui parle dans l'histoire ! J'ai rigolé trop fort. J'ai hâte du prochain livre.",
       author: "Zoé",
-      subtitle: "7 ans"
+      subtitle: "7 ans",
+      image: "/lovable-uploads/testimonials/zoe.png"
     },
     {
       id: 5,
       content: "Original, tendre et super bien fait. Une super idée de cadeau récurrent !",
       author: "Manon R.",
-      subtitle: "35 ans"
+      subtitle: "35 ans",
+      image: "/lovable-uploads/testimonials/manon.png"
     },
     {
       id: 6,
       content: "Enfin un abonnement où mon enfant est vraiment le héros. Merci pour cette magie mensuelle !",
       author: "Julien C.",
-      subtitle: "papa de Maxime (8 ans)"
+      subtitle: "papa de Maxime (8 ans)",
+      image: "/lovable-uploads/testimonials/julien.png"
     }
   ];
 
@@ -68,14 +75,13 @@ const Testimonials: React.FC = () => {
           {testimonials.map((testimonial) => (
             <CarouselItem key={testimonial.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
               <div className="bg-white rounded-xl border border-[#E0E0E0] p-6 h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
-                {/* Photo placeholder */}
+                {/* Photo */}
                 <div className="flex justify-center mb-6">
-                  <div 
-                    className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-border flex items-center justify-center"
-                    aria-label={`Photo de ${testimonial.author}`}
-                  >
-                    <div className="w-16 h-16 rounded-full bg-muted" />
-                  </div>
+                  <img 
+                    src={testimonial.image}
+                    alt={`Photo de ${testimonial.author}`}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-border shadow-sm"
+                  />
                 </div>
 
                 {/* Citation */}
