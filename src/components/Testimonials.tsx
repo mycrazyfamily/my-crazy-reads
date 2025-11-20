@@ -1,171 +1,120 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Testimonial {
   id: number;
-  type: 'child' | 'parent' | 'rating' | 'quote';
   content: string;
   author: string;
-  age?: string;
-  role?: string;
-  rating?: number;
+  subtitle: string;
 }
 
 const Testimonials: React.FC = () => {
   const testimonials: Testimonial[] = [
     {
       id: 1,
-      type: 'child',
       content: "C'est moi qui suis dans le livre ! Avec papa, maman, et même mon doudou. J'ai lu trois fois la même histoire ce soir !",
       author: "Léna",
-      age: "5 ans"
+      subtitle: "5 ans"
     },
     {
       id: 2,
-      type: 'parent',
       content: "Ce que j'aime dans My Crazy Family, c'est qu'on ne reçoit pas juste un livre. C'est une surprise pleine d'amour, un moment de complicité qu'on attend chaque mois avec ma fille.",
       author: "Sophie L.",
-      role: "maman de Camille (6 ans)"
+      subtitle: "maman de Camille (6 ans)"
     },
     {
       id: 3,
-      type: 'parent',
       content: "Les histoires sont belles, adaptées à l'âge, et en plus il y a une petite morale à la fin. Mon fils adore, et moi aussi.",
       author: "Karim D.",
-      role: "papa de Yanis (4 ans)"
+      subtitle: "papa de Yanis (4 ans)"
     },
     {
       id: 4,
-      type: 'child',
       content: "C'est mon chat Mistigri qui parle dans l'histoire ! J'ai rigolé trop fort. J'ai hâte du prochain livre.",
       author: "Zoé",
-      age: "7 ans"
+      subtitle: "7 ans"
     },
     {
       id: 5,
-      type: 'rating',
       content: "Original, tendre et super bien fait. Une super idée de cadeau récurrent !",
       author: "Manon R.",
-      age: "35 ans",
-      rating: 5
+      subtitle: "35 ans"
     },
     {
       id: 6,
-      type: 'quote',
       content: "Enfin un abonnement où mon enfant est vraiment le héros. Merci pour cette magie mensuelle !",
       author: "Julien C.",
-      role: "papa de Maxime (8 ans)"
+      subtitle: "papa de Maxime (8 ans)"
     }
   ];
 
-  const renderTestimonial = (testimonial: Testimonial) => {
-    const baseClasses = "bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1";
-    
-    switch (testimonial.type) {
-      case 'child':
-        return (
-          <div className={`${baseClasses} border-4 border-mcf-secondary/30`}>
-            <div className="flex items-start gap-4 mb-4">
-              {/* Emplacement photo enfant */}
-              <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-to-br from-mcf-secondary/20 to-mcf-mint/20 flex items-center justify-center text-3xl shadow-md">
-                👧
-              </div>
-              <div className="flex-1">
-                <div className="text-4xl mb-2 text-mcf-secondary">"</div>
-              </div>
-            </div>
-            <p className="text-base text-mcf-text/90 italic leading-relaxed mb-4">
-              {testimonial.content}
-            </p>
-            <div className="text-right">
-              <p className="text-lg font-bold text-mcf-primary">— {testimonial.author}</p>
-              <p className="text-sm text-mcf-text/70">{testimonial.age}</p>
-            </div>
-          </div>
-        );
-      
-      case 'parent':
-        return (
-          <div className={`${baseClasses} border-2 border-mcf-primary/20`}>
-            <div className="flex items-start gap-4 mb-4">
-              {/* Emplacement photo adulte */}
-              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-mcf-primary/20 to-mcf-mint/20 flex items-center justify-center text-2xl shadow-md">
-                👤
-              </div>
-              <div className="flex-1">
-                <p className="text-base text-mcf-text/80 leading-relaxed">
-                  {testimonial.content}
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-mcf-primary/10">
-              <p className="text-base font-semibold text-mcf-secondary">— {testimonial.author}</p>
-              <p className="text-sm text-mcf-text/70">{testimonial.role}</p>
-            </div>
-          </div>
-        );
-      
-      case 'rating':
-        return (
-          <div className={`${baseClasses} bg-gradient-to-br from-white/95 to-mcf-mint/10 border-2 border-mcf-mint/30`}>
-            <div className="flex items-center gap-4 mb-4">
-              {/* Emplacement photo/avatar */}
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-mcf-mint/30 to-mcf-secondary/20 flex items-center justify-center text-xl shadow-md">
-                🙂
-              </div>
-              <div className="flex gap-1">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-mcf-secondary text-mcf-secondary" />
-                ))}
-              </div>
-            </div>
-            <p className="text-base text-mcf-text/90 leading-relaxed mb-4">
-              {testimonial.content}
-            </p>
-            <p className="text-sm font-medium text-mcf-primary">— {testimonial.author}, {testimonial.age}</p>
-          </div>
-        );
-      
-      case 'quote':
-        return (
-          <div className={`${baseClasses} bg-gradient-to-br from-mcf-primary/10 to-mcf-secondary/5 border-l-4 border-mcf-primary`}>
-            <div className="flex items-start gap-4">
-              {/* Emplacement photo adulte */}
-              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-mcf-primary/30 to-mcf-secondary/20 flex items-center justify-center text-2xl shadow-md">
-                👤
-              </div>
-              <div className="flex-1">
-                <p className="text-lg text-mcf-primary font-medium italic leading-relaxed mb-3">
-                  "{testimonial.content}"
-                </p>
-                <div>
-                  <p className="text-base font-semibold text-mcf-text">— {testimonial.author}</p>
-                  <p className="text-sm text-mcf-text/70">{testimonial.role}</p>
+  return (
+    <div className="relative w-full">
+      {/* Titre de section */}
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <MessageCircle className="w-8 h-8 text-primary" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+            Ils ont adopté My Crazy Family
+          </h2>
+        </div>
+        <p className="text-lg text-muted-foreground">
+          Les témoignages de nos familles heureuses
+        </p>
+      </div>
+
+      {/* Carousel */}
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        className="w-full max-w-7xl mx-auto"
+      >
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {testimonials.map((testimonial) => (
+            <CarouselItem key={testimonial.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+              <div className="bg-white rounded-xl border border-[#E0E0E0] p-6 h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
+                {/* Photo placeholder */}
+                <div className="flex justify-center mb-6">
+                  <div 
+                    className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-border flex items-center justify-center"
+                    aria-label={`Photo de ${testimonial.author}`}
+                  >
+                    <div className="w-16 h-16 rounded-full bg-muted" />
+                  </div>
+                </div>
+
+                {/* Citation */}
+                <div className="flex-1 mb-6">
+                  <p className="text-[#333] text-base md:text-lg leading-relaxed text-center">
+                    "{testimonial.content}"
+                  </p>
+                </div>
+
+                {/* Auteur */}
+                <div className="text-center">
+                  <p className="text-[#2272e4] font-semibold text-base mb-1">
+                    — {testimonial.author}
+                  </p>
+                  <p className="text-[#777] text-sm">
+                    {testimonial.subtitle}
+                  </p>
                 </div>
               </div>
-            </div>
-          </div>
-        );
-      
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="relative">
-      {/* Grid de témoignages */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-        {testimonials.map((testimonial) => (
-          <div key={testimonial.id} className="flex">
-            {renderTestimonial(testimonial)}
-          </div>
-        ))}
-      </div>
-      
-      {/* Éléments décoratifs */}
-      <div className="absolute -top-8 -left-8 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="hidden md:flex" aria-label="Témoignage précédent" />
+        <CarouselNext className="hidden md:flex" aria-label="Témoignage suivant" />
+      </Carousel>
     </div>
   );
 };
