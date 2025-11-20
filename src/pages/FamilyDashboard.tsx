@@ -292,9 +292,13 @@ const FamilyDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-mcf-cream/20 to-white flex flex-col">
         <Navbar />
-        <main className="flex-1 container mx-auto px-4 py-8">
+        <main className="flex-1 container mx-auto px-4 pt-24 pb-8 max-w-7xl">
           <div className="space-y-8">
-            <Skeleton className="h-12 w-64" />
+            <div className="text-center space-y-4">
+              <Skeleton className="h-14 w-96 mx-auto" />
+              <Skeleton className="h-8 w-[600px] mx-auto" />
+            </div>
+            <Skeleton className="h-14 w-[400px] mx-auto" />
             <div className="grid md:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <Skeleton key={i} className="h-40" />
@@ -312,42 +316,42 @@ const FamilyDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-white via-mcf-cream/20 to-white flex flex-col">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-mcf-orange-dark mb-2">
+      <main className="flex-1 container mx-auto px-4 pt-24 pb-8 max-w-7xl">
+        <div className="mb-12 text-center">
+          <h1 className="text-5xl font-bold text-mcf-orange-dark mb-4">
             Mon Espace Famille
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-700 text-xl font-medium">
             Gérez vos profils et suivez vos histoires personnalisées
           </p>
         </div>
 
-        {/* Actions rapides */}
-        <QuickActionsSection 
-          childrenCount={children.length}
-          firstChildId={children.length === 1 ? children[0].id : undefined}
-        />
-
         {/* Système d'onglets */}
         <Tabs defaultValue="family" className="space-y-8">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12 bg-white border-2 border-mcf-mint/30 p-1 rounded-xl shadow-sm">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-14 bg-white border-2 border-mcf-mint/30 p-1 rounded-xl shadow-sm mb-12">
             <TabsTrigger 
               value="family" 
-              className="rounded-lg data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2"
+              className="rounded-lg data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2 text-base"
             >
-              <Users2 className="h-4 w-4" strokeWidth={2.5} />
+              <Users2 className="h-5 w-5" strokeWidth={2.5} />
               Ma famille
             </TabsTrigger>
             <TabsTrigger 
               value="stories" 
-              className="rounded-lg data-[state=active]:bg-mcf-secondary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2"
+              className="rounded-lg data-[state=active]:bg-mcf-secondary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2 text-base"
             >
-              <BookHeart className="h-4 w-4" strokeWidth={2.5} />
+              <BookHeart className="h-5 w-5" strokeWidth={2.5} />
               Mes histoires
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="family" className="space-y-8 animate-fade-in">
+            {/* Actions rapides */}
+            <QuickActionsSection 
+              childrenCount={children.length}
+              firstChildId={children.length === 1 ? children[0].id : undefined}
+            />
+            
             <MyFamilyTab children={children} />
           </TabsContent>
 
