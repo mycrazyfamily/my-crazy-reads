@@ -115,11 +115,11 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
         <Button
           variant="outline"
           size="sm"
-          className="w-full mt-4 border-mcf-primary text-mcf-primary hover:bg-mcf-primary/10"
+          className="w-full mt-4 flex items-center justify-center gap-2 border-[#B3D4F5] text-[#4A90E2] hover:bg-[#F8FBFF] hover:border-[#4A90E2] rounded-full font-semibold transition-all duration-300"
           asChild
         >
           <Link to={`/modifier-animal/${primaryChildId}/${pet.id}`}>
-            <Edit className="h-3.5 w-3.5 mr-1" />
+            <Edit className="h-4 w-4" />
             Modifier
           </Link>
         </Button>

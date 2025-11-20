@@ -180,14 +180,14 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
               ))}
             </div>
             
-            <Button
-              onClick={() => navigate('/creer-profil-enfant')}
-              variant="outline"
-              className="w-full border-2 border-dashed border-mcf-primary/40 hover:border-mcf-primary hover:bg-mcf-primary/5 text-mcf-primary font-semibold h-12 rounded-xl transition-all hover:shadow-md"
-            >
-              <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
-              Ajouter un autre enfant
-            </Button>
+              <Button
+                onClick={() => navigate('/creer-profil-enfant')}
+                variant="ghost"
+                className="w-full text-[#4A90E2] hover:text-[#2E6BB8] hover:bg-[#F8FBFF] font-medium h-12 rounded-xl transition-all"
+              >
+                <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+                Ajouter un autre enfant
+              </Button>
           </>
         )}
       </section>
@@ -225,8 +225,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
               
               <Button
                 onClick={() => navigate(children.length === 1 ? `/ajouter-proche/${children[0].id}` : '/ajouter-proche')}
-                variant="outline"
-                className="w-full border-2 border-dashed border-mcf-secondary/40 hover:border-mcf-secondary hover:bg-mcf-secondary/5 text-mcf-secondary font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+                variant="ghost"
+                className="w-full text-[#4A90E2] hover:text-[#2E6BB8] hover:bg-[#F8FBFF] font-medium h-12 rounded-xl transition-all"
               >
                 <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
                 Ajouter un autre proche
@@ -269,8 +269,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
               
               <Button
                 onClick={() => navigate(children.length === 1 ? `/ajouter-animal/${children[0].id}` : '/ajouter-animal')}
-                variant="outline"
-                className="w-full border-2 border-dashed border-mcf-orange/40 hover:border-mcf-orange hover:bg-mcf-orange/5 text-mcf-orange font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+                variant="ghost"
+                className="w-full text-[#4A90E2] hover:text-[#2E6BB8] hover:bg-[#F8FBFF] font-medium h-12 rounded-xl transition-all"
               >
                 <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
                 Ajouter un autre animal
@@ -313,8 +313,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
               
               <Button
                 onClick={() => navigate(children.length === 1 ? `/ajouter-lieu/${children[0].id}` : '/ajouter-lieu')}
-                variant="outline"
-                className="w-full border-2 border-dashed border-mcf-amber/40 hover:border-mcf-amber hover:bg-mcf-amber/5 text-mcf-amber font-semibold h-12 rounded-xl transition-all hover:shadow-md"
+                variant="ghost"
+                className="w-full text-[#4A90E2] hover:text-[#2E6BB8] hover:bg-[#F8FBFF] font-medium h-12 rounded-xl transition-all"
               >
                 <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
                 Ajouter un autre lieu
