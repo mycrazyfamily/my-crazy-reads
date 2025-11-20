@@ -66,9 +66,32 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
     }
   };
 
-  // Traduire le type du nickname s'il existe
-  const nicknameType = relative.nickname?.type ? getRelativeTypeLabel(relative.nickname.type) : null;
-  const nickname = relative.nickname?.custom || nicknameType || getRelativeTypeLabel(relative.type);
+  // Calculer le nickname affiché en traduisant toujours les types
+  const getNickname = () => {
+    if (!relative.nickname) {
+      return getRelativeTypeLabel(relative.type);
+    }
+    
+    // Si nickname est une string directe, la traduire si c'est un type connu
+    if (typeof relative.nickname === 'string') {
+      return getRelativeTypeLabel(relative.nickname) || relative.nickname;
+    }
+    
+    // Si nickname est un objet
+    if (typeof relative.nickname === 'object') {
+      if (relative.nickname.custom) {
+        return relative.nickname.custom;
+      }
+      if (relative.nickname.type) {
+        return getRelativeTypeLabel(relative.nickname.type);
+      }
+    }
+    
+    // Par défaut, utiliser le type du relative
+    return getRelativeTypeLabel(relative.type);
+  };
+
+  const nickname = getNickname();
 
   return (
     <Card className="overflow-hidden border-mcf-mint hover:shadow-lg transition-shadow">
