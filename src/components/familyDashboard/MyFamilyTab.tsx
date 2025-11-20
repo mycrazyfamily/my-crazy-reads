@@ -109,12 +109,10 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       .sort((a, b) => (a.place.label || '').localeCompare(b.place.label || '', 'fr'));
   }, [children]);
 
-  const SectionHeader = ({ icon: Icon, title, color }: { icon: any; title: string; color: string }) => (
+  const SectionHeader = ({ emoji, title }: { emoji: string; title: string }) => (
     <div className="flex items-center gap-3 mb-6">
-      <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color}`}>
-        <Icon className="h-6 w-6" strokeWidth={2.5} />
-      </div>
-      <h2 className="text-2xl font-bold text-mcf-orange-dark">{title}</h2>
+      <span className="text-3xl">{emoji}</span>
+      <h2 className="text-2xl font-bold text-[#2574EA]">{title}</h2>
     </div>
   );
 
@@ -158,9 +156,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {/* Section Enfants */}
       <section className="animate-fade-in">
         <SectionHeader 
-          icon={Baby} 
-          title="Mes enfants" 
-          color="from-mcf-primary/20 to-mcf-mint/20 text-mcf-primary"
+          emoji="👶" 
+          title="Mes enfants"
         />
         
         {children.length === 0 ? (
@@ -196,9 +193,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-100">
           <SectionHeader 
-            icon={Users} 
-            title="Ma famille et mes proches" 
-            color="from-mcf-secondary/20 to-mcf-mint/20 text-mcf-secondary"
+            emoji="👪" 
+            title="Ma famille et mes proches"
           />
           
           {allRelatives.length === 0 ? (
@@ -240,9 +236,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-200">
           <SectionHeader 
-            icon={Heart} 
-            title="Nos animaux de compagnie" 
-            color="from-mcf-orange/20 to-mcf-amber/20 text-mcf-orange"
+            emoji="🐾" 
+            title="Nos animaux de compagnie"
           />
           
           {allPets.length === 0 ? (
@@ -284,9 +279,8 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-300">
           <SectionHeader 
-            icon={MapPin} 
-            title="Mes lieux de vie" 
-            color="from-mcf-amber/20 to-mcf-cream/40 text-mcf-amber"
+            emoji="🏠" 
+            title="Mes lieux de vie"
           />
           
           {allPlaces.length === 0 ? (
