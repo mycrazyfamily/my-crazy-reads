@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Book, Sparkles } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import MonthBookCard from './stories/MonthBookCard';
@@ -140,9 +141,30 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   }
 
   return (
-    <div className="space-y-16">
+    <Tabs defaultValue={children[0]?.id} className="w-full">
+      <TabsList className="w-full justify-start mb-8 bg-muted/50 p-1">
+        {children.map((child) => (
+          <TabsTrigger
+            key={child.id}
+            value={child.id}
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:text-primary"
+          >
+            <Avatar className="h-6 w-6 border border-border">
+              {child.avatar ? (
+                <AvatarImage src={child.avatar} alt={child.firstName} />
+              ) : (
+                <AvatarFallback className="text-xs bg-primary/10">
+                  {child.personalityEmoji}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <span className="font-medium">{child.firstName}</span>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+
       {childrenTimelines.map((timeline) => (
-        <div key={timeline.childId} className="space-y-6">
+        <TabsContent key={timeline.childId} value={timeline.childId} className="space-y-6">
           {/* En-tête enfant avec avatar et statistiques */}
           <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-2 border-primary/20">
             <CardContent className="p-6">
@@ -217,9 +239,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
               );
             })}
           </div>
-        </div>
+        </TabsContent>
       ))}
-    </div>
+    </Tabs>
   );
 };
 
