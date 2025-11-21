@@ -89,8 +89,6 @@ const MonthBookCard: React.FC<MonthBookCardProps> = ({
   onSaveCustomBook,
   onSaveDetails,
 }) => {
-  const [activeTab, setActiveTab] = useState<'main' | 'alternatives' | 'custom'>('main');
-  
   const config = statusConfig[slot.status];
   const StatusIcon = config.icon;
   
@@ -157,41 +155,16 @@ const MonthBookCard: React.FC<MonthBookCardProps> = ({
           </div>
         )}
         
-        {/* Contenu étendu avec options */}
+        {/* Contenu étendu avec options côte à côte */}
         {isExpanded && canInteract && (
-          <div className="mt-6 space-y-4">
-            {/* Tabs pour choisir entre tronc commun, alternatives et création */}
-            <div className="flex gap-2 border-b pb-2">
-              <Button
-                variant={activeTab === 'main' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('main')}
-                className="flex-1"
-              >
-                Livre suggéré
-              </Button>
-              <Button
-                variant={activeTab === 'alternatives' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('alternatives')}
-                className="flex-1"
-              >
-                Alternatives ({slot.alternativeBooks.length})
-              </Button>
-              <Button
-                variant={activeTab === 'custom' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('custom')}
-                className="flex-1"
-              >
-                <Sparkles className="h-3.5 w-3.5 mr-1" />
-                100% inédit
-              </Button>
-            </div>
-            
-            {/* Contenu selon l'onglet actif */}
-            <div className="min-h-[300px]">
-              {activeTab === 'main' && (
+          <div className="mt-6">
+            {/* Grille avec les trois options et séparateurs OU */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 items-start">
+              {/* Livre suggéré */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-primary text-center uppercase tracking-wide">
+                  Livre suggéré
+                </h4>
                 <MainBookOption
                   book={slot.mainBook}
                   childName={childName}
@@ -200,17 +173,62 @@ const MonthBookCard: React.FC<MonthBookCardProps> = ({
                   onSaveDetails={onSaveDetails}
                   existingDetails={slot.userDetails}
                 />
-              )}
+              </div>
               
-              {activeTab === 'alternatives' && (
+              {/* Séparateur OU */}
+              <div className="hidden lg:flex flex-col items-center justify-center py-8">
+                <div className="h-full w-px bg-border" />
+                <div className="px-3 py-2 bg-background text-sm font-bold text-muted-foreground rounded-full border-2 border-border my-4">
+                  OU
+                </div>
+                <div className="h-full w-px bg-border" />
+              </div>
+              
+              {/* Mobile: Séparateur OU horizontal */}
+              <div className="lg:hidden flex items-center justify-center gap-3 py-4">
+                <div className="flex-1 h-px bg-border" />
+                <div className="px-4 py-2 bg-background text-sm font-bold text-muted-foreground rounded-full border-2 border-border">
+                  OU
+                </div>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              
+              {/* Livres alternatifs */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-primary text-center uppercase tracking-wide">
+                  Alternatives ({slot.alternativeBooks.length})
+                </h4>
                 <AlternativeBooksList
                   books={slot.alternativeBooks}
                   selectedBookId={slot.selectedBookId}
                   onSelectBook={(bookId) => onSelectBook?.(bookId, false)}
                 />
-              )}
+              </div>
               
-              {activeTab === 'custom' && (
+              {/* Séparateur OU */}
+              <div className="hidden lg:flex flex-col items-center justify-center py-8">
+                <div className="h-full w-px bg-border" />
+                <div className="px-3 py-2 bg-background text-sm font-bold text-muted-foreground rounded-full border-2 border-border my-4">
+                  OU
+                </div>
+                <div className="h-full w-px bg-border" />
+              </div>
+              
+              {/* Mobile: Séparateur OU horizontal */}
+              <div className="lg:hidden flex items-center justify-center gap-3 py-4">
+                <div className="flex-1 h-px bg-border" />
+                <div className="px-4 py-2 bg-background text-sm font-bold text-muted-foreground rounded-full border-2 border-border">
+                  OU
+                </div>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              
+              {/* Livre 100% inédit */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-primary text-center uppercase tracking-wide flex items-center justify-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  100% inédit
+                </h4>
                 <CustomBookCreator
                   childId={childId}
                   childName={childName}
@@ -219,7 +237,7 @@ const MonthBookCard: React.FC<MonthBookCardProps> = ({
                   onSaveCustomBook={onSaveCustomBook}
                   existingData={slot.customBookData}
                 />
-              )}
+              </div>
             </div>
           </div>
         )}
