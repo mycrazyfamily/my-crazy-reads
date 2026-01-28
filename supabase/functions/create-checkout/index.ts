@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Whitelist of allowed price IDs for the application
+const ALLOWED_PRICE_IDS = [
+  'price_1SLPZIBm2xG2OMOvLXjO6KqM', // Monthly subscription
+  'price_1SLPaABm2xG2OMOvaDzDSB2s', // Yearly subscription
+];
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -33,8 +39,30 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { priceId, childId } = await req.json();
+    
+    // Validate priceId against whitelist
     if (!priceId) throw new Error("Price ID is required");
-    logStep("Price ID received", { priceId, childId });
+    if (!ALLOWED_PRICE_IDS.includes(priceId)) {
+      logStep("Invalid price ID attempted", { priceId });
+      throw new Error("Invalid price selection");
+    }
+    logStep("Price ID validated", { priceId, childId });
+
+    // Validate childId ownership if provided
+    if (childId) {
+      const { data: childProfile, error: childError } = await supabaseClient
+        .from('child_profiles')
+        .select('id')
+        .eq('id', childId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (childError || !childProfile) {
+        logStep("Invalid or unauthorized child ID", { childId, error: childError?.message });
+        throw new Error("Invalid or unauthorized child profile");
+      }
+      logStep("Child ID validated", { childId });
+    }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
