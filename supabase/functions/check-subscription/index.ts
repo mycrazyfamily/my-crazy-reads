@@ -12,6 +12,17 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// Helper to sanitize error messages for client response
+const getSafeErrorMessage = (errorMessage: string): string => {
+  if (errorMessage.includes('not authenticated') || errorMessage.includes('authorization')) {
+    return 'Authentication required';
+  }
+  if (errorMessage.includes('STRIPE') || errorMessage.includes('Stripe')) {
+    return 'Payment service temporarily unavailable';
+  }
+  return 'An unexpected error occurred. Please try again.';
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -101,8 +112,10 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    // Log full error server-side for debugging
     logStep("ERROR in check-subscription", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Return sanitized error to client
+    return new Response(JSON.stringify({ error: getSafeErrorMessage(errorMessage) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
