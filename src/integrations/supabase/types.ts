@@ -495,6 +495,7 @@ export type Database = {
       child_profiles: {
         Row: {
           appearance: Json | null
+          avatar_url: string | null
           birth_date: string | null
           clothing_style: Json | null
           created_at: string | null
@@ -512,6 +513,7 @@ export type Database = {
         }
         Insert: {
           appearance?: Json | null
+          avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
           created_at?: string | null
@@ -529,6 +531,7 @@ export type Database = {
         }
         Update: {
           appearance?: Json | null
+          avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
           created_at?: string | null
@@ -836,6 +839,7 @@ export type Database = {
       family_members: {
         Row: {
           avatar: string | null
+          avatar_url: string | null
           clothing_style: Json | null
           created_at: string | null
           details: Json | null
@@ -847,6 +851,7 @@ export type Database = {
         }
         Insert: {
           avatar?: string | null
+          avatar_url?: string | null
           clothing_style?: Json | null
           created_at?: string | null
           details?: Json | null
@@ -858,6 +863,7 @@ export type Database = {
         }
         Update: {
           avatar?: string | null
+          avatar_url?: string | null
           clothing_style?: Json | null
           created_at?: string | null
           details?: Json | null
@@ -1184,6 +1190,7 @@ export type Database = {
       }
       pets: {
         Row: {
+          avatar_url: string | null
           breed: string | null
           clothing_style: Json | null
           created_at: string | null
@@ -1195,6 +1202,7 @@ export type Database = {
           type: string | null
         }
         Insert: {
+          avatar_url?: string | null
           breed?: string | null
           clothing_style?: Json | null
           created_at?: string | null
@@ -1206,6 +1214,7 @@ export type Database = {
           type?: string | null
         }
         Update: {
+          avatar_url?: string | null
           breed?: string | null
           clothing_style?: Json | null
           created_at?: string | null
