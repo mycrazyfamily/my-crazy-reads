@@ -91,7 +91,8 @@ const FamilyDashboard: React.FC = () => {
           gender,
           created_at,
           family_id,
-          user_id
+          user_id,
+          avatar_url
         `;
 
         const qByUser = supabase.from('child_profiles').select(baseSelect).eq('user_id', userId);
@@ -122,7 +123,7 @@ const FamilyDashboard: React.FC = () => {
           id: profile.id,
           firstName: profile.first_name || 'Enfant',
           age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
-          avatar: null as string | null,
+          avatar: profile.avatar_url || null as string | null,
           personalityEmoji: '🧒',
           relatives: [],
           pets: [],
