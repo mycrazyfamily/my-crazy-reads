@@ -364,6 +364,28 @@ const ModifierProche: React.FC = () => {
         if (insertError) throw insertError;
       }
       
+      // Récupérer l'avatar_url actuel avant de déclencher la regénération
+      const { data: relativeRow } = await supabase
+        .from('family_members')
+        .select('avatar_url')
+        .eq('id', relativeId)
+        .maybeSingle();
+
+      // Appel webhook pour regénérer l'avatar
+      try {
+        await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile_id: relativeId,
+            type: 'relative',
+            current_avatar_url: relativeRow?.avatar_url || null
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Webhook avatar error:', webhookErr);
+      }
+
       toast.success('Proche modifié avec succès !');
       navigate('/espace-famille');
     } catch (e) {

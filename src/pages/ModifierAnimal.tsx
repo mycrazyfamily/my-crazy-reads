@@ -207,6 +207,28 @@ const ModifierAnimal: React.FC = () => {
         if (insertError) throw insertError;
       }
       
+      // Récupérer l'avatar_url actuel avant de déclencher la regénération
+      const { data: petRow } = await supabase
+        .from('pets')
+        .select('avatar_url')
+        .eq('id', petId)
+        .maybeSingle();
+
+      // Appel webhook pour regénérer l'avatar
+      try {
+        await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile_id: petId,
+            type: 'pet',
+            current_avatar_url: petRow?.avatar_url || null
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Webhook avatar error:', webhookErr);
+      }
+
       toast.success('Animal modifié avec succès !');
       navigate('/espace-famille');
     } catch (error) {
