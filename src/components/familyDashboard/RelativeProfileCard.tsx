@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit, Users } from 'lucide-react';
+import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
+import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 
 interface RelativeProfileCardProps {
   relative: {
@@ -14,12 +15,20 @@ interface RelativeProfileCardProps {
     traits?: string[];
     appearance?: any;
     age?: string;
+    avatar_url?: string | null;
   };
   childrenNames: string[];
   primaryChildId: string;
 }
 
 const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, childrenNames, primaryChildId }) => {
+  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+    useRealtimeAvatar({
+      table: 'family_members',
+      id: relative.id,
+      initialAvatarUrl: relative.avatar_url,
+    });
+
   const getRelativeTypeEmoji = (type: string) => {
     switch (type) {
       case 'father': return '👨';
@@ -66,50 +75,48 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
     }
   };
 
-  // Calculer le nickname affiché en traduisant toujours les types
   const getNickname = () => {
-    if (!relative.nickname) {
-      return getRelativeTypeLabel(relative.type);
-    }
-    
-    // Si nickname est une string directe, la traduire si c'est un type connu
-    if (typeof relative.nickname === 'string') {
-      return getRelativeTypeLabel(relative.nickname) || relative.nickname;
-    }
-    
-    // Si nickname est un objet
+    if (!relative.nickname) return getRelativeTypeLabel(relative.type);
+    if (typeof relative.nickname === 'string') return getRelativeTypeLabel(relative.nickname) || relative.nickname;
     if (typeof relative.nickname === 'object') {
-      if (relative.nickname.custom) {
-        return relative.nickname.custom;
-      }
-      if (relative.nickname.type) {
-        return getRelativeTypeLabel(relative.nickname.type);
-      }
+      if (relative.nickname.custom) return relative.nickname.custom;
+      if (relative.nickname.type) return getRelativeTypeLabel(relative.nickname.type);
     }
-    
-    // Par défaut, utiliser le type du relative
     return getRelativeTypeLabel(relative.type);
   };
 
   const nickname = getNickname();
 
+  const fallback = (
+    <span className="text-2xl flex items-center justify-center h-full w-full">
+      {getRelativeTypeEmoji(relative.type)}
+    </span>
+  );
+
   return (
     <Card className="overflow-hidden border-mcf-mint hover:shadow-lg transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-start gap-4 mb-4">
-          <Avatar className="h-16 w-16 bg-mcf-amber/20 border-2 border-mcf-mint">
-            <AvatarFallback className="text-2xl">
-              {getRelativeTypeEmoji(relative.type)}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarDisplay
+            imgSrc={imgSrc}
+            avatarUrl={avatarUrl}
+            isLoading={isLoading}
+            isNew={isNew}
+            hasError={hasError}
+            onImageLoad={onImageLoad}
+            onImageError={onImageError}
+            fallback={fallback}
+            alt={relative.firstName}
+            size="h-16 w-16"
+          />
           
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-lg text-mcf-orange-dark truncate">{relative.firstName}</h3>
             {relative.age && (
-              <p className="text-sm font-medium text-mcf-primary mb-1">{relative.age}</p>
+              <p className="text-sm font-medium text-primary mb-1">{relative.age}</p>
             )}
-            <p className="text-sm text-gray-600 mb-1">{nickname}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-muted-foreground mb-1">{nickname}</p>
+            <p className="text-xs text-muted-foreground">
               Proche de {childrenNames.join(' et ')}
             </p>
           </div>
@@ -117,7 +124,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
         
         <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
           {relative.traits && relative.traits.length > 0 && (
-            <div className="col-span-2 flex items-center gap-1 text-gray-600">
+            <div className="col-span-2 flex items-center gap-1 text-muted-foreground">
               <Users className="h-3 w-3" />
               <span>{relative.traits.length} trait{relative.traits.length > 1 ? 's' : ''}</span>
             </div>

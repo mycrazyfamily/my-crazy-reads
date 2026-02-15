@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit } from 'lucide-react';
 import type { PetData } from '@/types/childProfile';
+import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
+import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 
 interface PetProfileCardProps {
   pet: PetData;
@@ -12,51 +14,38 @@ interface PetProfileCardProps {
 }
 
 const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, primaryChildId }) => {
+  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+    useRealtimeAvatar({
+      table: 'pets',
+      id: pet.id,
+      initialAvatarUrl: (pet as any).avatar_url,
+    });
+
   const getPetTypeEmoji = (type: string) => {
     const emojiMap: Record<string, string> = {
-      dog: '🐶',
-      cat: '🐱',
-      bird: '🐦',
-      fish: '🐠',
-      hamster: '🐹',
-      rabbit: '🐰',
-      turtle: '🐢',
-      snake: '🐍',
-      other: '🐾'
+      dog: '🐶', cat: '🐱', bird: '🐦', fish: '🐠',
+      hamster: '🐹', rabbit: '🐰', turtle: '🐢', snake: '🐍', other: '🐾'
     };
     return emojiMap[type] || '🐾';
   };
 
   const getPetTypeLabel = (type: string) => {
     const labelMap: Record<string, string> = {
-      dog: 'Chien',
-      cat: 'Chat',
-      bird: 'Oiseau',
-      fish: 'Poisson',
-      hamster: 'Hamster',
-      rabbit: 'Lapin',
-      reptile: 'Reptile'
+      dog: 'Chien', cat: 'Chat', bird: 'Oiseau', fish: 'Poisson',
+      hamster: 'Hamster', rabbit: 'Lapin', reptile: 'Reptile'
     };
-    // Si le type n'est pas dans la map, retourner le type tel quel (ex: "Tigre")
     return labelMap[type.toLowerCase()] || type;
   };
 
   const getTraitLabel = (trait: string) => {
     const traitMap: Record<string, string> = {
-      playful: 'Joueur',
-      lazy: 'Paresseux',
-      protective: 'Protecteur',
-      clingy: 'Collant',
-      clever: 'Malin',
-      grumpy: 'Grognon',
-      gentle: 'Doux',
-      noisy: 'Bruyant',
-      talkative: 'Bavard'
+      playful: 'Joueur', lazy: 'Paresseux', protective: 'Protecteur',
+      clingy: 'Collant', clever: 'Malin', grumpy: 'Grognon',
+      gentle: 'Doux', noisy: 'Bruyant', talkative: 'Bavard'
     };
     return traitMap[trait] || trait;
   };
 
-  // Normaliser les traits en tableau
   const normalizedTraits = React.useMemo(() => {
     if (!pet.traits) return [];
     if (Array.isArray(pet.traits)) return pet.traits;
@@ -71,20 +60,35 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
     return [];
   }, [pet.traits]);
 
+  const fallback = (
+    <span className="text-2xl flex items-center justify-center h-full w-full">
+      {getPetTypeEmoji(pet.type)}
+    </span>
+  );
+
   return (
     <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
       <CardHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="text-4xl">
-            {getPetTypeEmoji(pet.type)}
-          </div>
+          <AvatarDisplay
+            imgSrc={imgSrc}
+            avatarUrl={avatarUrl}
+            isLoading={isLoading}
+            isNew={isNew}
+            hasError={hasError}
+            onImageLoad={onImageLoad}
+            onImageError={onImageError}
+            fallback={fallback}
+            alt={pet.name}
+            size="h-14 w-14"
+          />
           <div className="flex-1">
             <h3 className="text-lg font-bold text-mcf-orange-dark">{pet.name}</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {pet.type === 'other' && pet.otherType ? pet.otherType : getPetTypeLabel(pet.type)}
               {pet.breed && <span> • {pet.breed}</span>}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Animal de {childrenNames.join(' et ')}
             </p>
           </div>
@@ -93,7 +97,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
       
       <CardContent className="p-4">
         {pet.breed && (
-          <div className="text-sm text-gray-600 mb-3">
+          <div className="text-sm text-muted-foreground mb-3">
             <span className="font-medium">Apparence : </span>
             <span>{pet.breed}</span>
           </div>
@@ -102,10 +106,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
         {normalizedTraits.length > 0 && (
           <div className="flex flex-wrap gap-1 justify-center mb-4">
             {normalizedTraits.slice(0, 3).map((trait, idx) => (
-              <span 
-                key={idx}
-                className="text-xs text-gray-700 px-2 py-1"
-              >
+              <span key={idx} className="text-xs text-foreground/70 px-2 py-1">
                 {getTraitLabel(trait)}
               </span>
             ))}
