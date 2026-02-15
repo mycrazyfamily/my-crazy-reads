@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Edit, Users, Palette, Cat, Gamepad2, MapPin } from 'lucide-react';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
+import { getChildAvatarAlert } from '@/utils/avatarAgeAlert';
 
 interface Child {
   id: string;
@@ -18,6 +19,7 @@ interface Child {
   toysCount?: number;
   preferencesCount?: number;
   hasPets?: number;
+  birthDate?: string | null;
 }
 
 interface ChildProfileCardProps {
@@ -31,6 +33,8 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
       id: child.id,
       initialAvatarUrl: child.avatar,
     });
+
+  const ageAlert = getChildAvatarAlert(child.firstName, child.birthDate, avatarUrl);
 
   const fallback = (
     <span className="text-2xl flex items-center justify-center h-full w-full bg-mcf-amber/20 text-mcf-orange-dark">
@@ -52,6 +56,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           fallback={fallback}
           alt={child.firstName}
           size="h-16 w-16"
+          ageAlert={ageAlert}
         />
         <div>
           <h3 className="text-xl font-bold text-mcf-orange-dark">{child.firstName}</h3>

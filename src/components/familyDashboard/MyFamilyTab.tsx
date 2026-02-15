@@ -20,6 +20,7 @@ interface Child {
   toysCount?: number;
   preferencesCount?: number;
   hasPets?: number;
+  birthDate?: string | null;
 }
 
 interface MyFamilyTabProps {
