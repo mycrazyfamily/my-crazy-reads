@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface AvatarDisplayProps {
@@ -12,7 +13,7 @@ interface AvatarDisplayProps {
   onImageError: () => void;
   fallback: React.ReactNode;
   alt: string;
-  size?: string; // tailwind size class e.g. "h-16 w-16"
+  size?: string;
 }
 
 const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
@@ -27,6 +28,9 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   alt,
   size = 'h-16 w-16',
 }) => {
+  const [open, setOpen] = useState(false);
+  const canOpen = !!avatarUrl && !hasError;
+
   // No avatar URL at all → generating state
   if (!avatarUrl) {
     return (
@@ -49,25 +53,44 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   }
 
   return (
-    <div className={cn('relative rounded-full overflow-hidden', size, isNew && 'ring-2 ring-primary ring-offset-2 ring-offset-background')}>
-      {/* Skeleton while image loads */}
-      {isLoading && (
-        <Skeleton className={cn('absolute inset-0 rounded-full', size)} />
-      )}
-      <img
-        src={imgSrc!}
-        alt={alt}
-        onLoad={onImageLoad}
-        onError={onImageError}
+    <>
+      <div
         className={cn(
-          'h-full w-full object-cover rounded-full transition-opacity duration-500',
-          isLoading ? 'opacity-0' : 'opacity-100'
+          'relative rounded-full overflow-hidden',
+          size,
+          isNew && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+          canOpen && 'cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all'
         )}
-      />
-      {isNew && (
-        <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-primary border-2 border-background animate-pulse" />
-      )}
-    </div>
+        onClick={() => canOpen && setOpen(true)}
+      >
+        {isLoading && (
+          <Skeleton className={cn('absolute inset-0 rounded-full', size)} />
+        )}
+        <img
+          src={imgSrc!}
+          alt={alt}
+          onLoad={onImageLoad}
+          onError={onImageError}
+          className={cn(
+            'h-full w-full object-cover rounded-full transition-opacity duration-500',
+            isLoading ? 'opacity-0' : 'opacity-100'
+          )}
+        />
+        {isNew && (
+          <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-primary border-2 border-background animate-pulse" />
+        )}
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md flex items-center justify-center p-2 bg-background/95">
+          <img
+            src={imgSrc!}
+            alt={alt}
+            className="max-h-[70vh] max-w-full object-contain rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
