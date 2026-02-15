@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Edit, Users, Palette, Cat, Gamepad2, MapPin } from 'lucide-react';
+import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
+import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 
 interface Child {
   id: string;
@@ -24,18 +25,37 @@ interface ChildProfileCardProps {
 }
 
 const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
+  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+    useRealtimeAvatar({
+      table: 'child_profiles',
+      id: child.id,
+      initialAvatarUrl: child.avatar,
+    });
+
+  const fallback = (
+    <span className="text-2xl flex items-center justify-center h-full w-full bg-mcf-amber/20 text-mcf-orange-dark">
+      {child.personalityEmoji || child.firstName.charAt(0).toUpperCase()}
+    </span>
+  );
+
   return (
     <Card className="overflow-hidden border-mcf-mint animate-fade-in">
       <CardHeader className="bg-gradient-to-br from-mcf-amber/20 to-transparent p-4 flex flex-row items-center gap-4">
-        <Avatar className="h-16 w-16 border-2 border-mcf-orange">
-          <AvatarImage src={child.avatar || undefined} alt={child.firstName} />
-          <AvatarFallback className="text-2xl bg-mcf-orange/20 text-mcf-orange-dark">
-            {child.personalityEmoji || child.firstName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <AvatarDisplay
+          imgSrc={imgSrc}
+          avatarUrl={avatarUrl}
+          isLoading={isLoading}
+          isNew={isNew}
+          hasError={hasError}
+          onImageLoad={onImageLoad}
+          onImageError={onImageError}
+          fallback={fallback}
+          alt={child.firstName}
+          size="h-16 w-16"
+        />
         <div>
           <h3 className="text-xl font-bold text-mcf-orange-dark">{child.firstName}</h3>
-          <p className="text-gray-600">{child.age}</p>
+          <p className="text-muted-foreground">{child.age}</p>
         </div>
       </CardHeader>
       
