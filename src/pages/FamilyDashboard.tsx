@@ -151,7 +151,8 @@ const FamilyDashboard: React.FC = () => {
                       type,
                       breed,
                       physical_details,
-                      emoji
+                      emoji,
+                      avatar_url
                     )
                   `)
                   .eq('child_id', profile.id),
@@ -163,7 +164,8 @@ const FamilyDashboard: React.FC = () => {
                       id,
                       name,
                       role,
-                      avatar
+                      avatar,
+                      avatar_url
                     )
                   `)
                   .eq('child_id', profile.id),
@@ -211,6 +213,7 @@ const FamilyDashboard: React.FC = () => {
                     traits: cp.traits,
                     relationLabel: cp.relation_label,
                     emoji: petInfo.emoji,
+                    avatar_url: petInfo.avatar_url,
                   };
                 })
                 .filter(Boolean);
@@ -225,6 +228,7 @@ const FamilyDashboard: React.FC = () => {
                     type: fm.role,
                     nickname: cfm.relation_label,
                     avatar: fm.avatar,
+                    avatar_url: fm.avatar_url,
                   };
                 })
                 .filter(Boolean);
