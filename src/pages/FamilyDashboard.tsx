@@ -38,6 +38,7 @@ const FamilyDashboard: React.FC = () => {
     toysCount?: number;
     preferencesCount?: number;
     hasPets?: number;
+    birthDate?: string | null;
   }>>([]);
 
   useEffect(() => {
@@ -131,6 +132,7 @@ const FamilyDashboard: React.FC = () => {
           toysCount: 0,
           preferencesCount: 0,
           hasPets: 0,
+          birthDate: profile.birth_date || null,
         }));
         setChildren(minimal);
         console.log('▶︎ FamilyDashboard: children set (minimal)', minimal.length);
@@ -165,7 +167,8 @@ const FamilyDashboard: React.FC = () => {
                       name,
                       role,
                       avatar,
-                      avatar_url
+                      avatar_url,
+                      details
                     )
                   `)
                   .eq('child_id', profile.id),
@@ -229,6 +232,7 @@ const FamilyDashboard: React.FC = () => {
                     nickname: cfm.relation_label,
                     avatar: fm.avatar,
                     avatar_url: fm.avatar_url,
+                    details: fm.details,
                   };
                 })
                 .filter(Boolean);

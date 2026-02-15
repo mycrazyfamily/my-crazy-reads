@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 interface AvatarDisplayProps {
@@ -14,6 +15,7 @@ interface AvatarDisplayProps {
   fallback: React.ReactNode;
   alt: string;
   size?: string;
+  ageAlert?: { hasAlert: boolean; message: string };
 }
 
 const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
@@ -27,6 +29,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   fallback,
   alt,
   size = 'h-16 w-16',
+  ageAlert,
 }) => {
   const [open, setOpen] = useState(false);
   const canOpen = !!avatarUrl && !hasError;
@@ -52,8 +55,10 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
     );
   }
 
-  return (
-    <>
+  const showAgeAlert = ageAlert?.hasAlert && !isNew;
+
+  const avatarElement = (
+    <div className="relative">
       <div
         className={cn(
           'relative rounded-full overflow-hidden',
@@ -80,6 +85,32 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-primary border-2 border-background animate-pulse" />
         )}
       </div>
+
+      {showAgeAlert && (
+        <span className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-5 w-5 rounded-full bg-amber-400 border-2 border-background text-[10px] cursor-help shadow-sm animate-bounce" style={{ animationDuration: '2s' }}>
+          ✨
+        </span>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {showAgeAlert ? (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {avatarElement}
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
+              <p>{ageAlert.message}</p>
+              <p className="text-muted-foreground mt-1">Clique sur « Modifier » pour mettre à jour son avatar.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        avatarElement
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md flex items-center justify-center p-2 bg-background/95">

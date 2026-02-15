@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Edit, Users } from 'lucide-react';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
+import { getRelativeAvatarAlert } from '@/utils/avatarAgeAlert';
 
 interface RelativeProfileCardProps {
   relative: {
@@ -16,6 +17,8 @@ interface RelativeProfileCardProps {
     appearance?: any;
     age?: string;
     avatar_url?: string | null;
+    birthDate?: string | null;
+    details?: any;
   };
   childrenNames: string[];
   primaryChildId: string;
@@ -28,6 +31,11 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       id: relative.id,
       initialAvatarUrl: relative.avatar_url,
     });
+
+  // Extract birthDate from relative data or details
+  const relativeBirthDate = relative.birthDate || 
+    (relative.details && typeof relative.details === 'object' ? relative.details.birthDate : null);
+  const ageAlert = getRelativeAvatarAlert(relative.firstName, relativeBirthDate, avatarUrl);
 
   const getRelativeTypeEmoji = (type: string) => {
     switch (type) {
@@ -108,6 +116,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
             fallback={fallback}
             alt={relative.firstName}
             size="h-16 w-16"
+            ageAlert={ageAlert}
           />
           
           <div className="flex-1 min-w-0">
