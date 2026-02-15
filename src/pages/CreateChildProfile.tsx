@@ -443,6 +443,28 @@ const CreateChildProfile = ({
           }
         }
         
+        // Récupérer l'avatar_url actuel avant de déclencher la regénération
+        const { data: childRow } = await supabase
+          .from('child_profiles')
+          .select('avatar_url')
+          .eq('id', editChildId)
+          .maybeSingle();
+
+        // Appel webhook pour regénérer l'avatar
+        try {
+          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile_id: editChildId,
+              type: 'child',
+              current_avatar_url: childRow?.avatar_url || null
+            })
+          });
+        } catch (webhookErr) {
+          console.error('Webhook avatar error:', webhookErr);
+        }
+
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
         
