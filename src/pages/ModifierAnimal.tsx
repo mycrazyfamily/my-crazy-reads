@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetTrait } from '@/types/childProfile';
+import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
@@ -363,22 +364,31 @@ const ModifierAnimal: React.FC = () => {
           )}
 
           {/* Boutons d'action */}
-          <div className="flex justify-between pt-4">
-            <Button 
-              type="button" 
-              onClick={handleCancel}
-              variant="outline"
-            >
-              Annuler
-            </Button>
-            
-            <Button 
-              type="button"
-              onClick={handleSubmitClick}
-              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
-            >
-              Enregistrer les modifications
-            </Button>
+          <div className="flex flex-col gap-3 pt-4">
+            <div className="flex justify-between">
+              <Button 
+                type="button" 
+                onClick={handleCancel}
+                variant="outline"
+              >
+                Annuler
+              </Button>
+              
+              <Button 
+                type="button"
+                onClick={handleSubmitClick}
+                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+              >
+                Enregistrer les modifications
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <ResetAvatarButton
+                profileId={petId!}
+                profileType="pet"
+                profileName={petData?.name}
+              />
+            </div>
           </div>
         </div>
       </main>

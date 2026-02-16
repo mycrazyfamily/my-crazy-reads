@@ -13,6 +13,7 @@ import RelativeAppearanceSection from '@/components/childProfile/relatives/Relat
 import RelativeTraitsSection from '@/components/childProfile/relatives/RelativeTraitsSection';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
+import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
 const ModifierProche: React.FC = () => {
   const navigate = useNavigate();
@@ -498,21 +499,30 @@ const ModifierProche: React.FC = () => {
           )}
         </Card>
 
-        <div className="flex gap-3 mt-8">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/espace-famille')}
-            className="flex-1"
-          >
-            Annuler
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-mcf-primary hover:bg-mcf-primary/90 text-white"
-          >
-            {saving ? 'Sauvegarde...' : 'Enregistrer les modifications'}
-          </Button>
+        <div className="flex flex-col gap-3 mt-8">
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/espace-famille')}
+              className="flex-1"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 bg-mcf-primary hover:bg-mcf-primary/90 text-white"
+            >
+              {saving ? 'Sauvegarde...' : 'Enregistrer les modifications'}
+            </Button>
+          </div>
+          <div className="flex justify-center">
+            <ResetAvatarButton
+              profileId={relativeId!}
+              profileType="relative"
+              profileName={firstName}
+            />
+          </div>
         </div>
       </main>
       
