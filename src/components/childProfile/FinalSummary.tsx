@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
+import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -279,6 +280,14 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         >
           ← Revenir à l'étape précédente
         </Button>
+
+        {editMode && editChildId && (
+          <ResetAvatarButton
+            profileId={editChildId}
+            profileType="child"
+            profileName={completeData.firstName}
+          />
+        )}
       </div>
     </div>
   );
