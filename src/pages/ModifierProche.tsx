@@ -31,6 +31,7 @@ const ModifierProche: React.FC = () => {
   const [otherTypeName, setOtherTypeName] = useState<string | undefined>(undefined);
   const [age, setAge] = useState('');
   const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
+  const [originalBirthDate, setOriginalBirthDate] = useState<string | null>(null);
   const [job, setJob] = useState('');
   const [gender, setGender] = useState<RelativeGender>('male');
   
@@ -116,12 +117,15 @@ const ModifierProche: React.FC = () => {
         if (birthDateRaw) {
           try {
             setBirthDate(new Date(birthDateRaw));
+            setOriginalBirthDate(typeof birthDateRaw === 'string' ? birthDateRaw : new Date(birthDateRaw).toISOString().split('T')[0]);
           } catch {
             console.error('Failed to parse birthDate:', birthDateRaw);
             setBirthDate(undefined);
+            setOriginalBirthDate(null);
           }
         } else {
           setBirthDate(undefined);
+          setOriginalBirthDate(null);
         }
         
         // job: support multiple aliases
@@ -380,7 +384,8 @@ const ModifierProche: React.FC = () => {
           body: JSON.stringify({
             profile_id: relativeId,
             type: 'relative',
-            current_avatar_url: relativeRow?.avatar_url || null
+            current_avatar_url: relativeRow?.avatar_url || null,
+            previous_birth_date: originalBirthDate
           })
         });
       } catch (webhookErr) {

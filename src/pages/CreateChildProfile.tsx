@@ -443,10 +443,10 @@ const CreateChildProfile = ({
           }
         }
         
-        // Récupérer l'avatar_url actuel avant de déclencher la regénération
+        // Récupérer l'avatar_url et birth_date actuels avant de déclencher la regénération
         const { data: childRow } = await supabase
           .from('child_profiles')
-          .select('avatar_url')
+          .select('avatar_url, birth_date')
           .eq('id', editChildId)
           .maybeSingle();
 
@@ -458,7 +458,8 @@ const CreateChildProfile = ({
             body: JSON.stringify({
               profile_id: editChildId,
               type: 'child',
-              current_avatar_url: childRow?.avatar_url || null
+              current_avatar_url: childRow?.avatar_url || null,
+              previous_birth_date: childRow?.birth_date || null
             })
           });
         } catch (webhookErr) {

@@ -19,6 +19,7 @@ const ModifierAnimal: React.FC = () => {
   const [currentPetData, setCurrentPetData] = useState<PetData | null>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  const [originalBirthMonthYear, setOriginalBirthMonthYear] = useState<string | null>(null);
 
   useEffect(() => {
     loadPetData();
@@ -83,6 +84,7 @@ const ModifierAnimal: React.FC = () => {
           customTraits: cleanedCustomTraits
         };
         setPetData(pet);
+        setOriginalBirthMonthYear(data.birth_month_year || null);
 
         // Charger tous les enfants de la famille
         const { data: childrenData, error: childrenError } = await supabase
@@ -223,7 +225,8 @@ const ModifierAnimal: React.FC = () => {
           body: JSON.stringify({
             profile_id: petId,
             type: 'pet',
-            current_avatar_url: petRow?.avatar_url || null
+            current_avatar_url: petRow?.avatar_url || null,
+            previous_birth_date: originalBirthMonthYear
           })
         });
       } catch (webhookErr) {
