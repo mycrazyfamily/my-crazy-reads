@@ -35,6 +35,22 @@ const CreateChildProfile = ({
   
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
+
+  // Charger la birth_date originale une seule fois à l'ouverture en mode édition
+  React.useEffect(() => {
+    if (editMode && editChildId) {
+      (async () => {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data } = await supabase
+          .from('child_profiles')
+          .select('birth_date')
+          .eq('id', editChildId)
+          .maybeSingle();
+        setOriginalBirthDate(data?.birth_date || null);
+      })();
+    }
+  }, [editMode, editChildId]);
   
   const handleFormSubmit = async (data: ChildProfileFormData) => {
     if (isSubmitting) {
@@ -443,10 +459,10 @@ const CreateChildProfile = ({
           }
         }
         
-        // Récupérer l'avatar_url et birth_date actuels avant de déclencher la regénération
+        // Récupérer l'avatar_url actuel avant de déclencher la regénération
         const { data: childRow } = await supabase
           .from('child_profiles')
-          .select('avatar_url, birth_date')
+          .select('avatar_url')
           .eq('id', editChildId)
           .maybeSingle();
 
@@ -459,7 +475,7 @@ const CreateChildProfile = ({
               profile_id: editChildId,
               type: 'child',
               current_avatar_url: childRow?.avatar_url || null,
-              previous_birth_date: childRow?.birth_date || null
+              previous_birth_date: originalBirthDate
             })
           });
         } catch (webhookErr) {
