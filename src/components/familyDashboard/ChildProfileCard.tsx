@@ -42,9 +42,21 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
     </span>
   );
 
+  const isBirthdayToday = React.useMemo(() => {
+    if (!child.birthDate) return false;
+    const today = new Date();
+    const birth = new Date(child.birthDate);
+    return birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
+  }, [child.birthDate]);
+
   return (
     <Card className="overflow-hidden border-mcf-mint animate-fade-in">
-      <CardHeader className="bg-gradient-to-br from-mcf-amber/20 to-transparent p-4 flex flex-row items-center gap-4">
+      <CardHeader className="relative bg-gradient-to-br from-mcf-amber/20 to-transparent p-4 flex flex-row items-center gap-4">
+        {isBirthdayToday && (
+          <div className="absolute top-2 right-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1 animate-bounce">
+            🎂 Anniversaire !
+          </div>
+        )}
         <AvatarDisplay
           imgSrc={imgSrc}
           avatarUrl={avatarUrl}
