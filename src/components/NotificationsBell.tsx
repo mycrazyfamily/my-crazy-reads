@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,10 @@ import { toast } from 'sonner';
 interface Notification {
   id: string;
   content: string;
+  title: string | null;
+  type: string | null;
+  link: string | null;
+  family_id: string | null;
   read: boolean;
   created_at: string;
 }
@@ -25,6 +30,7 @@ const NotificationsBell: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, supabaseSession } = useAuth();
+  const navigate = useNavigate();
 
   const fetchNotifications = async () => {
     if (!isAuthenticated || !supabaseSession?.user) return;
@@ -61,11 +67,16 @@ const NotificationsBell: React.FC = () => {
     setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
+  const markAllAsRead = async () => {
+    await supabase.from('notifications').update({ read: true, updated_at: new Date().toISOString() }).eq('user_id', supabaseSession!.user!.id);
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadCount(0);
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchNotifications();
 
-      // Écouter les nouvelles notifications en temps réel
       const channel = supabase
         .channel('notifications')
         .on(
@@ -108,6 +119,11 @@ const NotificationsBell: React.FC = () => {
       <DialogContent className="max-w-md max-h-96">
         <DialogHeader>
           <DialogTitle>Notifications</DialogTitle>
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
+              Tout marquer comme lu
+            </Button>
+          )}
         </DialogHeader>
         <div className="space-y-2 overflow-y-auto">
           {notifications.length === 0 ? (
@@ -118,30 +134,21 @@ const NotificationsBell: React.FC = () => {
             notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-3 rounded-lg border ${
-                  notification.read ? 'bg-background' : 'bg-muted'
-                }`}
+                onClick={() => {
+                  if (!notification.read) markAsRead(notification.id);
+                  if (notification.link) { navigate(notification.link); setIsOpen(false); }
+                }}
+                className={`p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors ${notification.read ? 'bg-background' : 'bg-muted'}`}
               >
-                <p className="text-sm">{notification.content}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(notification.created_at).toLocaleDateString('fr-FR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                  {!notification.read && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => markAsRead(notification.id)}
-                    >
-                      Marquer comme lu
-                    </Button>
-                  )}
+                <div className="flex items-start gap-2">
+                  {!notification.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0" />}
+                  <div className="flex-1">
+                    {notification.title && <p className="text-sm font-medium">{notification.title}</p>}
+                    <p className="text-xs text-muted-foreground">{notification.content}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(notification.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))

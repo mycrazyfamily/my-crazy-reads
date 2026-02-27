@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      avatar_history: {
+        Row: {
+          age: number | null
+          avatar_url: string
+          birth_date: string | null
+          created_at: string | null
+          family_id: string | null
+          id: string
+          profile_id: string
+          profile_type: string
+          reason: string | null
+        }
+        Insert: {
+          age?: number | null
+          avatar_url: string
+          birth_date?: string | null
+          created_at?: string | null
+          family_id?: string | null
+          id?: string
+          profile_id: string
+          profile_type: string
+          reason?: string | null
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string
+          birth_date?: string | null
+          created_at?: string | null
+          family_id?: string | null
+          id?: string
+          profile_id?: string
+          profile_type?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       book_requests: {
         Row: {
           child_id: string | null
@@ -1130,28 +1166,47 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          family_id: string | null
           id: string
+          link: string | null
           read: boolean
+          title: string | null
+          type: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           content: string
           created_at?: string
+          family_id?: string | null
           id?: string
+          link?: string | null
           read?: boolean
+          title?: string | null
+          type?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           content?: string
           created_at?: string
+          family_id?: string | null
           id?: string
+          link?: string | null
           read?: boolean
+          title?: string | null
+          type?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -1466,7 +1521,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_birthday_children_today: {
+        Args: never
+        Returns: {
+          appearance: Json
+          avatar_url: string
+          birth_date: string
+          clothing_style: Json
+          family_id: string
+          first_name: string
+          gender: string
+          id: string
+          physical_details: Json
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       mcf_production_status:
