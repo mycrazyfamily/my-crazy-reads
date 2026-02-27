@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+
 import { toast } from 'sonner';
 
 interface Notification {
@@ -109,47 +109,63 @@ const NotificationsBell: React.FC = () => {
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-bounce"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-md max-h-96">
-        <DialogHeader>
-          <DialogTitle>Notifications</DialogTitle>
+      <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl">
+        <DialogHeader className="px-6 pt-5 pb-4 border-b flex flex-row items-center justify-between space-y-0">
+          <DialogTitle className="text-lg font-bold">Notifications</DialogTitle>
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
+            <button onClick={markAllAsRead} className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors">
               Tout marquer comme lu
-            </Button>
+            </button>
           )}
         </DialogHeader>
-        <div className="space-y-2 overflow-y-auto">
+
+        <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
           {notifications.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">
-              Aucune notification
-            </p>
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <Bell size={40} className="text-muted-foreground/30 mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">Aucune notification pour le moment</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">Les mises à jour importantes apparaîtront ici</p>
+            </div>
           ) : (
             notifications.map((notification) => (
               <div
                 key={notification.id}
                 onClick={() => {
                   if (!notification.read) markAsRead(notification.id);
-                  if (notification.link) { navigate(notification.link); setIsOpen(false); }
+                  if (notification.link && notification.link.includes('/children/')) {
+                    navigate('/espace-famille');
+                    setIsOpen(false);
+                  } else if (notification.link) {
+                    navigate(notification.link);
+                    setIsOpen(false);
+                  }
                 }}
-                className={`p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors ${notification.read ? 'bg-background' : 'bg-muted'}`}
+                className={`flex items-start gap-3 px-6 py-4 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
-                <div className="flex items-start gap-2">
-                  {!notification.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 shrink-0" />}
-                  <div className="flex-1">
-                    {notification.title && <p className="text-sm font-medium">{notification.title}</p>}
-                    <p className="text-xs text-muted-foreground">{notification.content}</p>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(notification.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
+                <div className="shrink-0 text-2xl mt-0.5">
+                  {notification.type === 'birthday_avatar' ? '🎂' : '🔔'}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground leading-snug">
+                    {notification.title || notification.content}
+                  </p>
+                  {notification.title && (
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{notification.content}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {new Date(notification.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                {!notification.read && (
+                  <span className="shrink-0 mt-2 h-2 w-2 rounded-full bg-blue-500" />
+                )}
               </div>
             ))
           )}
