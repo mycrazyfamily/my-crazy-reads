@@ -116,9 +116,9 @@ const NotificationsBell: React.FC = () => {
           )}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl">
-        <DialogHeader className="px-6 pt-5 pb-4 border-b flex flex-row items-center justify-between space-y-0">
-          <DialogTitle className="text-lg font-bold">Notifications</DialogTitle>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[80vh] p-0 overflow-hidden rounded-2xl">
+        <DialogHeader className="px-8 pt-7 pb-5 border-b flex flex-row items-center justify-between space-y-0">
+          <DialogTitle className="text-xl font-bold">Notifications</DialogTitle>
           {unreadCount > 0 && (
             <button onClick={markAllAsRead} className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors">
               Tout marquer comme lu
@@ -126,7 +126,7 @@ const NotificationsBell: React.FC = () => {
           )}
         </DialogHeader>
 
-        <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
+        <div className="divide-y divide-border overflow-y-auto" style={{ maxHeight: 'calc(80vh - 80px)' }}>
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
               <Bell size={40} className="text-muted-foreground/30 mb-3" />
@@ -147,19 +147,19 @@ const NotificationsBell: React.FC = () => {
                     setIsOpen(false);
                   }
                 }}
-                className={`flex items-start gap-3 px-6 py-4 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
+                className={`flex items-start gap-3 px-8 py-5 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
-                <div className="shrink-0 text-2xl mt-0.5">
+                <div className="shrink-0 text-3xl mt-1">
                   {notification.type === 'birthday_avatar' ? '🎂' : '🔔'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground leading-snug">
+                  <p className="text-base font-semibold text-foreground leading-snug">
                     {notification.title || notification.content}
                   </p>
                   {notification.title && (
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{notification.content}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{notification.content}</p>
                   )}
-                  <p className="text-xs text-muted-foreground mt-1.5">
+                  <p className="text-xs text-muted-foreground mt-2">
                     {new Date(notification.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
