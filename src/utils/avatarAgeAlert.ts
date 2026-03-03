@@ -94,3 +94,63 @@ export function getRelativeAvatarAlert(
   }
   return { hasAlert: false, message: '' };
 }
+
+const PET_ADULT_THRESHOLD_MONTHS: Record<string, number> = {
+  "chat": 12, "chaton": 12, "cat": 12,
+  "chien": 12, "dog": 12,
+  "hamster": 4,
+  "cochon d'inde": 6, "cobaye": 6,
+  "lapin": 6, "lapine": 6,
+  "gerbille": 4, "gerbil": 4,
+  "rat": 4, "souris": 3,
+  "chinchilla": 12, "écureuil": 12,
+  "perroquet": 24, "ara": 24, "cacatoès": 24,
+  "perruche": 12, "canari": 12,
+  "cockatiel": 12, "calopsitte": 12,
+  "tortue": 36,
+  "gecko": 12, "lézard": 12,
+  "serpent": 24, "couleuvre": 24,
+  "iguane": 18, "caméléon": 12,
+  "dragon barbu": 12, "agame barbu": 12,
+  "poisson rouge": 12, "goldfish": 12,
+  "betta": 6, "combattant": 6,
+  "guppy": 4, "poisson": 12,
+  "hérisson": 6, "furet": 6,
+  "mini cochon": 18, "cochon nain": 18,
+};
+
+const DEFAULT_PET_THRESHOLD_MONTHS = 12;
+
+function getPetAdultThresholdMonths(type: string): number {
+  const key = (type || '').toLowerCase().trim();
+  return PET_ADULT_THRESHOLD_MONTHS[key] ?? DEFAULT_PET_THRESHOLD_MONTHS;
+}
+
+function ageInMonthsAt(birthDate: Date, atDate: Date): number {
+  const months = (atDate.getFullYear() - birthDate.getFullYear()) * 12
+    + (atDate.getMonth() - birthDate.getMonth());
+  return Math.max(0, months);
+}
+
+export function getPetAvatarAlert(
+  name: string,
+  petType: string | null | undefined,
+  birthDateStr: string | null | undefined,
+  avatarUrl: string | null | undefined
+): AvatarAgeAlert {
+  if (!birthDateStr || !avatarUrl || !petType) return { hasAlert: false, message: '' };
+  const genTs = extractGenerationTimestamp(avatarUrl);
+  if (!genTs) return { hasAlert: false, message: '' };
+  const birthDate = new Date(birthDateStr);
+  if (isNaN(birthDate.getTime())) return { hasAlert: false, message: '' };
+  const threshold = getPetAdultThresholdMonths(petType);
+  const monthsAtGen = ageInMonthsAt(birthDate, new Date(genTs));
+  const monthsNow = ageInMonthsAt(birthDate, new Date());
+  if (monthsAtGen < threshold && monthsNow >= threshold) {
+    return {
+      hasAlert: true,
+      message: `⏳ ${name} a grandi ! Actualise son portrait. Clique sur Modifier puis enregistre pour régénérer son avatar.`,
+    };
+  }
+  return { hasAlert: false, message: '' };
+}
