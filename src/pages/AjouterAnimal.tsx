@@ -223,6 +223,23 @@ export default function AjouterAnimal() {
       if (linkError) throw linkError;
       
       toast.success('Animal ajouté avec succès !');
+
+      // Déclencher la génération de l'avatar
+      try {
+        await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile_id: pet.id,
+            type: 'pet',
+            current_avatar_url: null,
+            previous_birth_date: null
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Webhook avatar error:', webhookErr);
+      }
+
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);
