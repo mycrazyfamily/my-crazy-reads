@@ -78,17 +78,18 @@ const NotificationsBell: React.FC = () => {
       fetchNotifications();
 
       const channel = supabase
-        .channel('notifications')
+        .channel('notifications-realtime')
         .on(
           'postgres_changes',
           {
             event: 'INSERT',
             schema: 'public',
             table: 'notifications',
-            filter: `user_id=eq.${supabaseSession?.user?.id}`
+            filter: `user_id=eq.${supabaseSession?.user?.id}`,
           },
-          () => {
-            fetchNotifications();
+          (payload) => {
+            setNotifications(prev => [payload.new as Notification, ...prev]);
+            setUnreadCount(prev => prev + 1);
           }
         )
         .subscribe();
