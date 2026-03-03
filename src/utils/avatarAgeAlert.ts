@@ -89,7 +89,7 @@ export function getRelativeAvatarAlert(
   if (hasCrossedThreshold(ageAtGen, currentAge, RELATIVE_THRESHOLDS)) {
     return {
       hasAlert: true,
-      message: `Le temps passe ! Actualise le portrait de ${firstName}.`,
+      message: `⏳ Le temps passe ! Actualise l'avatar de ${firstName}. Clique sur Modifier puis enregistre pour régénérer son avatar.`,
     };
   }
   return { hasAlert: false, message: '' };

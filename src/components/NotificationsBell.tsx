@@ -138,7 +138,7 @@ const NotificationsBell: React.FC = () => {
               <div
                 key={notification.id}
                 onClick={() => {
-                  if (!notification.read) markAsRead(notification.id);
+                  markAsRead(notification.id);
                   if (notification.link && notification.link.includes('/children/')) {
                     navigate('/espace-famille');
                     setIsOpen(false);
