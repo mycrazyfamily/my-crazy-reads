@@ -105,7 +105,6 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[220px] text-center text-xs">
               <p>{ageAlert.message}</p>
-              <p className="text-muted-foreground mt-1">Clique sur « Modifier » pour mettre à jour son avatar.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

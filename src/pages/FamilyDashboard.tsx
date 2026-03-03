@@ -288,7 +288,7 @@ const FamilyDashboard: React.FC = () => {
   }, [supabaseSession]);
 
   // --- Age threshold notifications for relatives ---
-  const ageThresholdCheckedRef = useRef(new Set<string>());
+  const notifiedRelativesRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (!supabaseSession?.user?.id || children.length === 0) return;
@@ -300,7 +300,7 @@ const FamilyDashboard: React.FC = () => {
       for (const child of children) {
         if (!child.relatives) continue;
         for (const rel of child.relatives as any[]) {
-          if (!ageThresholdCheckedRef.current.has(rel.id)) {
+          if (!notifiedRelativesRef.current.has(rel.id)) {
             allRelatives.push({
               id: rel.id,
               firstName: rel.firstName || rel.name,
@@ -321,7 +321,7 @@ const FamilyDashboard: React.FC = () => {
       const familyId = userProfile?.family_id || null;
 
       for (const relative of allRelatives) {
-        ageThresholdCheckedRef.current.add(relative.id);
+        notifiedRelativesRef.current.add(relative.id);
 
         const alert = getRelativeAvatarAlert(relative.firstName, relative.birthDate, relative.avatar_url);
         if (!alert.hasAlert) continue;
