@@ -331,8 +331,8 @@ const FamilyDashboard: React.FC = () => {
           .select('id')
           .eq('user_id', userId)
           .eq('type', 'age_threshold')
-          .like('link', `%${relative.id}%`)
           .eq('read', false)
+          .ilike('title', `%${relative.firstName}%`)
           .limit(1);
 
         if (existing && existing.length > 0) continue;
