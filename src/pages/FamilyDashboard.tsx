@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { supabase } from '@/integrations/supabase/client';
+import { getRelativeAvatarAlert } from '@/utils/avatarAgeAlert';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import QuickActionsSection from '@/components/familyDashboard/QuickActionsSection';
@@ -285,6 +286,71 @@ const FamilyDashboard: React.FC = () => {
 
     loadChildren();
   }, [supabaseSession]);
+
+  // --- Age threshold notifications for relatives ---
+  const ageThresholdCheckedRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!supabaseSession?.user?.id || children.length === 0) return;
+
+    const checkRelativeAgeThresholds = async () => {
+      const userId = supabaseSession.user.id;
+
+      const allRelatives: Array<{ id: string; firstName: string; birthDate?: string | null; avatar_url?: string | null }> = [];
+      for (const child of children) {
+        if (!child.relatives) continue;
+        for (const rel of child.relatives as any[]) {
+          if (!ageThresholdCheckedRef.current.has(rel.id)) {
+            allRelatives.push({
+              id: rel.id,
+              firstName: rel.firstName || rel.name,
+              birthDate: rel.details?.birthDate || null,
+              avatar_url: rel.avatar_url || null,
+            });
+          }
+        }
+      }
+
+      if (allRelatives.length === 0) return;
+
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('family_id')
+        .eq('id', userId)
+        .maybeSingle();
+      const familyId = userProfile?.family_id || null;
+
+      for (const relative of allRelatives) {
+        ageThresholdCheckedRef.current.add(relative.id);
+
+        const alert = getRelativeAvatarAlert(relative.firstName, relative.birthDate, relative.avatar_url);
+        if (!alert.hasAlert) continue;
+
+        const { data: existing } = await supabase
+          .from('notifications')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('type', 'age_threshold')
+          .like('link', `%${relative.id}%`)
+          .eq('read', false)
+          .limit(1);
+
+        if (existing && existing.length > 0) continue;
+
+        await supabase.from('notifications').insert({
+          user_id: userId,
+          title: `⏳ Le temps passe ! Actualise l'avatar de ${relative.firstName}.`,
+          content: `Clique sur Modifier puis enregistre pour régénérer son avatar.`,
+          type: 'age_threshold',
+          link: `/espace-famille?relative=${relative.id}`,
+          family_id: familyId,
+          read: false,
+        });
+      }
+    };
+
+    checkRelativeAgeThresholds();
+  }, [children, supabaseSession?.user?.id]);
 
   const handleLogout = async () => {
     try {

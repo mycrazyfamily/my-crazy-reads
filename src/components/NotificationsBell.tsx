@@ -150,7 +150,7 @@ const NotificationsBell: React.FC = () => {
                 className={`flex items-start gap-3 px-8 py-5 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
                 <div className="shrink-0 text-3xl mt-1">
-                  {notification.type === 'birthday_avatar' ? '🎂' : '🔔'}
+                  {notification.type === 'birthday_avatar' ? '🎂' : notification.type === 'age_threshold' ? '⏳' : '🔔'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-foreground leading-snug">

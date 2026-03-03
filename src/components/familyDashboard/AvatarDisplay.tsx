@@ -64,6 +64,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           'relative rounded-full overflow-hidden',
           size,
           isNew && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+          showAgeAlert && 'ring-2 ring-orange-400 ring-offset-2',
           canOpen && 'cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all'
         )}
         onClick={() => canOpen && setOpen(true)}
@@ -87,8 +88,8 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
       </div>
 
       {showAgeAlert && (
-        <span className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-5 w-5 rounded-full bg-amber-400 border-2 border-background text-[10px] cursor-help shadow-sm animate-bounce" style={{ animationDuration: '2s' }}>
-          ✨
+        <span className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-6 w-6 rounded-full bg-orange-500 border-2 border-white text-white text-[11px] font-bold cursor-help shadow-md animate-pulse">
+          !
         </span>
       )}
     </div>
