@@ -138,18 +138,14 @@ const NotificationsBell: React.FC = () => {
               <div
                 key={notification.id}
                 onClick={async () => {
-                  // 1. Mise à jour optimiste immédiate
                   setNotifications(prev =>
                     prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
                   );
-                  setUnreadCount(prev => notification.read ? prev : Math.max(0, prev - 1));
-                  // 2. Appel DB en parallèle
                   markAsRead(notification.id);
-                  // 3. Navigation
-                  if (notification.link) {
-                    navigate('/family-dashboard');
-                  }
                   setIsOpen(false);
+                  if (notification.link) {
+                    navigate(notification.link);
+                  }
                 }}
                 className={`flex items-start gap-3 px-8 py-5 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
