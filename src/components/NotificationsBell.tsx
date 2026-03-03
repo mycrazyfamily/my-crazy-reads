@@ -51,20 +51,10 @@ const NotificationsBell: React.FC = () => {
   };
 
   const markAsRead = async (notificationId: string) => {
-    const { error } = await supabase
+    await supabase
       .from('notifications')
       .update({ read: true, updated_at: new Date().toISOString() })
       .eq('id', notificationId);
-
-    if (error) {
-      toast.error('Erreur lors de la mise à jour');
-      return;
-    }
-
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   const markAllAsRead = async () => {
@@ -142,11 +132,12 @@ const NotificationsBell: React.FC = () => {
                   setNotifications(prev =>
                     prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
                   );
-                  markAsRead(notification.id);
-                  setIsOpen(false);
+                  setUnreadCount(prev => notification.read ? prev : Math.max(0, prev - 1));
+                  await markAsRead(notification.id);
                   if (notification.link) {
                     navigate(notification.link);
                   }
+                  setIsOpen(false);
                 }}
                 className={`flex items-start gap-3 px-8 py-5 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
