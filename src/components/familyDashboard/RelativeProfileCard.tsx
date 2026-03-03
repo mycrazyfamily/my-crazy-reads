@@ -32,9 +32,15 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       initialAvatarUrl: relative.avatar_url,
     });
 
-  // Extract birthDate from relative data or details
-  const relativeBirthDate = relative.birthDate || 
-    (relative.details && typeof relative.details === 'object' ? relative.details.birthDate : null);
+  const parsedDetails = React.useMemo(() => {
+    if (!relative.details) return null;
+    if (typeof relative.details === 'string') {
+      try { return JSON.parse(relative.details); } catch { return null; }
+    }
+    return relative.details;
+  }, [relative.details]);
+
+  const relativeBirthDate = relative.birthDate || parsedDetails?.birthDate || null;
   const ageAlert = getRelativeAvatarAlert(relative.firstName, relativeBirthDate, avatarUrl);
 
   const getRelativeTypeEmoji = (type: string) => {
