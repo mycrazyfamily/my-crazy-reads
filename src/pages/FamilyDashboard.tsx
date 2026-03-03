@@ -325,7 +325,7 @@ const FamilyDashboard: React.FC = () => {
             title: `⏳ Le temps passe ! Actualise l'avatar de ${relative.firstName}.`,
             content: `Clique sur Modifier puis enregistre pour régénérer son avatar.`,
             type: 'age_threshold',
-            link: '/family-dashboard',
+            link: '/espace-famille',
             family_id: familyId,
             read: false,
           },
