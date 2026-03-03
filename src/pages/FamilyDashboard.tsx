@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -288,26 +288,21 @@ const FamilyDashboard: React.FC = () => {
   }, [supabaseSession]);
 
   // --- Age threshold notifications for relatives ---
-  const notifiedRelativesRef = useRef(new Set<string>());
-
   useEffect(() => {
     if (!supabaseSession?.user?.id || children.length === 0) return;
 
     const checkRelativeAgeThresholds = async () => {
-      const userId = supabaseSession.user.id;
-
+      const session = supabaseSession;
       const allRelatives: Array<{ id: string; firstName: string; birthDate?: string | null; avatar_url?: string | null }> = [];
       for (const child of children) {
         if (!child.relatives) continue;
         for (const rel of child.relatives as any[]) {
-          if (!notifiedRelativesRef.current.has(rel.id)) {
-            allRelatives.push({
-              id: rel.id,
-              firstName: rel.firstName || rel.name,
-              birthDate: rel.details?.birthDate || null,
-              avatar_url: rel.avatar_url || null,
-            });
-          }
+          allRelatives.push({
+            id: rel.id,
+            firstName: rel.firstName || rel.name,
+            birthDate: rel.details?.birthDate || null,
+            avatar_url: rel.avatar_url || null,
+          });
         }
       }
 
@@ -316,36 +311,26 @@ const FamilyDashboard: React.FC = () => {
       const { data: userProfile } = await supabase
         .from('user_profiles')
         .select('family_id')
-        .eq('id', userId)
+        .eq('id', session.user.id)
         .maybeSingle();
       const familyId = userProfile?.family_id || null;
 
       for (const relative of allRelatives) {
-        notifiedRelativesRef.current.add(relative.id);
-
         const alert = getRelativeAvatarAlert(relative.firstName, relative.birthDate, relative.avatar_url);
         if (!alert.hasAlert) continue;
 
-        const { data: existing } = await supabase
-          .from('notifications')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('type', 'age_threshold')
-          .eq('read', false)
-          .ilike('title', `%${relative.firstName}%`)
-          .limit(1);
-
-        if (existing && existing.length > 0) continue;
-
-        await supabase.from('notifications').insert({
-          user_id: userId,
-          title: `⏳ Le temps passe ! Actualise l'avatar de ${relative.firstName}.`,
-          content: `Clique sur Modifier puis enregistre pour régénérer son avatar.`,
-          type: 'age_threshold',
-          link: `/espace-famille?relative=${relative.id}`,
-          family_id: familyId,
-          read: false,
-        });
+        await supabase.from('notifications').upsert(
+          {
+            user_id: session.user.id,
+            title: `⏳ Le temps passe ! Actualise l'avatar de ${relative.firstName}.`,
+            content: `Clique sur Modifier puis enregistre pour régénérer son avatar.`,
+            type: 'age_threshold',
+            link: '/family-dashboard',
+            family_id: familyId,
+            read: false,
+          },
+          { onConflict: 'user_id,type,title', ignoreDuplicates: true }
+        );
       }
     };
 
