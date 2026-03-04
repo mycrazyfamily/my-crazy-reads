@@ -54,18 +54,16 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
   
   // Obtenir l'emoji du type de relation
   const getRelativeTypeIcon = (type: RelativeType) => {
-    const icons: Record<RelativeType, string> = {
-      mother: '👩',
-      father: '👨',
-      otherParent: '🧑',
-      sister: '👧',
-      brother: '👦',
-      grandmother: '👵',
-      grandfather: '👴',
-      femaleCousin: '👧',
-      maleCousin: '👦',
-      femaleFriend: '👧',
-      maleFriend: '👦',
+    const icons: Partial<Record<RelativeType, string>> = {
+      mother: '👩', father: '👨', otherParent: '🧑',
+      sister: '👧', brother: '👦',
+      grandmother: '👵', grandfather: '👴',
+      uncle: '👨', aunt: '👩',
+      cousin: '👦', bestFriend: '👬',
+      partner: '💑', teacher: '👨‍🏫',
+      babysitter: '👶', nanny: '👶',
+      femaleCousin: '👧', maleCousin: '👦',
+      femaleFriend: '👧', maleFriend: '👦',
       other: '👤'
     };
     return icons[type] || '👤';
