@@ -19,16 +19,15 @@ type ExistingRelativesListProps = {
 // Fonction pour obtenir l'emoji selon le type de proche
 const getRelativeEmoji = (role: string): string => {
   const emojiMap: Record<string, string> = {
-    'father': '👨',
-    'mother': '👩',
-    'brother': '👦',
-    'sister': '👧',
-    'grandfather': '👴',
-    'grandmother': '👵',
-    'maleCousin': '👦',
-    'femaleCousin': '👧',
-    'maleFriend': '🧒',
-    'femaleFriend': '🧒',
+    'father': '👨', 'mother': '👩',
+    'brother': '👦', 'sister': '👧',
+    'grandfather': '👴', 'grandmother': '👵',
+    'uncle': '👨', 'aunt': '👩',
+    'cousin': '👦', 'bestFriend': '👬',
+    'partner': '💑', 'teacher': '👨‍🏫',
+    'babysitter': '👶', 'nanny': '👶',
+    'maleCousin': '👦', 'femaleCousin': '👧',
+    'maleFriend': '🧒', 'femaleFriend': '🧒',
   };
   return emojiMap[role] || '👤';
 };
