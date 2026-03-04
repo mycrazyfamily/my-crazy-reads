@@ -38,7 +38,7 @@ export default function AjouterProche() {
   // Fonction pour créer un formulaire vide pour un nouveau proche
   const createEmptyRelative = (): RelativeData => ({
     id: '',
-    type: 'father',
+    type: 'grandfather',
     firstName: '',
     age: '',
     job: '',
@@ -113,6 +113,12 @@ export default function AjouterProche() {
     if (relativeData.type === 'other' && !relativeData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");
     }
+    
+    // Gender must always be male or female
+    if (relativeData.gender !== 'male' && relativeData.gender !== 'female') {
+      errors.push("le genre (Homme / Femme)");
+    }
+    
     if (relativeData.nickname.type === 'custom' && !relativeData.nickname.custom?.trim()) {
       errors.push("le surnom personnalisé");
     }

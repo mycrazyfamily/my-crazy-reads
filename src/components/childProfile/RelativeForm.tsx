@@ -19,12 +19,12 @@ type RelativeFormProps = {
 
 // Helper function to determine gender based on relative type
 const getRelativeGender = (type: RelativeType): RelativeGender => {
-  const femaleTypes = ["mother", "sister", "grandmother", "aunt", "femaleCousin", "femaleFriend"];
+  const femaleTypes = ["mother", "sister", "grandmother", "aunt", "femaleCousin", "femaleFriend", "nanny"];
   const maleTypes = ["father", "brother", "grandfather", "uncle", "maleCousin", "maleFriend"];
   
   if (femaleTypes.includes(type)) return "female";
   if (maleTypes.includes(type)) return "male";
-  return "neutral";
+  return "male"; // Default to "male" instead of "neutral" - gender must always be male or female
 };
 
 const RelativeForm: React.FC<RelativeFormProps> = ({
@@ -163,6 +163,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     if (!formData.type) errors.push("le type de relation");
     if (formData.type === 'other' && !formData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");
+    }
+    
+    // Gender must always be male or female
+    if (formData.gender !== 'male' && formData.gender !== 'female') {
+      errors.push("le genre (Homme / Femme)");
     }
     
     // Couleur de peau

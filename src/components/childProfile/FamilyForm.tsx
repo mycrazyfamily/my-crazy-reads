@@ -15,10 +15,11 @@ type FamilyFormProps = {
 
 // Helper function to determine gender based on relative type
 const getRelativeGender = (type: RelativeType): RelativeGender => {
-  const femaleTypes = ["mother", "sister", "grandmother", "femaleCousin", "femaleFriend"];
-  const maleTypes = ["father", "brother", "grandfather", "maleCousin", "maleFriend"];
+  const femaleTypes = ["mother", "sister", "grandmother", "aunt", "femaleCousin", "femaleFriend", "nanny"];
+  const maleTypes = ["father", "brother", "grandfather", "uncle", "maleCousin", "maleFriend"];
   if (femaleTypes.includes(type)) return "female";
   if (maleTypes.includes(type)) return "male";
+  return "male";
   return "neutral";
 };
 type ExistingRelative = {
