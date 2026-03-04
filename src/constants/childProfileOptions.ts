@@ -60,22 +60,70 @@ export const CHARACTER_TRAITS_OPTIONS = [
   { value: "other3", label: "Autre", icon: "✨" },
 ];
 
+// Options for child creation wizard (includes parent/sibling types)
 export const RELATIVE_TYPE_OPTIONS = [
   { value: "mother", label: "Maman", icon: "👩" },
   { value: "father", label: "Papa", icon: "👨" },
   { value: "otherParent", label: "Autre figure parentale", icon: "🏡" },
-  { value: "sister", label: "Sœur(s)", icon: "👧" },
-  { value: "brother", label: "Frère(s)", icon: "👦" },
-  { value: "grandmother", label: "Grand-mère(s)", icon: "👵" },
-  { value: "grandfather", label: "Grand-père(s)", icon: "👴" },
-  { value: "uncle", label: "Oncle(s)", icon: "👨" },
-  { value: "aunt", label: "Tante(s)", icon: "👩" },
-  { value: "femaleCousin", label: "Cousine(s)", icon: "👧" },
-  { value: "maleCousin", label: "Cousin(s)", icon: "👦" },
-  { value: "femaleFriend", label: "Meilleure amie(s)", icon: "👭" },
-  { value: "maleFriend", label: "Meilleur ami(s)", icon: "👬" },
-  { value: "partner", label: "Petit copain / petite copine", icon: "💑" },
-  { value: "teacher", label: "Maîtresse / Maître", icon: "👨‍🏫" },
-  { value: "babysitter", label: "Baby-sitter / Nounou", icon: "👶" },
+  { value: "sister", label: "Sœur", icon: "👧" },
+  { value: "brother", label: "Frère", icon: "👦" },
+  { value: "grandmother", label: "Grand-mère", icon: "👵" },
+  { value: "grandfather", label: "Grand-père", icon: "👴" },
+  { value: "uncle", label: "Oncle", icon: "👨" },
+  { value: "aunt", label: "Tante", icon: "👩" },
+  { value: "cousin", label: "Cousin", icon: "👦" },
+  { value: "bestFriend", label: "Meilleur ami", icon: "👬" },
+  { value: "partner", label: "Petit copain / Petite copine", icon: "💑" },
+  { value: "teacher", label: "Maître / Maîtresse", icon: "👨‍🏫" },
+  { value: "babysitter", label: "Baby-sitter", icon: "👶" },
+  { value: "nanny", label: "Nounou", icon: "👶" },
   { value: "other", label: "➕ Autre", icon: "✨" },
 ];
+
+// Options for standalone add/edit relative forms (gendered split for ambiguous roles)
+export type RelativeRoleOption = {
+  key: string;
+  role: string;
+  label: string;
+  icon: string;
+  gender: "male" | "female" | null;
+};
+
+export const STANDALONE_RELATIVE_ROLE_OPTIONS: RelativeRoleOption[] = [
+  { key: "grandfather",      role: "grandfather", label: "Grand-père",      icon: "👴",    gender: "male" },
+  { key: "grandmother",      role: "grandmother", label: "Grand-mère",      icon: "👵",    gender: "female" },
+  { key: "uncle",             role: "uncle",       label: "Oncle",           icon: "👨",    gender: "male" },
+  { key: "aunt",              role: "aunt",        label: "Tante",           icon: "👩",    gender: "female" },
+  { key: "cousin_male",      role: "cousin",      label: "Cousin",          icon: "👦",    gender: "male" },
+  { key: "cousin_female",    role: "cousin",      label: "Cousine",         icon: "👧",    gender: "female" },
+  { key: "bestFriend_male",  role: "bestFriend",  label: "Meilleur ami",    icon: "👬",    gender: "male" },
+  { key: "bestFriend_female",role: "bestFriend",  label: "Meilleure amie",  icon: "👭",    gender: "female" },
+  { key: "partner_male",     role: "partner",     label: "Petit copain",    icon: "💑",    gender: "male" },
+  { key: "partner_female",   role: "partner",     label: "Petite copine",   icon: "💑",    gender: "female" },
+  { key: "teacher_male",     role: "teacher",     label: "Maître",          icon: "👨‍🏫", gender: "male" },
+  { key: "teacher_female",   role: "teacher",     label: "Maîtresse",       icon: "👩‍🏫", gender: "female" },
+  { key: "babysitter",       role: "babysitter",  label: "Baby-sitter",     icon: "👶",    gender: null },
+  { key: "nanny",            role: "nanny",       label: "Nounou",          icon: "👶",    gender: "female" },
+  { key: "other",            role: "other",       label: "➕ Autre",        icon: "✨",    gender: null },
+];
+
+// Helper: reconstruct a UI key from a role + gender (for edit prefill)
+export function getRoleKeyFromRoleAndGender(role: string, gender: string | null | undefined): string {
+  // Legacy mappings
+  if (role === 'femaleCousin') return 'cousin_female';
+  if (role === 'maleCousin') return 'cousin_male';
+  if (role === 'femaleFriend') return 'bestFriend_female';
+  if (role === 'maleFriend') return 'bestFriend_male';
+  
+  const sharedRoles = ['cousin', 'bestFriend', 'partner', 'teacher'];
+  if (sharedRoles.includes(role) && (gender === 'male' || gender === 'female')) {
+    return `${role}_${gender}`;
+  }
+  return role;
+}
+
+// Helper: check if a role requires a manual gender selector
+export function roleNeedsGenderSelector(roleKey: string): boolean {
+  const option = STANDALONE_RELATIVE_ROLE_OPTIONS.find(o => o.key === roleKey);
+  return option ? option.gender === null : false;
+}

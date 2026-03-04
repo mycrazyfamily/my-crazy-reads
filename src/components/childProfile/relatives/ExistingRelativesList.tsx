@@ -45,13 +45,17 @@ const translateRole = (role: string): string => {
     'uncle': 'Oncle',
     'aunt': 'Tante',
     'otherParent': 'Autre parent',
+    'cousin': 'Cousin(e)',
+    'bestFriend': 'Meilleur(e) ami(e)',
+    'partner': 'Petit copain / Petite copine',
+    'teacher': 'Maître / Maîtresse',
+    'babysitter': 'Baby-sitter',
+    'nanny': 'Nounou',
+    // Legacy
     'maleCousin': 'Cousin',
     'femaleCousin': 'Cousine',
     'maleFriend': 'Meilleur ami',
     'femaleFriend': 'Meilleure amie',
-    'partner': 'Petit copain / petite copine',
-    'teacher': 'Maîtresse / Maître',
-    'babysitter': 'Baby-sitter / Nounou',
     'other': 'Proche',
   };
   return translations[role] || role;

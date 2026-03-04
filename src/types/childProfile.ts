@@ -3,8 +3,11 @@ export type RelativeType =
   | "mother" | "father" | "otherParent" 
   | "sister" | "brother" 
   | "grandmother" | "grandfather" 
-  | "femaleCousin" | "maleCousin" 
-  | "femaleFriend" | "maleFriend" 
+  | "uncle" | "aunt"
+  | "cousin" | "bestFriend" | "partner"
+  | "teacher" | "babysitter" | "nanny"
+  | "femaleCousin" | "maleCousin"   // deprecated, kept for backward compat
+  | "femaleFriend" | "maleFriend"   // deprecated, kept for backward compat
   | "other";
 
 export type RelativeGender = "male" | "female" | "neutral";

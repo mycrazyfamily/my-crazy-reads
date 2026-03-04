@@ -165,6 +165,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       errors.push("la description du type de relation personnalisé");
     }
     
+    // Gender must always be male or female
+    if (formData.gender !== 'male' && formData.gender !== 'female') {
+      errors.push("le genre (Homme / Femme)");
+    }
+    
     // Couleur de peau
     if (!selectedSkinColor) errors.push("la couleur de peau");
     if (selectedSkinColor === 'custom' && !formData.skinColor.custom?.trim()) {

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
+import { STANDALONE_RELATIVE_ROLE_OPTIONS, getRoleKeyFromRoleAndGender, roleNeedsGenderSelector } from '@/constants/childProfileOptions';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 import { differenceInMonths, differenceInYears, isAfter, format } from "date-fns";
 import { fr } from 'date-fns/locale';
@@ -27,16 +27,6 @@ type RelativeBasicInfoSectionProps = {
   setGender: (gender: RelativeGender) => void;
 };
 
-// Helper function to determine gender based on relative type
-const getRelativeGender = (type: RelativeType): RelativeGender => {
-  const femaleTypes = ["mother", "sister", "grandmother", "femaleCousin", "femaleFriend"];
-  const maleTypes = ["father", "brother", "grandfather", "maleCousin", "maleFriend"];
-  
-  if (femaleTypes.includes(type)) return "female";
-  if (maleTypes.includes(type)) return "male";
-  return "neutral";
-};
-
 const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   type,
   setType,
@@ -54,6 +44,19 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
   setGender
 }) => {
   const [ageDisplay, setAgeDisplay] = useState<string>("");
+  
+  // Reconstruct the UI key from current type + gender
+  const [selectedKey, setSelectedKey] = useState<string>(() => 
+    getRoleKeyFromRoleAndGender(type, gender)
+  );
+
+  // Sync selectedKey when type/gender change externally (e.g. edit prefill)
+  useEffect(() => {
+    const newKey = getRoleKeyFromRoleAndGender(type, gender);
+    if (newKey !== selectedKey) {
+      setSelectedKey(newKey);
+    }
+  }, [type, gender]);
 
   useEffect(() => {
     if (birthDate) {
@@ -72,18 +75,14 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
     return () => window.clearTimeout(id);
   }, []);
 
-
   const calculateExactAge = (birthDate: Date) => {
     const today = new Date();
     const years = differenceInYears(today, birthDate);
-    
     const monthDiff = differenceInMonths(today, birthDate) % 12;
     
     let ageString = "";
-    
     if (years > 0) {
       ageString += `${years} an${years > 1 ? 's' : ''}`;
-      
       if (monthDiff > 0) {
         ageString += ` et ${monthDiff} mois`;
       }
@@ -108,20 +107,20 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       console.error("Error handling date change:", error);
     }
   };
-  // Update gender whenever the type changes
-  useEffect(() => {
-    const newGender = getRelativeGender(type);
-    if (newGender !== gender) {
-      setGender(newGender);
-    }
-  }, [type, gender, setGender]);
 
-  const handleTypeChange = (value: RelativeType) => {
-    setType(value);
-    // Update gender immediately when type changes
-    setGender(getRelativeGender(value));
+  const handleKeyChange = (key: string) => {
+    setSelectedKey(key);
+    const option = STANDALONE_RELATIVE_ROLE_OPTIONS.find(o => o.key === key);
+    if (option) {
+      setType(option.role as RelativeType);
+      if (option.gender) {
+        setGender(option.gender);
+      }
+      // If gender is null (babysitter/other), don't auto-set - user must choose
+    }
   };
 
+  const needsGender = roleNeedsGenderSelector(selectedKey);
 
   return (
     <>
@@ -131,21 +130,48 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
           <span className="text-xl">👤</span> Qui est ce proche ?
         </label>
         <Select 
-          value={type} 
-          onValueChange={handleTypeChange}
+          value={selectedKey} 
+          onValueChange={handleKeyChange}
         >
           <SelectTrigger className="border-mcf-amber">
             <SelectValue placeholder="Type de proche" />
           </SelectTrigger>
           <SelectContent>
-            {RELATIVE_TYPE_OPTIONS.map(option => (
-              <SelectItem key={option.value} value={option.value}>
+            {STANDALONE_RELATIVE_ROLE_OPTIONS.map(option => (
+              <SelectItem key={option.key} value={option.key}>
                 {option.icon} {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+
+      {/* Gender selector for roles without implicit gender */}
+      {needsGender && (
+        <div className="form-group">
+          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
+            <span className="text-xl">⚧</span> Genre
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <div
+              className={`rounded-lg border-2 p-3 cursor-pointer transition-all text-center ${
+                gender === 'male' ? 'border-mcf-orange bg-mcf-amber/10 font-semibold' : 'border-gray-200 hover:border-mcf-amber'
+              }`}
+              onClick={() => setGender('male')}
+            >
+              Homme
+            </div>
+            <div
+              className={`rounded-lg border-2 p-3 cursor-pointer transition-all text-center ${
+                gender === 'female' ? 'border-mcf-orange bg-mcf-amber/10 font-semibold' : 'border-gray-200 hover:border-mcf-amber'
+              }`}
+              onClick={() => setGender('female')}
+            >
+              Femme
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Nom personnalisé pour "autre" */}
       {type === 'other' && (
@@ -156,7 +182,7 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
           <Input 
             value={otherTypeName || ''} 
             onChange={(e) => setOtherTypeName(e.target.value)}
-            placeholder="Ex: ami de la famille, nounou..." 
+            placeholder="Ex: ami de la famille, parrain..." 
             className="border-mcf-amber"
           />
         </div>
