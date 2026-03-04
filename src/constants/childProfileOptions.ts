@@ -103,7 +103,7 @@ export const STANDALONE_RELATIVE_ROLE_OPTIONS: RelativeRoleOption[] = [
   { key: "teacher_male",     role: "teacher",     label: "Maître",          icon: "👨‍🏫", gender: "male" },
   { key: "teacher_female",   role: "teacher",     label: "Maîtresse",       icon: "👩‍🏫", gender: "female" },
   { key: "babysitter",       role: "babysitter",  label: "Baby-sitter",     icon: "👶",    gender: null },
-  { key: "nanny",            role: "nanny",       label: "Nounou",          icon: "👶",    gender: "female" },
+  
   { key: "other",            role: "other",       label: "➕ Autre",        icon: "✨",    gender: null },
 ];
 
