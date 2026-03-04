@@ -71,18 +71,17 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
 
   // Obtenir le libellé du type de relation
   const getRelationshipLabel = (type: RelativeType) => {
-    const labels: Record<RelativeType, string> = {
-      mother: 'Maman',
-      father: 'Papa',
-      otherParent: 'Parent',
-      sister: 'Sœur',
-      brother: 'Frère',
-      grandmother: 'Grand-mère',
-      grandfather: 'Grand-père',
-      femaleCousin: 'Cousine',
-      maleCousin: 'Cousin',
-      femaleFriend: 'Amie',
-      maleFriend: 'Ami',
+    const labels: Partial<Record<RelativeType, string>> = {
+      mother: 'Maman', father: 'Papa', otherParent: 'Parent',
+      sister: 'Sœur', brother: 'Frère',
+      grandmother: 'Grand-mère', grandfather: 'Grand-père',
+      uncle: 'Oncle', aunt: 'Tante',
+      cousin: 'Cousin(e)', bestFriend: 'Meilleur(e) ami(e)',
+      partner: 'Petit copain / Petite copine',
+      teacher: 'Maître / Maîtresse',
+      babysitter: 'Baby-sitter', nanny: 'Nounou',
+      femaleCousin: 'Cousine', maleCousin: 'Cousin',
+      femaleFriend: 'Amie', maleFriend: 'Ami',
       other: relative.otherTypeName || 'Autre'
     };
     return labels[type] || type;
