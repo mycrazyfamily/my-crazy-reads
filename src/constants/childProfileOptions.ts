@@ -90,21 +90,22 @@ export type RelativeRoleOption = {
 };
 
 export const STANDALONE_RELATIVE_ROLE_OPTIONS: RelativeRoleOption[] = [
-  { key: "grandfather",      role: "grandfather", label: "Grand-père",      icon: "👴",    gender: "male" },
-  { key: "grandmother",      role: "grandmother", label: "Grand-mère",      icon: "👵",    gender: "female" },
-  { key: "uncle",             role: "uncle",       label: "Oncle",           icon: "👨",    gender: "male" },
+  { key: "mother",            role: "mother",      label: "Mère",            icon: "👩",    gender: "female" },
+  { key: "father",            role: "father",      label: "Père",            icon: "👨",    gender: "male" },
+  { key: "grandmother",       role: "grandmother", label: "Grand-mère",      icon: "👵",    gender: "female" },
+  { key: "grandfather",       role: "grandfather", label: "Grand-père",      icon: "👴",    gender: "male" },
   { key: "aunt",              role: "aunt",        label: "Tante",           icon: "👩",    gender: "female" },
-  { key: "cousin_male",      role: "cousin",      label: "Cousin",          icon: "👦",    gender: "male" },
-  { key: "cousin_female",    role: "cousin",      label: "Cousine",         icon: "👧",    gender: "female" },
-  { key: "bestFriend_male",  role: "bestFriend",  label: "Meilleur ami",    icon: "👬",    gender: "male" },
-  { key: "bestFriend_female",role: "bestFriend",  label: "Meilleure amie",  icon: "👭",    gender: "female" },
-  { key: "partner_male",     role: "partner",     label: "Petit copain",    icon: "💑",    gender: "male" },
-  { key: "partner_female",   role: "partner",     label: "Petite copine",   icon: "💑",    gender: "female" },
-  { key: "teacher_male",     role: "teacher",     label: "Maître",          icon: "👨‍🏫", gender: "male" },
-  { key: "teacher_female",   role: "teacher",     label: "Maîtresse",       icon: "👩‍🏫", gender: "female" },
-  { key: "babysitter",       role: "babysitter",  label: "Baby-sitter",     icon: "👶",    gender: null },
-  
-  { key: "other",            role: "other",       label: "➕ Autre",        icon: "✨",    gender: null },
+  { key: "uncle",             role: "uncle",       label: "Oncle",           icon: "👨",    gender: "male" },
+  { key: "cousin_female",     role: "cousin",      label: "Cousine",         icon: "👧",    gender: "female" },
+  { key: "cousin_male",       role: "cousin",      label: "Cousin",          icon: "👦",    gender: "male" },
+  { key: "bestFriend_female", role: "bestFriend",  label: "Meilleure amie",  icon: "👭",    gender: "female" },
+  { key: "bestFriend_male",   role: "bestFriend",  label: "Meilleur ami",    icon: "👬",    gender: "male" },
+  { key: "partner_female",    role: "partner",     label: "Petite copine",   icon: "💑",    gender: "female" },
+  { key: "partner_male",      role: "partner",     label: "Petit copain",    icon: "💑",    gender: "male" },
+  { key: "teacher_female",    role: "teacher",     label: "Maîtresse",       icon: "👩‍🏫", gender: "female" },
+  { key: "teacher_male",      role: "teacher",     label: "Maître",          icon: "👨‍🏫", gender: "male" },
+  { key: "babysitter",        role: "babysitter",  label: "Baby-sitter",     icon: "👶",    gender: null },
+  { key: "other",             role: "other",       label: "➕ Autre",        icon: "✨",    gender: null },
 ];
 
 // Helper: reconstruct a UI key from a role + gender (for edit prefill)
@@ -119,6 +120,7 @@ export function getRoleKeyFromRoleAndGender(role: string, gender: string | null 
   if (sharedRoles.includes(role) && (gender === 'male' || gender === 'female')) {
     return `${role}_${gender}`;
   }
+  // Roles with implicit gender (mother, father, etc.) just return the role
   return role;
 }
 
