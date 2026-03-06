@@ -9,6 +9,7 @@ interface AvatarDisplayProps {
   isLoading: boolean;
   isNew: boolean;
   hasError: boolean;
+  isRegenerating?: boolean;
   onImageLoad: () => void;
   onImageError: () => void;
   fallback: React.ReactNode;
@@ -34,6 +35,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   isLoading,
   isNew,
   hasError,
+  isRegenerating = false,
   onImageLoad,
   onImageError,
   fallback,
@@ -42,10 +44,12 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   ageAlert,
 }) => {
   const [open, setOpen] = useState(false);
-  const canOpen = !!avatarUrl && !hasError;
+  const canOpen = !!avatarUrl && !hasError && !isRegenerating;
 
-  // No avatar URL at all → shimmer generating state
-  if (!avatarUrl) {
+  // Show full shimmer state: no avatar yet OR actively regenerating
+  const showFullShimmer = !avatarUrl || isRegenerating;
+
+  if (showFullShimmer) {
     return (
       <>
         <style>{shimmerKeyframes}</style>
