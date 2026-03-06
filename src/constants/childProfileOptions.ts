@@ -120,6 +120,7 @@ export function getRoleKeyFromRoleAndGender(role: string, gender: string | null 
   if (sharedRoles.includes(role) && (gender === 'male' || gender === 'female')) {
     return `${role}_${gender}`;
   }
+  // Roles with implicit gender (mother, father, etc.) just return the role
   return role;
 }
 
