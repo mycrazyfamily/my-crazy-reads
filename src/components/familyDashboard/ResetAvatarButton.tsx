@@ -63,6 +63,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
         }),
       });
 
+      signalAvatarRegeneration(profileId);
       toast.success('Création de votre nouvel avatar en cours… ✨', {
         description: 'Cela peut prendre quelques instants.',
         duration: 5000,

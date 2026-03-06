@@ -485,6 +485,7 @@ const CreateChildProfile = ({
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
+        if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         setTimeout(() => {
