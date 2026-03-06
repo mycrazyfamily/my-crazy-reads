@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -18,6 +17,17 @@ interface AvatarDisplayProps {
   ageAlert?: { hasAlert: boolean; message: string };
 }
 
+const shimmerKeyframes = `
+@keyframes avatar-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes avatar-emoji-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+`;
+
 const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   imgSrc,
   avatarUrl,
@@ -34,15 +44,38 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   const [open, setOpen] = useState(false);
   const canOpen = !!avatarUrl && !hasError;
 
-  // No avatar URL at all → generating state
+  // No avatar URL at all → shimmer generating state
   if (!avatarUrl) {
     return (
-      <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center', size)}>
-        <Skeleton className={cn('rounded-full', size)} />
-        <span className="absolute bottom-0 left-0 right-0 text-center text-[9px] text-muted-foreground bg-background/80 py-0.5">
-          🎨 Création...
-        </span>
-      </div>
+      <>
+        <style>{shimmerKeyframes}</style>
+        <div className={cn('relative rounded-full overflow-hidden flex items-center justify-center', size)}>
+          <div
+            className={cn('absolute inset-0 rounded-full', size)}
+            style={{
+              background: 'linear-gradient(90deg, hsl(162 39% 64% / 0.2) 0%, hsl(162 39% 64% / 0.4) 50%, hsl(162 39% 64% / 0.2) 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'avatar-shimmer 1.8s ease-in-out infinite',
+            }}
+          />
+          <span
+            className="absolute text-lg"
+            style={{
+              top: '40%',
+              left: '50%',
+              animation: 'avatar-emoji-pulse 2s ease-in-out infinite',
+            }}
+          >
+            🎨
+          </span>
+          <span
+            className="absolute bottom-0.5 left-0 right-0 text-center font-light"
+            style={{ fontSize: '8px', color: 'hsl(213 91% 54% / 0.6)' }}
+          >
+            Création...
+          </span>
+        </div>
+      </>
     );
   }
 
@@ -70,7 +103,27 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
         onClick={() => canOpen && setOpen(true)}
       >
         {isLoading && (
-          <Skeleton className={cn('absolute inset-0 rounded-full', size)} />
+          <>
+            <style>{shimmerKeyframes}</style>
+            <div
+              className={cn('absolute inset-0 rounded-full', size)}
+              style={{
+                background: 'linear-gradient(90deg, hsl(162 39% 64% / 0.2) 0%, hsl(162 39% 64% / 0.4) 50%, hsl(162 39% 64% / 0.2) 100%)',
+                backgroundSize: '200% 100%',
+                animation: 'avatar-shimmer 1.8s ease-in-out infinite',
+              }}
+            />
+            <span
+              className="absolute text-lg z-10"
+              style={{
+                top: '40%',
+                left: '50%',
+                animation: 'avatar-emoji-pulse 2s ease-in-out infinite',
+              }}
+            >
+              🎨
+            </span>
+          </>
         )}
         <img
           src={imgSrc!}
