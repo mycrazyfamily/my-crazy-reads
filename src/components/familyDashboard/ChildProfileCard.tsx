@@ -27,7 +27,7 @@ interface ChildProfileCardProps {
 }
 
 const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
-  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
     useRealtimeAvatar({
       table: 'child_profiles',
       id: child.id,
