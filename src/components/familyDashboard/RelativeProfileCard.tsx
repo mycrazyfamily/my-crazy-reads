@@ -25,7 +25,7 @@ interface RelativeProfileCardProps {
 }
 
 const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, childrenNames, primaryChildId }) => {
-  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
     useRealtimeAvatar({
       table: 'family_members',
       id: relative.id,
