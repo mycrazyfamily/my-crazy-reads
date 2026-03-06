@@ -19,25 +19,14 @@ interface UseRealtimeAvatarResult {
   imgSrc: string | null;
 }
 
-/**
- * Hook that subscribes to Supabase Realtime for avatar_url updates
- * with polling fallback if Realtime fails.
- *
- * Covers:
- *  - Case 1: initialAvatarUrl is null → waits for first avatar_url
- *  - Case 2: initialAvatarUrl exists → detects changes to avatar_url
- */
 export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAvatarOptions): UseRealtimeAvatarResult {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl ?? null);
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  // Stable cache-bust version: only changes when avatarUrl actually changes
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
 
-  // Track the "known" URL so we can detect real changes
   const knownUrlRef = useRef<string | null>(initialAvatarUrl ?? null);
-  const realtimeActiveRef = useRef(false);
 
   // Sync when prop changes (e.g. parent re-fetch)
   useEffect(() => {
@@ -50,7 +39,6 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     }
   }, [initialAvatarUrl]);
 
-  // Helper to apply a new URL
   const applyNewUrl = useCallback((newUrl: string | null) => {
     if (newUrl && newUrl !== knownUrlRef.current) {
       knownUrlRef.current = newUrl;
@@ -62,15 +50,10 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     }
   }, []);
 
-  // Realtime subscription + polling fallback
+  // Realtime subscription
   useEffect(() => {
     if (!id) return;
 
-    realtimeActiveRef.current = false;
-    let pollingTimer: ReturnType<typeof setInterval> | null = null;
-    let stopped = false;
-
-    // --- Realtime ---
     const channel = supabase
       .channel(`avatar-${table}-${id}`)
       .on(
@@ -82,66 +65,53 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
           filter: `id=eq.${id}`,
         },
         (payload) => {
-          realtimeActiveRef.current = true;
           const newUrl = (payload.new as Record<string, unknown>).avatar_url as string | null;
           applyNewUrl(newUrl);
-          // Realtime is working → stop polling if running
-          if (pollingTimer) {
-            clearInterval(pollingTimer);
-            pollingTimer = null;
-          }
         }
       )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          realtimeActiveRef.current = true;
-        }
-        // If subscription fails, start polling fallback
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          startPolling();
-        }
-      });
+      .subscribe();
 
-    // Start polling as a safety net after a short delay
-    // (in case Realtime silently doesn't fire)
-    const fallbackTimeout = setTimeout(() => {
-      if (!realtimeActiveRef.current && !stopped) {
-        startPolling();
-      }
-    }, 5000);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [table, id, applyNewUrl]);
 
-    function startPolling() {
-      if (pollingTimer || stopped) return;
-      pollingTimer = setInterval(async () => {
-        if (stopped) return;
-        try {
-          const { data } = await supabase
-            .from(table)
-            .select('avatar_url')
-            .eq('id', id)
-            .single();
-          if (data) {
-            const fetchedUrl = (data as Record<string, unknown>).avatar_url as string | null;
-            if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
-              applyNewUrl(fetchedUrl);
-              // Change detected → stop polling
-              if (pollingTimer) {
-                clearInterval(pollingTimer);
-                pollingTimer = null;
-              }
-            }
+  // Polling fallback — always runs until a change is detected or 5 min timeout
+  useEffect(() => {
+    if (!id || !table) return;
+
+    let stopped = false;
+
+    const interval = setInterval(async () => {
+      if (stopped) return;
+      try {
+        const { data } = await supabase
+          .from(table)
+          .select('avatar_url')
+          .eq('id', id)
+          .single();
+
+        if (data) {
+          const fetchedUrl = (data as Record<string, unknown>).avatar_url as string | null;
+          if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
+            applyNewUrl(fetchedUrl);
+            clearInterval(interval);
           }
-        } catch {
-          // Ignore polling errors
         }
-      }, 3000);
-    }
+      } catch {
+        // Ignore polling errors
+      }
+    }, 3000);
+
+    // Stop after 5 minutes max
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 300000);
 
     return () => {
       stopped = true;
-      clearTimeout(fallbackTimeout);
-      if (pollingTimer) clearInterval(pollingTimer);
-      supabase.removeChannel(channel);
+      clearInterval(interval);
+      clearTimeout(timeout);
     };
   }, [table, id, applyNewUrl]);
 
@@ -152,15 +122,9 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     return () => clearTimeout(timer);
   }, [isNew]);
 
-  const onImageError = useCallback(() => {
-    setHasError(true);
-  }, []);
+  const onImageError = useCallback(() => setHasError(true), []);
+  const onImageLoad = useCallback(() => setImageLoaded(true), []);
 
-  const onImageLoad = useCallback(() => {
-    setImageLoaded(true);
-  }, []);
-
-  // Append stable cache-busting param (only changes when URL actually changes)
   const imgSrc = avatarUrl
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
     : null;
