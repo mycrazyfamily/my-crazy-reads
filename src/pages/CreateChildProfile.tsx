@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import FormSteps from '@/components/childProfile/FormSteps';
 import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
@@ -484,6 +485,7 @@ const CreateChildProfile = ({
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
+        if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         setTimeout(() => {

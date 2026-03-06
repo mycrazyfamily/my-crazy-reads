@@ -14,7 +14,7 @@ interface PetProfileCardProps {
 }
 
 const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, primaryChildId }) => {
-  const { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
     useRealtimeAvatar({
       table: 'pets',
       id: pet.id,
@@ -76,6 +76,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
             isLoading={isLoading}
             isNew={isNew}
             hasError={hasError}
+            isRegenerating={isRegenerating}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}

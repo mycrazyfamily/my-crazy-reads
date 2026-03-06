@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -234,6 +235,7 @@ const ModifierAnimal: React.FC = () => {
       }
 
       toast.success('Animal modifié avec succès !');
+      if (petId) signalAvatarRegeneration(petId);
       navigate('/espace-famille');
     } catch (error) {
       console.error('Error saving pet:', error);

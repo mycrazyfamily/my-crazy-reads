@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
 type AvatarTable = 'child_profiles' | 'family_members' | 'pets';
 
@@ -14,9 +15,11 @@ interface UseRealtimeAvatarResult {
   isNew: boolean;
   isLoading: boolean;
   hasError: boolean;
+  isRegenerating: boolean;
   onImageError: () => void;
   onImageLoad: () => void;
   imgSrc: string | null;
+  startRegeneration: () => void;
 }
 
 export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAvatarOptions): UseRealtimeAvatarResult {
@@ -25,8 +28,16 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const [hasError, setHasError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const knownUrlRef = useRef<string | null>(initialAvatarUrl ?? null);
+
+  // On mount, check sessionStorage for pending regeneration signal
+  useEffect(() => {
+    if (id && consumeAvatarRegeneration(id)) {
+      setIsRegenerating(true);
+    }
+  }, [id]);
 
   // Sync when prop changes (e.g. parent re-fetch)
   useEffect(() => {
@@ -47,8 +58,16 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       setHasError(false);
       setImageLoaded(false);
       setIsNew(true);
+      // End regeneration state
+      setIsRegenerating(false);
+      if (id) clearAvatarRegeneration(id);
     }
-  }, []);
+  }, [id]);
+
+  const startRegeneration = useCallback(() => {
+    setIsRegenerating(true);
+    if (id) signalAvatarRegeneration(id);
+  }, [id]);
 
   // Realtime subscription
   useEffect(() => {
@@ -129,7 +148,8 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
     : null;
 
-  const isLoading = !!avatarUrl && !hasError && !imageLoaded;
+  // Show as loading if regenerating (shimmer over old avatar) OR if image not yet loaded
+  const isLoading = isRegenerating || (!!avatarUrl && !hasError && !imageLoaded);
 
-  return { avatarUrl, isNew, isLoading, hasError, onImageError, onImageLoad, imgSrc };
+  return { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc, startRegeneration };
 }

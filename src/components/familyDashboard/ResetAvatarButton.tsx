@@ -14,6 +14,7 @@ import {
 import { RefreshCw, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
 type ProfileType = 'child' | 'relative' | 'pet';
 
@@ -62,6 +63,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
         }),
       });
 
+      signalAvatarRegeneration(profileId);
       toast.success('Création de votre nouvel avatar en cours… ✨', {
         description: 'Cela peut prendre quelques instants.',
         duration: 5000,
