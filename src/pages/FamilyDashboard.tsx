@@ -287,7 +287,9 @@ const FamilyDashboard: React.FC = () => {
     };
 
     loadChildren();
-  }, [supabaseSession]);
+    // Only re-fetch when the actual user changes, not on every token refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabaseSession?.user?.id]);
 
   // --- Age threshold notifications for relatives ---
   useEffect(() => {

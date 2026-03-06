@@ -32,6 +32,8 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  // Stable cache-bust version: only changes when avatarUrl actually changes
+  const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
 
   // Track the "known" URL so we can detect real changes
   const knownUrlRef = useRef<string | null>(initialAvatarUrl ?? null);
@@ -53,6 +55,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (newUrl && newUrl !== knownUrlRef.current) {
       knownUrlRef.current = newUrl;
       setAvatarUrl(newUrl);
+      setCacheBustVersion(Date.now());
       setHasError(false);
       setImageLoaded(false);
       setIsNew(true);
@@ -157,9 +160,9 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     setImageLoaded(true);
   }, []);
 
-  // Append cache-busting param
+  // Append stable cache-busting param (only changes when URL actually changes)
   const imgSrc = avatarUrl
-    ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${Date.now()}`
+    ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
     : null;
 
   const isLoading = !!avatarUrl && !hasError && !imageLoaded;
