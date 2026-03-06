@@ -222,6 +222,8 @@ const FamilyDashboard: React.FC = () => {
                 })
                 .filter(Boolean);
 
+              console.log(`▶︎ FamilyDashboard: raw childFamilyMembers for child ${profile.id}`, JSON.stringify(childFamilyMembers, null, 2));
+
               const relativesEnriched = (childFamilyMembers || [])
                 .map((cfm: any) => {
                   const fm = cfm.family_members;
@@ -237,6 +239,8 @@ const FamilyDashboard: React.FC = () => {
                   };
                 })
                 .filter(Boolean);
+
+              console.log(`▶︎ FamilyDashboard: relativesEnriched for child ${profile.id}`, JSON.stringify(relativesEnriched, null, 2));
 
               const placesEnriched = (childPlaces || [])
                 .map((cp: any) => {
