@@ -160,9 +160,9 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     setImageLoaded(true);
   }, []);
 
-  // Append cache-busting param
+  // Append stable cache-busting param (only changes when URL actually changes)
   const imgSrc = avatarUrl
-    ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${Date.now()}`
+    ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
     : null;
 
   const isLoading = !!avatarUrl && !hasError && !imageLoaded;
