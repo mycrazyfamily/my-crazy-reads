@@ -14,6 +14,7 @@ import {
 import { RefreshCw, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
 type ProfileType = 'child' | 'relative' | 'pet';
 
