@@ -55,6 +55,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (newUrl && newUrl !== knownUrlRef.current) {
       knownUrlRef.current = newUrl;
       setAvatarUrl(newUrl);
+      setCacheBustVersion(Date.now());
       setHasError(false);
       setImageLoaded(false);
       setIsNew(true);
