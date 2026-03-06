@@ -32,6 +32,8 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  // Stable cache-bust version: only changes when avatarUrl actually changes
+  const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
 
   // Track the "known" URL so we can detect real changes
   const knownUrlRef = useRef<string | null>(initialAvatarUrl ?? null);
