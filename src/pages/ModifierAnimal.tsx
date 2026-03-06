@@ -235,6 +235,7 @@ const ModifierAnimal: React.FC = () => {
       }
 
       toast.success('Animal modifié avec succès !');
+      if (petId) signalAvatarRegeneration(petId);
       navigate('/espace-famille');
     } catch (error) {
       console.error('Error saving pet:', error);

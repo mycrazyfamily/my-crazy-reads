@@ -399,6 +399,7 @@ const ModifierProche: React.FC = () => {
       }
 
       toast.success('Proche modifié avec succès !');
+      if (relativeId) signalAvatarRegeneration(relativeId);
       navigate('/espace-famille');
     } catch (e) {
       console.error('Error saving relative:', e);
