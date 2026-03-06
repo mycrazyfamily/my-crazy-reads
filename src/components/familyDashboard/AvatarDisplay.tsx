@@ -130,10 +130,12 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           alt={alt}
           onLoad={onImageLoad}
           onError={onImageError}
-          className={cn(
-            'h-full w-full object-cover rounded-full transition-opacity duration-500',
-            isLoading ? 'opacity-0' : 'opacity-100'
-          )}
+          className="h-full w-full object-cover rounded-full"
+          style={{
+            transition: 'opacity 1.2s ease-in-out, transform 1.2s ease-out',
+            opacity: isLoading ? 0 : 1,
+            transform: isLoading ? 'scale(0.92)' : 'scale(1)',
+          }}
         />
         {isNew && (
           <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-primary border-2 border-background animate-pulse" />
