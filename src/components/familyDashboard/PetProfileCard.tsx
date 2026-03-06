@@ -76,6 +76,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
             isLoading={isLoading}
             isNew={isNew}
             hasError={hasError}
+            isRegenerating={isRegenerating}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}

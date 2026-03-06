@@ -63,6 +63,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           isLoading={isLoading}
           isNew={isNew}
           hasError={hasError}
+          isRegenerating={isRegenerating}
           onImageLoad={onImageLoad}
           onImageError={onImageError}
           fallback={fallback}

@@ -117,6 +117,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
             isLoading={isLoading}
             isNew={isNew}
             hasError={hasError}
+            isRegenerating={isRegenerating}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}
