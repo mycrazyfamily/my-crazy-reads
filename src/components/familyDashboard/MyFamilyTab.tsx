@@ -38,7 +38,7 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       if (!child.relatives || child.relatives.length === 0) return;
       
       child.relatives.forEach((relative: any) => {
-        const relKey = `${relative.firstName}-${relative.type}`;
+        const relKey = relative.id;
         if (relativesMap.has(relKey)) {
           const entry = relativesMap.get(relKey)!;
           entry.childrenNames.push(child.firstName);
