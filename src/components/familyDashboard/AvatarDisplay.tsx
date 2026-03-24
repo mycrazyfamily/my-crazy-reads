@@ -134,7 +134,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           alt={alt}
           onLoad={onImageLoad}
           onError={onImageError}
-          className="h-full w-full object-cover rounded-full"
+          className="h-full w-full rounded-full"
           style={{
             transition: 'opacity 1.2s ease-in-out, transform 1.2s ease-out',
             opacity: isLoading ? 0 : 1,
