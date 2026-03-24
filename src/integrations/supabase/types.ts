@@ -55,10 +55,17 @@ export type Database = {
           child_id: string | null
           created_at: string | null
           created_by: string | null
+          delivery_month: string | null
           family_id: string | null
           id: string
           is_active: boolean | null
           message: string
+          original_theme_instructions: string | null
+          request_type: string | null
+          selected_characters: Json | null
+          selected_theme_type: string | null
+          theme_locked: boolean | null
+          theme_locked_at: string | null
           title: string | null
           updated_at: string | null
         }
@@ -66,10 +73,17 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          delivery_month?: string | null
           family_id?: string | null
           id?: string
           is_active?: boolean | null
           message: string
+          original_theme_instructions?: string | null
+          request_type?: string | null
+          selected_characters?: Json | null
+          selected_theme_type?: string | null
+          theme_locked?: boolean | null
+          theme_locked_at?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -77,10 +91,17 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          delivery_month?: string | null
           family_id?: string | null
           id?: string
           is_active?: boolean | null
           message?: string
+          original_theme_instructions?: string | null
+          request_type?: string | null
+          selected_characters?: Json | null
+          selected_theme_type?: string | null
+          theme_locked?: boolean | null
+          theme_locked_at?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -534,6 +555,7 @@ export type Database = {
           avatar_url: string | null
           birth_date: string | null
           clothing_style: Json | null
+          clothing_style_resolved: string | null
           created_at: string | null
           family_id: string | null
           first_name: string | null
@@ -552,6 +574,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
+          clothing_style_resolved?: string | null
           created_at?: string | null
           family_id?: string | null
           first_name?: string | null
@@ -570,6 +593,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
+          clothing_style_resolved?: string | null
           created_at?: string | null
           family_id?: string | null
           first_name?: string | null
@@ -700,6 +724,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      clothing_catalog: {
+        Row: {
+          aliases: string[] | null
+          category: string | null
+          created_at: string | null
+          full_description: string
+          gender: string | null
+          id: string
+          keyword: string
+          updated_at: string | null
+        }
+        Insert: {
+          aliases?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          full_description: string
+          gender?: string | null
+          id?: string
+          keyword: string
+          updated_at?: string | null
+        }
+        Update: {
+          aliases?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          full_description?: string
+          gender?: string | null
+          id?: string
+          keyword?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       comforters: {
         Row: {
@@ -877,10 +934,13 @@ export type Database = {
           avatar: string | null
           avatar_url: string | null
           clothing_style: Json | null
+          clothing_style_resolved: string | null
           created_at: string | null
           details: Json | null
           family_id: string | null
           id: string
+          is_deceased: boolean | null
+          is_memory: boolean | null
           name: string | null
           physical_details: Json | null
           role: string | null
@@ -889,10 +949,13 @@ export type Database = {
           avatar?: string | null
           avatar_url?: string | null
           clothing_style?: Json | null
+          clothing_style_resolved?: string | null
           created_at?: string | null
           details?: Json | null
           family_id?: string | null
           id?: string
+          is_deceased?: boolean | null
+          is_memory?: boolean | null
           name?: string | null
           physical_details?: Json | null
           role?: string | null
@@ -901,10 +964,13 @@ export type Database = {
           avatar?: string | null
           avatar_url?: string | null
           clothing_style?: Json | null
+          clothing_style_resolved?: string | null
           created_at?: string | null
           details?: Json | null
           family_id?: string | null
           id?: string
+          is_deceased?: boolean | null
+          is_memory?: boolean | null
           name?: string | null
           physical_details?: Json | null
           role?: string | null
@@ -1252,6 +1318,7 @@ export type Database = {
           emoji: string | null
           family_id: string | null
           id: string
+          is_deceased: boolean | null
           name: string
           physical_details: Json | null
           type: string | null
@@ -1264,6 +1331,7 @@ export type Database = {
           emoji?: string | null
           family_id?: string | null
           id?: string
+          is_deceased?: boolean | null
           name: string
           physical_details?: Json | null
           type?: string | null
@@ -1276,6 +1344,7 @@ export type Database = {
           emoji?: string | null
           family_id?: string | null
           id?: string
+          is_deceased?: boolean | null
           name?: string
           physical_details?: Json | null
           type?: string | null
@@ -1349,11 +1418,96 @@ export type Database = {
           },
         ]
       }
+      story_themes: {
+        Row: {
+          age_months_max: number | null
+          age_months_min: number | null
+          age_years_max: number | null
+          age_years_min: number | null
+          annee: number
+          calendar_month: number | null
+          cast_suggested: string[] | null
+          created_at: string | null
+          forced_companion: string | null
+          gamme: number
+          id: string
+          is_substitute: boolean | null
+          logique_pedagogique: string | null
+          parametres_dependants: string[] | null
+          preferred_location_type: string | null
+          resume_narratif: string | null
+          sources_supabase: string[] | null
+          story_guidelines: string | null
+          substitute_condition: string | null
+          theme_type: string
+          titre: string
+          updated_at: string | null
+          variante_condition: string | null
+          variante_resume: string | null
+          variante_titre: string | null
+        }
+        Insert: {
+          age_months_max?: number | null
+          age_months_min?: number | null
+          age_years_max?: number | null
+          age_years_min?: number | null
+          annee: number
+          calendar_month?: number | null
+          cast_suggested?: string[] | null
+          created_at?: string | null
+          forced_companion?: string | null
+          gamme: number
+          id?: string
+          is_substitute?: boolean | null
+          logique_pedagogique?: string | null
+          parametres_dependants?: string[] | null
+          preferred_location_type?: string | null
+          resume_narratif?: string | null
+          sources_supabase?: string[] | null
+          story_guidelines?: string | null
+          substitute_condition?: string | null
+          theme_type?: string
+          titre: string
+          updated_at?: string | null
+          variante_condition?: string | null
+          variante_resume?: string | null
+          variante_titre?: string | null
+        }
+        Update: {
+          age_months_max?: number | null
+          age_months_min?: number | null
+          age_years_max?: number | null
+          age_years_min?: number | null
+          annee?: number
+          calendar_month?: number | null
+          cast_suggested?: string[] | null
+          created_at?: string | null
+          forced_companion?: string | null
+          gamme?: number
+          id?: string
+          is_substitute?: boolean | null
+          logique_pedagogique?: string | null
+          parametres_dependants?: string[] | null
+          preferred_location_type?: string | null
+          resume_narratif?: string | null
+          sources_supabase?: string[] | null
+          story_guidelines?: string | null
+          substitute_condition?: string | null
+          theme_type?: string
+          titre?: string
+          updated_at?: string | null
+          variante_condition?: string | null
+          variante_resume?: string | null
+          variante_titre?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
           created_by: string | null
           end_date: string
+          family_id: string | null
           id: string
           is_active: boolean | null
           start_date: string
@@ -1365,6 +1519,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           end_date: string
+          family_id?: string | null
           id?: string
           is_active?: boolean | null
           start_date: string
@@ -1376,6 +1531,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           end_date?: string
+          family_id?: string | null
           id?: string
           is_active?: boolean | null
           start_date?: string
@@ -1383,7 +1539,15 @@ export type Database = {
           type?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       superpowers: {
         Row: {
@@ -1535,6 +1699,42 @@ export type Database = {
           physical_details: Json
           user_id: string
         }[]
+      }
+      get_substitutes: {
+        Args: { p_annee: number; p_gamme: number; p_month: number }
+        Returns: {
+          age_months_max: number | null
+          age_months_min: number | null
+          age_years_max: number | null
+          age_years_min: number | null
+          annee: number
+          calendar_month: number | null
+          cast_suggested: string[] | null
+          created_at: string | null
+          forced_companion: string | null
+          gamme: number
+          id: string
+          is_substitute: boolean | null
+          logique_pedagogique: string | null
+          parametres_dependants: string[] | null
+          preferred_location_type: string | null
+          resume_narratif: string | null
+          sources_supabase: string[] | null
+          story_guidelines: string | null
+          substitute_condition: string | null
+          theme_type: string
+          titre: string
+          updated_at: string | null
+          variante_condition: string | null
+          variante_resume: string | null
+          variante_titre: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "story_themes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
