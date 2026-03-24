@@ -134,11 +134,11 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           alt={alt}
           onLoad={onImageLoad}
           onError={onImageError}
-          className="h-full w-full object-cover object-top rounded-full"
+          className="h-full w-full object-cover rounded-full"
           style={{
             transition: 'opacity 1.2s ease-in-out, transform 1.2s ease-out',
             opacity: isLoading ? 0 : 1,
-            transform: isLoading ? 'scale(1.15)' : 'scale(1.25)',
+            transform: isLoading ? 'scale(0.92)' : 'scale(1)',
           }}
         />
         {isNew && (
@@ -172,15 +172,12 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg flex items-center justify-center p-4 bg-background/95">
-          <div className="w-full aspect-square max-h-[80vh] flex items-center justify-center overflow-hidden rounded-lg">
-            <img
-              src={imgSrc!}
-              alt={alt}
-              className="w-full h-full object-contain"
-              style={{ transform: 'scale(1.3)', transformOrigin: 'center 35%' }}
-            />
-          </div>
+        <DialogContent className="sm:max-w-md flex items-center justify-center p-2 bg-background/95">
+          <img
+            src={imgSrc!}
+            alt={alt}
+            className="max-h-[70vh] max-w-full object-contain rounded-lg"
+          />
         </DialogContent>
       </Dialog>
     </>

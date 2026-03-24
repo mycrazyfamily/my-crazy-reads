@@ -25,7 +25,7 @@ const RouteGuard = ({
   const location = useLocation();
   
   // Si le mode développement est activé ou si bypassProtection est à true, on désactive les protections
-  const isDev = import.meta.env.DEV;
+  const isDev = process.env.NODE_ENV === 'development';
   const bypassDevMode = isDev && bypassProtection;
   
   // Protection de base pour l'authentification
