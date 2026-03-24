@@ -172,12 +172,15 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md flex items-center justify-center p-2 bg-background/95">
-          <img
-            src={imgSrc!}
-            alt={alt}
-            className="max-h-[70vh] max-w-full object-contain rounded-lg"
-          />
+        <DialogContent className="sm:max-w-lg flex items-center justify-center p-4 bg-background/95">
+          <div className="w-full aspect-square max-h-[80vh] flex items-center justify-center overflow-hidden rounded-lg">
+            <img
+              src={imgSrc!}
+              alt={alt}
+              className="w-full h-full object-contain"
+              style={{ transform: 'scale(1.3)', transformOrigin: 'center 35%' }}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </>
