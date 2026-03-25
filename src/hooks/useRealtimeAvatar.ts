@@ -28,68 +28,69 @@ const normalizeAvatarUrl = (url?: string | null): string | null => {
 };
 
 export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAvatarOptions): UseRealtimeAvatarResult {
-  const normalizedInitialAvatarUrl = normalizeAvatarUrl(initialAvatarUrl);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(normalizedInitialAvatarUrl);
+  const normalizedInitial = normalizeAvatarUrl(initialAvatarUrl);
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(normalizedInitial);
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(Boolean(normalizedInitialAvatarUrl));
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
   const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const knownUrlRef = useRef<string | null>(normalizedInitialAvatarUrl);
+  // The URL we're "watching" — when it changes, we know a new avatar arrived
+  const knownUrlRef = useRef<string | null>(normalizedInitial);
 
-  // On mount, check sessionStorage for pending regeneration signal
+  // ─── RULE 1: Base fait loi au montage ───
+  // On mount, if there's already an avatar_url, display it immediately.
+  // Only enter regenerating state if there's a sessionStorage signal AND no URL.
   useEffect(() => {
     if (!id) return;
 
     if (knownUrlRef.current) {
+      // URL exists → show it, clear any stale signal
       clearAvatarRegeneration(id);
       setIsRegenerating(false);
-      return;
-    }
-
-    if (consumeAvatarRegeneration(id)) {
-      setIsRegenerating(true);
+    } else {
+      // No URL → check if we should show the spinner
+      if (consumeAvatarRegeneration(id)) {
+        setIsRegenerating(true);
+      }
     }
   }, [id]);
 
-  // Sync when prop changes (e.g. parent re-fetch)
+  // Sync when parent re-fetches and passes a new initialAvatarUrl
   useEffect(() => {
     const incoming = normalizeAvatarUrl(initialAvatarUrl);
     setAvatarUrl(incoming);
     knownUrlRef.current = incoming;
     if (incoming) {
       setHasError(false);
-      setImageLoaded(true);
       setIsRegenerating(false);
-      if (id) clearAvatarRegeneration(id);
-    } else {
-      setImageLoaded(false);
+      clearAvatarRegeneration(id);
     }
   }, [initialAvatarUrl, id]);
 
+  // ─── Apply a genuinely NEW url from Realtime or polling ───
   const applyNewUrl = useCallback((newUrl: string | null) => {
-    const normalizedUrl = normalizeAvatarUrl(newUrl);
-
-    if (normalizedUrl && normalizedUrl !== knownUrlRef.current) {
-      knownUrlRef.current = normalizedUrl;
-      setAvatarUrl(normalizedUrl);
+    const normalized = normalizeAvatarUrl(newUrl);
+    if (normalized && normalized !== knownUrlRef.current) {
+      knownUrlRef.current = normalized;
+      setAvatarUrl(normalized);
       setCacheBustVersion(Date.now());
       setHasError(false);
-      setImageLoaded(true);
       setIsNew(true);
-      // End regeneration state
+      // ─── New avatar arrived → end regeneration ───
       setIsRegenerating(false);
       if (id) clearAvatarRegeneration(id);
     }
   }, [id]);
 
+  // ─── RULE 2: startRegeneration — spinner stays indefinitely ───
   const startRegeneration = useCallback(() => {
     setIsRegenerating(true);
     if (id) signalAvatarRegeneration(id);
   }, [id]);
 
-  // Realtime subscription
+  // ─── Realtime subscription (standard) ───
   useEffect(() => {
     if (!id) return;
 
@@ -115,14 +116,19 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     };
   }, [table, id, applyNewUrl]);
 
-  // Polling fallback — always runs until a change is detected or 5 min timeout
+  // ─── RULE 3: Smart Polling — only when regenerating ───
+  // Poll every 10s, max 15 attempts. Spinner continues visually even after polling stops.
   useEffect(() => {
-    if (!id || !table) return;
+    if (!id || !table || !isRegenerating) return;
 
+    let attempts = 0;
+    const MAX_ATTEMPTS = 15;
     let stopped = false;
 
     const interval = setInterval(async () => {
       if (stopped) return;
+      attempts++;
+
       try {
         const { data } = await supabase
           .from(table)
@@ -134,25 +140,27 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
           const fetchedUrl = (data as Record<string, unknown>).avatar_url as string | null;
           if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
             applyNewUrl(fetchedUrl);
+            stopped = true;
             clearInterval(interval);
+            return;
           }
         }
       } catch {
         // Ignore polling errors
       }
-    }, 3000);
 
-    // Stop after 5 minutes max
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 300000);
+      if (attempts >= MAX_ATTEMPTS) {
+        // Stop polling to save resources, but do NOT clear isRegenerating
+        stopped = true;
+        clearInterval(interval);
+      }
+    }, 10_000);
 
     return () => {
       stopped = true;
       clearInterval(interval);
-      clearTimeout(timeout);
     };
-  }, [table, id, applyNewUrl]);
+  }, [table, id, isRegenerating, applyNewUrl]);
 
   // Clear "new" badge after 10 seconds
   useEffect(() => {
@@ -162,7 +170,9 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   }, [isNew]);
 
   const onImageError = useCallback(() => setHasError(true), []);
-  const onImageLoad = useCallback(() => setImageLoaded(true), []);
+  const onImageLoad = useCallback(() => {
+    /* no-op — we don't gate display on image load */
+  }, []);
 
   const imgSrc = avatarUrl
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
