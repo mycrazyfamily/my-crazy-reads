@@ -22,41 +22,61 @@ interface UseRealtimeAvatarResult {
   startRegeneration: () => void;
 }
 
+const normalizeAvatarUrl = (url?: string | null): string | null => {
+  const normalized = url?.trim();
+  return normalized ? normalized : null;
+};
+
 export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAvatarOptions): UseRealtimeAvatarResult {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl ?? null);
+  const normalizedInitialAvatarUrl = normalizeAvatarUrl(initialAvatarUrl);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(normalizedInitialAvatarUrl);
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(Boolean(normalizedInitialAvatarUrl));
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
   const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const knownUrlRef = useRef<string | null>(initialAvatarUrl ?? null);
+  const knownUrlRef = useRef<string | null>(normalizedInitialAvatarUrl);
 
   // On mount, check sessionStorage for pending regeneration signal
   useEffect(() => {
-    if (id && consumeAvatarRegeneration(id)) {
+    if (!id) return;
+
+    if (knownUrlRef.current) {
+      clearAvatarRegeneration(id);
+      setIsRegenerating(false);
+      return;
+    }
+
+    if (consumeAvatarRegeneration(id)) {
       setIsRegenerating(true);
     }
   }, [id]);
 
   // Sync when prop changes (e.g. parent re-fetch)
   useEffect(() => {
-    const incoming = initialAvatarUrl ?? null;
+    const incoming = normalizeAvatarUrl(initialAvatarUrl);
     setAvatarUrl(incoming);
     knownUrlRef.current = incoming;
     if (incoming) {
       setHasError(false);
+      setImageLoaded(true);
+      setIsRegenerating(false);
+      if (id) clearAvatarRegeneration(id);
+    } else {
       setImageLoaded(false);
     }
-  }, [initialAvatarUrl]);
+  }, [initialAvatarUrl, id]);
 
   const applyNewUrl = useCallback((newUrl: string | null) => {
-    if (newUrl && newUrl !== knownUrlRef.current) {
-      knownUrlRef.current = newUrl;
-      setAvatarUrl(newUrl);
+    const normalizedUrl = normalizeAvatarUrl(newUrl);
+
+    if (normalizedUrl && normalizedUrl !== knownUrlRef.current) {
+      knownUrlRef.current = normalizedUrl;
+      setAvatarUrl(normalizedUrl);
       setCacheBustVersion(Date.now());
       setHasError(false);
-      setImageLoaded(false);
+      setImageLoaded(true);
       setIsNew(true);
       // End regeneration state
       setIsRegenerating(false);
@@ -148,8 +168,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
     : null;
 
-  // Show as loading if regenerating (shimmer over old avatar) OR if image not yet loaded
-  const isLoading = isRegenerating || (!!avatarUrl && !hasError && !imageLoaded);
+  const isLoading = !avatarUrl;
 
   return { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc, startRegeneration };
 }
