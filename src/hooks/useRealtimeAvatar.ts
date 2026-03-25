@@ -100,7 +100,6 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (!id || !table) return;
 
     let stopped = false;
-    let unchangedCount = 0;
 
     const interval = setInterval(async () => {
       if (stopped) return;
@@ -116,17 +115,6 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
           if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
             applyNewUrl(fetchedUrl);
             clearInterval(interval);
-          } else if (fetchedUrl && fetchedUrl === knownUrlRef.current) {
-            // URL exists but hasn't changed — if we're still "regenerating",
-            // the URL was already set before we started watching.
-            unchangedCount++;
-            if (unchangedCount >= 3) {
-              // After ~9s of no change with a valid URL, clear stale regenerating state
-              setIsRegenerating((prev) => {
-                if (prev) clearAvatarRegeneration(id);
-                return false;
-              });
-            }
           }
         }
       } catch {
@@ -154,15 +142,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   }, [isNew]);
 
   const onImageError = useCallback(() => setHasError(true), []);
-  const onImageLoad = useCallback(() => {
-    setImageLoaded(true);
-    // If the image loaded successfully while we thought it was regenerating,
-    // it means the URL was already valid — clear the stale regenerating flag.
-    setIsRegenerating((prev) => {
-      if (prev && id) clearAvatarRegeneration(id);
-      return false;
-    });
-  }, [id]);
+  const onImageLoad = useCallback(() => setImageLoaded(true), []);
 
   const imgSrc = avatarUrl
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
