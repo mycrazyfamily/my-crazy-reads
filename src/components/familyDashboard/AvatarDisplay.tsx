@@ -47,7 +47,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   const canOpen = !!avatarUrl && !hasError && !isRegenerating;
 
   // Show full shimmer state: no avatar yet OR actively regenerating
-  const showFullShimmer = !avatarUrl || isRegenerating;
+  const showFullShimmer = !avatarUrl;
 
   if (showFullShimmer) {
     return (
