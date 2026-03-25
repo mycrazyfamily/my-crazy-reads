@@ -127,6 +127,12 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
             >
               🎨
             </span>
+            <span
+              className="absolute bottom-0.5 left-0 right-0 text-center font-light z-10"
+              style={{ fontSize: '8px', color: 'hsl(213 91% 54% / 0.6)' }}
+            >
+              Création...
+            </span>
           </>
         )}
         <img
