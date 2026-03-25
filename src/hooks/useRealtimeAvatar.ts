@@ -142,7 +142,15 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   }, [isNew]);
 
   const onImageError = useCallback(() => setHasError(true), []);
-  const onImageLoad = useCallback(() => setImageLoaded(true), []);
+  const onImageLoad = useCallback(() => {
+    setImageLoaded(true);
+    // If the image loaded successfully while we thought it was regenerating,
+    // it means the URL was already valid — clear the stale regenerating flag.
+    setIsRegenerating((prev) => {
+      if (prev && id) clearAvatarRegeneration(id);
+      return false;
+    });
+  }, [id]);
 
   const imgSrc = avatarUrl
     ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
