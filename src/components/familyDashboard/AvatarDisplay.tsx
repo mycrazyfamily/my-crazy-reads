@@ -44,10 +44,12 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   ageAlert,
 }) => {
   const [open, setOpen] = useState(false);
-  const canOpen = !!avatarUrl && !hasError && !isRegenerating;
+  const hasAvatar = Boolean(avatarUrl?.trim());
+  const canOpen = hasAvatar && !hasError;
 
-  // Show full shimmer state: no avatar yet OR actively regenerating
-  const showFullShimmer = !avatarUrl;
+  // Show full shimmer state only when no avatar exists in base
+  const showFullShimmer = !hasAvatar;
+  const showRegenerationOverlay = hasAvatar && isRegenerating;
 
   if (showFullShimmer) {
     return (
@@ -106,7 +108,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
         )}
         onClick={() => canOpen && setOpen(true)}
       >
-        {isLoading && (
+        {showRegenerationOverlay && (
           <>
             <style>{shimmerKeyframes}</style>
             <div
@@ -143,8 +145,8 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
           className="h-full w-full rounded-full"
           style={{
             transition: 'opacity 1.2s ease-in-out, transform 1.2s ease-out',
-            opacity: isLoading ? 0 : 1,
-            transform: isLoading ? 'scale(0.92)' : 'scale(1)',
+            opacity: 1,
+            transform: 'scale(1)',
             objectFit: 'cover',
             objectPosition: 'center top',
           }}
