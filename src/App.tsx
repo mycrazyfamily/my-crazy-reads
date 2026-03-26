@@ -1,8 +1,11 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 import { Toaster } from "sonner"
 import { AuthProvider } from './hooks/useAuth'
+
+const queryClient = new QueryClient();
 import AuthGuard from './components/AuthGuard'
 import RouteGuard from './components/RouteGuard'
 import SubscriptionGuard from './components/SubscriptionGuard'
