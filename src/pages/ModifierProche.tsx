@@ -398,9 +398,11 @@ const ModifierProche: React.FC = () => {
         console.error('Webhook avatar error:', webhookErr);
       }
 
-      toast.success('Proche modifié avec succès !');
       if (relativeId) signalAvatarRegeneration(relativeId);
-      navigate('/espace-famille');
+      toast.success('Proche modifié avec succès !');
+      setTimeout(() => {
+        navigate('/espace-famille');
+      }, 500);
     } catch (e) {
       console.error('Error saving relative:', e);
       toast.error("Erreur lors de la sauvegarde");
