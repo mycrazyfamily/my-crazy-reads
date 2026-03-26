@@ -136,17 +136,20 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     };
   }, [table, id, applyNewUrl]);
 
-  // ─── RULE 3: Smart Polling — only when regenerating ───
-  // Poll every 10s, max 15 attempts. Spinner continues visually even after polling stops.
+  // ─── RULE 3: Smart Polling — isolated per instance via useRef ───
   useEffect(() => {
+    // Clear any previous polling for this instance
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
     if (!id || !table || !isRegenerating) return;
 
     let attempts = 0;
     const MAX_ATTEMPTS = 15;
-    let stopped = false;
 
     const interval = setInterval(async () => {
-      if (stopped) return;
       attempts++;
 
       try {
@@ -160,8 +163,8 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
           const fetchedUrl = (data as Record<string, unknown>).avatar_url as string | null;
           if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
             applyNewUrl(fetchedUrl);
-            stopped = true;
             clearInterval(interval);
+            pollingIntervalRef.current = null;
             return;
           }
         }
@@ -170,15 +173,18 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       }
 
       if (attempts >= MAX_ATTEMPTS) {
-        // Stop polling to save resources, but do NOT clear isRegenerating
-        stopped = true;
         clearInterval(interval);
+        pollingIntervalRef.current = null;
       }
     }, 10_000);
 
+    pollingIntervalRef.current = interval;
+
     return () => {
-      stopped = true;
       clearInterval(interval);
+      if (pollingIntervalRef.current === interval) {
+        pollingIntervalRef.current = null;
+      }
     };
   }, [table, id, isRegenerating, applyNewUrl]);
 
