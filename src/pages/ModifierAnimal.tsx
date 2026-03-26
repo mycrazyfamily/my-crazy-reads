@@ -16,6 +16,7 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const [loading, setLoading] = useState(true);
   const [petData, setPetData] = useState<PetData | null>(null);
   const [currentPetData, setCurrentPetData] = useState<PetData | null>(null);
