@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
+let instanceCounter = 0;
+
 type AvatarTable = 'child_profiles' | 'family_members' | 'pets';
 
 interface UseRealtimeAvatarOptions {
@@ -35,6 +37,13 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const [hasError, setHasError] = useState(false);
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
   const [isRegenerating, setIsRegenerating] = useState(false);
+
+  // Unique instance ID for channel naming — stable for the lifetime of this hook
+  const instanceIdRef = useRef<number>(++instanceCounter);
+  // Polling interval ref — isolated per instance
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Channel ref for cleanup
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // The URL we're "watching" — when it changes, we know a new avatar arrived
   const knownUrlRef = useRef<string | null>(normalizedInitial);
@@ -95,12 +104,13 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (id) signalAvatarRegeneration(id);
   }, [id]);
 
-  // ─── Realtime subscription (standard) ───
+  // ─── Realtime subscription (isolated per instance) ───
   useEffect(() => {
     if (!id) return;
 
+    const channelName = `avatar-${table}-${id}-${instanceIdRef.current}`;
     const channel = supabase
-      .channel(`avatar-${table}-${id}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -116,22 +126,30 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
       supabase.removeChannel(channel);
+      if (channelRef.current === channel) {
+        channelRef.current = null;
+      }
     };
   }, [table, id, applyNewUrl]);
 
-  // ─── RULE 3: Smart Polling — only when regenerating ───
-  // Poll every 10s, max 15 attempts. Spinner continues visually even after polling stops.
+  // ─── RULE 3: Smart Polling — isolated per instance via useRef ───
   useEffect(() => {
+    // Clear any previous polling for this instance
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
     if (!id || !table || !isRegenerating) return;
 
     let attempts = 0;
     const MAX_ATTEMPTS = 15;
-    let stopped = false;
 
     const interval = setInterval(async () => {
-      if (stopped) return;
       attempts++;
 
       try {
@@ -145,8 +163,8 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
           const fetchedUrl = (data as Record<string, unknown>).avatar_url as string | null;
           if (fetchedUrl && fetchedUrl !== knownUrlRef.current) {
             applyNewUrl(fetchedUrl);
-            stopped = true;
             clearInterval(interval);
+            pollingIntervalRef.current = null;
             return;
           }
         }
@@ -155,15 +173,18 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       }
 
       if (attempts >= MAX_ATTEMPTS) {
-        // Stop polling to save resources, but do NOT clear isRegenerating
-        stopped = true;
         clearInterval(interval);
+        pollingIntervalRef.current = null;
       }
     }, 10_000);
 
+    pollingIntervalRef.current = interval;
+
     return () => {
-      stopped = true;
       clearInterval(interval);
+      if (pollingIntervalRef.current === interval) {
+        pollingIntervalRef.current = null;
+      }
     };
   }, [table, id, isRegenerating, applyNewUrl]);
 
