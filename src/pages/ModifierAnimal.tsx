@@ -234,9 +234,11 @@ const ModifierAnimal: React.FC = () => {
         console.error('Webhook avatar error:', webhookErr);
       }
 
-      toast.success('Animal modifié avec succès !');
       if (petId) signalAvatarRegeneration(petId);
-      navigate('/espace-famille');
+      toast.success('Animal modifié avec succès !');
+      setTimeout(() => {
+        navigate('/espace-famille');
+      }, 500);
     } catch (error) {
       console.error('Error saving pet:', error);
       toast.error("Erreur lors de la sauvegarde");

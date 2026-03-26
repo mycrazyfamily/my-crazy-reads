@@ -58,12 +58,19 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   // Sync when parent re-fetches and passes a new initialAvatarUrl
   useEffect(() => {
     const incoming = normalizeAvatarUrl(initialAvatarUrl);
+    const previousKnownUrl = knownUrlRef.current;
+
     setAvatarUrl(incoming);
     knownUrlRef.current = incoming;
+
     if (incoming) {
       setHasError(false);
-      setIsRegenerating(false);
-      clearAvatarRegeneration(id);
+
+      const avatarActuallyChanged = incoming !== previousKnownUrl;
+      if (avatarActuallyChanged) {
+        setIsRegenerating(false);
+        clearAvatarRegeneration(id);
+      }
     }
   }, [initialAvatarUrl, id]);
 
