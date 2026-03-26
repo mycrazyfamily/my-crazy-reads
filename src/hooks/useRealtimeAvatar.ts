@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
+let instanceCounter = 0;
+
 type AvatarTable = 'child_profiles' | 'family_members' | 'pets';
 
 interface UseRealtimeAvatarOptions {
