@@ -19,6 +19,7 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
 const ModifierProche: React.FC = () => {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { childId, relativeId } = useParams<{ childId: string; relativeId: string }>();
   
   const [loading, setLoading] = useState(true);
