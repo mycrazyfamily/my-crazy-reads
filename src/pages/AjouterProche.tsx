@@ -25,6 +25,7 @@ interface Child {
 
 export default function AjouterProche() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id

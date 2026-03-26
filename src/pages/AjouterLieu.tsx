@@ -23,6 +23,7 @@ interface Child {
 
 export default function AjouterLieu() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { childId } = useParams<{ childId?: string }>();
   const { user, supabaseSession } = useAuth();
   

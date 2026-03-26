@@ -14,6 +14,7 @@ import type { PlaceData } from '@/types/place';
 const ModifierLieu: React.FC = () => {
   const { childId, placeId } = useParams<{ childId: string; placeId: string }>();
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const [loading, setLoading] = useState(true);
   const [placeData, setPlaceData] = useState<PlaceData | null>(null);
   const [currentPlaceData, setCurrentPlaceData] = useState<PlaceData | null>(null);

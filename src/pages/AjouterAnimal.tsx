@@ -24,6 +24,7 @@ interface Child {
 
 export default function AjouterAnimal() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id
