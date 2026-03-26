@@ -237,6 +237,7 @@ const ModifierAnimal: React.FC = () => {
       }
 
       if (petId) signalAvatarRegeneration(petId);
+      invalidateFamilyData();
       toast.success('Animal modifié avec succès !');
       setTimeout(() => {
         navigate('/espace-famille');

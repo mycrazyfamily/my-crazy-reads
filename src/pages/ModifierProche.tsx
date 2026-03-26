@@ -401,6 +401,7 @@ const ModifierProche: React.FC = () => {
       }
 
       if (relativeId) signalAvatarRegeneration(relativeId);
+      invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
       setTimeout(() => {
         navigate('/espace-famille');
