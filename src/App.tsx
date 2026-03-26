@@ -59,6 +59,7 @@ function App() {
   );
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ErrorBoundary fallback={
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center p-8">
