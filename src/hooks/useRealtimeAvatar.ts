@@ -40,20 +40,18 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const knownUrlRef = useRef<string | null>(normalizedInitial);
 
   // ─── RULE 1: Base fait loi au montage ───
-  // On mount, if there's already an avatar_url, display it immediately.
-  // Only enter regenerating state if there's a sessionStorage signal AND no URL.
+  // On mount, if there's a sessionStorage signal, enter regenerating state
+  // (works for BOTH new avatars and modifications of existing ones).
+  // If no signal, display any existing URL immediately.
   useEffect(() => {
     if (!id) return;
 
-    if (knownUrlRef.current) {
-      // URL exists → show it, clear any stale signal
-      clearAvatarRegeneration(id);
-      setIsRegenerating(false);
+    if (consumeAvatarRegeneration(id)) {
+      // Signal found → show shimmer (full if no URL, overlay if URL exists)
+      setIsRegenerating(true);
     } else {
-      // No URL → check if we should show the spinner
-      if (consumeAvatarRegeneration(id)) {
-        setIsRegenerating(true);
-      }
+      // No signal → display existing URL normally
+      setIsRegenerating(false);
     }
   }, [id]);
 
