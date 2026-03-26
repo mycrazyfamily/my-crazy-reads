@@ -104,12 +104,13 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (id) signalAvatarRegeneration(id);
   }, [id]);
 
-  // ─── Realtime subscription (standard) ───
+  // ─── Realtime subscription (isolated per instance) ───
   useEffect(() => {
     if (!id) return;
 
+    const channelName = `avatar-${table}-${id}-${instanceIdRef.current}`;
     const channel = supabase
-      .channel(`avatar-${table}-${id}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -125,8 +126,13 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
       supabase.removeChannel(channel);
+      if (channelRef.current === channel) {
+        channelRef.current = null;
+      }
     };
   }, [table, id, applyNewUrl]);
 
