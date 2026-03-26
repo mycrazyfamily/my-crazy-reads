@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import RelativeForm from '@/components/childProfile/RelativeForm';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
