@@ -38,6 +38,13 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
   const [isRegenerating, setIsRegenerating] = useState(false);
 
+  // Unique instance ID for channel naming — stable for the lifetime of this hook
+  const instanceIdRef = useRef<number>(++instanceCounter);
+  // Polling interval ref — isolated per instance
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Channel ref for cleanup
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
   // The URL we're "watching" — when it changes, we know a new avatar arrived
   const knownUrlRef = useRef<string | null>(normalizedInitial);
 
