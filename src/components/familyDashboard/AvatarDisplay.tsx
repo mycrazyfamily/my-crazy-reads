@@ -47,11 +47,10 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   const hasAvatar = Boolean(avatarUrl?.trim());
   const canOpen = hasAvatar && !hasError;
 
-  // Show full shimmer state only when no avatar exists in base
-  const showFullShimmer = !hasAvatar;
-  const showRegenerationOverlay = hasAvatar && isRegenerating;
+  // Show shimmer when no avatar OR when regenerating
+  const showShimmer = !hasAvatar || isRegenerating;
 
-  if (showFullShimmer) {
+  if (showShimmer) {
     return (
       <>
         <style>{shimmerKeyframes}</style>
@@ -108,35 +107,6 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
         )}
         onClick={() => canOpen && setOpen(true)}
       >
-        {showRegenerationOverlay && (
-          <>
-            <style>{shimmerKeyframes}</style>
-            <div
-              className={cn('absolute inset-0 rounded-full', size)}
-              style={{
-                background: 'linear-gradient(90deg, hsl(162 39% 64% / 0.2) 0%, hsl(162 39% 64% / 0.4) 50%, hsl(162 39% 64% / 0.2) 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'avatar-shimmer 1.8s ease-in-out infinite',
-              }}
-            />
-            <span
-              className="absolute text-lg z-10"
-              style={{
-                top: '40%',
-                left: '50%',
-                animation: 'avatar-emoji-pulse 2s ease-in-out infinite',
-              }}
-            >
-              🎨
-            </span>
-            <span
-              className="absolute bottom-0.5 left-0 right-0 text-center font-light z-10"
-              style={{ fontSize: '8px', color: 'hsl(213 91% 54% / 0.6)' }}
-            >
-              Création...
-            </span>
-          </>
-        )}
         <img
           src={imgSrc!}
           alt={alt}
