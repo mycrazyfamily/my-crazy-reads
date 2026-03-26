@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RelativeBasicInfoSection from '@/components/childProfile/relatives/RelativeBasicInfoSection';
