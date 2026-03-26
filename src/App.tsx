@@ -212,6 +212,7 @@ function App() {
         </Router>
       </AuthProvider>
     </ErrorBoundary>
+    </QueryClientProvider>
   )
 }
 
