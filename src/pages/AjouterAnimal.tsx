@@ -225,7 +225,7 @@ export default function AjouterAnimal() {
       if (linkError) throw linkError;
       
       toast.success('Animal ajouté avec succès !');
-
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);

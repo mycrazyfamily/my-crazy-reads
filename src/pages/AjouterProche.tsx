@@ -225,6 +225,7 @@ export default function AjouterProche() {
       if (linkError) throw linkError;
       
       toast.success('Proche ajouté avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);

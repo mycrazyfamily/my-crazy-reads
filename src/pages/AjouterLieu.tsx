@@ -197,6 +197,7 @@ export default function AjouterLieu() {
       if (linkError) throw linkError;
 
       toast.success('Lieu de vie ajouté avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du lieu:', error);

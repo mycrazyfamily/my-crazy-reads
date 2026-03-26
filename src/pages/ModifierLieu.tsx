@@ -138,6 +138,7 @@ const ModifierLieu: React.FC = () => {
       }
 
       toast.success('Lieu de vie modifié avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Error saving place:', error);
