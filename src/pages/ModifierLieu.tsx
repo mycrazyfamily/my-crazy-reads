@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PlaceForm } from '@/components/childProfile/places/PlaceForm';
@@ -13,6 +14,7 @@ import type { PlaceData } from '@/types/place';
 const ModifierLieu: React.FC = () => {
   const { childId, placeId } = useParams<{ childId: string; placeId: string }>();
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const [loading, setLoading] = useState(true);
   const [placeData, setPlaceData] = useState<PlaceData | null>(null);
   const [currentPlaceData, setCurrentPlaceData] = useState<PlaceData | null>(null);
@@ -136,6 +138,7 @@ const ModifierLieu: React.FC = () => {
       }
 
       toast.success('Lieu de vie modifié avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Error saving place:', error);

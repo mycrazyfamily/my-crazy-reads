@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { PlaceForm } from '@/components/childProfile/places/PlaceForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -22,6 +23,7 @@ interface Child {
 
 export default function AjouterLieu() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { childId } = useParams<{ childId?: string }>();
   const { user, supabaseSession } = useAuth();
   
@@ -195,6 +197,7 @@ export default function AjouterLieu() {
       if (linkError) throw linkError;
 
       toast.success('Lieu de vie ajouté avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du lieu:', error);

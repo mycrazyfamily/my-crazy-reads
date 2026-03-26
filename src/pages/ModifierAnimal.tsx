@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -15,6 +16,7 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const [loading, setLoading] = useState(true);
   const [petData, setPetData] = useState<PetData | null>(null);
   const [currentPetData, setCurrentPetData] = useState<PetData | null>(null);
@@ -235,6 +237,7 @@ const ModifierAnimal: React.FC = () => {
       }
 
       if (petId) signalAvatarRegeneration(petId);
+      invalidateFamilyData();
       toast.success('Animal modifié avec succès !');
       setTimeout(() => {
         navigate('/espace-famille');

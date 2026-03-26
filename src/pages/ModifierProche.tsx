@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RelativeBasicInfoSection from '@/components/childProfile/relatives/RelativeBasicInfoSection';
@@ -18,6 +19,7 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
 const ModifierProche: React.FC = () => {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { childId, relativeId } = useParams<{ childId: string; relativeId: string }>();
   
   const [loading, setLoading] = useState(true);
@@ -399,6 +401,7 @@ const ModifierProche: React.FC = () => {
       }
 
       if (relativeId) signalAvatarRegeneration(relativeId);
+      invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
       setTimeout(() => {
         navigate('/espace-famille');

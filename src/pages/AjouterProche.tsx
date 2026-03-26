@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import RelativeForm from '@/components/childProfile/RelativeForm';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
@@ -24,6 +25,7 @@ interface Child {
 
 export default function AjouterProche() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id
@@ -223,6 +225,7 @@ export default function AjouterProche() {
       if (linkError) throw linkError;
       
       toast.success('Proche ajouté avec succès !');
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);

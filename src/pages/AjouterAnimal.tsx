@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -23,6 +24,7 @@ interface Child {
 
 export default function AjouterAnimal() {
   const navigate = useNavigate();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const { user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id
@@ -223,7 +225,7 @@ export default function AjouterAnimal() {
       if (linkError) throw linkError;
       
       toast.success('Animal ajouté avec succès !');
-
+      invalidateFamilyData();
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);
