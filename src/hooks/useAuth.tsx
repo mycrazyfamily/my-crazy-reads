@@ -210,6 +210,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         isAuthenticated: !!user?.isAuthenticated,
+        isLoading,
         isTemporaryUser: !!user?.isTemporary,
         hasActiveSubscription,
         login,
