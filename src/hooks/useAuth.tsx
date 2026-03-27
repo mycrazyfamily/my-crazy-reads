@@ -27,6 +27,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   isTemporaryUser: boolean;
   hasActiveSubscription: boolean;
   login: (userData: User) => void;
