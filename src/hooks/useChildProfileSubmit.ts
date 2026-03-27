@@ -524,7 +524,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               pet_id: petId,
               name: pet.name,
               traits: pet.traits?.join(', ') || null,
-              traits_custom: pet.customTraits || null,
+              traits_custom: pet.customTraits && typeof pet.customTraits === 'object' ? pet.customTraits : null,
               relation_label: relationLabel,
               birth_month_year: pet.birthMonthYear || null,
               race: pet.breed || null
