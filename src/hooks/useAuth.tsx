@@ -130,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
     
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session);
       setSupabaseSession(session);
       
       if (session?.user) {
@@ -141,7 +140,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isAuthenticated: true
         }));
         
-        // Defer subscription check on initial load as well
         setTimeout(() => {
           checkSubscription(session).catch((e) => console.error('checkSubscription error (initial deferred):', e));
         }, 0);
@@ -157,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       }
+      setIsLoading(false);
     });
     
     return () => {
