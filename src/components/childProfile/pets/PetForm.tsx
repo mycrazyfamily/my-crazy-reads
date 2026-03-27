@@ -180,19 +180,11 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     // Ne sauvegarder que l'un ou l'autre, jamais les deux
     const mergedCustomTraits = { ...customTraits };
     
-    console.log('🐾 getPetData - petPhysicalDetails:', petPhysicalDetails);
-    console.log('🐾 getPetData - customTraits avant fusion:', customTraits);
-    
     if (noPhysicalDetails) {
-      // Si "aucun détail" est coché, ne sauvegarder que ce flag
       mergedCustomTraits.noPhysicalDetails = true;
     } else if (petPhysicalDetails.length > 0 && petPhysicalDetails.some(d => d.trim() !== '')) {
-      // Si on a des détails physiques, les sauvegarder et ne pas inclure le flag noPhysicalDetails
       mergedCustomTraits.physicalDetails = petPhysicalDetails;
-      console.log('🐾 getPetData - ajout de physicalDetails:', petPhysicalDetails);
     }
-
-    console.log('🐾 getPetData - mergedCustomTraits final:', mergedCustomTraits);
 
     const petData = {
       id: pet?.id || Date.now().toString(),
