@@ -108,7 +108,7 @@ const ModifierAnimal: React.FC = () => {
         const isCustomType = storedType && !predefinedTypes.includes(storedType);
         
         // Nettoyer les customTraits pour éviter d'avoir à la fois physicalDetails et noPhysicalDetails
-        let cleanedCustomTraits = (data as any).traits_custom || undefined;
+        let cleanedCustomTraits = sanitizeTraitsCustom((data as any).traits_custom);
         if (cleanedCustomTraits) {
           const hasPhysicalDetails = Array.isArray(cleanedCustomTraits.physicalDetails) && 
                                       cleanedCustomTraits.physicalDetails.length > 0 &&
