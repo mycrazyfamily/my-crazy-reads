@@ -239,6 +239,7 @@ export const useAuth = () => {
     return {
       user: null,
       isAuthenticated: false,
+      isLoading: false,
       isTemporaryUser: false,
       hasActiveSubscription: false,
       login: () => {},

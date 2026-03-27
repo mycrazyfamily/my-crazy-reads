@@ -1,8 +1,8 @@
-
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 type RouteGuardProps = {
   children: ReactNode;
@@ -10,7 +10,7 @@ type RouteGuardProps = {
   requireSubscription?: boolean;
   redirectTo?: string;
   notSubscribedRedirectTo?: string;
-  bypassProtection?: boolean; // Nouvelle prop pour le mode développement
+  bypassProtection?: boolean;
 };
 
 const RouteGuard = ({ 
@@ -19,23 +19,28 @@ const RouteGuard = ({
   requireSubscription = false,
   redirectTo = '/authentification',
   notSubscribedRedirectTo = '/abonnement',
-  bypassProtection = false // Par défaut, les protections sont actives
+  bypassProtection = false
 }: RouteGuardProps) => {
-  const { isAuthenticated, hasActiveSubscription, user } = useAuth();
+  const { isAuthenticated, isLoading, hasActiveSubscription } = useAuth();
   const location = useLocation();
   
-  // Si le mode développement est activé ou si bypassProtection est à true, on désactive les protections
   const isDev = import.meta.env.DEV;
   const bypassDevMode = isDev && bypassProtection;
+
+  // Wait for auth to be ready before any redirect decision
+  if (requireAuth && isLoading && !bypassDevMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   
-  // Protection de base pour l'authentification
   if (requireAuth && !isAuthenticated && !bypassDevMode) {
-    console.log('🔒 RouteGuard: Redirection vers auth - isAuthenticated:', isAuthenticated, 'user:', user);
     toast.info("Vous devez être connecté pour accéder à cette page");
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
   
-  // Protection pour les pages nécessitant un abonnement
   if (requireAuth && isAuthenticated && requireSubscription && !hasActiveSubscription && !bypassDevMode) {
     toast.info("Cette fonctionnalité nécessite un abonnement actif");
     return <Navigate to={notSubscribedRedirectTo} state={{ from: location }} replace />;
