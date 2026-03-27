@@ -197,7 +197,6 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       customTraits: Object.keys(mergedCustomTraits).length > 0 ? mergedCustomTraits : undefined,
     };
     
-    console.log('🐾 getPetData - retour final:', petData);
     return petData;
   };
 
