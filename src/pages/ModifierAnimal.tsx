@@ -13,6 +13,52 @@ import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
+/**
+ * Safely parse traits_custom from DB — handles double-encoded strings
+ * and spread-of-string bugs that produce {"0":"a","1":"b",...}
+ */
+function sanitizeTraitsCustom(raw: any): Record<string, any> | undefined {
+  if (!raw) return undefined;
+  // If it's a string, try to parse it
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+        return sanitizeTraitsCustom(parsed); // recurse in case of double-encoding
+      }
+    } catch {
+      return undefined;
+    }
+  }
+  // If it's an object, check for spread-of-string pattern (numeric keys starting with "{")
+  if (typeof raw === 'object' && raw !== null && !Array.isArray(raw)) {
+    const keys = Object.keys(raw);
+    const hasNumericKeys = keys.some(k => /^\d+$/.test(k));
+    const hasStringKeys = keys.some(k => !/^\d+$/.test(k));
+    if (hasNumericKeys) {
+      if (!hasStringKeys) {
+        // All keys are numeric — this is a spread string, try to reconstruct
+        try {
+          const reconstructed = keys.sort((a, b) => Number(a) - Number(b)).map(k => raw[k]).join('');
+          const parsed = JSON.parse(reconstructed);
+          if (typeof parsed === 'object' && parsed !== null) return parsed;
+        } catch {
+          return undefined;
+        }
+      } else {
+        // Mixed: keep only non-numeric keys (the valid ones)
+        const cleaned: Record<string, any> = {};
+        for (const k of keys) {
+          if (!/^\d+$/.test(k)) cleaned[k] = raw[k];
+        }
+        return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+      }
+    }
+    return raw;
+  }
+  return undefined;
+}
+
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
   const navigate = useNavigate();
