@@ -206,7 +206,7 @@ const ModifierAnimal: React.FC = () => {
         name: updatedPet.name,
         birth_month_year: updatedPet.birthMonthYear || null,
         traits: updatedPet.traits?.join(', ') || null,
-        traits_custom: updatedPet.customTraits || null,
+        traits_custom: updatedPet.customTraits && typeof updatedPet.customTraits === 'object' ? updatedPet.customTraits : null,
         relation_label: finalType,
         race: updatedPet.breed || null
       };
