@@ -210,13 +210,11 @@ export default function AjouterAnimal() {
         name: petData.name,
         birth_month_year: petData.birthMonthYear || null,
         traits: petData.traits?.join(', ') || null,
-        traits_custom: petData.customTraits || null,
+        traits_custom: petData.customTraits && typeof petData.customTraits === 'object' ? petData.customTraits : null,
         relation_label: finalType,
         race: petData.breed || null
       }));
       
-      console.log('Saving pet with customTraits:', petData.customTraits);
-      console.log('childPetRecords:', childPetRecords);
 
       const { error: linkError } = await supabase
         .from('child_pets')
