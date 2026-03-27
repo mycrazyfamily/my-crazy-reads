@@ -118,7 +118,7 @@ const ModifierAnimal: React.FC = () => {
             // Si les deux sont présents, garder uniquement physicalDetails (dernière info saisie)
             const { noPhysicalDetails, ...rest } = cleanedCustomTraits;
             cleanedCustomTraits = rest;
-            console.log('🧹 Nettoyage des données incohérentes : suppression du flag noPhysicalDetails');
+            
           }
         }
         

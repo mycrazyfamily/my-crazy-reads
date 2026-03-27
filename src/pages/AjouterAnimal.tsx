@@ -215,8 +215,6 @@ export default function AjouterAnimal() {
         race: petData.breed || null
       }));
       
-      console.log('Saving pet with customTraits:', petData.customTraits);
-      console.log('childPetRecords:', childPetRecords);
 
       const { error: linkError } = await supabase
         .from('child_pets')
