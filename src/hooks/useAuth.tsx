@@ -27,6 +27,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   isTemporaryUser: boolean;
   hasActiveSubscription: boolean;
   login: (userData: User) => void;
@@ -42,6 +43,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [supabaseSession, setSupabaseSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkSubscription = async (session: Session | null) => {
     if (!session) return;
@@ -128,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
     
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session);
       setSupabaseSession(session);
       
       if (session?.user) {
@@ -139,7 +140,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isAuthenticated: true
         }));
         
-        // Defer subscription check on initial load as well
         setTimeout(() => {
           checkSubscription(session).catch((e) => console.error('checkSubscription error (initial deferred):', e));
         }, 0);
@@ -155,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       }
+      setIsLoading(false);
     });
     
     return () => {
@@ -209,6 +210,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         isAuthenticated: !!user?.isAuthenticated,
+        isLoading,
         isTemporaryUser: !!user?.isTemporary,
         hasActiveSubscription,
         login,
@@ -237,6 +239,7 @@ export const useAuth = () => {
     return {
       user: null,
       isAuthenticated: false,
+      isLoading: false,
       isTemporaryUser: false,
       hasActiveSubscription: false,
       login: () => {},
