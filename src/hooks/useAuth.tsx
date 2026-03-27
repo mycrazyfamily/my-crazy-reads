@@ -43,6 +43,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [supabaseSession, setSupabaseSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkSubscription = async (session: Session | null) => {
     if (!session) return;
