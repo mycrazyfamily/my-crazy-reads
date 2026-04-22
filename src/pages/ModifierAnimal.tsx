@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { splitCamelCase } from '@/utils/nameFormatter';
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -310,6 +311,12 @@ const ModifierAnimal: React.FC = () => {
 
     if (!currentPetData.name?.trim()) {
       errors.push("le nom de l'animal");
+    }
+
+    // Blocklist : nom de l'animal
+    if (containsForbiddenWord(currentPetData.name)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
     }
 
     if (!currentPetData.type) {

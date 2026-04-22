@@ -10,6 +10,7 @@ import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import RelativeForm from '@/components/childProfile/RelativeForm';
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -112,6 +113,17 @@ export default function AjouterProche() {
     const errors: string[] = [];
 
     if (!relativeData.firstName?.trim()) errors.push("le prénom");
+
+    // Blocklist : prénom et surnom personnalisé
+    if (containsForbiddenWord(relativeData.firstName)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    if (relativeData.nickname?.type === 'custom' && containsForbiddenWord(relativeData.nickname.custom)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
     if (!relativeData.type) errors.push("le type de relation");
     if (relativeData.type === 'other' && !relativeData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");

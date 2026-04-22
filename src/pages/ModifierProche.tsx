@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { splitCamelCase } from '@/utils/nameFormatter';
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RelativeBasicInfoSection from '@/components/childProfile/relatives/RelativeBasicInfoSection';
@@ -252,6 +253,17 @@ const ModifierProche: React.FC = () => {
     const errors: string[] = [];
 
     if (!firstName?.trim()) errors.push("le prénom");
+
+    // Blocklist : prénom et surnom personnalisé
+    if (containsForbiddenWord(firstName)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    if (selectedNickname === 'custom' && containsForbiddenWord(nicknameCustomValue)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
     if (!type) errors.push("le type de relation");
     if (type === 'other' && !otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");

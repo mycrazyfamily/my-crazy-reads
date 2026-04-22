@@ -8,6 +8,7 @@ import RelativeTraitsSection from './relatives/RelativeTraitsSection';
 import ChildrenSelector from './ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 
 type RelativeFormProps = {
   relative: RelativeData & { linkedChildrenIds?: string[] };
@@ -160,6 +161,17 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     const errors: string[] = [];
 
     if (!formData.firstName?.trim()) errors.push("le prénom");
+
+    // Blocklist : prénom et surnom personnalisé
+    if (containsForbiddenWord(formData.firstName)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    if (selectedNickname === 'custom' && containsForbiddenWord(formData.nickname.custom)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
     if (!formData.type) errors.push("le type de relation");
     if (formData.type === 'other' && !formData.otherTypeName?.trim()) {
       errors.push("la description du type de relation personnalisé");

@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 import PhysicalDetailsInput from './PhysicalDetailsInput';
 import ClothingStyleInput from './ClothingStyleInput';
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -174,6 +175,22 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     const formData = form.getValues();
 
     if (!formData.firstName?.trim()) errors.push("le prénom");
+
+    // Blocklist : prénom et surnom personnalisé
+    let hasForbidden = false;
+    if (formData.firstName && containsForbiddenWord(formData.firstName)) {
+      form.setError('firstName', { type: 'manual', message: FORBIDDEN_NAME_ERROR });
+      hasForbidden = true;
+    }
+    if (formData.nickname?.type === 'custom' && containsForbiddenWord(formData.nickname.custom)) {
+      form.setError('nickname.custom' as any, { type: 'manual', message: FORBIDDEN_NAME_ERROR });
+      hasForbidden = true;
+    }
+    if (hasForbidden) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
     if (!formData.gender) errors.push("le genre");
     if (!formData.birthDate) errors.push("la date de naissance");
     if (ageError) errors.push("une date de naissance valide");
