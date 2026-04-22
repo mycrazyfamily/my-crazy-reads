@@ -145,7 +145,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         if (data.family?.relatives && data.family.relatives.length > 0) {
           const familyMembersToCreate = data.family.relatives.map(relative => ({
             family_id: familyId,
-            name: relative.firstName,
+            name: splitCamelCase(relative.firstName),
             role: relative.type,
             avatar: '👤',
             physical_details: relative.noPhysicalDetails
@@ -158,7 +158,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               : JSON.stringify([]),
             // Persist remaining profile data for edit prefill
             details: {
-              nickname: relative.nickname,
+              nickname: relative.nickname
+                ? {
+                    ...relative.nickname,
+                    custom: relative.nickname.custom
+                      ? splitCamelCase(relative.nickname.custom)
+                      : relative.nickname.custom,
+                  }
+                : relative.nickname,
               skinColor: relative.skinColor,
               hairColor: relative.hairColor,
               hairType: relative.hairType,
