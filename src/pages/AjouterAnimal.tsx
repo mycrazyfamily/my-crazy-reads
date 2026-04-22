@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
+import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import PetForm from '@/components/childProfile/pets/PetForm';
