@@ -11,6 +11,7 @@ import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import PetPhysicalDetailsInput from './PetPhysicalDetailsInput';
 import { PetMonthYearPicker } from './PetMonthYearPicker';
+import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 
 type PetFormProps = {
   pet?: PetData;
@@ -205,6 +206,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
     if (!name.trim()) {
       errors.push("le nom de l'animal");
+    }
+
+    // Blocklist : nom de l'animal
+    if (containsForbiddenWord(name)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return false;
     }
 
     if (!type) {
