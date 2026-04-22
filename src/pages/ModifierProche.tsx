@@ -321,7 +321,10 @@ const ModifierProche: React.FC = () => {
     try {
       // Mettre à jour dans family_members
       const detailsPayload = {
-        nickname: { type: selectedNickname, custom: nicknameCustomValue },
+        nickname: {
+          type: selectedNickname,
+          custom: nicknameCustomValue ? splitCamelCase(nicknameCustomValue) : nicknameCustomValue,
+        },
         skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
         hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
         hairType: hairType,
@@ -338,7 +341,7 @@ const ModifierProche: React.FC = () => {
       };
 
       const updatePayload: any = {
-        name: firstName,
+        name: splitCamelCase(firstName),
         role: type,
         physical_details: noPhysicalDetails
           ? JSON.stringify([""])

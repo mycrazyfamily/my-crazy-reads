@@ -185,7 +185,7 @@ const ModifierAnimal: React.FC = () => {
       const { error: updatePetError } = await supabase
         .from('pets')
         .update({
-          name: updatedPet.name,
+          name: splitCamelCase(updatedPet.name),
           type: finalType,
           breed: updatedPet.breed || null
         })
@@ -203,7 +203,7 @@ const ModifierAnimal: React.FC = () => {
 
       const existingChildIds = existingRelations?.map(r => r.child_id) || [];
       const childPetUpdates = {
-        name: updatedPet.name,
+        name: splitCamelCase(updatedPet.name),
         birth_month_year: updatedPet.birthMonthYear || null,
         traits: updatedPet.traits?.join(', ') || null,
         traits_custom: updatedPet.customTraits && typeof updatedPet.customTraits === 'object' ? updatedPet.customTraits : null,

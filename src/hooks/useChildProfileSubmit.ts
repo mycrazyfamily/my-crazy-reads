@@ -210,9 +210,10 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           .insert([
             {
               family_id: familyId,
-              first_name: data.firstName,
-              nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
-                       data.nickname?.type !== 'none' ? data.nickname?.type : null,
+              first_name: splitCamelCase(data.firstName),
+              nickname: data.nickname?.type === 'custom'
+                ? splitCamelCase(data.nickname.custom)
+                : data.nickname?.type !== 'none' ? data.nickname?.type : null,
               birth_date: normalizeDateToISO(data.birthDate),
               gender: data.gender,
               height: data.height,
