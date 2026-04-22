@@ -11,6 +11,7 @@ import {
   CHALLENGES_OPTIONS 
 } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { splitCamelCase } from '@/utils/nameFormatter';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
