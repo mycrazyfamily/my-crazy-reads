@@ -11,6 +11,7 @@ import {
   CHALLENGES_OPTIONS 
 } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { splitCamelCase } from '@/utils/nameFormatter';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
@@ -145,7 +146,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         if (data.family?.relatives && data.family.relatives.length > 0) {
           const familyMembersToCreate = data.family.relatives.map(relative => ({
             family_id: familyId,
-            name: relative.firstName,
+            name: splitCamelCase(relative.firstName),
             role: relative.type,
             avatar: '👤',
             physical_details: relative.noPhysicalDetails
@@ -158,7 +159,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               : JSON.stringify([]),
             // Persist remaining profile data for edit prefill
             details: {
-              nickname: relative.nickname,
+              nickname: relative.nickname
+                ? {
+                    ...relative.nickname,
+                    custom: relative.nickname.custom
+                      ? splitCamelCase(relative.nickname.custom)
+                      : relative.nickname.custom,
+                  }
+                : relative.nickname,
               skinColor: relative.skinColor,
               hairColor: relative.hairColor,
               hairType: relative.hairType,
@@ -202,9 +210,10 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           .insert([
             {
               family_id: familyId,
-              first_name: data.firstName,
-              nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
-                       data.nickname?.type !== 'none' ? data.nickname?.type : null,
+              first_name: splitCamelCase(data.firstName),
+              nickname: data.nickname?.type === 'custom'
+                ? splitCamelCase(data.nickname.custom)
+                : data.nickname?.type !== 'none' ? data.nickname?.type : null,
               birth_date: normalizeDateToISO(data.birthDate),
               gender: data.gender,
               height: data.height,

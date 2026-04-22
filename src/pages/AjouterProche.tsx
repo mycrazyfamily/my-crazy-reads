@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
+import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import RelativeForm from '@/components/childProfile/RelativeForm';
@@ -177,7 +178,7 @@ export default function AjouterProche() {
         .from('family_members')
         .insert({
           family_id: firstChild.family_id,
-          name: relativeData.firstName,
+          name: splitCamelCase(relativeData.firstName),
           role: relativeData.type,
           avatar: null,
           physical_details: relativeData.noPhysicalDetails
@@ -190,7 +191,14 @@ export default function AjouterProche() {
             : JSON.stringify([]),
           // Persist remaining relative profile for edit prefill
           details: {
-            nickname: relativeData.nickname, // Already an object with type/custom
+            nickname: relativeData.nickname
+              ? {
+                  ...relativeData.nickname,
+                  custom: relativeData.nickname.custom
+                    ? splitCamelCase(relativeData.nickname.custom)
+                    : relativeData.nickname.custom,
+                }
+              : relativeData.nickname,
             skinColor: relativeData.skinColor, // Already an object with type/custom
             hairColor: relativeData.hairColor, // Already an object with type/custom
             hairType: relativeData.hairType,

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
+import { splitCamelCase } from '@/utils/nameFormatter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RelativeBasicInfoSection from '@/components/childProfile/relatives/RelativeBasicInfoSection';
@@ -321,7 +322,10 @@ const ModifierProche: React.FC = () => {
     try {
       // Mettre à jour dans family_members
       const detailsPayload = {
-        nickname: { type: selectedNickname, custom: nicknameCustomValue },
+        nickname: {
+          type: selectedNickname,
+          custom: nicknameCustomValue ? splitCamelCase(nicknameCustomValue) : nicknameCustomValue,
+        },
         skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
         hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
         hairType: hairType,
@@ -338,7 +342,7 @@ const ModifierProche: React.FC = () => {
       };
 
       const updatePayload: any = {
-        name: firstName,
+        name: splitCamelCase(firstName),
         role: type,
         physical_details: noPhysicalDetails
           ? JSON.stringify([""])

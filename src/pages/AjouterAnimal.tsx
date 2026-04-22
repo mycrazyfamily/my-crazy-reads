@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
+import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -192,7 +193,7 @@ export default function AjouterAnimal() {
       const { data: pet, error: petError } = await supabase
         .from('pets')
         .insert({
-          name: petData.name,
+          name: splitCamelCase(petData.name),
           type: finalType,
           breed: petData.breed || null,
           emoji: null,
@@ -207,7 +208,7 @@ export default function AjouterAnimal() {
       const childPetRecords = childProfileIds.map(childProfileId => ({
         child_id: childProfileId,
         pet_id: pet.id,
-        name: petData.name,
+        name: splitCamelCase(petData.name),
         birth_month_year: petData.birthMonthYear || null,
         traits: petData.traits?.join(', ') || null,
         traits_custom: petData.customTraits && typeof petData.customTraits === 'object' ? petData.customTraits : null,
