@@ -7,7 +7,7 @@ import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
-import { Sparkles, Gift, Check, Star, Heart, Zap } from 'lucide-react';
+import { Sparkles, Gift, Check, Star, Heart, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const Abonnement: React.FC = () => {
@@ -230,22 +230,27 @@ const Abonnement: React.FC = () => {
                     <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
                   ) : (
                     <div className="flex flex-wrap gap-3">
-                      {children.map((c) => (
-                        <button
-                          key={c.id}
-                          onClick={() => setSelectedChildId(c.id)}
-                          className={`px-6 py-3 rounded-full border-2 transition-all duration-300 hover:scale-105 font-semibold ${
-                            selectedChildId === c.id 
-                              ? 'bg-mcf-primary text-white border-mcf-primary shadow-lg' 
-                              : 'bg-white hover:bg-mcf-mint/20 border-mcf-mint text-mcf-primary'
-                          }`}
-                        >
-                          <span>{c.first_name}</span>
-                          {subscribedChildIds.includes(c.id) && (
-                            <span className="ml-2 text-xs font-semibold">✓ Déjà abonné</span>
-                          )}
-                        </button>
-                      ))}
+                      {children.map((c) => {
+                        const isSubscribed = subscribedChildIds.includes(c.id);
+                        const isSelected = selectedChildId === c.id;
+                        const baseClasses = isSubscribed
+                          ? 'bg-green-100 border-green-400 text-green-700 hover:bg-green-100'
+                          : isSelected
+                            ? 'bg-mcf-primary text-white border-mcf-primary shadow-lg'
+                            : 'bg-white hover:bg-mcf-mint/20 border-mcf-mint text-mcf-primary';
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() => setSelectedChildId(c.id)}
+                            className={`px-6 py-3 rounded-full border-2 transition-all duration-300 hover:scale-105 font-semibold inline-flex items-center gap-2 ${baseClasses}`}
+                          >
+                            <span>{c.first_name}</span>
+                            {isSubscribed && (
+                              <CheckCircle2 className="w-5 h-5 text-green-600" strokeWidth={2.5} />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                   <p className="text-sm text-muted-foreground mt-4 flex items-center gap-2">
