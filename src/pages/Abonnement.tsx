@@ -365,7 +365,7 @@ const Abonnement: React.FC = () => {
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
                       </div>
-                      <span className="text-base">2 mois gratuit</span>
+                      <span className="text-base">2 mois offerts</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
