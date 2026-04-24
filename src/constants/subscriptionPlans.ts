@@ -2,14 +2,14 @@ export const SUBSCRIPTION_PLANS = {
   monthly: {
     priceId: 'price_1SLPZIBm2xG2OMOvLXjO6KqM',
     name: 'Abonnement mensuel',
-    price: 25.99,
+    price: 29.99,
     currency: '€',
     interval: 'mois',
   },
   yearly: {
-    priceId: 'price_1SLPaABm2xG2OMOvaDzDSB2s',
+    priceId: 'price_1TPk8lBm2xG2OMOvTmJ1KQzT',
     name: 'Abonnement annuel',
-    price: 285.99,
+    price: 299.99,
     currency: '€',
     interval: 'an',
   },

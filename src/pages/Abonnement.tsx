@@ -273,7 +273,7 @@ const Abonnement: React.FC = () => {
                     <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement mensuel</h2>
                   </div>
                   <p className="text-4xl font-bold mb-6 text-mcf-secondary">
-                    25,99€<span className="text-lg font-normal text-muted-foreground">/mois</span>
+                    29,99€<span className="text-lg font-normal text-muted-foreground">/mois</span>
                   </p>
                   <ul className="space-y-4 mb-8 flex-grow">
                     <li className="flex items-start gap-3">
@@ -332,7 +332,7 @@ const Abonnement: React.FC = () => {
               <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-200">
                 <div className="absolute top-0 left-0 bg-gradient-to-r from-mcf-mint to-mcf-secondary text-white font-bold py-2 px-6 rounded-br-xl shadow-lg flex items-center gap-2 z-20">
                   <Star className="w-4 h-4" strokeWidth={3} />
-                  ÉCONOMIE DE 10%
+                  2 MOIS OFFERTS
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
                 <CardContent className="pt-16 pb-8 flex flex-col h-full relative z-10">
@@ -342,9 +342,12 @@ const Abonnement: React.FC = () => {
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement annuel</h2>
                   </div>
-                  <p className="text-4xl font-bold mb-6 text-mcf-secondary">
-                    285,99€<span className="text-lg font-normal text-muted-foreground">/an</span>
-                  </p>
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-mcf-secondary">
+                      299,99€<span className="text-lg font-normal text-muted-foreground">/an</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">soit 24,99€/mois</p>
+                  </div>
                   <ul className="space-y-4 mb-8 flex-grow">
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -362,7 +365,7 @@ const Abonnement: React.FC = () => {
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
                       </div>
-                      <span className="text-base">1 mois gratuit</span>
+                      <span className="text-base">2 mois gratuit</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">

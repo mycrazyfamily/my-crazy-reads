@@ -10,7 +10,7 @@ const corsHeaders = {
 // Whitelist of allowed price IDs for the application
 const ALLOWED_PRICE_IDS = [
   'price_1SLPZIBm2xG2OMOvLXjO6KqM', // Monthly subscription
-  'price_1SLPaABm2xG2OMOvaDzDSB2s', // Yearly subscription
+  'price_1TPk8lBm2xG2OMOvTmJ1KQzT', // Yearly subscription
 ];
 
 const logStep = (step: string, details?: any) => {
