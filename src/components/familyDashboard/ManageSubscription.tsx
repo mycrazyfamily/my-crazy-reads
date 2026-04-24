@@ -33,7 +33,7 @@ const ManageSubscription: React.FC = () => {
       }
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error('Error in handleManageSubscription:', error);
