@@ -79,7 +79,7 @@ serve(async (req) => {
     let subscriptionEnd = null;
     let priceId = null;
 
-    const detailedSubs = subscriptions.data.map((subscription) => {
+    const detailedSubs = subscriptions.data.map((subscription: any) => {
       const price = subscription.items.data[0].price;
       const pid = typeof price.product === 'string' ? price.product : price.product?.id;
       return {
