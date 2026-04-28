@@ -10,6 +10,18 @@ const ConfirmationAbonnement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { refreshSubscription, user } = useAuth();
+
+  const getDeliveryMonth = () => {
+    const today = new Date();
+    const cutoffDay = 20;
+    let deliveryDate = new Date(today);
+    if (today.getDate() > cutoffDay) {
+      deliveryDate.setMonth(today.getMonth() + 1);
+    }
+    return deliveryDate.toLocaleDateString('fr-FR', { month: 'long' });
+  };
+
+  const deliveryMonth = getDeliveryMonth();
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -33,7 +45,7 @@ const ConfirmationAbonnement: React.FC = () => {
           </h1>
           
           <p className="text-xl text-gray-700 mb-8">
-            Votre abonnement a été activé avec succès !
+            Votre premier livre arrive en {deliveryMonth} ! 🎉
           </p>
           
           <div className="bg-mcf-mint/20 rounded-lg p-6 mb-8">
@@ -43,23 +55,17 @@ const ConfirmationAbonnement: React.FC = () => {
             
             <ul className="text-left space-y-3 text-gray-700">
               <li className="flex items-start gap-2">
-                <span className="text-mcf-secondary font-bold mt-1">✓</span>
-                <span>Vous recevrez un email de confirmation avec tous les détails de votre abonnement</span>
+                <span className="font-bold mt-1">✅</span>
+                <span>Vous allez recevoir un email de confirmation avec le récapitulatif de votre abonnement</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-mcf-secondary font-bold mt-1">✓</span>
-                <span>Votre premier livre personnalisé sera préparé et expédié sous peu</span>
+                <span className="font-bold mt-1">📖</span>
+                <span>Votre premier livre personnalisé est prévu pour {deliveryMonth} — il sera créé entre le 15 et le 25 du mois puis expédié le 25</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-mcf-secondary font-bold mt-1">✓</span>
-                <span>Vous pouvez dès maintenant accéder à votre espace famille pour gérer vos préférences</span>
+                <span className="font-bold mt-1">✨</span>
+                <span>Préparez vos personnages ! Rendez-vous dans l'espace famille pour configurer vos héros avant le 15 du mois</span>
               </li>
-              {user?.subscription?.type === 'yearly' && (
-                <li className="flex items-start gap-2">
-                  <span className="text-mcf-secondary font-bold mt-1">🎁</span>
-                  <span>Votre cadeau de bienvenue sera inclus avec votre premier livre</span>
-                </li>
-              )}
             </ul>
           </div>
           
