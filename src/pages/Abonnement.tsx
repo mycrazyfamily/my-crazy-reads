@@ -363,6 +363,11 @@ const Abonnement: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                     {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                   </button>
+                  {isAfterCutoff && (
+                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                      Votre premier livre sera celui de {banner.nextMonth}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
               
