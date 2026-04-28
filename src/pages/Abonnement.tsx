@@ -22,6 +22,34 @@ const Abonnement: React.FC = () => {
   const checkoutOpeningRef = useRef(false);
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
+
+  const getSubscriptionBanner = () => {
+    const today = new Date();
+    const day = today.getDate();
+    const cutoffDay = 20;
+
+    const currentMonth = today.toLocaleDateString('fr-FR', { month: 'long' });
+
+    const nextMonthDate = new Date(today);
+    nextMonthDate.setMonth(today.getMonth() + 1);
+    const nextMonth = nextMonthDate.toLocaleDateString('fr-FR', { month: 'long' });
+
+    if (day <= cutoffDay) {
+      return {
+        message: `Abonnez-vous aujourd'hui pour recevoir l'aventure du mois de ${currentMonth} ! 🎉`,
+        highlight: true,
+        nextMonth,
+      };
+    }
+    return {
+      message: `Les inscriptions pour ${currentMonth} sont closes. Abonnez-vous maintenant pour sécuriser la place de votre enfant pour ${nextMonth} ! ✨`,
+      highlight: false,
+      nextMonth,
+    };
+  };
+
+  const banner = getSubscriptionBanner();
+  const isAfterCutoff = !banner.highlight;
   
   // Assure que le user_profile possède bien un family_id si possible
   useFamilyIdSync();
@@ -216,6 +244,17 @@ const Abonnement: React.FC = () => {
               </p>
             </div>
 
+            {/* Bannière dynamique selon date du jour */}
+            <div
+              className={`w-full rounded-xl p-4 mb-8 text-center font-medium border ${
+                banner.highlight
+                  ? 'bg-green-50 border-green-200 text-green-800'
+                  : 'bg-orange-50 border-orange-200 text-orange-800'
+              }`}
+            >
+              {banner.message}
+            </div>
+
             {/* Sélection de l'enfant à abonner */}
             {isAuthenticated && (
               <Card className="mb-12 border-2 border-mcf-mint/30 shadow-lg animate-fade-in">
@@ -324,6 +363,11 @@ const Abonnement: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                     {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                   </button>
+                  {isAfterCutoff && (
+                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                      Votre premier livre sera celui de {banner.nextMonth}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
               
@@ -403,6 +447,11 @@ const Abonnement: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                     {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                   </button>
+                  {isAfterCutoff && (
+                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                      Votre premier livre sera celui de {banner.nextMonth}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
