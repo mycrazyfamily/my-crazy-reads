@@ -42,7 +42,7 @@ const Abonnement: React.FC = () => {
       };
     }
     return {
-      message: `Les inscriptions pour ${currentMonth} sont closes. Abonnez-vous maintenant pour sécuriser la place de votre enfant pour ${nextMonth} ! ✨`,
+      message: `Les inscriptions pour ${currentMonth} sont closes mais vous pouvez dès à présent vous abonner pour sécuriser la place de votre enfant pour ${nextMonth} ! ✨`,
       highlight: false,
       nextMonth,
     };
