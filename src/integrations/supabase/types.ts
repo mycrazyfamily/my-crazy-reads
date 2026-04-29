@@ -1504,6 +1504,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          child_id: string | null
           created_at: string | null
           created_by: string | null
           end_date: string
@@ -1516,6 +1517,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          child_id?: string | null
           created_at?: string | null
           created_by?: string | null
           end_date: string
@@ -1528,6 +1530,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          child_id?: string | null
           created_at?: string | null
           created_by?: string | null
           end_date?: string
@@ -1540,6 +1543,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_family_id_fkey"
             columns: ["family_id"]
