@@ -5,7 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
-import { ExternalLink, Calendar, CreditCard } from 'lucide-react';
+import { ExternalLink, Calendar, CreditCard, FileText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const ManageSubscription: React.FC = () => {
   const { user, supabaseSession } = useAuth();
@@ -57,27 +58,44 @@ const ManageSubscription: React.FC = () => {
       })
     : 'N/A';
 
+  const status = user.subscription.status;
+  const cancelAt = (user.subscription as any).cancelAt || (user.subscription as any).cancel_at;
+  const isCanceling = Boolean(cancelAt);
+  let statusBadge: { label: string; className: string };
+  if (isCanceling) {
+    const endDate = new Date(cancelAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    statusBadge = { label: `Se termine le ${endDate}`, className: 'bg-red-100 text-red-700 border-red-300 hover:bg-red-100' };
+  } else if ((status as string) === 'paused') {
+    statusBadge = { label: 'En pause', className: 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-100' };
+  } else {
+    statusBadge = { label: 'Actif', className: 'bg-green-100 text-green-700 border-green-300 hover:bg-green-100' };
+  }
+
+  const formuleLabel = subscriptionType === 'yearly'
+    ? 'Annuelle — 299,99€/an'
+    : 'Mensuelle — 29,99€/mois';
+
   return (
     <Card className="border-mcf-mint shadow-lg">
       <CardHeader>
         <CardTitle className="text-mcf-primary flex items-center gap-2">
           <CreditCard className="h-5 w-5" />
-          Mon abonnement
+          Gérer mes abonnements
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between items-center">
+            <span className="text-gray-600">Statut</span>
+            <Badge variant="outline" className={statusBadge.className}>
+              {statusBadge.label}
+            </Badge>
+          </div>
+
+          <div className="flex justify-between items-center">
             <span className="text-gray-600">Formule</span>
             <span className="font-semibold text-mcf-primary">
-              {plan?.name || 'N/A'}
-            </span>
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Prix</span>
-            <span className="font-semibold text-mcf-secondary">
-              {plan ? `${plan.price}${plan.currency}/${plan.interval}` : 'N/A'}
+              {formuleLabel}
             </span>
           </div>
           
@@ -90,6 +108,15 @@ const ManageSubscription: React.FC = () => {
               {nextPaymentDate}
             </span>
           </div>
+
+          <button
+            onClick={handleManageSubscription}
+            disabled={isLoading}
+            className="text-sm text-mcf-primary hover:underline flex items-center gap-1 disabled:opacity-50"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Voir mes factures →
+          </button>
         </div>
 
         <div className="pt-4 border-t border-gray-200">
