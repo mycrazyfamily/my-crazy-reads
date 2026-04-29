@@ -65,7 +65,7 @@ const ManageSubscription: React.FC = () => {
   if (isCanceling) {
     const endDate = new Date(cancelAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     statusBadge = { label: `Se termine le ${endDate}`, className: 'bg-red-100 text-red-700 border-red-300 hover:bg-red-100' };
-  } else if (status === 'paused') {
+  } else if ((status as string) === 'paused') {
     statusBadge = { label: 'En pause', className: 'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-100' };
   } else {
     statusBadge = { label: 'Actif', className: 'bg-green-100 text-green-700 border-green-300 hover:bg-green-100' };
