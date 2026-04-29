@@ -160,7 +160,7 @@ const FamilyDashboard: React.FC = () => {
         </Tabs>
 
         <div className="mt-12 pt-8 border-t-2 border-mcf-mint/30">
-          <ManageSubscription />
+          <ManageSubscription children={children} />
         </div>
 
         <div className="mt-12 pb-8 border-t-2 border-mcf-mint/30 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
