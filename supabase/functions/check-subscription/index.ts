@@ -88,6 +88,8 @@ serve(async (req) => {
         product_id: pid,
         price_id: price.id,
         subscription_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        status: subscription.status,
+        cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000).toISOString() : null,
       };
     });
 
