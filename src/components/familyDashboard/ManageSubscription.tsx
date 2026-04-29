@@ -21,10 +21,10 @@ interface StripeSubscriptionItem {
 }
 
 interface ManageSubscriptionProps {
-  children?: FamilyChild[];
+  familyChildren?: FamilyChild[];
 }
 
-const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ children = [] }) => {
+const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren = [] }) => {
   const { supabaseSession } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +107,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ children = [] }
 
   const findChildName = (childId: string | null) => {
     if (!childId) return null;
-    const child = children.find((c) => c.id === childId);
+    const child = familyChildren.find((c) => c.id === childId);
     return child?.firstName || null;
   };
 
