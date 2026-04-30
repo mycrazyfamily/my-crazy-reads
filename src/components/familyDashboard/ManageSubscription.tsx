@@ -6,8 +6,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
-import { ExternalLink, Calendar, CreditCard, FileText } from 'lucide-react';
+import { Calendar, CreditCard, FileText, Trash2, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import type { FamilyChild } from '@/hooks/useFamilyData';
 
 interface StripeSubscriptionItem {
@@ -30,6 +38,8 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
   const [isLoading, setIsLoading] = useState(false);
   const [subs, setSubs] = useState<StripeSubscriptionItem[] | null>(null);
   const [loadingSubs, setLoadingSubs] = useState(true);
+  const [cancelTarget, setCancelTarget] = useState<StripeSubscriptionItem | null>(null);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -86,6 +96,51 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
     }
   };
 
+  const formatDate = (iso: string | null | undefined) =>
+    iso
+      ? new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
+
+  const handleConfirmCancel = async () => {
+    if (!cancelTarget || !supabaseSession) return;
+    const sub = cancelTarget;
+    setCancelingId(sub.subscription_id);
+    try {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription', {
+        body: { subscription_id: sub.subscription_id },
+        headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
+      });
+      if (error || (data as any)?.error) {
+        console.error('cancel-subscription error:', error || (data as any)?.error);
+        toast.error("Une erreur est survenue lors de la résiliation.");
+        return;
+      }
+      const cancelAt = (data as any)?.cancel_at as string | null;
+      setSubs((prev) =>
+        prev
+          ? prev.map((s) =>
+              s.subscription_id === sub.subscription_id
+                ? { ...s, cancel_at: cancelAt, status: s.status }
+                : s
+            )
+          : prev
+      );
+      const childName = findChildName(sub.child_id);
+      const dateStr = formatDate(cancelAt);
+      toast.success(
+        childName
+          ? `L'abonnement de ${childName} prendra fin le ${dateStr}`
+          : `L'abonnement prendra fin le ${dateStr}`
+      );
+      setCancelTarget(null);
+    } catch (e) {
+      console.error(e);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setCancelingId(null);
+    }
+  };
+
   const getPlanInfo = (priceId: string | null) => {
     if (priceId === SUBSCRIPTION_PLANS.yearly.priceId) {
       return { type: 'yearly' as const, label: 'Annuelle — 299,99€/an' };
@@ -136,6 +191,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
   }
 
   return (
+    <>
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold text-mcf-primary flex items-center gap-2">
         <CreditCard className="h-6 w-6" />
@@ -146,12 +202,10 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
           const childName = findChildName(sub.child_id);
           const plan = getPlanInfo(sub.price_id);
           const statusBadge = getStatusBadge(sub);
-          const nextPaymentDate = sub.subscription_end
-            ? new Date(sub.subscription_end).toLocaleDateString('fr-FR', {
-                day: 'numeric', month: 'long', year: 'numeric',
-              })
-            : 'N/A';
+          const nextPaymentDate = sub.subscription_end ? formatDate(sub.subscription_end) : 'N/A';
           const title = childName ? `Abonnement de ${childName}` : 'Abonnement';
+          const isCanceling = cancelingId === sub.subscription_id;
+          const alreadyCanceled = !!sub.cancel_at;
 
           return (
             <Card key={sub.subscription_id} className="border-mcf-mint shadow-lg">
@@ -192,12 +246,17 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
 
                 <div className="pt-4 border-t border-gray-200">
                   <Button
-                    onClick={handleManageSubscription}
-                    disabled={isLoading}
-                    className="w-full bg-mcf-primary hover:bg-mcf-primary-dark text-white flex items-center justify-center gap-2"
+                    variant="ghost"
+                    onClick={() => setCancelTarget(sub)}
+                    disabled={alreadyCanceled || isCanceling}
+                    className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center justify-center gap-2"
                   >
-                    <ExternalLink className="h-4 w-4" />
-                    {isLoading ? 'Chargement...' : 'Gérer cet abonnement'}
+                    {isCanceling ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    {alreadyCanceled ? 'Résiliation programmée' : "Résilier l'abonnement"}
                   </Button>
                 </div>
               </CardContent>
@@ -206,6 +265,47 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
         })}
       </div>
     </div>
+
+    <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && !cancelingId && setCancelTarget(null)}>
+      <DialogContent>
+        {cancelTarget && (() => {
+          const name = findChildName(cancelTarget.child_id) || 'cet enfant';
+          const endDate = formatDate(cancelTarget.subscription_end);
+          const isBusy = cancelingId === cancelTarget.subscription_id;
+          return (
+            <>
+              <DialogHeader>
+                <DialogTitle>Résilier l'abonnement de {name}</DialogTitle>
+                <DialogDescription className="pt-2 text-base">
+                  Êtes-vous sûr ? {name} ne recevra plus ses aventures magiques.
+                  L'abonnement restera actif jusqu'au {endDate}.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center pt-4">
+                <Button
+                  variant="ghost"
+                  onClick={handleConfirmCancel}
+                  disabled={isBusy}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Oui, résilier
+                </Button>
+                <Button
+                  onClick={() => setCancelTarget(null)}
+                  disabled={isBusy}
+                  size="lg"
+                  className="bg-mcf-primary hover:bg-mcf-primary-dark text-white text-base px-8"
+                >
+                  Non, je reste
+                </Button>
+              </DialogFooter>
+            </>
+          );
+        })()}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
