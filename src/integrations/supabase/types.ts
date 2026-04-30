@@ -1418,6 +1418,27 @@ export type Database = {
           },
         ]
       }
+      processed_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string | null
+          id: string
+          processed_at: string | null
+        }
+        Insert: {
+          event_id: string
+          event_type?: string | null
+          id?: string
+          processed_at?: string | null
+        }
+        Update: {
+          event_id?: string
+          event_type?: string | null
+          id?: string
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
       story_themes: {
         Row: {
           age_months_max: number | null
@@ -1504,6 +1525,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at: string | null
           child_id: string | null
           created_at: string | null
           created_by: string | null
@@ -1517,6 +1539,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          cancel_at?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1530,6 +1553,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          cancel_at?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
