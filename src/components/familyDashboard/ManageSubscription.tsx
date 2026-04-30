@@ -52,7 +52,6 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
   const CANCEL_REASONS = [
     { value: 'price_too_high', label: 'Le tarif est trop élevé' },
     { value: 'child_grew_up', label: 'Mon enfant a grandi' },
-    { value: 'stories_mismatch', label: 'Ne correspondent pas' },
     { value: 'too_many_books', label: 'Nous avons trop de livres' },
     { value: 'temporary_pause', label: 'Pause temporaire' },
     { value: 'delivery_quality_issue', label: 'Problème de livraison ou qualité' },
