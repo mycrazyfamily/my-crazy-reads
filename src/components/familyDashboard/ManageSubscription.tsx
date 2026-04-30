@@ -387,6 +387,9 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
                       <TooltipContent>Bientôt disponible</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  <p className="text-xs text-muted-foreground text-center mt-2 italic">
+                    Bientôt disponible
+                  </p>
                 </div>
                 <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center pt-4">
                   <Button
