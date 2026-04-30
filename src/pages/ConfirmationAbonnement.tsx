@@ -55,7 +55,7 @@ const ConfirmationAbonnement: React.FC = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold mt-1">✨</span>
-                <span>Préparez vos personnages ! Rendez-vous dans l'espace famille pour configurer vos héros avant le 15 du mois</span>
+                <span>Préparez vos personnages ! Rendez-vous dans l'espace famille pour configurer vos héros avant le 20 du mois</span>
               </li>
             </ul>
           </div>
