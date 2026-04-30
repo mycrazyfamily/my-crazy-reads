@@ -5,23 +5,14 @@ import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { getFirstDeliveryMonth } from '@/utils/deliveryMonth';
 
 const ConfirmationAbonnement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { refreshSubscription, user } = useAuth();
 
-  const getDeliveryMonth = () => {
-    const today = new Date();
-    const cutoffDay = 20;
-    let deliveryDate = new Date(today);
-    if (today.getDate() > cutoffDay) {
-      deliveryDate.setMonth(today.getMonth() + 1);
-    }
-    return deliveryDate.toLocaleDateString('fr-FR', { month: 'long' });
-  };
-
-  const deliveryMonth = getDeliveryMonth();
+  const deliveryMonth = getFirstDeliveryMonth();
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -45,7 +36,7 @@ const ConfirmationAbonnement: React.FC = () => {
           </h1>
           
           <p className="text-xl text-gray-700 mb-8">
-            Votre premier livre arrive en {deliveryMonth} ! 🎉
+            Votre premier livre sera livré début {deliveryMonth} 🎉
           </p>
           
           <div className="bg-mcf-mint/20 rounded-lg p-6 mb-8">
@@ -60,7 +51,7 @@ const ConfirmationAbonnement: React.FC = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold mt-1">📖</span>
-                <span>Votre premier livre personnalisé est prévu pour {deliveryMonth} — il sera créé entre le 15 et le 25 du mois puis expédié le 25</span>
+                <span>Votre premier livre sera livré début {deliveryMonth}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold mt-1">✨</span>
