@@ -204,6 +204,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellation_feedback: {
+        Row: {
+          child_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string
+          reason: string | null
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          child_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          child_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           created_at: string | null

@@ -6,8 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
-import { Calendar, CreditCard, FileText, Trash2, Loader2 } from 'lucide-react';
+import { Calendar, CreditCard, FileText, Trash2, Loader2, RefreshCw, PauseCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Dialog,
   DialogContent,
@@ -40,6 +44,35 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
   const [loadingSubs, setLoadingSubs] = useState(true);
   const [cancelTarget, setCancelTarget] = useState<StripeSubscriptionItem | null>(null);
   const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [cancelStep, setCancelStep] = useState<'pause' | 'reasons'>('pause');
+  const [cancelReason, setCancelReason] = useState<string>('');
+  const [cancelComment, setCancelComment] = useState<string>('');
+
+  const CANCEL_REASONS = [
+    { value: 'price_too_high', label: 'Le tarif est trop élevé' },
+    { value: 'child_grew_up', label: 'Mon enfant a grandi' },
+    { value: 'stories_mismatch', label: 'Ne correspondent pas' },
+    { value: 'too_many_books', label: 'Nous avons trop de livres' },
+    { value: 'temporary_pause', label: 'Pause temporaire' },
+    { value: 'delivery_quality_issue', label: 'Problème de livraison ou qualité' },
+    { value: 'other', label: 'Autre raison' },
+  ];
+
+  const openCancelModal = (sub: StripeSubscriptionItem) => {
+    setCancelTarget(sub);
+    setCancelStep('pause');
+    setCancelReason('');
+    setCancelComment('');
+  };
+
+  const closeCancelModal = () => {
+    if (cancelingId) return;
+    setCancelTarget(null);
+    setCancelStep('pause');
+    setCancelReason('');
+    setCancelComment('');
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -107,7 +140,11 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
     setCancelingId(sub.subscription_id);
     try {
       const { data, error } = await supabase.functions.invoke('cancel-subscription', {
-        body: { subscription_id: sub.subscription_id },
+        body: {
+          subscription_id: sub.subscription_id,
+          reason: cancelReason || null,
+          comment: cancelComment || null,
+        },
         headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
       });
       if (error || (data as any)?.error) {
@@ -129,15 +166,50 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
       const dateStr = formatDate(cancelAt);
       toast.success(
         childName
-          ? `L'abonnement de ${childName} prendra fin le ${dateStr}`
-          : `L'abonnement prendra fin le ${dateStr}`
+          ? `L'abonnement de ${childName} prendra fin le ${dateStr}. Merci pour votre confiance.`
+          : `L'abonnement prendra fin le ${dateStr}. Merci pour votre confiance.`
       );
       setCancelTarget(null);
+      setCancelStep('pause');
+      setCancelReason('');
+      setCancelComment('');
     } catch (e) {
       console.error(e);
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setCancelingId(null);
+    }
+  };
+
+  const handleReactivate = async (sub: StripeSubscriptionItem) => {
+    if (!supabaseSession) return;
+    setReactivatingId(sub.subscription_id);
+    try {
+      const { data, error } = await supabase.functions.invoke('reactivate-subscription', {
+        body: { subscription_id: sub.subscription_id },
+        headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
+      });
+      if (error || (data as any)?.error) {
+        console.error('reactivate-subscription error:', error || (data as any)?.error);
+        toast.error("Une erreur est survenue lors de la réactivation.");
+        return;
+      }
+      setSubs((prev) =>
+        prev
+          ? prev.map((s) =>
+              s.subscription_id === sub.subscription_id ? { ...s, cancel_at: null } : s
+            )
+          : prev
+      );
+      const childName = findChildName(sub.child_id);
+      toast.success(
+        childName ? `L'abonnement de ${childName} a été réactivé` : `L'abonnement a été réactivé`
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setReactivatingId(null);
     }
   };
 
@@ -245,19 +317,35 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setCancelTarget(sub)}
-                    disabled={alreadyCanceled || isCanceling}
-                    className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center justify-center gap-2"
-                  >
-                    {isCanceling ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                    {alreadyCanceled ? 'Résiliation programmée' : "Résilier l'abonnement"}
-                  </Button>
+                  {alreadyCanceled ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleReactivate(sub)}
+                      disabled={reactivatingId === sub.subscription_id}
+                      className="w-full text-mcf-primary hover:text-mcf-primary-dark hover:bg-blue-50 flex items-center justify-center gap-2"
+                    >
+                      {reactivatingId === sub.subscription_id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      Réactiver l'abonnement
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      onClick={() => openCancelModal(sub)}
+                      disabled={isCanceling}
+                      className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center justify-center gap-2"
+                    >
+                      {isCanceling ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Résilier l'abonnement
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -266,33 +354,107 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
       </div>
     </div>
 
-    <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && !cancelingId && setCancelTarget(null)}>
-      <DialogContent>
+    <Dialog open={!!cancelTarget} onOpenChange={(open) => !open && closeCancelModal()}>
+      <DialogContent className="max-w-lg">
         {cancelTarget && (() => {
           const name = findChildName(cancelTarget.child_id) || 'cet enfant';
-          const endDate = formatDate(cancelTarget.subscription_end);
           const isBusy = cancelingId === cancelTarget.subscription_id;
+
+          if (cancelStep === 'pause') {
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-xl">Nous sommes tristes de vous voir partir 🥺</DialogTitle>
+                  <DialogDescription className="pt-3 text-base">
+                    Saviez-vous que vous pouvez mettre l'abonnement de {name} en pause ?
+                    Vous pourrez le réactiver à tout moment.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="pt-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-block w-full">
+                          <Button
+                            disabled
+                            className="w-full bg-mcf-primary/60 text-white cursor-not-allowed flex items-center gap-2"
+                          >
+                            <PauseCircle className="h-4 w-4" />
+                            Mettre en pause
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>Bientôt disponible</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center pt-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCancelStep('reasons')}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Je veux quand même résilier
+                  </Button>
+                  <Button
+                    onClick={closeCancelModal}
+                    size="lg"
+                    className="bg-mcf-primary hover:bg-mcf-primary-dark text-white text-base px-8"
+                  >
+                    Non, je reste
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          }
+
           return (
             <>
               <DialogHeader>
-                <DialogTitle>Résilier l'abonnement de {name}</DialogTitle>
+                <DialogTitle className="text-xl">Pouvez-vous nous dire pourquoi ?</DialogTitle>
                 <DialogDescription className="pt-2 text-base">
-                  Êtes-vous sûr ? {name} ne recevra plus ses aventures magiques.
-                  L'abonnement restera actif jusqu'au {endDate}.
+                  Votre retour nous aide à améliorer l'expérience de {name}.
                 </DialogDescription>
               </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <RadioGroup value={cancelReason} onValueChange={setCancelReason} className="gap-2">
+                  {CANCEL_REASONS.map((r) => (
+                    <div key={r.value} className="flex items-center space-x-2">
+                      <RadioGroupItem value={r.value} id={`reason-${r.value}`} />
+                      <Label htmlFor={`reason-${r.value}`} className="cursor-pointer font-normal">
+                        {r.label}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+
+                {cancelReason && (
+                  <div className="space-y-2">
+                    <Label htmlFor="cancel-comment" className="text-sm text-gray-600">
+                      Précisez (optionnel)
+                    </Label>
+                    <Textarea
+                      id="cancel-comment"
+                      value={cancelComment}
+                      onChange={(e) => setCancelComment(e.target.value)}
+                      placeholder={cancelReason === 'other' ? 'Dites-nous en plus…' : 'Un commentaire ?'}
+                      maxLength={1000}
+                    />
+                  </div>
+                )}
+              </div>
               <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-between sm:items-center pt-4">
                 <Button
                   variant="ghost"
                   onClick={handleConfirmCancel}
-                  disabled={isBusy}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  disabled={isBusy || !cancelReason}
+                  className="text-white bg-red-500 hover:bg-red-600 hover:text-white flex items-center gap-2"
                 >
                   {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Oui, résilier
+                  Confirmer la résiliation
                 </Button>
                 <Button
-                  onClick={() => setCancelTarget(null)}
+                  onClick={closeCancelModal}
                   disabled={isBusy}
                   size="lg"
                   className="bg-mcf-primary hover:bg-mcf-primary-dark text-white text-base px-8"

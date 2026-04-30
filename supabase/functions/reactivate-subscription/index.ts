@@ -9,7 +9,7 @@ const corsHeaders = {
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
-  console.log(`[CANCEL-SUBSCRIPTION] ${step}${detailsStr}`);
+  console.log(`[REACTIVATE-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
 const safeError = (msg: string) => {
@@ -26,7 +26,6 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
-
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
@@ -49,8 +48,6 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const subscriptionId = body?.subscription_id;
-    const reason = typeof body?.reason === "string" ? body.reason.slice(0, 200) : null;
-    const comment = typeof body?.comment === "string" ? body.comment.slice(0, 1000) : null;
     if (!subscriptionId || typeof subscriptionId !== "string" || !subscriptionId.startsWith("sub_")) {
       return new Response(JSON.stringify({ error: "Invalid subscription_id" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -60,7 +57,6 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Verify ownership: subscription's customer email must match the authenticated user
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
     const customer = await stripe.customers.retrieve(customerId);
@@ -71,22 +67,14 @@ serve(async (req) => {
     }
 
     const updated = await stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-      metadata: {
-        ...(reason ? { cancellation_reason: reason } : {}),
-        ...(comment ? { cancellation_comment: comment } : {}),
-      },
+      cancel_at_period_end: false,
     });
-    logStep("Subscription set to cancel at period end", { id: updated.id });
-
-    const cancelAt = updated.cancel_at
-      ? new Date(updated.cancel_at * 1000).toISOString()
-      : new Date(updated.current_period_end * 1000).toISOString();
+    logStep("Subscription reactivated", { id: updated.id });
 
     return new Response(JSON.stringify({
       success: true,
       subscription_id: updated.id,
-      cancel_at: cancelAt,
+      cancel_at: null,
       cancel_at_period_end: updated.cancel_at_period_end,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
