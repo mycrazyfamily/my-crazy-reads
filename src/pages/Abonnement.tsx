@@ -24,33 +24,6 @@ const Abonnement: React.FC = () => {
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
 
-  const getSubscriptionBanner = () => {
-    const today = new Date();
-    const day = today.getDate();
-    const cutoffDay = 20;
-
-    const currentMonth = today.toLocaleDateString('fr-FR', { month: 'long' });
-
-    const nextMonthDate = new Date(today);
-    nextMonthDate.setMonth(today.getMonth() + 1);
-    const nextMonth = nextMonthDate.toLocaleDateString('fr-FR', { month: 'long' });
-
-    if (day <= cutoffDay) {
-      return {
-        message: `Abonnez-vous aujourd'hui pour recevoir l'aventure du mois de ${currentMonth} ! 🎉`,
-        highlight: true,
-        nextMonth,
-      };
-    }
-    return {
-      message: `Les inscriptions pour ${currentMonth} sont closes mais vous pouvez dès à présent vous abonner pour sécuriser la place de votre enfant pour ${nextMonth} ! ✨`,
-      highlight: false,
-      nextMonth,
-    };
-  };
-
-  const banner = getSubscriptionBanner();
-  const isAfterCutoff = !banner.highlight;
   const firstDeliveryMonth = getFirstDeliveryMonth();
   
   // Assure que le user_profile possède bien un family_id si possible
@@ -244,17 +217,6 @@ const Abonnement: React.FC = () => {
               <p className="text-gray-700 text-xl font-medium">
                 Recevez chaque mois une histoire personnalisée pour votre enfant
               </p>
-            </div>
-
-            {/* Bannière dynamique selon date du jour */}
-            <div
-              className={`w-full rounded-xl p-4 mb-8 text-center font-medium border ${
-                banner.highlight
-                  ? 'bg-green-50 border-green-200 text-green-800'
-                  : 'bg-orange-50 border-orange-200 text-orange-800'
-              }`}
-            >
-              {banner.message}
             </div>
 
             {/* Sélection de l'enfant à abonner */}
