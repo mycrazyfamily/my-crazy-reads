@@ -49,6 +49,8 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const subscriptionId = body?.subscription_id;
+    const reason = typeof body?.reason === "string" ? body.reason.slice(0, 200) : null;
+    const comment = typeof body?.comment === "string" ? body.comment.slice(0, 1000) : null;
     if (!subscriptionId || typeof subscriptionId !== "string" || !subscriptionId.startsWith("sub_")) {
       return new Response(JSON.stringify({ error: "Invalid subscription_id" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -70,6 +72,10 @@ serve(async (req) => {
 
     const updated = await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
+      metadata: {
+        ...(reason ? { cancellation_reason: reason } : {}),
+        ...(comment ? { cancellation_comment: comment } : {}),
+      },
     });
     logStep("Subscription set to cancel at period end", { id: updated.id });
 
