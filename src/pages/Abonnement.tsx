@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { Sparkles, Gift, Check, Star, Heart, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { getFirstDeliveryMonth } from '@/utils/deliveryMonth';
 
 const Abonnement: React.FC = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const Abonnement: React.FC = () => {
 
   const banner = getSubscriptionBanner();
   const isAfterCutoff = !banner.highlight;
+  const firstDeliveryMonth = getFirstDeliveryMonth();
   
   // Assure que le user_profile possède bien un family_id si possible
   useFamilyIdSync();
