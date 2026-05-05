@@ -44,6 +44,7 @@ const Abonnement: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated, hasActiveSubscription, supabaseSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingChildren, setIsLoadingChildren] = useState(true);
   const [children, setChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [subscribedChildIds, setSubscribedChildIds] = useState<string[]>([]);
@@ -68,6 +69,7 @@ const Abonnement: React.FC = () => {
     const load = async () => {
       if (!isAuthenticated || !supabaseSession) {
         console.log('▶︎ Abonnement.load: not authenticated or no session');
+        setIsLoadingChildren(false);
         return;
       }
 
@@ -75,6 +77,7 @@ const Abonnement: React.FC = () => {
       console.log('▶︎ Abonnement.load: fetch user_profile and children for', userId);
 
       // 1) Charger les enfants (par user_id ET par family_id si dispo)
+      setIsLoadingChildren(true);
       try {
         const { data: userProfile, error: userProfileError } = await supabase
           .from('user_profiles')
@@ -123,6 +126,8 @@ const Abonnement: React.FC = () => {
       } catch (e) {
         console.error('❌ Abonnement.load: children load error', e);
         // Ne pas vider les enfants si une autre étape échoue
+      } finally {
+        setIsLoadingChildren(false);
       }
 
       // 2) Vérifier les abonnements actifs (enfant par enfant, si renvoyé)
@@ -273,7 +278,13 @@ const Abonnement: React.FC = () => {
                     </div>
                     <h2 className="text-2xl font-bold text-mcf-primary">Sélectionnez l'enfant à abonner</h2>
                   </div>
-                  {children.length === 0 ? (
+                  {isLoadingChildren ? (
+                    <div className="flex flex-wrap gap-3">
+                      {[0, 1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-12 w-32 rounded-full" />
+                      ))}
+                    </div>
+                  ) : children.length === 0 ? (
                     <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
                   ) : (
                     <div className="flex flex-wrap gap-3">
