@@ -9,7 +9,35 @@ import Footer from '../components/Footer';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { Sparkles, Gift, Check, Star, Heart, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getFirstDeliveryMonth } from '@/utils/deliveryMonth';
+
+const SUBSCRIPTION_CACHE_KEY = 'mcf_subscription_status';
+const SUBSCRIPTION_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const readSubscriptionCache = (userId: string): string[] | null => {
+  try {
+    const raw = sessionStorage.getItem(SUBSCRIPTION_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { userId: string; ids: string[]; ts: number };
+    if (parsed.userId !== userId) return null;
+    if (Date.now() - parsed.ts > SUBSCRIPTION_CACHE_TTL_MS) return null;
+    return Array.isArray(parsed.ids) ? parsed.ids : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeSubscriptionCache = (userId: string, ids: string[]) => {
+  try {
+    sessionStorage.setItem(
+      SUBSCRIPTION_CACHE_KEY,
+      JSON.stringify({ userId, ids, ts: Date.now() })
+    );
+  } catch {
+    /* ignore */
+  }
+};
 
 const Abonnement: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +47,7 @@ const Abonnement: React.FC = () => {
   const [children, setChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [subscribedChildIds, setSubscribedChildIds] = useState<string[]>([]);
+  const [isCheckingSubscriptions, setIsCheckingSubscriptions] = useState(false);
   
   const checkoutOpeningRef = useRef(false);
   
@@ -97,23 +126,38 @@ const Abonnement: React.FC = () => {
       }
 
       // 2) Vérifier les abonnements actifs (enfant par enfant, si renvoyé)
+      const cached = readSubscriptionCache(userId);
+      if (cached) {
+        console.log('▶︎ Abonnement.load: using cached subscription status', cached);
+        setSubscribedChildIds(cached);
+        setIsCheckingSubscriptions(false);
+      } else {
+        setIsCheckingSubscriptions(true);
+      }
+
       try {
         const { data: subData, error: subError } = await supabase.functions.invoke('check-subscription', {
           headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
         });
         if (subError) {
           console.error('❌ Abonnement.load: check-subscription error', subError);
-          setSubscribedChildIds([]);
+          if (!cached) setSubscribedChildIds([]);
         } else {
           const ids = Array.isArray(subData?.subscriptions)
             ? subData.subscriptions.map((s: any) => s?.child_id).filter(Boolean)
             : [];
           console.log('▶︎ Abonnement.load: subscriptions child_ids', ids);
-          setSubscribedChildIds(ids);
+          writeSubscriptionCache(userId, ids);
+          setSubscribedChildIds((prev) => {
+            const same = prev.length === ids.length && prev.every((id) => ids.includes(id));
+            return same ? prev : ids;
+          });
         }
       } catch (e) {
         console.error('❌ Abonnement.load: subscription check error', e);
-        setSubscribedChildIds([]);
+        if (!cached) setSubscribedChildIds([]);
+      } finally {
+        setIsCheckingSubscriptions(false);
       }
     };
     load();
@@ -233,7 +277,14 @@ const Abonnement: React.FC = () => {
                     <p className="text-muted-foreground">Vous n'avez pas encore ajouté d'enfant.</p>
                   ) : (
                     <div className="flex flex-wrap gap-3">
-                      {children.map((c) => {
+                      {isCheckingSubscriptions && subscribedChildIds.length === 0
+                        ? children.map((c) => (
+                            <Skeleton
+                              key={c.id}
+                              className="h-12 w-32 rounded-full"
+                            />
+                          ))
+                        : children.map((c) => {
                         const isSubscribed = subscribedChildIds.includes(c.id);
                         const isSelected = selectedChildId === c.id;
                         const baseClasses = isSubscribed
