@@ -32,7 +32,7 @@ const ConfirmationAbonnement: React.FC = () => {
           </div>
           
           <h1 className="text-4xl font-bold mb-4 text-mcf-primary">
-            Félicitations ! 🎉
+            Félicitations !
           </h1>
           
           <p className="text-xl text-gray-700 mb-8">
