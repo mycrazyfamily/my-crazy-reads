@@ -884,15 +884,86 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       ? months.find((m) => m.monthIndex === focusedMonthIndex) ?? null
       : null;
 
-  const handleWizardComplete = () => {
-    if (focusedMonthIndex === null) return;
-    if (activeFlow === 'custom') {
-      toast.success('Votre idée a bien été enregistrée ! 🎉');
-      setFocusedMonthIndex(null);
+  // 3. Save mutation
+  const { mutate: saveChoice, isPending: isSaving } = useSaveBookChoice(activeChildId);
+
+  // 4. Build characters list from real family data
+  const wizardCharacters: WizardCharacter[] = useMemo(() => {
+    if (!activeChild) return [];
+    const child: WizardCharacter = {
+      type: 'child',
+      id: activeChild.id,
+      name: activeChild.firstName,
+      emoji: '🧒',
+      locked: true,
+    };
+    const members: WizardCharacter[] = (activeChild.relatives ?? []).map((m: any) => {
+      const role = (m.type ?? '').toLowerCase();
+      const emoji =
+        role.includes('maman') || role === 'mere' || role === 'mère'
+          ? '👩'
+          : role.includes('papa') || role === 'pere' || role === 'père'
+          ? '👨'
+          : role.includes('mamie') || role.includes('grand-mère') || role.includes('grand-mere')
+          ? '👵'
+          : role.includes('papi') || role.includes('grand-père') || role.includes('grand-pere')
+          ? '👴'
+          : role.includes('frère') || role.includes('frere')
+          ? '👦'
+          : role.includes('sœur') || role.includes('soeur')
+          ? '👧'
+          : '👤';
+      return {
+        type: 'family_member',
+        id: m.id,
+        name: m.nickname || m.firstName || 'Proche',
+        emoji,
+      };
+    });
+    const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => ({
+      type: 'pet',
+      id: p.id,
+      name: p.name || 'Animal',
+      emoji: p.emoji || '🐾',
+    }));
+    return [child, ...members, ...pets];
+  }, [activeChild]);
+
+  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => {
+    if (!focusedMonth?.bookRequestId) {
+      toast.error('Livre introuvable, réessaie.');
       return;
     }
-    toast.success('Livre configuré ! 🎉');
-    setFocusedMonthIndex(null);
+    const themeType: 'standard' | 'substitute' | 'original' =
+      activeFlow === 'custom' ? 'original' : activeFlow === 'special' ? 'substitute' : 'standard';
+
+    saveChoice(
+      {
+        bookRequestId: focusedMonth.bookRequestId,
+        selectedThemeType: themeType,
+        selectedCharacters: payload.selectedCharacters,
+        originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
+      },
+      {
+        onSuccess: () => {
+          setWizardOpen(false);
+          setFocusedMonthIndex(null);
+          if (themeType === 'original') {
+            toast.success('Votre idée a bien été enregistrée ! 🎉');
+          } else {
+            toast.success('Livre configuré ! 🎉');
+          }
+        },
+        onError: (err: any) => {
+          const msg = (err?.message || '').toLowerCase();
+          if (msg.includes('locked') || msg.includes('deadline')) {
+            toast.error('La deadline est dépassée, ce livre ne peut plus être modifié.');
+          } else {
+            toast.error('Une erreur est survenue, réessaie.');
+          }
+        },
+      }
+    );
   };
 
   const wizardBookTitle = (() => {
@@ -1044,9 +1115,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
-        onComplete={handleWizardComplete}
         flow={activeFlow}
         bookTitle={wizardBookTitle}
+        characters={wizardCharacters}
+        isSaving={isSaving}
+        onSubmit={handleWizardSubmit}
       />
 
       {/* Theme selection sheet */}
