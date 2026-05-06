@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
 import { useBookTimeline, type BookTimelineRow } from '@/hooks/useBookTimeline';
+import { useSaveBookChoice, type CharacterChoice } from '@/hooks/useSaveBookChoice';
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -54,6 +55,7 @@ interface MockMonth {
   hasSpecialOption?: boolean;
   specialOptionTitle?: string;
   specialOptionSubtitle?: string;
+  bookRequestId?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -224,6 +226,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
     bookTags: [],
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
+    bookRequestId: row.book_request_id,
   };
 }
 
@@ -231,41 +234,71 @@ function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
 
 type FlowType = 'monthly' | 'special' | 'custom';
 
+interface WizardCharacter {
+  type: 'child' | 'family_member' | 'pet';
+  id: string;
+  name: string;
+  emoji: string;
+  locked?: boolean; // locked = always selected, cannot be unchecked
+}
+
 interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
-  onComplete: () => void;
   flow: FlowType;
   bookTitle: string;
+  characters: WizardCharacter[];
+  isSaving: boolean;
+  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete, flow, bookTitle }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
-  const [selected, setSelected] = useState<string[]>(['maman', 'papa']);
+  const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [customStory, setCustomStory] = useState('');
 
+  // When the wizard opens or characters change, pre-select locked ones (the child)
+  React.useEffect(() => {
+    if (open) {
+      const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
+      setSelected(lockedIds);
+      setStep(1);
+      setNote('');
+      setCustomStory('');
+    }
+  }, [open, characters]);
+
   const reset = () => {
     setStep(1);
-    setSelected(['maman', 'papa']);
+    setSelected(characters.filter((c) => c.locked).map((c) => c.id));
     setNote('');
     setCustomStory('');
   };
 
   const handleClose = (o: boolean) => {
+    if (!o && isSaving) return; // block close while saving
     if (!o) reset();
     onOpenChange(o);
   };
 
   const toggle = (id: string) => {
+    const target = characters.find((c) => c.id === id);
+    if (target?.locked) return;
     setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   const handleValidate = () => {
-    onComplete();
-    handleClose(false);
+    const selectedChars: CharacterChoice[] = characters
+      .filter((c) => selected.includes(c.id))
+      .map((c) => ({ type: c.type, id: c.id, name: c.name }));
+    onSubmit({
+      selectedCharacters: selectedChars,
+      storyIdea: isCustom ? customStory.trim() : undefined,
+      note: !isCustom ? note.trim() || undefined : undefined,
+    });
   };
 
   const isCustom = flow === 'custom';
@@ -347,17 +380,20 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </p>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {MOCK_CHARACTERS.map((c) => {
+            {characters.map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => toggle(c.id)}
+                  disabled={c.locked}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                    cursor: c.locked ? 'not-allowed' : 'pointer',
+                    opacity: 1,
                   }}
                 >
                   <span className="text-3xl">{c.emoji}</span>
@@ -365,7 +401,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {c.label}
+                    {c.name}
                   </span>
                 </button>
               );
@@ -393,17 +429,19 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </p>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {MOCK_CHARACTERS.map((c) => {
+            {characters.map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => toggle(c.id)}
+                  disabled={c.locked}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                    cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
                   <span className="text-3xl">{c.emoji}</span>
@@ -411,7 +449,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {c.label}
+                    {c.name}
                   </span>
                 </button>
               );
@@ -419,15 +457,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleValidate} className="flex-1">
+            <Button variant="outline" onClick={handleValidate} disabled={isSaving} className="flex-1">
               Passer
             </Button>
             <Button
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              {validateLabel}
+              {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
         </>
@@ -453,16 +492,18 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
             <Button
               variant="outline"
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1"
             >
               Passer
             </Button>
             <Button
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              {validateLabel}
+              {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
         </>
@@ -843,15 +884,86 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       ? months.find((m) => m.monthIndex === focusedMonthIndex) ?? null
       : null;
 
-  const handleWizardComplete = () => {
-    if (focusedMonthIndex === null) return;
-    if (activeFlow === 'custom') {
-      toast.success('Votre idée a bien été enregistrée ! 🎉');
-      setFocusedMonthIndex(null);
+  // 3. Save mutation
+  const { mutate: saveChoice, isPending: isSaving } = useSaveBookChoice(activeChildId);
+
+  // 4. Build characters list from real family data
+  const wizardCharacters: WizardCharacter[] = useMemo(() => {
+    if (!activeChild) return [];
+    const child: WizardCharacter = {
+      type: 'child',
+      id: activeChild.id,
+      name: activeChild.firstName,
+      emoji: '🧒',
+      locked: true,
+    };
+    const members: WizardCharacter[] = (activeChild.relatives ?? []).map((m: any) => {
+      const role = (m.type ?? '').toLowerCase();
+      const emoji =
+        role.includes('maman') || role === 'mere' || role === 'mère'
+          ? '👩'
+          : role.includes('papa') || role === 'pere' || role === 'père'
+          ? '👨'
+          : role.includes('mamie') || role.includes('grand-mère') || role.includes('grand-mere')
+          ? '👵'
+          : role.includes('papi') || role.includes('grand-père') || role.includes('grand-pere')
+          ? '👴'
+          : role.includes('frère') || role.includes('frere')
+          ? '👦'
+          : role.includes('sœur') || role.includes('soeur')
+          ? '👧'
+          : '👤';
+      return {
+        type: 'family_member',
+        id: m.id,
+        name: m.nickname || m.firstName || 'Proche',
+        emoji,
+      };
+    });
+    const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => ({
+      type: 'pet',
+      id: p.id,
+      name: p.name || 'Animal',
+      emoji: p.emoji || '🐾',
+    }));
+    return [child, ...members, ...pets];
+  }, [activeChild]);
+
+  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => {
+    if (!focusedMonth?.bookRequestId) {
+      toast.error('Livre introuvable, réessaie.');
       return;
     }
-    toast.success('Livre configuré ! 🎉');
-    setFocusedMonthIndex(null);
+    const themeType: 'standard' | 'substitute' | 'original' =
+      activeFlow === 'custom' ? 'original' : activeFlow === 'special' ? 'substitute' : 'standard';
+
+    saveChoice(
+      {
+        bookRequestId: focusedMonth.bookRequestId,
+        selectedThemeType: themeType,
+        selectedCharacters: payload.selectedCharacters,
+        originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
+      },
+      {
+        onSuccess: () => {
+          setWizardOpen(false);
+          setFocusedMonthIndex(null);
+          if (themeType === 'original') {
+            toast.success('Votre idée a bien été enregistrée ! 🎉');
+          } else {
+            toast.success('Livre configuré ! 🎉');
+          }
+        },
+        onError: (err: any) => {
+          const msg = (err?.message || '').toLowerCase();
+          if (msg.includes('locked') || msg.includes('deadline')) {
+            toast.error('La deadline est dépassée, ce livre ne peut plus être modifié.');
+          } else {
+            toast.error('Une erreur est survenue, réessaie.');
+          }
+        },
+      }
+    );
   };
 
   const wizardBookTitle = (() => {
@@ -1003,9 +1115,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
-        onComplete={handleWizardComplete}
         flow={activeFlow}
         bookTitle={wizardBookTitle}
+        characters={wizardCharacters}
+        isSaving={isSaving}
+        onSubmit={handleWizardSubmit}
       />
 
       {/* Theme selection sheet */}
