@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
 import { useBookTimeline, type BookTimelineRow } from '@/hooks/useBookTimeline';
+import { useSaveBookChoice, type CharacterChoice } from '@/hooks/useSaveBookChoice';
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -54,6 +55,7 @@ interface MockMonth {
   hasSpecialOption?: boolean;
   specialOptionTitle?: string;
   specialOptionSubtitle?: string;
+  bookRequestId?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
