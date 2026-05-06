@@ -599,7 +599,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="hidden sm:block text-sm text-muted-foreground truncate max-w-[180px] md:max-w-[260px]">
+            <span className={`hidden sm:block text-sm truncate max-w-[180px] md:max-w-[260px] ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-muted-foreground'}`}>
               {month.bookTitle}
             </span>
             {showConfigureButton ? (
@@ -619,7 +619,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
         </div>
 
         {/* Mobile-only book title line */}
-        <p className="sm:hidden text-sm text-muted-foreground truncate mb-1">
+        <p className={`sm:hidden text-sm truncate mb-1 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-muted-foreground'}`}>
           {month.bookTitle}
         </p>
 
@@ -632,14 +632,16 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
             </>
           )}
           {month.status === 'configured' && (
-            <span>Personnalisé le {month.configuredOn} · {month.configuredCharacters?.join(', ')}</span>
+            <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
           )}
           {month.status === 'in_creation' && <span>Livre en cours de génération</span>}
           {month.status === 'in_printing' && <span>Livraison prévue le {month.deliveryShort}</span>}
+          {month.status === 'shipped' && <span>Votre livre est en route</span>}
+          {month.status === 'delivered' && <span>Votre livre est arrivé</span>}
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>Livraison prévue le {month.deliveryShort}</span>
+              <span>{month.deadline ? `Deadline : ${month.deadline} — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
