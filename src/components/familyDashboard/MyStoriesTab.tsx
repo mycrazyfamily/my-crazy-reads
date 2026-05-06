@@ -626,3 +626,5 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
     </div>
   );
 };
+
+export default MyStoriesTab;
