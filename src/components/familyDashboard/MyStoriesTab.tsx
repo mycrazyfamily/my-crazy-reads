@@ -234,41 +234,71 @@ function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
 
 type FlowType = 'monthly' | 'special' | 'custom';
 
+interface WizardCharacter {
+  type: 'child' | 'family_member' | 'pet';
+  id: string;
+  name: string;
+  emoji: string;
+  locked?: boolean; // locked = always selected, cannot be unchecked
+}
+
 interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
-  onComplete: () => void;
   flow: FlowType;
   bookTitle: string;
+  characters: WizardCharacter[];
+  isSaving: boolean;
+  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete, flow, bookTitle }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
-  const [selected, setSelected] = useState<string[]>(['maman', 'papa']);
+  const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [customStory, setCustomStory] = useState('');
 
+  // When the wizard opens or characters change, pre-select locked ones (the child)
+  React.useEffect(() => {
+    if (open) {
+      const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
+      setSelected(lockedIds);
+      setStep(1);
+      setNote('');
+      setCustomStory('');
+    }
+  }, [open, characters]);
+
   const reset = () => {
     setStep(1);
-    setSelected(['maman', 'papa']);
+    setSelected(characters.filter((c) => c.locked).map((c) => c.id));
     setNote('');
     setCustomStory('');
   };
 
   const handleClose = (o: boolean) => {
+    if (!o && isSaving) return; // block close while saving
     if (!o) reset();
     onOpenChange(o);
   };
 
   const toggle = (id: string) => {
+    const target = characters.find((c) => c.id === id);
+    if (target?.locked) return;
     setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   const handleValidate = () => {
-    onComplete();
-    handleClose(false);
+    const selectedChars: CharacterChoice[] = characters
+      .filter((c) => selected.includes(c.id))
+      .map((c) => ({ type: c.type, id: c.id, name: c.name }));
+    onSubmit({
+      selectedCharacters: selectedChars,
+      storyIdea: isCustom ? customStory.trim() : undefined,
+      note: !isCustom ? note.trim() || undefined : undefined,
+    });
   };
 
   const isCustom = flow === 'custom';
@@ -350,17 +380,20 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </p>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {MOCK_CHARACTERS.map((c) => {
+            {characters.map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => toggle(c.id)}
+                  disabled={c.locked}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                    cursor: c.locked ? 'not-allowed' : 'pointer',
+                    opacity: 1,
                   }}
                 >
                   <span className="text-3xl">{c.emoji}</span>
@@ -368,7 +401,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {c.label}
+                    {c.name}
                   </span>
                 </button>
               );
@@ -396,17 +429,19 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </p>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {MOCK_CHARACTERS.map((c) => {
+            {characters.map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => toggle(c.id)}
+                  disabled={c.locked}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                    cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
                   <span className="text-3xl">{c.emoji}</span>
@@ -414,7 +449,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {c.label}
+                    {c.name}
                   </span>
                 </button>
               );
@@ -422,15 +457,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleValidate} className="flex-1">
+            <Button variant="outline" onClick={handleValidate} disabled={isSaving} className="flex-1">
               Passer
             </Button>
             <Button
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              {validateLabel}
+              {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
         </>
@@ -456,16 +492,18 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
             <Button
               variant="outline"
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1"
             >
               Passer
             </Button>
             <Button
               onClick={handleValidate}
+              disabled={isSaving}
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              {validateLabel}
+              {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
         </>
