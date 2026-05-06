@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
-import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight } from 'lucide-react';
+import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -39,6 +39,9 @@ interface MockMonth {
   daysLeft?: number;
   configuredOn?: string;
   configuredCharacters?: string[];
+  hasSpecialOption?: boolean;
+  specialOptionTitle?: string;
+  specialOptionSubtitle?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -53,6 +56,9 @@ const MOCK_MONTHS: MockMonth[] = [
     bookTags: ['32 pages', '6–7 ans', 'Résolution de problème'],
     deadline: '20 mai',
     daysLeft: 14,
+    hasSpecialOption: true,
+    specialOptionTitle: "L'anniversaire de Jules",
+    specialOptionSubtitle: "Jules fête ses 8 ans en juin — on lui dédie ce livre !",
   },
   {
     monthIndex: 1,
@@ -156,23 +162,29 @@ const PRIMARY_VIOLET = '#534AB7';
 
 // ---------- Wizard ----------
 
+type FlowType = 'monthly' | 'special' | 'custom';
+
 interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
   onComplete: () => void;
+  flow: FlowType;
+  bookTitle: string;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete, flow, bookTitle }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>(['maman', 'papa']);
   const [note, setNote] = useState('');
+  const [customStory, setCustomStory] = useState('');
 
   const reset = () => {
     setStep(1);
     setSelected(['maman', 'papa']);
     setNote('');
+    setCustomStory('');
   };
 
   const handleClose = (o: boolean) => {
@@ -189,8 +201,23 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
     handleClose(false);
   };
 
+  const isCustom = flow === 'custom';
+  const charactersStepTitle = isCustom
+    ? `Qui est dans cette histoire ?`
+    : `Qui accompagne ${childName} dans ${bookTitle} ?`;
+  const validateLabel = isCustom ? '✨ Valider mon histoire inédite' : '✨ Valider mon livre';
+
   const Content = (
-    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6">
+    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+        aria-label="Fermer"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-2 mb-6">
         <div
@@ -209,10 +236,44 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
         />
       </div>
 
-      {step === 1 && (
+      {/* Custom flow: step 1 = story idea */}
+      {isCustom && step === 1 && (
         <>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
-            Qui accompagne {childName} dans cette aventure ?
+            Quelle aventure imaginez-vous pour {childName} ?
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Décrivez librement — le lieu, les personnages, l'ambiance, un souvenir… On s'occupe du reste.
+          </p>
+
+          <div className="relative mb-6">
+            <Textarea
+              value={customStory}
+              onChange={(e) => setCustomStory(e.target.value)}
+              placeholder={`Ex : ${childName} part explorer une grotte sous-marine avec son grand-père, elle découvre un coffre rempli de photos de famille…`}
+              className="min-h-40"
+            />
+            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
+              {customStory.length} / 30
+            </div>
+          </div>
+
+          <Button
+            onClick={() => setStep(2)}
+            disabled={customStory.trim().length < 30}
+            className="w-full text-white hover:opacity-90 disabled:opacity-50"
+            style={{ backgroundColor: PRIMARY_VIOLET }}
+          >
+            Suivant →
+          </Button>
+        </>
+      )}
+
+      {/* Standard flow: step 1 = characters */}
+      {!isCustom && step === 1 && (
+        <>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            {charactersStepTitle}
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
             Sélectionne les personnages qui apparaîtront dans le livre
@@ -254,7 +315,58 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
         </>
       )}
 
-      {step === 2 && (
+      {/* Step 2 — custom: characters; standard: note */}
+      {isCustom && step === 2 && (
+        <>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            {charactersStepTitle}
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Sélectionne les personnages qui apparaîtront dans le livre
+          </p>
+
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            {MOCK_CHARACTERS.map((c) => {
+              const isSel = selected.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => toggle(c.id)}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
+                  style={{
+                    borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                    backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                  }}
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                  >
+                    {c.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleValidate} className="flex-1">
+              Passer
+            </Button>
+            <Button
+              onClick={handleValidate}
+              className="flex-1 text-white hover:opacity-90"
+              style={{ backgroundColor: PRIMARY_VIOLET }}
+            >
+              {validateLabel}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {!isCustom && step === 2 && (
         <>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
             Une note pour nous ?
@@ -283,7 +395,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              ✨ Valider mon livre
+              {validateLabel}
             </Button>
           </div>
         </>
@@ -317,9 +429,10 @@ interface FocusViewProps {
   childName: string;
   onBack: () => void;
   onConfigure: () => void;
+  onChooseTheme: () => void;
 }
 
-const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure }) => {
+const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure, onChooseTheme }) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <button
@@ -375,7 +488,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
 
               <button
                 type="button"
-                onClick={() => alert('Fonctionnalité à venir')}
+                onClick={onChooseTheme}
                 className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
               >
                 Choisir un autre thème pour ce mois
@@ -470,6 +583,154 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
 
 // ---------- Main component ----------
 
+// ---------- Theme selection sheet ----------
+
+interface ThemeSelectionSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  month: MockMonth | null;
+  childName: string;
+  onChoose: (flow: FlowType) => void;
+}
+
+const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose }) => {
+  const isMobile = useIsMobile();
+  const [selected, setSelected] = useState<FlowType>('monthly');
+
+  React.useEffect(() => {
+    if (open) setSelected('monthly');
+  }, [open]);
+
+  if (!month) return null;
+
+  const handleClose = (o: boolean) => onOpenChange(o);
+
+  const handleContinue = () => {
+    onChoose(selected);
+  };
+
+  const OptionCard: React.FC<{
+    value: FlowType;
+    icon: string;
+    label: string;
+    badge?: string;
+    title?: string;
+    description: string;
+  }> = ({ value, icon, label, badge, title, description }) => {
+    const isSel = selected === value;
+    return (
+      <button
+        type="button"
+        onClick={() => setSelected(value)}
+        className="w-full text-left p-4 rounded-xl border-2 transition-all"
+        style={{
+          borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+          backgroundColor: isSel ? `${PRIMARY_VIOLET}0D` : 'white',
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <span className="text-2xl flex-shrink-0">{icon}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="text-sm font-semibold text-foreground">{label}</span>
+              {badge && (
+                <span
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, color: PRIMARY_VIOLET }}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
+            {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
+            <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+  const Content = (
+    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+        aria-label="Fermer"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
+      <h3 className="text-xl font-bold text-foreground text-center mb-1 mt-2">
+        Choisir le thème de ce livre
+      </h3>
+      <p className="text-sm text-muted-foreground text-center mb-6">
+        Ce choix remplacera le livre prévu pour ce mois
+      </p>
+
+      <div className="space-y-3 mb-6">
+        <OptionCard
+          value="monthly"
+          icon="📖"
+          label="Livre du mois"
+          badge="Recommandé par MCF"
+          title={month.bookTitle}
+          description={month.bookSummary}
+        />
+
+        {month.hasSpecialOption && (
+          <OptionCard
+            value="special"
+            icon="🎉"
+            label="Option spéciale MCF"
+            title={month.specialOptionTitle}
+            description={month.specialOptionSubtitle ?? ''}
+          />
+        )}
+
+        <OptionCard
+          value="custom"
+          icon="✨"
+          label="Histoire inédite"
+          description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
+        />
+      </div>
+
+      <Button
+        onClick={handleContinue}
+        className="w-full text-white hover:opacity-90"
+        style={{ backgroundColor: PRIMARY_VIOLET }}
+      >
+        Continuer avec ce choix →
+      </Button>
+
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="block mx-auto mt-3 text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+      >
+        Annuler
+      </button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={handleClose}>
+        <DrawerContent className="bg-white">{Content}</DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="bg-white max-w-md p-0">{Content}</DialogContent>
+    </Dialog>
+  );
+};
+
+// ---------- Main component ----------
+
 const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   // Fallback children for mock if none provided
   const fallbackChildren: Child[] = [
@@ -487,6 +748,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   const [months, setMonths] = useState<MockMonth[]>(MOCK_MONTHS);
   const [focusedMonthIndex, setFocusedMonthIndex] = useState<number | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [themeSheetOpen, setThemeSheetOpen] = useState(false);
+  const [activeFlow, setActiveFlow] = useState<FlowType>('monthly');
 
   const focusedMonth = focusedMonthIndex !== null
     ? months.find(m => m.monthIndex === focusedMonthIndex) ?? null
@@ -496,15 +759,27 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
 
   const handleWizardComplete = () => {
     if (focusedMonthIndex === null) return;
+    if (activeFlow === 'custom') {
+      toast.success('Votre idée a bien été enregistrée ! 🎉');
+      setFocusedMonthIndex(null);
+      return;
+    }
     setMonths(prev => prev.map(m => m.monthIndex === focusedMonthIndex ? {
       ...m,
       status: 'configured',
       configuredOn: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }),
       configuredCharacters: ['Maman', 'Papa'],
+      ...(activeFlow === 'special' && m.specialOptionTitle ? { bookTitle: m.specialOptionTitle } : {}),
     } : m));
     toast.success('Livre configuré ! 🎉');
     setFocusedMonthIndex(null);
   };
+
+  const wizardBookTitle = (() => {
+    if (!focusedMonth) return '';
+    if (activeFlow === 'special' && focusedMonth.specialOptionTitle) return focusedMonth.specialOptionTitle;
+    return focusedMonth.bookTitle;
+  })();
 
   return (
     <div className="space-y-6">
@@ -598,7 +873,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           month={focusedMonth}
           childName={activeChild?.firstName ?? ''}
           onBack={() => setFocusedMonthIndex(null)}
-          onConfigure={() => setWizardOpen(true)}
+          onConfigure={() => {
+            setActiveFlow('monthly');
+            setWizardOpen(true);
+          }}
+          onChooseTheme={() => setThemeSheetOpen(true)}
         />
       ) : (
         <div className="space-y-3 animate-fade-in">
@@ -622,6 +901,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
         onComplete={handleWizardComplete}
+        flow={activeFlow}
+        bookTitle={wizardBookTitle}
+      />
+
+      {/* Theme selection sheet */}
+      <ThemeSelectionSheet
+        open={themeSheetOpen}
+        onOpenChange={setThemeSheetOpen}
+        month={focusedMonth}
+        childName={activeChild?.firstName ?? ''}
+        onChoose={(flow) => {
+          setActiveFlow(flow);
+          setThemeSheetOpen(false);
+          setWizardOpen(true);
+        }}
       />
     </div>
   );
