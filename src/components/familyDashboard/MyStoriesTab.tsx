@@ -5,9 +5,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
+import { useBookTimeline, type BookTimelineRow } from '@/hooks/useBookTimeline';
+import { differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface Child {
   id: string;
@@ -18,12 +23,19 @@ interface Child {
 }
 
 interface MyStoriesTabProps {
-  children: Child[];
+  children?: Child[];
 }
 
 // ---------- Mock data ----------
 
-type MonthStatus = 'to_personalize' | 'configured' | 'in_creation' | 'in_printing' | 'to_plan';
+type MonthStatus =
+  | 'to_personalize'
+  | 'configured'
+  | 'in_creation'
+  | 'in_printing'
+  | 'shipped'
+  | 'delivered'
+  | 'to_plan';
 
 interface MockMonth {
   monthIndex: number;
@@ -153,6 +165,18 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
   to_plan: {
     label: 'À planifier',
     badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
+    borderClass: 'border-l-[3px] border-l-transparent',
+    secondaryClass: 'text-muted-foreground',
+  },
+  shipped: {
+    label: '🚚 Expédié',
+    badgeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+    borderClass: 'border-l-[3px] border-l-transparent',
+    secondaryClass: 'text-muted-foreground',
+  },
+  delivered: {
+    label: '✓ Livré',
+    badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     borderClass: 'border-l-[3px] border-l-transparent',
     secondaryClass: 'text-muted-foreground',
   },
