@@ -56,14 +56,19 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           delivery_month: string | null
+          fabrication_month: string | null
           family_id: string | null
           id: string
           is_active: boolean | null
+          is_original: boolean | null
           message: string
           original_theme_instructions: string | null
+          personalization_deadline: string | null
           request_type: string | null
           selected_characters: Json | null
+          selected_theme_id: string | null
           selected_theme_type: string | null
+          status: string | null
           theme_locked: boolean | null
           theme_locked_at: string | null
           title: string | null
@@ -74,14 +79,19 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           delivery_month?: string | null
+          fabrication_month?: string | null
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_original?: boolean | null
           message: string
           original_theme_instructions?: string | null
+          personalization_deadline?: string | null
           request_type?: string | null
           selected_characters?: Json | null
+          selected_theme_id?: string | null
           selected_theme_type?: string | null
+          status?: string | null
           theme_locked?: boolean | null
           theme_locked_at?: string | null
           title?: string | null
@@ -92,14 +102,19 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           delivery_month?: string | null
+          fabrication_month?: string | null
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_original?: boolean | null
           message?: string
           original_theme_instructions?: string | null
+          personalization_deadline?: string | null
           request_type?: string | null
           selected_characters?: Json | null
+          selected_theme_id?: string | null
           selected_theme_type?: string | null
+          status?: string | null
           theme_locked?: boolean | null
           theme_locked_at?: string | null
           title?: string | null
@@ -125,6 +140,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_requests_selected_theme_id_fkey"
+            columns: ["selected_theme_id"]
+            isOneToOne: false
+            referencedRelation: "story_themes"
             referencedColumns: ["id"]
           },
         ]
@@ -1749,6 +1771,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_book_requests_for_child: {
+        Args: { p_child_id: string; p_created_by: string; p_family_id: string }
+        Returns: undefined
+      }
       get_birthday_children_today: {
         Args: never
         Returns: {
@@ -1762,6 +1788,26 @@ export type Database = {
           id: string
           physical_details: Json
           user_id: string
+        }[]
+      }
+      get_child_book_timeline: {
+        Args: { p_child_id: string }
+        Returns: {
+          book_request_id: string
+          delivery_month: string
+          fabrication_month: string
+          is_original: boolean
+          original_theme_instructions: string
+          pdf_url: string
+          personalization_deadline: string
+          production_status: string
+          selected_characters: Json
+          selected_theme_type: string
+          status: string
+          theme_cast: Json
+          theme_logique: string
+          theme_resume: string
+          theme_titre: string
         }[]
       }
       get_substitutes: {
