@@ -429,9 +429,10 @@ interface FocusViewProps {
   childName: string;
   onBack: () => void;
   onConfigure: () => void;
+  onChooseTheme: () => void;
 }
 
-const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure }) => {
+const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure, onChooseTheme }) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <button
@@ -487,7 +488,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
 
               <button
                 type="button"
-                onClick={() => alert('Fonctionnalité à venir')}
+                onClick={onChooseTheme}
                 className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
               >
                 Choisir un autre thème pour ce mois
