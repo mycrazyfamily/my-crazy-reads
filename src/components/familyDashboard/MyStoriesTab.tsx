@@ -583,6 +583,154 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
 
 // ---------- Main component ----------
 
+// ---------- Theme selection sheet ----------
+
+interface ThemeSelectionSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  month: MockMonth | null;
+  childName: string;
+  onChoose: (flow: FlowType) => void;
+}
+
+const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose }) => {
+  const isMobile = useIsMobile();
+  const [selected, setSelected] = useState<FlowType>('monthly');
+
+  React.useEffect(() => {
+    if (open) setSelected('monthly');
+  }, [open]);
+
+  if (!month) return null;
+
+  const handleClose = (o: boolean) => onOpenChange(o);
+
+  const handleContinue = () => {
+    onChoose(selected);
+  };
+
+  const OptionCard: React.FC<{
+    value: FlowType;
+    icon: string;
+    label: string;
+    badge?: string;
+    title?: string;
+    description: string;
+  }> = ({ value, icon, label, badge, title, description }) => {
+    const isSel = selected === value;
+    return (
+      <button
+        type="button"
+        onClick={() => setSelected(value)}
+        className="w-full text-left p-4 rounded-xl border-2 transition-all"
+        style={{
+          borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+          backgroundColor: isSel ? `${PRIMARY_VIOLET}0D` : 'white',
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <span className="text-2xl flex-shrink-0">{icon}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="text-sm font-semibold text-foreground">{label}</span>
+              {badge && (
+                <span
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, color: PRIMARY_VIOLET }}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
+            {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
+            <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+          </div>
+        </div>
+      </button>
+    );
+  };
+
+  const Content = (
+    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+        aria-label="Fermer"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
+      <h3 className="text-xl font-bold text-foreground text-center mb-1 mt-2">
+        Choisir le thème de ce livre
+      </h3>
+      <p className="text-sm text-muted-foreground text-center mb-6">
+        Ce choix remplacera le livre prévu pour ce mois
+      </p>
+
+      <div className="space-y-3 mb-6">
+        <OptionCard
+          value="monthly"
+          icon="📖"
+          label="Livre du mois"
+          badge="Recommandé par MCF"
+          title={month.bookTitle}
+          description={month.bookSummary}
+        />
+
+        {month.hasSpecialOption && (
+          <OptionCard
+            value="special"
+            icon="🎉"
+            label="Option spéciale MCF"
+            title={month.specialOptionTitle}
+            description={month.specialOptionSubtitle ?? ''}
+          />
+        )}
+
+        <OptionCard
+          value="custom"
+          icon="✨"
+          label="Histoire inédite"
+          description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
+        />
+      </div>
+
+      <Button
+        onClick={handleContinue}
+        className="w-full text-white hover:opacity-90"
+        style={{ backgroundColor: PRIMARY_VIOLET }}
+      >
+        Continuer avec ce choix →
+      </Button>
+
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="block mx-auto mt-3 text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+      >
+        Annuler
+      </button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={handleClose}>
+        <DrawerContent className="bg-white">{Content}</DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="bg-white max-w-md p-0">{Content}</DialogContent>
+    </Dialog>
+  );
+};
+
+// ---------- Main component ----------
+
 const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   // Fallback children for mock if none provided
   const fallbackChildren: Child[] = [
@@ -600,6 +748,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   const [months, setMonths] = useState<MockMonth[]>(MOCK_MONTHS);
   const [focusedMonthIndex, setFocusedMonthIndex] = useState<number | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [themeSheetOpen, setThemeSheetOpen] = useState(false);
+  const [activeFlow, setActiveFlow] = useState<FlowType>('monthly');
 
   const focusedMonth = focusedMonthIndex !== null
     ? months.find(m => m.monthIndex === focusedMonthIndex) ?? null
@@ -609,15 +759,27 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
 
   const handleWizardComplete = () => {
     if (focusedMonthIndex === null) return;
+    if (activeFlow === 'custom') {
+      toast.success('Votre idée a bien été enregistrée ! 🎉');
+      setFocusedMonthIndex(null);
+      return;
+    }
     setMonths(prev => prev.map(m => m.monthIndex === focusedMonthIndex ? {
       ...m,
       status: 'configured',
       configuredOn: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }),
       configuredCharacters: ['Maman', 'Papa'],
+      ...(activeFlow === 'special' && m.specialOptionTitle ? { bookTitle: m.specialOptionTitle } : {}),
     } : m));
     toast.success('Livre configuré ! 🎉');
     setFocusedMonthIndex(null);
   };
+
+  const wizardBookTitle = (() => {
+    if (!focusedMonth) return '';
+    if (activeFlow === 'special' && focusedMonth.specialOptionTitle) return focusedMonth.specialOptionTitle;
+    return focusedMonth.bookTitle;
+  })();
 
   return (
     <div className="space-y-6">
@@ -711,7 +873,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           month={focusedMonth}
           childName={activeChild?.firstName ?? ''}
           onBack={() => setFocusedMonthIndex(null)}
-          onConfigure={() => setWizardOpen(true)}
+          onConfigure={() => {
+            setActiveFlow('monthly');
+            setWizardOpen(true);
+          }}
+          onChooseTheme={() => setThemeSheetOpen(true)}
         />
       ) : (
         <div className="space-y-3 animate-fade-in">
@@ -735,6 +901,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
         onComplete={handleWizardComplete}
+        flow={activeFlow}
+        bookTitle={wizardBookTitle}
+      />
+
+      {/* Theme selection sheet */}
+      <ThemeSelectionSheet
+        open={themeSheetOpen}
+        onOpenChange={setThemeSheetOpen}
+        month={focusedMonth}
+        childName={activeChild?.firstName ?? ''}
+        onChoose={(flow) => {
+          setActiveFlow(flow);
+          setThemeSheetOpen(false);
+          setWizardOpen(true);
+        }}
       />
     </div>
   );
