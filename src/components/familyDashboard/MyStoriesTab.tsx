@@ -162,23 +162,29 @@ const PRIMARY_VIOLET = '#534AB7';
 
 // ---------- Wizard ----------
 
+type FlowType = 'monthly' | 'special' | 'custom';
+
 interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
   onComplete: () => void;
+  flow: FlowType;
+  bookTitle: string;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComplete, flow, bookTitle }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>(['maman', 'papa']);
   const [note, setNote] = useState('');
+  const [customStory, setCustomStory] = useState('');
 
   const reset = () => {
     setStep(1);
     setSelected(['maman', 'papa']);
     setNote('');
+    setCustomStory('');
   };
 
   const handleClose = (o: boolean) => {
@@ -195,8 +201,23 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
     handleClose(false);
   };
 
+  const isCustom = flow === 'custom';
+  const charactersStepTitle = isCustom
+    ? `Qui est dans cette histoire ?`
+    : `Qui accompagne ${childName} dans ${bookTitle} ?`;
+  const validateLabel = isCustom ? '✨ Valider mon histoire inédite' : '✨ Valider mon livre';
+
   const Content = (
-    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6">
+    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
+      <button
+        type="button"
+        onClick={() => handleClose(false)}
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+        aria-label="Fermer"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-2 mb-6">
         <div
@@ -215,10 +236,44 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
         />
       </div>
 
-      {step === 1 && (
+      {/* Custom flow: step 1 = story idea */}
+      {isCustom && step === 1 && (
         <>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
-            Qui accompagne {childName} dans cette aventure ?
+            Quelle aventure imaginez-vous pour {childName} ?
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Décrivez librement — le lieu, les personnages, l'ambiance, un souvenir… On s'occupe du reste.
+          </p>
+
+          <div className="relative mb-6">
+            <Textarea
+              value={customStory}
+              onChange={(e) => setCustomStory(e.target.value)}
+              placeholder={`Ex : ${childName} part explorer une grotte sous-marine avec son grand-père, elle découvre un coffre rempli de photos de famille…`}
+              className="min-h-40"
+            />
+            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
+              {customStory.length} / 30
+            </div>
+          </div>
+
+          <Button
+            onClick={() => setStep(2)}
+            disabled={customStory.trim().length < 30}
+            className="w-full text-white hover:opacity-90 disabled:opacity-50"
+            style={{ backgroundColor: PRIMARY_VIOLET }}
+          >
+            Suivant →
+          </Button>
+        </>
+      )}
+
+      {/* Standard flow: step 1 = characters */}
+      {!isCustom && step === 1 && (
+        <>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            {charactersStepTitle}
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
             Sélectionne les personnages qui apparaîtront dans le livre
@@ -260,7 +315,58 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
         </>
       )}
 
-      {step === 2 && (
+      {/* Step 2 — custom: characters; standard: note */}
+      {isCustom && step === 2 && (
+        <>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            {charactersStepTitle}
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Sélectionne les personnages qui apparaîtront dans le livre
+          </p>
+
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            {MOCK_CHARACTERS.map((c) => {
+              const isSel = selected.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => toggle(c.id)}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
+                  style={{
+                    borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                    backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                  }}
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                  >
+                    {c.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleValidate} className="flex-1">
+              Passer
+            </Button>
+            <Button
+              onClick={handleValidate}
+              className="flex-1 text-white hover:opacity-90"
+              style={{ backgroundColor: PRIMARY_VIOLET }}
+            >
+              {validateLabel}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {!isCustom && step === 2 && (
         <>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
             Une note pour nous ?
@@ -289,7 +395,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, onComple
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              ✨ Valider mon livre
+              {validateLabel}
             </Button>
           </div>
         </>
