@@ -226,6 +226,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
     bookTags: [],
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
+    bookRequestId: row.book_request_id,
   };
 }
 
