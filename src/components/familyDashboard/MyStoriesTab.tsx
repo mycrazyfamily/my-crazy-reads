@@ -5,9 +5,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
+import { useBookTimeline, type BookTimelineRow } from '@/hooks/useBookTimeline';
+import { differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface Child {
   id: string;
@@ -18,12 +23,19 @@ interface Child {
 }
 
 interface MyStoriesTabProps {
-  children: Child[];
+  children?: Child[];
 }
 
 // ---------- Mock data ----------
 
-type MonthStatus = 'to_personalize' | 'configured' | 'in_creation' | 'in_printing' | 'to_plan';
+type MonthStatus =
+  | 'to_personalize'
+  | 'configured'
+  | 'in_creation'
+  | 'in_printing'
+  | 'shipped'
+  | 'delivered'
+  | 'to_plan';
 
 interface MockMonth {
   monthIndex: number;
@@ -156,9 +168,64 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
     borderClass: 'border-l-[3px] border-l-transparent',
     secondaryClass: 'text-muted-foreground',
   },
+  shipped: {
+    label: '🚚 Expédié',
+    badgeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+    borderClass: 'border-l-[3px] border-l-transparent',
+    secondaryClass: 'text-muted-foreground',
+  },
+  delivered: {
+    label: '✓ Livré',
+    badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    borderClass: 'border-l-[3px] border-l-transparent',
+    secondaryClass: 'text-muted-foreground',
+  },
 };
 
 const PRIMARY_VIOLET = '#534AB7';
+
+// ---------- Supabase row → MockMonth shape ----------
+
+const PLACEHOLDER_TITLE = 'Thème à venir';
+
+function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
+  const delivery = parseISO(row.delivery_month);
+  const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
+  const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
+
+  let status: MonthStatus = 'to_plan';
+  if (row.status === 'pending_choice') {
+    status = daysLeft !== undefined && daysLeft <= 14 ? 'to_personalize' : 'to_plan';
+  } else if (row.status === 'configured' || row.status === 'locked') {
+    status = row.production_status === 'printing' ? 'in_printing' : 'configured';
+  } else if (row.status === 'generating' || row.production_status === 'generating') {
+    status = 'in_creation';
+  } else if (row.status === 'printing' || row.production_status === 'printing') {
+    status = 'in_printing';
+  } else if (row.status === 'shipped') {
+    status = 'shipped';
+  } else if (row.status === 'delivered') {
+    status = 'delivered';
+  }
+
+  const monthLabel = format(delivery, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
+  const deliveryDate = format(delivery, "d MMMM yyyy", { locale: fr });
+  const deliveryShort = format(delivery, "d MMMM", { locale: fr });
+  const deadlineShort = deadline ? format(deadline, 'd MMMM', { locale: fr }) : '';
+
+  return {
+    monthIndex: idx,
+    monthLabel,
+    deliveryDate,
+    deliveryShort,
+    status,
+    bookTitle: row.theme_titre ?? PLACEHOLDER_TITLE,
+    bookSummary: row.theme_resume ?? '',
+    bookTags: [],
+    deadline: deadlineShort,
+    daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
+  };
+}
 
 // ---------- Wizard ----------
 
@@ -459,7 +526,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
               <p className="text-sm font-medium text-muted-foreground mb-2">
                 {month.monthLabel} · Livraison {month.deliveryShort}
               </p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              <h2 className={`text-2xl sm:text-3xl font-bold mb-3 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-foreground'}`}>
                 {month.bookTitle}
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed mb-4">
@@ -532,7 +599,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="hidden sm:block text-sm text-muted-foreground truncate max-w-[180px] md:max-w-[260px]">
+            <span className={`hidden sm:block text-sm truncate max-w-[180px] md:max-w-[260px] ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-muted-foreground'}`}>
               {month.bookTitle}
             </span>
             {showConfigureButton ? (
@@ -552,7 +619,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
         </div>
 
         {/* Mobile-only book title line */}
-        <p className="sm:hidden text-sm text-muted-foreground truncate mb-1">
+        <p className={`sm:hidden text-sm truncate mb-1 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-muted-foreground'}`}>
           {month.bookTitle}
         </p>
 
@@ -565,14 +632,16 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
             </>
           )}
           {month.status === 'configured' && (
-            <span>Personnalisé le {month.configuredOn} · {month.configuredCharacters?.join(', ')}</span>
+            <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
           )}
           {month.status === 'in_creation' && <span>Livre en cours de génération</span>}
           {month.status === 'in_printing' && <span>Livraison prévue le {month.deliveryShort}</span>}
+          {month.status === 'shipped' && <span>Votre livre est en route</span>}
+          {month.status === 'delivered' && <span>Votre livre est arrivé</span>}
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>Livraison prévue le {month.deliveryShort}</span>
+              <span>{month.deadline ? `Deadline : ${month.deadline} — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
@@ -731,31 +800,48 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 
 // ---------- Main component ----------
 
-const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
-  // Fallback children for mock if none provided
-  const fallbackChildren: Child[] = [
-    { id: 'manon', firstName: 'Manon', age: '6 ans et 8 mois', avatar: null, personalityEmoji: '👧' },
-    { id: 'beline', firstName: 'Béline', age: '4 ans', avatar: null, personalityEmoji: '🧒' },
-    { id: 'valentine', firstName: 'Valentine', age: '8 ans', avatar: null, personalityEmoji: '👧' },
-    { id: 'jules', firstName: 'Jules', age: '5 ans', avatar: null, personalityEmoji: '👦' },
-    { id: 'robin', firstName: 'Robin', age: '3 ans', avatar: null, personalityEmoji: '🧒' },
-  ];
-  const list = children.length > 0 ? children : fallbackChildren;
+const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
+  // 1. Real children from Supabase (via shared hook)
+  const { data: familyChildren, isLoading: isLoadingChildren } = useFamilyData();
+  const list: FamilyChild[] = familyChildren ?? [];
 
-  const [activeChildId, setActiveChildId] = useState<string>(list[0]?.id);
-  const activeChild = useMemo(() => list.find(c => c.id === activeChildId) ?? list[0], [list, activeChildId]);
+  const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
-  const [months, setMonths] = useState<MockMonth[]>(MOCK_MONTHS);
+  // Auto-select first child once loaded
+  React.useEffect(() => {
+    if (!activeChildId && list.length > 0) {
+      setActiveChildId(list[0].id);
+    }
+  }, [list, activeChildId]);
+
+  const activeChild = useMemo(
+    () => list.find((c) => c.id === activeChildId) ?? list[0] ?? null,
+    [list, activeChildId]
+  );
+
+  // 2. Real timeline from RPC
+  const { data: timelineRows, isLoading: isLoadingTimeline, isError: isTimelineError } =
+    useBookTimeline(activeChildId);
+
+  const months: MockMonth[] = useMemo(
+    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i)),
+    [timelineRows]
+  );
+
+  const totalPlanned = months.length;
+  const configuredCount = (timelineRows ?? []).filter(
+    (r) => r.status === 'configured' || r.status === 'locked'
+  ).length;
+
   const [focusedMonthIndex, setFocusedMonthIndex] = useState<number | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
   const [activeFlow, setActiveFlow] = useState<FlowType>('monthly');
 
-  const focusedMonth = focusedMonthIndex !== null
-    ? months.find(m => m.monthIndex === focusedMonthIndex) ?? null
-    : null;
-
-  const configuredCount = months.filter(m => m.status === 'configured').length;
+  const focusedMonth =
+    focusedMonthIndex !== null
+      ? months.find((m) => m.monthIndex === focusedMonthIndex) ?? null
+      : null;
 
   const handleWizardComplete = () => {
     if (focusedMonthIndex === null) return;
@@ -764,13 +850,6 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
       setFocusedMonthIndex(null);
       return;
     }
-    setMonths(prev => prev.map(m => m.monthIndex === focusedMonthIndex ? {
-      ...m,
-      status: 'configured',
-      configuredOn: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }),
-      configuredCharacters: ['Maman', 'Papa'],
-      ...(activeFlow === 'special' && m.specialOptionTitle ? { bookTitle: m.specialOptionTitle } : {}),
-    } : m));
     toast.success('Livre configuré ! 🎉');
     setFocusedMonthIndex(null);
   };
@@ -784,6 +863,15 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
   return (
     <div className="space-y-6">
       {/* 1. Children chips */}
+      {isLoadingChildren ? (
+        <div className="flex items-center gap-2 sm:gap-3">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-10 w-28 rounded-full" />
+          ))}
+        </div>
+      ) : list.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Aucun enfant n'a encore été ajouté à votre famille.</p>
+      ) : (
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex items-center gap-2 sm:gap-3 pb-1 min-w-max sm:min-w-0 sm:flex-wrap">
           {list.map((child) => {
@@ -817,33 +905,35 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           })}
         </div>
       </div>
+      )}
 
       {/* 2. Child header */}
+      {activeChild && (
       <Card className="border-2 border-border bg-gradient-to-br from-white to-muted/30">
         <CardContent className="p-5 sm:p-6">
           <div className="flex items-center gap-4 sm:gap-6">
             <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-4 border-white shadow-md flex-shrink-0">
-              {activeChild?.avatar ? (
+              {activeChild.avatar ? (
                 <AvatarImage src={activeChild.avatar} alt={activeChild.firstName} />
               ) : (
                 <AvatarFallback className="bg-muted text-3xl">
-                  {activeChild?.personalityEmoji}
+                  {activeChild.personalityEmoji}
                 </AvatarFallback>
               )}
             </Avatar>
 
             <div className="flex-1 min-w-0">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 truncate">
-                {activeChild?.firstName}
+                {activeChild.firstName}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {activeChild?.age} · Timeline sur 12 mois
+                {activeChild.age} · Timeline sur 12 mois
               </p>
             </div>
 
             <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
               <div className="text-sm">
-                <span className="font-bold text-foreground">12</span>
+                <span className="font-bold text-foreground">{totalPlanned}</span>
                 <span className="text-muted-foreground ml-1">livres prévus</span>
               </div>
               <div className="text-sm">
@@ -856,7 +946,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           {/* Mobile counters */}
           <div className="sm:hidden flex items-center gap-4 mt-4 pt-4 border-t border-border text-sm">
             <div>
-              <span className="font-bold text-foreground">12</span>
+              <span className="font-bold text-foreground">{totalPlanned}</span>
               <span className="text-muted-foreground ml-1">livres prévus</span>
             </div>
             <div>
@@ -866,9 +956,10 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           </div>
         </CardContent>
       </Card>
+      )}
 
       {/* 3. List view OR Focus view */}
-      {focusedMonth ? (
+      {!activeChildId ? null : focusedMonth ? (
         <FocusView
           month={focusedMonth}
           childName={activeChild?.firstName ?? ''}
@@ -879,6 +970,18 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = ({ children }) => {
           }}
           onChooseTheme={() => setThemeSheetOpen(true)}
         />
+      ) : isLoadingTimeline ? (
+        <div className="space-y-3">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : isTimelineError || months.length === 0 ? (
+        <Card className="border-2 border-dashed border-border">
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            Aucun livre prévu pour le moment. L'abonnement génère automatiquement votre timeline à la souscription.
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-3 animate-fade-in">
           {months.map((m) => (
