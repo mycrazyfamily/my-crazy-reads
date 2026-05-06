@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
-import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight } from 'lucide-react';
+import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -39,6 +39,9 @@ interface MockMonth {
   daysLeft?: number;
   configuredOn?: string;
   configuredCharacters?: string[];
+  hasSpecialOption?: boolean;
+  specialOptionTitle?: string;
+  specialOptionSubtitle?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -53,6 +56,9 @@ const MOCK_MONTHS: MockMonth[] = [
     bookTags: ['32 pages', '6–7 ans', 'Résolution de problème'],
     deadline: '20 mai',
     daysLeft: 14,
+    hasSpecialOption: true,
+    specialOptionTitle: "L'anniversaire de Jules",
+    specialOptionSubtitle: "Jules fête ses 8 ans en juin — on lui dédie ce livre !",
   },
   {
     monthIndex: 1,
