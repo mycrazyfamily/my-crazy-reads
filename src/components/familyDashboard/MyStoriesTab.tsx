@@ -184,6 +184,49 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
 
 const PRIMARY_VIOLET = '#534AB7';
 
+// ---------- Supabase row → MockMonth shape ----------
+
+const PLACEHOLDER_TITLE = 'Thème à venir';
+
+function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
+  const delivery = parseISO(row.delivery_month);
+  const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
+  const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
+
+  let status: MonthStatus = 'to_plan';
+  if (row.status === 'pending_choice') {
+    status = daysLeft !== undefined && daysLeft <= 14 ? 'to_personalize' : 'to_plan';
+  } else if (row.status === 'configured' || row.status === 'locked') {
+    status = row.production_status === 'printing' ? 'in_printing' : 'configured';
+  } else if (row.status === 'generating' || row.production_status === 'generating') {
+    status = 'in_creation';
+  } else if (row.status === 'printing' || row.production_status === 'printing') {
+    status = 'in_printing';
+  } else if (row.status === 'shipped') {
+    status = 'shipped';
+  } else if (row.status === 'delivered') {
+    status = 'delivered';
+  }
+
+  const monthLabel = format(delivery, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
+  const deliveryDate = format(delivery, "d MMMM yyyy", { locale: fr });
+  const deliveryShort = format(delivery, "d MMMM", { locale: fr });
+  const deadlineShort = deadline ? format(deadline, 'd MMMM', { locale: fr }) : '';
+
+  return {
+    monthIndex: idx,
+    monthLabel,
+    deliveryDate,
+    deliveryShort,
+    status,
+    bookTitle: row.theme_titre ?? PLACEHOLDER_TITLE,
+    bookSummary: row.theme_resume ?? '',
+    bookTags: [],
+    deadline: deadlineShort,
+    daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
+  };
+}
+
 // ---------- Wizard ----------
 
 type FlowType = 'monthly' | 'special' | 'custom';
