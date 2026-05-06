@@ -526,7 +526,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
               <p className="text-sm font-medium text-muted-foreground mb-2">
                 {month.monthLabel} · Livraison {month.deliveryShort}
               </p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              <h2 className={`text-2xl sm:text-3xl font-bold mb-3 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-foreground'}`}>
                 {month.bookTitle}
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed mb-4">
