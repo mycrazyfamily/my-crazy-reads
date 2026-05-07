@@ -152,16 +152,15 @@ const FamilyDashboard: React.FC = () => {
               firstChildId={children.length === 1 ? children[0].id : undefined}
             />
             <MyFamilyTab children={children} />
+            <div className="mt-12 pt-8 border-t-2 border-mcf-mint/30">
+              <ManageSubscription familyChildren={children} />
+            </div>
           </TabsContent>
 
           <TabsContent value="stories" className="space-y-8 animate-fade-in">
             <MyStoriesTab children={children} />
           </TabsContent>
         </Tabs>
-
-        <div className="mt-12 pt-8 border-t-2 border-mcf-mint/30">
-          <ManageSubscription familyChildren={children} />
-        </div>
 
         <div className="mt-12 pb-8 border-t-2 border-mcf-mint/30 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex gap-3">
