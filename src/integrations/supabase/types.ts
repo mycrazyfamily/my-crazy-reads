@@ -1846,6 +1846,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      lock_overdue_book_requests: { Args: never; Returns: undefined }
     }
     Enums: {
       mcf_production_status:
