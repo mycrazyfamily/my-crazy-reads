@@ -1,4 +1,7 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -844,7 +847,58 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   // 1. Real children from Supabase (via shared hook)
   const { data: familyChildren, isLoading: isLoadingChildren } = useFamilyData();
-  const list: FamilyChild[] = familyChildren ?? [];
+  const rawList: FamilyChild[] = familyChildren ?? [];
+  const navigate = useNavigate();
+
+  // Fetch timelines for all children in parallel to compute ordering
+  const timelineQueries = useQueries({
+    queries: rawList.map((c) => ({
+      queryKey: ['book-timeline', c.id],
+      queryFn: async () => {
+        const { data, error } = await supabase.rpc('get_child_book_timeline', { p_child_id: c.id });
+        if (error) throw error;
+        return (data ?? []) as BookTimelineRow[];
+      },
+      staleTime: 1000 * 60 * 5,
+    })),
+  });
+
+  const timelinesByChild = useMemo(() => {
+    const map: Record<string, BookTimelineRow[]> = {};
+    rawList.forEach((c, i) => {
+      map[c.id] = (timelineQueries[i]?.data as BookTimelineRow[] | undefined) ?? [];
+    });
+    return map;
+  }, [rawList, timelineQueries]);
+
+  const list: FamilyChild[] = useMemo(() => {
+    const sorted = [...rawList].sort((a, b) => {
+      const tA = timelinesByChild[a.id] ?? [];
+      const tB = timelinesByChild[b.id] ?? [];
+      const hasActiveA = tA.length > 0;
+      const hasActiveB = tB.length > 0;
+      if (hasActiveA && !hasActiveB) return -1;
+      if (!hasActiveA && hasActiveB) return 1;
+
+      const now = new Date();
+      const isUrgent = (rows: BookTimelineRow[]) =>
+        rows.some((m) => {
+          if (m.status !== 'pending_choice' || !m.personalization_deadline) return false;
+          const days = differenceInCalendarDays(parseISO(m.personalization_deadline), now);
+          return days <= 14;
+        });
+      const urgentA = isUrgent(tA);
+      const urgentB = isUrgent(tB);
+      if (urgentA && !urgentB) return -1;
+      if (!urgentA && urgentB) return 1;
+
+      // Younger first → most recent birth date first
+      const dA = a.birthDate ? new Date(a.birthDate).getTime() : 0;
+      const dB = b.birthDate ? new Date(b.birthDate).getTime() : 0;
+      return dB - dA;
+    });
+    return sorted;
+  }, [rawList, timelinesByChild]);
 
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
@@ -1088,12 +1142,45 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             <Skeleton key={i} className="h-20 w-full rounded-lg" />
           ))}
         </div>
-      ) : isTimelineError || months.length === 0 ? (
+      ) : isTimelineError ? (
         <Card className="border-2 border-dashed border-border">
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            Aucun livre prévu pour le moment. L'abonnement génère automatiquement votre timeline à la souscription.
+            Une erreur est survenue lors du chargement de la timeline.
           </CardContent>
         </Card>
+      ) : months.length === 0 ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '2.5rem 1.5rem',
+            border: '0.5px solid hsl(var(--border))',
+            borderRadius: '0.75rem',
+            background: 'hsl(var(--background))',
+          }}
+        >
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
+          <p style={{ fontWeight: 500, fontSize: 16, marginBottom: 8 }}>
+            {activeChild?.firstName} n'a pas encore d'abonnement
+          </p>
+          <p style={{ color: 'hsl(var(--muted-foreground))', fontSize: 13, marginBottom: 20 }}>
+            Abonne-toi pour découvrir les 12 livres personnalisés prévus pour {activeChild?.firstName}
+          </p>
+          <button
+            onClick={() => navigate('/abonnement')}
+            style={{
+              background: '#534AB7',
+              color: '#EEEDFE',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: '10px 24px',
+              fontSize: 14,
+              cursor: 'pointer',
+              fontWeight: 500,
+            }}
+          >
+            Découvrir les abonnements →
+          </button>
+        </div>
       ) : (
         <div className="space-y-3 animate-fade-in">
           {months.map((m) => (
