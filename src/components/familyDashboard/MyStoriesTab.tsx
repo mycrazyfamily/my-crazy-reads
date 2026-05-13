@@ -189,11 +189,17 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
 
 const PRIMARY_VIOLET = '#534AB7';
 
+// Helper: replace [Prénom] placeholder with real child name
+const formatTitle = (text: string | null, firstName: string) =>
+  text?.replace(/\[Prénom\]/g, firstName) ?? '';
+const formatSummary = (text: string | null, firstName: string) =>
+  text?.replace(/\[Prénom\]/g, firstName) ?? '';
+
 // ---------- Supabase row → MockMonth shape ----------
 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
-function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
+function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): MockMonth {
   const delivery = parseISO(row.delivery_month);
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
@@ -224,8 +230,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number): MockMonth {
     deliveryDate,
     deliveryShort,
     status,
-    bookTitle: row.theme_titre ?? PLACEHOLDER_TITLE,
-    bookSummary: row.theme_resume ?? '',
+    bookTitle: formatTitle(row.theme_titre, childName) || PLACEHOLDER_TITLE,
+    bookSummary: formatSummary(row.theme_resume, childName),
     bookTags: [],
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
@@ -919,8 +925,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     useBookTimeline(activeChildId);
 
   const months: MockMonth[] = useMemo(
-    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i)),
-    [timelineRows]
+    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '')),
+    [timelineRows, activeChild?.firstName]
   );
 
   const totalPlanned = months.length;
