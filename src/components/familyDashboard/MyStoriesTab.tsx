@@ -311,30 +311,20 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   const [customStory, setCustomStory] = useState('');
   const isSubmittingRef = useRef<boolean>(false);
 
-  // When the wizard opens or characters change, pre-select locked ones (the child)
+  // When the wizard opens, initialize all values; on close, leave state as-is to avoid flash
   React.useEffect(() => {
     if (open) {
       const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
       const savedIds = (savedCharacters || []).map((c: any) => c.id);
-      setSelected(Array.from(new Set([...lockedIds, ...savedIds])));
-      setStep(1);
+      setSelected([...new Set([...lockedIds, ...savedIds])]);
       setNote(savedNote || '');
       setCustomStory('');
+      setStep(1);
     }
-  }, [open, characters, savedCharacters, savedNote]);
-
-  const reset = () => {
-    setStep(1);
-    setSelected(characters.filter((c) => c.locked).map((c) => c.id));
-    setNote('');
-    setCustomStory('');
-  };
+  }, [open]);
 
   const handleClose = (o: boolean) => {
     if (!o && isSaving) return;
-    if (!o && !isSubmittingRef.current) {
-      reset();
-    }
     isSubmittingRef.current = false;
     onOpenChange(o);
   };
