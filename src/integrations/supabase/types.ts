@@ -1801,6 +1801,7 @@ export type Database = {
           pdf_url: string
           personalization_deadline: string
           production_status: string
+          saved_note: string
           selected_characters: Json
           selected_theme_type: string
           status: string
