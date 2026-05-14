@@ -453,11 +453,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     opacity: 1,
                   }}
                 >
-                  {c.avatarUrl ? (
-                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <span className="text-3xl">{c.emoji}</span>
-                  )}
+                  <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -510,11 +506,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {c.avatarUrl ? (
-                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <span className="text-3xl">{c.emoji}</span>
-                  )}
+                  <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
