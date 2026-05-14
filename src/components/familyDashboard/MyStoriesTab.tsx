@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,6 +60,7 @@ interface MockMonth {
   specialOptionSubtitle?: string;
   bookRequestId?: string;
   themeId?: string | null;
+  configuredSummary?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -238,6 +239,19 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
+    configuredSummary: (() => {
+      const parts: string[] = [];
+      if (row.selected_characters && Array.isArray(row.selected_characters)) {
+        const names = (row.selected_characters as any[])
+          .filter((c: any) => c.type !== 'child')
+          .map((c: any) => c.name);
+        if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
+      }
+      if (row.original_theme_instructions) {
+        parts.push(`"${row.original_theme_instructions.slice(0, 40)}${row.original_theme_instructions.length > 40 ? '…' : ''}"`);
+      }
+      return parts.join(' · ') || undefined;
+    })(),
   };
 }
 
@@ -263,15 +277,17 @@ interface WizardProps {
   characters: WizardCharacter[];
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
+  savedNote?: string;
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, onSubmit }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [customStory, setCustomStory] = useState('');
+  const isSubmittingRef = useRef<boolean>(false);
 
   // When the wizard opens or characters change, pre-select locked ones (the child)
   React.useEffect(() => {
@@ -280,10 +296,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       const savedIds = (savedCharacters || []).map((c: any) => c.id);
       setSelected(Array.from(new Set([...lockedIds, ...savedIds])));
       setStep(1);
-      setNote('');
+      setNote(savedNote || '');
       setCustomStory('');
     }
-  }, [open, characters, savedCharacters]);
+  }, [open, characters, savedCharacters, savedNote]);
 
   const reset = () => {
     setStep(1);
@@ -294,7 +310,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
 
   const handleClose = (o: boolean) => {
     if (!o && isSaving) return; // block close while saving
-    if (!o) reset();
+    if (!o && !isSubmittingRef.current) reset();
+    if (!o) isSubmittingRef.current = false;
     onOpenChange(o);
   };
 
@@ -305,6 +322,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   };
 
   const handleValidate = () => {
+    isSubmittingRef.current = true;
     const selectedChars: CharacterChoice[] = characters
       .filter((c) => selected.includes(c.id))
       .map((c) => ({ type: c.type, id: c.id, name: c.name }));
