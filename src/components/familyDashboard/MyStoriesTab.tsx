@@ -1001,6 +1001,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         id: m.id,
         name: m.firstName || 'Proche',
         emoji,
+        avatarUrl: m.avatar_url || undefined,
       };
     });
     const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => ({
@@ -1008,6 +1009,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       id: p.id,
       name: p.name || 'Animal',
       emoji: p.emoji || '🐾',
+      avatarUrl: p.avatar_url || undefined,
     }));
     return [child, ...members, ...pets];
   }, [activeChild]);
@@ -1237,6 +1239,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         bookTitle={wizardBookTitle}
         characters={wizardCharacters}
         isSaving={isSaving}
+        savedCharacters={
+          focusedMonth?.bookRequestId
+            ? ((timelineRows?.find((r) => r.book_request_id === focusedMonth.bookRequestId)?.selected_characters as CharacterChoice[]) ?? [])
+            : []
+        }
         onSubmit={handleWizardSubmit}
       />
 
