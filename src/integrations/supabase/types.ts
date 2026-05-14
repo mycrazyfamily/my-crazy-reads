@@ -1805,6 +1805,7 @@ export type Database = {
           selected_theme_type: string
           status: string
           theme_cast: Json
+          theme_id: string
           theme_logique: string
           theme_resume: string
           theme_titre: string

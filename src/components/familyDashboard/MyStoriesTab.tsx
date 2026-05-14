@@ -59,6 +59,7 @@ interface MockMonth {
   specialOptionTitle?: string;
   specialOptionSubtitle?: string;
   bookRequestId?: string;
+  themeId?: string | null;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -236,6 +237,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
+    themeId: row.theme_id ?? null,
   };
 }
 
@@ -388,8 +390,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
 
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+            <span>🧒</span>
+            <span><strong>{childName}</strong> est toujours dans l'histoire</span>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.map((c) => {
+            {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
@@ -437,8 +444,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
 
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+            <span>🧒</span>
+            <span><strong>{childName}</strong> est toujours dans l'histoire</span>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.map((c) => {
+            {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
@@ -976,7 +988,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       return {
         type: 'family_member',
         id: m.id,
-        name: m.nickname || m.firstName || 'Proche',
+        name: m.firstName || 'Proche',
         emoji,
       };
     });
@@ -1003,6 +1015,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         selectedThemeType: themeType,
         selectedCharacters: payload.selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
+        selectedThemeId: themeType === 'standard' ? focusedMonth.themeId ?? undefined : undefined,
+        note: payload.note,
       },
       {
         onSuccess: () => {

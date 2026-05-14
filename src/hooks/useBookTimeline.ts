@@ -15,6 +15,7 @@ export interface BookTimelineRow {
   theme_resume: string | null;
   theme_logique: string | null;
   theme_cast: any;
+  theme_id: string | null;
   production_status: string | null;
   pdf_url: string | null;
 }
