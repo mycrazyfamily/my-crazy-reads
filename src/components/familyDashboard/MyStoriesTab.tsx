@@ -371,7 +371,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
         aria-label="Fermer"
       >
-        <Plus className="h-5 w-5 rotate-45" strokeWidth={2.25} />
+        <X className="h-5 w-5" strokeWidth={2.25} />
       </button>
 
       {/* Progress dots */}
@@ -857,7 +857,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
         className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
         aria-label="Fermer"
       >
-        <Plus className="h-5 w-5 rotate-45" strokeWidth={2.25} />
+        <X className="h-5 w-5" strokeWidth={2.25} />
       </button>
 
       <h3 className="text-xl font-bold text-foreground text-center mb-1 mt-2">
