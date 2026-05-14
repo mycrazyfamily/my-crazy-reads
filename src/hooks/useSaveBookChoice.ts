@@ -29,7 +29,7 @@ export function useSaveBookChoice(childId: string | null) {
           selected_characters: params.selectedCharacters as any,
           original_theme_instructions: params.originalThemeInstructions ?? null,
           selected_theme_id: params.selectedThemeId ?? null,
-          message: params.note ?? null,
+          message: params.note ?? '',
           updated_at: new Date().toISOString(),
         })
         .eq('id', params.bookRequestId);
