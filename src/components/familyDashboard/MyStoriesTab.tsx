@@ -59,6 +59,7 @@ interface MockMonth {
   specialOptionTitle?: string;
   specialOptionSubtitle?: string;
   bookRequestId?: string;
+  themeId?: string | null;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -236,6 +237,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
+    themeId: row.theme_id ?? null,
   };
 }
 
@@ -976,7 +978,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       return {
         type: 'family_member',
         id: m.id,
-        name: m.nickname || m.firstName || 'Proche',
+        name: m.firstName || 'Proche',
         emoji,
       };
     });
@@ -1003,6 +1005,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         selectedThemeType: themeType,
         selectedCharacters: payload.selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
+        selectedThemeId: themeType === 'standard' ? focusedMonth.themeId ?? undefined : undefined,
+        note: payload.note,
       },
       {
         onSuccess: () => {
