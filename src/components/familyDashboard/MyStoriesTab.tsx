@@ -415,7 +415,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     opacity: 1,
                   }}
                 >
-                  <span className="text-3xl">{c.emoji}</span>
+                  {c.avatarUrl ? (
+                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-3xl">{c.emoji}</span>
+                  )}
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -468,7 +472,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  <span className="text-3xl">{c.emoji}</span>
+                  {c.avatarUrl ? (
+                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-3xl">{c.emoji}</span>
+                  )}
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
