@@ -191,6 +191,26 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
 
 const PRIMARY_VIOLET = '#534AB7';
 
+// Avatar with shimmer skeleton until image loads
+const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }> = ({ avatarUrl, emoji, name }) => {
+  const [loaded, setLoaded] = useState(false);
+  if (!avatarUrl) {
+    return <span className="text-3xl">{emoji}</span>;
+  }
+  return (
+    <div className={`w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center flex-shrink-0 ${loaded ? '' : 'animate-pulse'}`}>
+      <img
+        src={avatarUrl}
+        alt={name}
+        className="w-full h-full object-cover"
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; setLoaded(true); }}
+      />
+    </div>
+  );
+};
+
 // Helper: replace [Prénom] placeholder with real child name
 const formatTitle = (text: string | null, firstName: string) =>
   text?.replace(/\[Prénom\]/g, firstName) ?? '';
