@@ -365,15 +365,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
 
   const Content = (
     <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
-      <button
-        type="button"
-        onClick={() => handleClose(false)}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
-        aria-label="Fermer"
-      >
-        <X className="h-5 w-5" strokeWidth={2.25} />
-      </button>
-
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-2 mb-6">
         <div
@@ -851,15 +842,6 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 
   const Content = (
     <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
-      <button
-        type="button"
-        onClick={() => handleClose(false)}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
-        aria-label="Fermer"
-      >
-        <X className="h-5 w-5" strokeWidth={2.25} />
-      </button>
-
       <h3 className="text-xl font-bold text-foreground text-center mb-1 mt-2">
         Choisir le thème de ce livre
       </h3>
