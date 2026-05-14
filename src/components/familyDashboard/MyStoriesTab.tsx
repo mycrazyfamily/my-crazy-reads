@@ -260,6 +260,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
+    savedNote: row.saved_note || '',
     configuredSummary: (() => {
       const parts: string[] = [];
       if (row.selected_characters && Array.isArray(row.selected_characters)) {
@@ -268,8 +269,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
           .map((c: any) => c.name);
         if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
       }
-      if (row.original_theme_instructions) {
-        parts.push(`"${row.original_theme_instructions.slice(0, 40)}${row.original_theme_instructions.length > 40 ? '…' : ''}"`);
+      if (row.saved_note && row.saved_note.trim()) {
+        parts.push(`"${row.saved_note.slice(0, 40)}${row.saved_note.length > 40 ? '…' : ''}"`);
       }
       return parts.join(' · ') || undefined;
     })(),
