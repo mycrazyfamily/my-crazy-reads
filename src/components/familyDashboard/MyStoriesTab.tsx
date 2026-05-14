@@ -61,6 +61,7 @@ interface MockMonth {
   bookRequestId?: string;
   themeId?: string | null;
   configuredSummary?: string;
+  savedNote?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -259,6 +260,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
+    savedNote: row.saved_note || '',
     configuredSummary: (() => {
       const parts: string[] = [];
       if (row.selected_characters && Array.isArray(row.selected_characters)) {
@@ -267,8 +269,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
           .map((c: any) => c.name);
         if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
       }
-      if (row.original_theme_instructions) {
-        parts.push(`"${row.original_theme_instructions.slice(0, 40)}${row.original_theme_instructions.length > 40 ? '…' : ''}"`);
+      if (row.saved_note && row.saved_note.trim()) {
+        parts.push(`"${row.saved_note.slice(0, 40)}${row.saved_note.length > 40 ? '…' : ''}"`);
       }
       return parts.join(' · ') || undefined;
     })(),
@@ -329,9 +331,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   };
 
   const handleClose = (o: boolean) => {
-    if (!o && isSaving) return; // block close while saving
-    if (!o && !isSubmittingRef.current) reset();
-    if (!o) isSubmittingRef.current = false;
+    if (!o && isSaving) return;
+    if (!o && !isSubmittingRef.current) {
+      reset();
+    }
+    isSubmittingRef.current = false;
     onOpenChange(o);
   };
 
@@ -485,6 +489,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
 
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Précédent
+          </button>
+
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
             <span>🧒</span>
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
@@ -542,6 +555,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
           <p className="text-sm text-muted-foreground text-center mb-6">
             Un détail qui rendrait ce livre encore plus magique <span className="text-muted-foreground">(optionnel)</span>
           </p>
+
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Précédent
+          </button>
 
           <Textarea
             value={note}
@@ -1282,10 +1304,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             : []
         }
         savedNote={
-          (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
-            ?.original_theme_instructions ??
-            (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId) as any)
-              ?.message ?? '') as string
+          timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.saved_note ?? ''
         }
         onSubmit={handleWizardSubmit}
       />
