@@ -331,9 +331,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   };
 
   const handleClose = (o: boolean) => {
-    if (!o && isSaving) return; // block close while saving
-    if (!o && !isSubmittingRef.current) reset();
-    if (!o) isSubmittingRef.current = false;
+    if (!o && isSaving) return;
+    if (!o && !isSubmittingRef.current) {
+      reset();
+    }
+    isSubmittingRef.current = false;
     onOpenChange(o);
   };
 
