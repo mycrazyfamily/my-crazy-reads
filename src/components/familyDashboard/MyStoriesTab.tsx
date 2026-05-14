@@ -482,21 +482,20 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       {/* Step 2 — custom: characters; standard: note */}
       {isCustom && step === 2 && (
         <>
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Précédent</span>
+          </button>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
             {charactersStepTitle}
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
-
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Précédent
-          </button>
 
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
             <span>🧒</span>
@@ -549,21 +548,20 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
 
       {!isCustom && step === 2 && (
         <>
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Précédent</span>
+          </button>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
             Une note pour nous ?
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
             Un détail qui rendrait ce livre encore plus magique <span className="text-muted-foreground">(optionnel)</span>
           </p>
-
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Précédent
-          </button>
 
           <Textarea
             value={note}
