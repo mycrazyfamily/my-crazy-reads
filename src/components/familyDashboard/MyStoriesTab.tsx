@@ -390,8 +390,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
 
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+            <span>🧒</span>
+            <span><strong>{childName}</strong> est toujours dans l'histoire</span>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.map((c) => {
+            {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
@@ -439,8 +444,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             Sélectionne les personnages qui apparaîtront dans le livre
           </p>
 
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+            <span>🧒</span>
+            <span><strong>{childName}</strong> est toujours dans l'histoire</span>
+          </div>
+
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.map((c) => {
+            {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               return (
                 <button
