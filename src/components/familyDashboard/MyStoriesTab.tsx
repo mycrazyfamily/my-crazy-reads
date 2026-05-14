@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,6 +60,7 @@ interface MockMonth {
   specialOptionSubtitle?: string;
   bookRequestId?: string;
   themeId?: string | null;
+  configuredSummary?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -190,6 +191,26 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
 
 const PRIMARY_VIOLET = '#534AB7';
 
+// Avatar with shimmer skeleton until image loads
+const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }> = ({ avatarUrl, emoji, name }) => {
+  const [loaded, setLoaded] = useState(false);
+  if (!avatarUrl) {
+    return <span className="text-3xl">{emoji}</span>;
+  }
+  return (
+    <div className={`w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center flex-shrink-0 ${loaded ? '' : 'animate-pulse'}`}>
+      <img
+        src={avatarUrl}
+        alt={name}
+        className="w-full h-full object-cover"
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; setLoaded(true); }}
+      />
+    </div>
+  );
+};
+
 // Helper: replace [Prénom] placeholder with real child name
 const formatTitle = (text: string | null, firstName: string) =>
   text?.replace(/\[Prénom\]/g, firstName) ?? '';
@@ -238,6 +259,19 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
+    configuredSummary: (() => {
+      const parts: string[] = [];
+      if (row.selected_characters && Array.isArray(row.selected_characters)) {
+        const names = (row.selected_characters as any[])
+          .filter((c: any) => c.type !== 'child')
+          .map((c: any) => c.name);
+        if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
+      }
+      if (row.original_theme_instructions) {
+        parts.push(`"${row.original_theme_instructions.slice(0, 40)}${row.original_theme_instructions.length > 40 ? '…' : ''}"`);
+      }
+      return parts.join(' · ') || undefined;
+    })(),
   };
 }
 
@@ -263,15 +297,17 @@ interface WizardProps {
   characters: WizardCharacter[];
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
+  savedNote?: string;
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, onSubmit }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [customStory, setCustomStory] = useState('');
+  const isSubmittingRef = useRef<boolean>(false);
 
   // When the wizard opens or characters change, pre-select locked ones (the child)
   React.useEffect(() => {
@@ -280,10 +316,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       const savedIds = (savedCharacters || []).map((c: any) => c.id);
       setSelected(Array.from(new Set([...lockedIds, ...savedIds])));
       setStep(1);
-      setNote('');
+      setNote(savedNote || '');
       setCustomStory('');
     }
-  }, [open, characters, savedCharacters]);
+  }, [open, characters, savedCharacters, savedNote]);
 
   const reset = () => {
     setStep(1);
@@ -294,7 +330,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
 
   const handleClose = (o: boolean) => {
     if (!o && isSaving) return; // block close while saving
-    if (!o) reset();
+    if (!o && !isSubmittingRef.current) reset();
+    if (!o) isSubmittingRef.current = false;
     onOpenChange(o);
   };
 
@@ -305,6 +342,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   };
 
   const handleValidate = () => {
+    isSubmittingRef.current = true;
     const selectedChars: CharacterChoice[] = characters
       .filter((c) => selected.includes(c.id))
       .map((c) => ({ type: c.type, id: c.id, name: c.name }));
@@ -415,11 +453,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     opacity: 1,
                   }}
                 >
-                  {c.avatarUrl ? (
-                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <span className="text-3xl">{c.emoji}</span>
-                  )}
+                  <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -472,11 +506,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {c.avatarUrl ? (
-                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <span className="text-3xl">{c.emoji}</span>
-                  )}
+                  <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -705,7 +735,14 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
             </>
           )}
           {month.status === 'configured' && (
-            <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
+            <div className="flex flex-col gap-0.5">
+              <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
+              {month.configuredSummary && (
+                <span className="text-xs text-muted-foreground/70 truncate">
+                  {month.configuredSummary}
+                </span>
+              )}
+            </div>
           )}
           {month.status === 'in_creation' && <span>Livre en cours de génération</span>}
           {month.status === 'in_printing' && <span>Livraison prévue le {month.deliveryShort}</span>}
@@ -1243,6 +1280,12 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           focusedMonth?.bookRequestId
             ? ((timelineRows?.find((r) => r.book_request_id === focusedMonth.bookRequestId)?.selected_characters as CharacterChoice[]) ?? [])
             : []
+        }
+        savedNote={
+          (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.original_theme_instructions ??
+            (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId) as any)
+              ?.message ?? '') as string
         }
         onSubmit={handleWizardSubmit}
       />
