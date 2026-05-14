@@ -1281,6 +1281,12 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             ? ((timelineRows?.find((r) => r.book_request_id === focusedMonth.bookRequestId)?.selected_characters as CharacterChoice[]) ?? [])
             : []
         }
+        savedNote={
+          (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.original_theme_instructions ??
+            (timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId) as any)
+              ?.message ?? '') as string
+        }
         onSubmit={handleWizardSubmit}
       />
 
