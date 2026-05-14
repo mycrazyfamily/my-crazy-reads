@@ -61,6 +61,7 @@ interface MockMonth {
   bookRequestId?: string;
   themeId?: string | null;
   configuredSummary?: string;
+  savedNote?: string;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
