@@ -250,6 +250,7 @@ interface WizardCharacter {
   id: string;
   name: string;
   emoji: string;
+  avatarUrl?: string;
   locked?: boolean; // locked = always selected, cannot be unchecked
 }
 
@@ -261,10 +262,11 @@ interface WizardProps {
   bookTitle: string;
   characters: WizardCharacter[];
   isSaving: boolean;
+  savedCharacters?: CharacterChoice[];
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, onSubmit }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -275,12 +277,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   React.useEffect(() => {
     if (open) {
       const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
-      setSelected(lockedIds);
+      const savedIds = (savedCharacters || []).map((c: any) => c.id);
+      setSelected(Array.from(new Set([...lockedIds, ...savedIds])));
       setStep(1);
       setNote('');
       setCustomStory('');
     }
-  }, [open, characters]);
+  }, [open, characters, savedCharacters]);
 
   const reset = () => {
     setStep(1);
@@ -412,7 +415,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     opacity: 1,
                   }}
                 >
-                  <span className="text-3xl">{c.emoji}</span>
+                  {c.avatarUrl ? (
+                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-3xl">{c.emoji}</span>
+                  )}
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -465,7 +472,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                     cursor: c.locked ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  <span className="text-3xl">{c.emoji}</span>
+                  {c.avatarUrl ? (
+                    <img src={c.avatarUrl} alt={c.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <span className="text-3xl">{c.emoji}</span>
+                  )}
                   <span
                     className="text-sm font-medium"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
@@ -990,6 +1001,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         id: m.id,
         name: m.firstName || 'Proche',
         emoji,
+        avatarUrl: m.avatar_url || undefined,
       };
     });
     const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => ({
@@ -997,6 +1009,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       id: p.id,
       name: p.name || 'Animal',
       emoji: p.emoji || '🐾',
+      avatarUrl: p.avatar_url || undefined,
     }));
     return [child, ...members, ...pets];
   }, [activeChild]);
@@ -1226,6 +1239,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         bookTitle={wizardBookTitle}
         characters={wizardCharacters}
         isSaving={isSaving}
+        savedCharacters={
+          focusedMonth?.bookRequestId
+            ? ((timelineRows?.find((r) => r.book_request_id === focusedMonth.bookRequestId)?.selected_characters as CharacterChoice[]) ?? [])
+            : []
+        }
         onSubmit={handleWizardSubmit}
       />
 

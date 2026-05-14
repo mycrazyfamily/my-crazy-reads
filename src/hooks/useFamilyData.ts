@@ -47,6 +47,23 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     .eq('id', userId)
     .maybeSingle();
 
+  // Global family-level fetch: ALL members & pets of the family
+  const familyId = userProfile?.family_id;
+  const [{ data: allFamilyMembers }, { data: allFamilyPets }] = await Promise.all([
+    familyId
+      ? supabase
+          .from('family_members')
+          .select('id, name, role, avatar_url, details')
+          .eq('family_id', familyId)
+      : Promise.resolve({ data: [] as any[], error: null }),
+    familyId
+      ? supabase
+          .from('pets')
+          .select('id, name, type, emoji, avatar_url, breed')
+          .eq('family_id', familyId)
+      : Promise.resolve({ data: [] as any[], error: null }),
+  ] as const);
+
   const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url`;
 
   const qByUser = supabase.from('child_profiles').select(baseSelect).eq('user_id', userId);
@@ -70,21 +87,31 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
     avatar: profile.avatar_url || null,
     personalityEmoji: '🧒',
-    relatives: [],
-    pets: [],
+    relatives: (allFamilyMembers || []).map((fm: any) => ({
+      id: fm.id,
+      firstName: fm.name,
+      type: fm.role,
+      nickname: null,
+      avatar_url: fm.avatar_url,
+    })),
+    pets: (allFamilyPets || []).map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      emoji: p.emoji,
+      avatar_url: p.avatar_url,
+    })),
     places: [],
     toysCount: 0,
     preferencesCount: 0,
-    hasPets: 0,
+    hasPets: (allFamilyPets || []).length,
     birthDate: profile.birth_date || null,
   }));
 
   await Promise.all(
     uniqueRows.map(async (profile: any, index: number) => {
       try {
-        const [{ data: childPets }, { data: childFamilyMembers }, { data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
-          supabase.from('child_pets').select(`name, traits, relation_label, pets:pet_id (id, name, type, breed, physical_details, emoji, avatar_url)`).eq('child_id', profile.id),
-          supabase.from('child_family_members').select(`relation_label, family_members:family_member_id (id, name, role, avatar, avatar_url, details)`).eq('child_id', profile.id),
+        const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
           supabase.from('child_places').select(`label, places:place_id (id, label, type, emoji, address, city, country, description, details)`).eq('child_id', profile.id),
           supabase.from('child_superpowers').select('superpowers(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_likes').select('likes(label, emoji)').eq('child_id', profile.id),
@@ -95,18 +122,6 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
 
         const prefsTotal = (superpowersRes.data?.length || 0) + (likesRes.data?.length || 0) + (challengesRes.data?.length || 0) + (universesRes.data?.length || 0) + (discoveriesRes.data?.length || 0);
 
-        const petsEnriched = (childPets || []).map((cp: any) => {
-          const petInfo = cp.pets;
-          if (!petInfo) return null;
-          return { id: petInfo.id, name: cp.name || petInfo.name, type: petInfo.type, breed: petInfo.breed, traits: cp.traits, relationLabel: cp.relation_label, emoji: petInfo.emoji, avatar_url: petInfo.avatar_url };
-        }).filter(Boolean);
-
-        const relativesEnriched = (childFamilyMembers || []).map((cfm: any) => {
-          const fm = cfm.family_members;
-          if (!fm) return null;
-          return { id: fm.id, firstName: fm.name, type: fm.role, nickname: cfm.relation_label, avatar: fm.avatar, avatar_url: fm.avatar_url, details: fm.details };
-        }).filter(Boolean);
-
         const placesEnriched = (childPlaces || []).map((cp: any) => {
           const placeInfo = cp.places;
           if (!placeInfo) return null;
@@ -115,11 +130,8 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
 
         children[index] = {
           ...children[index],
-          relatives: relativesEnriched,
-          pets: petsEnriched,
           places: placesEnriched,
           preferencesCount: prefsTotal,
-          hasPets: petsEnriched.length,
         };
       } catch (e) {
         console.error('Error enriching child data', e);
