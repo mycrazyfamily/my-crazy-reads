@@ -250,6 +250,7 @@ interface WizardCharacter {
   id: string;
   name: string;
   emoji: string;
+  avatarUrl?: string;
   locked?: boolean; // locked = always selected, cannot be unchecked
 }
 
@@ -261,10 +262,11 @@ interface WizardProps {
   bookTitle: string;
   characters: WizardCharacter[];
   isSaving: boolean;
+  savedCharacters?: CharacterChoice[];
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, onSubmit }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, onSubmit }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -275,12 +277,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   React.useEffect(() => {
     if (open) {
       const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
-      setSelected(lockedIds);
+      const savedIds = (savedCharacters || []).map((c: any) => c.id);
+      setSelected(Array.from(new Set([...lockedIds, ...savedIds])));
       setStep(1);
       setNote('');
       setCustomStory('');
     }
-  }, [open, characters]);
+  }, [open, characters, savedCharacters]);
 
   const reset = () => {
     setStep(1);
