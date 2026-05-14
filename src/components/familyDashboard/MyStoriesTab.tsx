@@ -9,7 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X } from 'lucide-react';
+import { Book, Sparkles, ArrowLeft, Calendar, ChevronRight, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
@@ -371,7 +371,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
         aria-label="Fermer"
       >
-        <X className="h-4 w-4" />
+        <Plus className="h-5 w-5 rotate-45" strokeWidth={2.25} />
       </button>
 
       {/* Progress dots */}
@@ -859,7 +859,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
         className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
         aria-label="Fermer"
       >
-        <X className="h-4 w-4" />
+        <Plus className="h-5 w-5 rotate-45" strokeWidth={2.25} />
       </button>
 
       <h3 className="text-xl font-bold text-foreground text-center mb-1 mt-2">
