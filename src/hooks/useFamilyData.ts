@@ -86,6 +86,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     id: profile.id,
     firstName: profile.first_name || 'Enfant',
     age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
+    gender: profile.gender || null,
     avatar: profile.avatar_url || null,
     personalityEmoji: '🧒',
     relatives: (allFamilyMembers || []).map((fm: any) => ({
