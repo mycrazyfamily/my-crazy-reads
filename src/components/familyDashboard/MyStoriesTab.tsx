@@ -1028,6 +1028,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     (r) => r.status === 'configured' || r.status === 'locked'
   ).length;
 
+  const { data: activeSubscription } = useQuery({
+    queryKey: ['subscription', activeChildId],
+    queryFn: async () => {
+      if (!activeChildId) return null;
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('cancel_at, end_date, status')
+        .eq('child_id', activeChildId)
+        .eq('is_active', true)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!activeChildId,
+  });
+
   const [focusedMonthIndex, setFocusedMonthIndex] = useState<number | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
