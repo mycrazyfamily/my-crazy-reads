@@ -253,8 +253,20 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     deliveryDate,
     deliveryShort,
     status,
-    bookTitle: formatTitle(row.theme_titre, childName) || PLACEHOLDER_TITLE,
-    bookSummary: formatSummary(row.theme_resume, childName),
+    bookTitle: (() => {
+      if (row.selected_theme_titre)
+        return formatTitle(row.selected_theme_titre, childName);
+      if (row.theme_titre)
+        return formatTitle(row.theme_titre, childName);
+      return PLACEHOLDER_TITLE;
+    })(),
+    bookSummary: (() => {
+      if (row.selected_theme_resume)
+        return formatSummary(row.selected_theme_resume, childName);
+      if (row.theme_resume)
+        return formatSummary(row.theme_resume, childName);
+      return '';
+    })(),
     bookTags: [],
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
