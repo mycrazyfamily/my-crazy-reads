@@ -59,9 +59,12 @@ interface MockMonth {
   themeId?: string | null;
   configuredSummary?: string;
   savedNote?: string;
-  substituteThemeId?: string | null;
-  substituteThemeTitre?: string | null;
-  substitutePersonName?: string | null;
+  substituteOptions?: Array<{
+    substituteThemeId: string;
+    substituteThemeTitre: string;
+    substituteCondition: string;
+    substitutePersonName: string;
+  }>;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
