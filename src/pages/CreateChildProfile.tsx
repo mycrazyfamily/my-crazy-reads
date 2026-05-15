@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import FormSteps from '@/components/childProfile/FormSteps';
@@ -37,6 +38,7 @@ const CreateChildProfile = ({
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Charger la birth_date originale une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
@@ -485,6 +487,8 @@ const CreateChildProfile = ({
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
+        queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+        queryClient.invalidateQueries({ queryKey: ['family-data'] });
         if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
