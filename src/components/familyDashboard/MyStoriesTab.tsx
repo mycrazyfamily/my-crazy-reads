@@ -1225,6 +1225,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
                 <span className="font-bold" style={{ color: PRIMARY_VIOLET }}>{configuredCount}</span>
                 <span className="text-muted-foreground ml-1">configuré{configuredCount > 1 ? 's' : ''}</span>
               </div>
+              {activeSubscription?.cancel_at && totalPlanned <= 2 && (
+                <p className="text-xs text-orange-500 mt-1 text-right">
+                  Abonnement jusqu'au {format(parseISO(activeSubscription.cancel_at), 'd MMMM yyyy', { locale: fr })}
+                </p>
+              )}
             </div>
           </div>
 
@@ -1239,6 +1244,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
               <span className="text-muted-foreground ml-1">configuré{configuredCount > 1 ? 's' : ''}</span>
             </div>
           </div>
+          {activeSubscription?.cancel_at && totalPlanned <= 2 && (
+            <p className="sm:hidden text-xs text-orange-500 mt-2">
+              Abonnement jusqu'au {format(parseISO(activeSubscription.cancel_at), 'd MMMM yyyy', { locale: fr })}
+            </p>
+          )}
         </CardContent>
       </Card>
       )}
