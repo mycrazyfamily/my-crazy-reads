@@ -676,8 +676,19 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Votre note</p>
                       <p className="text-sm text-foreground italic">
-                        "{month.savedNote}"
+                        "{noteExpanded || month.savedNote.length <= 80
+                          ? month.savedNote
+                          : month.savedNote.slice(0, 80) + '…'}"
                       </p>
+                      {month.savedNote.length > 80 && (
+                        <button
+                          type="button"
+                          onClick={() => setNoteExpanded(!noteExpanded)}
+                          className="text-xs mt-1 underline-offset-2 underline text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {noteExpanded ? 'Réduire' : 'Voir tout'}
+                        </button>
+                      )}
                     </div>
                   )}
                   {(!month.configuredCharacters?.length && !month.savedNote) && (
