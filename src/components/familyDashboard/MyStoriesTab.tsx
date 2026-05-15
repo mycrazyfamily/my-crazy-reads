@@ -1131,7 +1131,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
         selectedThemeId: activeFlow === 'special'
           ? (focusedMonth?.substituteThemeId ?? undefined)
-          : activeFlow === 'standard'
+          : activeFlow === 'monthly'
           ? (focusedMonth?.themeId ?? undefined)
           : undefined,
         note: payload.note,
