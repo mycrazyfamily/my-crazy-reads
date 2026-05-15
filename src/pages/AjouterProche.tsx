@@ -248,6 +248,7 @@ export default function AjouterProche() {
       
       toast.success('Proche ajouté avec succès !');
       invalidateFamilyData();
+      queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
