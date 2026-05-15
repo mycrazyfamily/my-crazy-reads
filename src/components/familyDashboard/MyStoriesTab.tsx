@@ -610,8 +610,13 @@ interface FocusViewProps {
 }
 
 const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure, onChooseTheme }) => {
+  const isConfigured = month.status === 'configured' || month.status === 'in_creation'
+    || month.status === 'in_printing' || month.status === 'shipped' || month.status === 'delivered';
+  const isLocked = month.status === 'in_creation' || month.status === 'in_printing'
+    || month.status === 'shipped' || month.status === 'delivered';
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -622,54 +627,85 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
 
       <Card className="border-2 border-border overflow-hidden">
         <CardContent className="p-6 sm:p-8">
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {/* Cover */}
-            <div
-              className="flex-shrink-0 mx-auto md:mx-0 w-40 h-56 sm:w-48 sm:h-64 rounded-lg flex items-center justify-center shadow-md"
-              style={{ backgroundColor: `${PRIMARY_VIOLET}15` }}
-            >
-              <Book className="h-16 w-16" style={{ color: PRIMARY_VIOLET }} strokeWidth={1.5} />
-            </div>
-
-            {/* Info */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Colonne gauche — infos livre */}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-muted-foreground mb-2">
                 {month.monthLabel} · Livraison {month.deliveryShort}
               </p>
-              <h2 className={`text-2xl sm:text-3xl font-bold mb-3 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-foreground'}`}>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
                 {month.bookTitle}
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed mb-4">
                 {month.bookSummary}
               </p>
+              {month.deadline && !isConfigured && (
+                <div className="flex items-center gap-2 text-sm text-orange-600 mt-2">
+                  <span>⚠</span>
+                  <span>Deadline de personnalisation : {month.deadline}</span>
+                </div>
+              )}
+            </div>
 
-              <div className="flex flex-wrap gap-2 mb-6">
-                {month.bookTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
+            {/* Séparateur vertical desktop */}
+            <div className="hidden lg:block w-px bg-border flex-shrink-0" />
+
+            {/* Colonne droite — configuration */}
+            <div className="lg:w-72 flex-shrink-0 space-y-4">
+              <div>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${STATUS_CONFIG[month.status].badgeClass}`}>
+                  {STATUS_CONFIG[month.status].label}
+                </span>
               </div>
 
-              <Button
-                onClick={onConfigure}
-                className="w-full text-white hover:opacity-90 h-12 text-base font-semibold"
-                style={{ backgroundColor: PRIMARY_VIOLET }}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Configurer cette aventure
-              </Button>
+              {isConfigured && (
+                <div className="space-y-3 p-4 rounded-xl bg-muted/50 border border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Votre configuration
+                  </p>
+                  {month.configuredCharacters && month.configuredCharacters.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Personnages</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {month.configuredCharacters.join(', ')}
+                      </p>
+                    </div>
+                  )}
+                  {month.savedNote && month.savedNote.trim() && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Votre note</p>
+                      <p className="text-sm text-foreground italic">
+                        "{month.savedNote}"
+                      </p>
+                    </div>
+                  )}
+                  {(!month.configuredCharacters?.length && !month.savedNote) && (
+                    <p className="text-sm text-muted-foreground">
+                      Aucun détail ajouté
+                    </p>
+                  )}
+                </div>
+              )}
 
-              <button
-                type="button"
-                onClick={onChooseTheme}
-                className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-              >
-                Choisir un autre thème pour ce mois
-              </button>
+              {!isLocked && (
+                <>
+                  <Button
+                    onClick={onConfigure}
+                    className="w-full text-white hover:opacity-90 h-11 text-sm font-semibold"
+                    style={{ backgroundColor: PRIMARY_VIOLET }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isConfigured ? 'Modifier la configuration' : 'Configurer cette aventure'}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={onChooseTheme}
+                    className="block w-full text-center text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                  >
+                    Choisir un autre thème pour ce mois
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </CardContent>
