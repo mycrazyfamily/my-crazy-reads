@@ -609,7 +609,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={handleClose}>
-        <DrawerContent className="bg-white">
+        <DrawerContent className="bg-white max-h-[90vh] overflow-y-auto">
           {Content}
         </DrawerContent>
       </Drawer>
@@ -618,7 +618,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-white max-w-md p-0">
+      <DialogContent className="bg-white max-w-md p-0 max-h-[90vh] overflow-y-auto">
         {Content}
       </DialogContent>
     </Dialog>
