@@ -223,8 +223,17 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 // Helper: replace [Prénom] placeholder with real child name
 const formatTitle = (text: string | null, firstName: string) =>
   text?.replace(/\[Prénom\]/g, firstName) ?? '';
-const formatSummary = (text: string | null, firstName: string) =>
-  text?.replace(/\[Prénom\]/g, firstName) ?? '';
+const formatSummary = (text: string | null, firstName: string, gender?: string) => {
+  if (!text) return '';
+  const isFemale = gender === 'girl' || gender === 'female';
+  return text
+    .replace(/\[Prénom\]/g, firstName)
+    .replace(/\[il\/elle\]/g, isFemale ? 'elle' : 'il')
+    .replace(/\[son\/sa\]/g, isFemale ? 'sa' : 'son')
+    .replace(/\[ami\/amie\]/g, isFemale ? 'amie' : 'ami')
+    .replace(/\[cousin\/cousine\]/g, isFemale ? 'cousine' : 'cousin')
+    .replace(/\[Curieux\/Curieuse\]/g, isFemale ? 'Curieuse' : 'Curieux');
+};
 
 // ---------- Supabase row → MockMonth shape ----------
 
