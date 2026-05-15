@@ -38,6 +38,7 @@ const CreateChildProfile = ({
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Charger la birth_date originale une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
