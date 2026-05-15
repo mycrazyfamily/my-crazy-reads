@@ -79,9 +79,14 @@ const MOCK_MONTHS: MockMonth[] = [
     bookTags: ['32 pages', '6–7 ans', 'Résolution de problème'],
     deadline: '20 mai',
     daysLeft: 14,
-    substituteThemeId: 'sub-1',
-    substituteThemeTitre: "L'anniversaire de Jules",
-    substitutePersonName: 'Jules',
+    substituteOptions: [
+      {
+        substituteThemeId: 'sub-1',
+        substituteThemeTitre: "L'anniversaire de Jules",
+        substituteCondition: 'birthday',
+        substitutePersonName: 'Jules',
+      },
+    ],
   },
   {
     monthIndex: 1,
@@ -276,9 +281,12 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
-    substituteThemeId: row.substitute_theme_id ?? null,
-    substituteThemeTitre: row.substitute_theme_titre ?? null,
-    substitutePersonName: row.substitute_person_name ?? null,
+    substituteOptions: (row.substitute_options || []).map((s: any) => ({
+      substituteThemeId: s.substitute_theme_id,
+      substituteThemeTitre: s.substitute_theme_titre,
+      substituteCondition: s.substitute_condition,
+      substitutePersonName: s.substitute_person_name,
+    })),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
