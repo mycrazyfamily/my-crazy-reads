@@ -334,9 +334,10 @@ interface WizardProps {
   savedNote?: string;
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
   onBackToThemeSheet?: () => void;
+  autoSelectedIds?: string[];
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -349,7 +350,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
     if (open) {
       const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
       const savedIds = (savedCharacters || []).map((c: any) => c.id);
-      setSelected([...new Set([...lockedIds, ...savedIds])]);
+      const autoIds = autoSelectedIds || [];
+      setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
       setCustomStory('');
       setStep(1);
@@ -1103,6 +1105,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
   const [activeFlow, setActiveFlow] = useState<FlowType>('monthly');
   const [activeSubstituteThemeId, setActiveSubstituteThemeId] = useState<string | undefined>(undefined);
+  const [autoSelectedMemberId, setAutoSelectedMemberId] = useState<string | undefined>(undefined);
 
   const focusedMonth =
     focusedMonthIndex !== null
@@ -1417,6 +1420,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           setWizardOpen(false);
           setThemeSheetOpen(true);
         }}
+        autoSelectedIds={autoSelectedMemberId ? [autoSelectedMemberId] : []}
       />
 
       {/* Theme selection sheet */}
@@ -1428,6 +1432,20 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         onChoose={(flow, selectedThemeId) => {
           setActiveFlow(flow);
           setActiveSubstituteThemeId(selectedThemeId);
+          if (flow.startsWith('special') && focusedMonth) {
+            const idxStr = flow.split('_')[1];
+            const idx = idxStr ? parseInt(idxStr, 10) : NaN;
+            const opt = !isNaN(idx) ? (focusedMonth.substituteOptions || [])[idx] : undefined;
+            const personName = opt?.substitutePersonName;
+            const member = personName
+              ? wizardCharacters.find(
+                  (c) => c.name?.toLowerCase() === personName.toLowerCase(),
+                )
+              : undefined;
+            setAutoSelectedMemberId(member?.id);
+          } else {
+            setAutoSelectedMemberId(undefined);
+          }
           setThemeSheetOpen(false);
           setWizardOpen(true);
         }}
