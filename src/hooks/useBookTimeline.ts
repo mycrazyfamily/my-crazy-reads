@@ -23,6 +23,8 @@ export interface BookTimelineRow {
   substitute_theme_titre: string | null;
   substitute_condition: string | null;
   substitute_person_name: string | null;
+  selected_theme_titre: string | null;
+  selected_theme_resume: string | null;
 }
 
 export function useBookTimeline(childId: string | null) {
