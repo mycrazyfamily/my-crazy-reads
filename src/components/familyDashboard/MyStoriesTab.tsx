@@ -610,6 +610,7 @@ interface FocusViewProps {
 }
 
 const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfigure, onChooseTheme }) => {
+  const [noteExpanded, setNoteExpanded] = useState(false);
   const isConfigured = month.status === 'configured' || month.status === 'in_creation'
     || month.status === 'in_printing' || month.status === 'shipped' || month.status === 'delivered';
   const isLocked = month.status === 'in_creation' || month.status === 'in_printing'
