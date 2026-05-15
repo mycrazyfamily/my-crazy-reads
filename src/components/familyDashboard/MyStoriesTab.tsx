@@ -76,9 +76,9 @@ const MOCK_MONTHS: MockMonth[] = [
     bookTags: ['32 pages', '6–7 ans', 'Résolution de problème'],
     deadline: '20 mai',
     daysLeft: 14,
-    hasSpecialOption: true,
-    specialOptionTitle: "L'anniversaire de Jules",
-    specialOptionSubtitle: "Jules fête ses 8 ans en juin — on lui dédie ce livre !",
+    substituteThemeId: 'sub-1',
+    substituteThemeTitre: "L'anniversaire de Jules",
+    substitutePersonName: 'Jules',
   },
   {
     monthIndex: 1,
@@ -261,6 +261,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
+    substituteThemeId: row.substitute_theme_id ?? null,
+    substituteThemeTitre: row.substitute_theme_titre ?? null,
+    substitutePersonName: row.substitute_person_name ?? null,
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
@@ -903,13 +906,13 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           description={month.bookSummary}
         />
 
-        {month.hasSpecialOption && (
+        {month.substituteThemeId && (
           <OptionCard
             value="special"
             icon="🎉"
             label="Option spéciale MCF"
-            title={month.specialOptionTitle}
-            description={month.specialOptionSubtitle ?? ''}
+            title={month.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
+            description={`Ce mois-ci, ${month.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
           />
         )}
 
@@ -1126,7 +1129,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         selectedThemeType: themeType,
         selectedCharacters: payload.selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
-        selectedThemeId: themeType === 'standard' ? focusedMonth.themeId ?? undefined : undefined,
+        selectedThemeId: activeFlow === 'special'
+          ? (focusedMonth?.substituteThemeId ?? undefined)
+          : activeFlow === 'standard'
+          ? (focusedMonth?.themeId ?? undefined)
+          : undefined,
         note: payload.note,
       },
       {
@@ -1153,7 +1160,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
 
   const wizardBookTitle = (() => {
     if (!focusedMonth) return '';
-    if (activeFlow === 'special' && focusedMonth.specialOptionTitle) return focusedMonth.specialOptionTitle;
+    if (activeFlow === 'special' && focusedMonth.substituteThemeTitre) {
+      return focusedMonth.substituteThemeTitre.replace('[Prénom]', activeChild?.firstName ?? '');
+    }
     return focusedMonth.bookTitle;
   })();
 
