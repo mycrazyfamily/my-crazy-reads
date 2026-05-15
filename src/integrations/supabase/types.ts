@@ -1805,6 +1805,10 @@ export type Database = {
           selected_characters: Json
           selected_theme_type: string
           status: string
+          substitute_condition: string
+          substitute_person_name: string
+          substitute_theme_id: string
+          substitute_theme_titre: string
           theme_cast: Json
           theme_id: string
           theme_logique: string
