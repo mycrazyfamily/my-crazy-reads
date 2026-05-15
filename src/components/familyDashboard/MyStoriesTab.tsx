@@ -1389,6 +1389,10 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             ?.saved_note ?? ''
         }
         onSubmit={handleWizardSubmit}
+        onBackToThemeSheet={() => {
+          setWizardOpen(false);
+          setThemeSheetOpen(true);
+        }}
       />
 
       {/* Theme selection sheet */}
