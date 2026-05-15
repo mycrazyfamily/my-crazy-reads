@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -261,6 +261,12 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
+    configuredCharacters: (() => {
+      if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
+      return (row.selected_characters as any[])
+        .filter((c: any) => c.type !== 'child')
+        .map((c: any) => c.name);
+    })(),
     configuredSummary: (() => {
       const parts: string[] = [];
       if (row.selected_characters && Array.isArray(row.selected_characters)) {
