@@ -431,6 +431,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       {/* Standard flow: step 1 = characters */}
       {!isCustom && step === 1 && (
         <>
+          {onBackToThemeSheet && flow !== 'monthly' && (
+            <button
+              type="button"
+              onClick={onBackToThemeSheet}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Choisir un autre thème
+            </button>
+          )}
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
             {charactersStepTitle}
           </h3>
