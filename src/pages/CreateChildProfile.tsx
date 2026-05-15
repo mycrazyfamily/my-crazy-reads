@@ -487,6 +487,8 @@ const CreateChildProfile = ({
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
+        queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+        queryClient.invalidateQueries({ queryKey: ['family-data'] });
         if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
