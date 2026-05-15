@@ -239,7 +239,7 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
-function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): MockMonth {
+function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, gender?: string): MockMonth {
   const delivery = parseISO(row.delivery_month);
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
@@ -279,9 +279,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     })(),
     bookSummary: (() => {
       if (row.selected_theme_resume)
-        return formatSummary(row.selected_theme_resume, childName);
+        return formatSummary(row.selected_theme_resume, childName, gender);
       if (row.theme_resume)
-        return formatSummary(row.theme_resume, childName);
+        return formatSummary(row.theme_resume, childName, gender);
       return '';
     })(),
     bookTags: [],
