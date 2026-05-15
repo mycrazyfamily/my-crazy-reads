@@ -223,14 +223,23 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 // Helper: replace [Prénom] placeholder with real child name
 const formatTitle = (text: string | null, firstName: string) =>
   text?.replace(/\[Prénom\]/g, firstName) ?? '';
-const formatSummary = (text: string | null, firstName: string) =>
-  text?.replace(/\[Prénom\]/g, firstName) ?? '';
+const formatSummary = (text: string | null, firstName: string, gender?: string) => {
+  if (!text) return '';
+  const isFemale = gender === 'girl' || gender === 'female';
+  return text
+    .replace(/\[Prénom\]/g, firstName)
+    .replace(/\[il\/elle\]/g, isFemale ? 'elle' : 'il')
+    .replace(/\[son\/sa\]/g, isFemale ? 'sa' : 'son')
+    .replace(/\[ami\/amie\]/g, isFemale ? 'amie' : 'ami')
+    .replace(/\[cousin\/cousine\]/g, isFemale ? 'cousine' : 'cousin')
+    .replace(/\[Curieux\/Curieuse\]/g, isFemale ? 'Curieuse' : 'Curieux');
+};
 
 // ---------- Supabase row → MockMonth shape ----------
 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
-function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): MockMonth {
+function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, gender?: string): MockMonth {
   const delivery = parseISO(row.delivery_month);
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
@@ -270,9 +279,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     })(),
     bookSummary: (() => {
       if (row.selected_theme_resume)
-        return formatSummary(row.selected_theme_resume, childName);
+        return formatSummary(row.selected_theme_resume, childName, gender);
       if (row.theme_resume)
-        return formatSummary(row.theme_resume, childName);
+        return formatSummary(row.theme_resume, childName, gender);
       return '';
     })(),
     bookTags: [],
@@ -1076,8 +1085,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     useBookTimeline(activeChildId);
 
   const months: MockMonth[] = useMemo(
-    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '')),
-    [timelineRows, activeChild?.firstName]
+    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.gender)),
+    [timelineRows, activeChild?.firstName, activeChild?.gender]
   );
 
   const totalPlanned = months.length;
