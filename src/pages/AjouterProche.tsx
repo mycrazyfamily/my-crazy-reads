@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ interface Child {
 export default function AjouterProche() {
   const navigate = useNavigate();
   const invalidateFamilyData = useInvalidateFamilyData();
+  const queryClient = useQueryClient();
   const { user, supabaseSession } = useAuth();
   
   // Synchroniser automatiquement le family_id
@@ -246,6 +248,7 @@ export default function AjouterProche() {
       
       toast.success('Proche ajouté avec succès !');
       invalidateFamilyData();
+      queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
