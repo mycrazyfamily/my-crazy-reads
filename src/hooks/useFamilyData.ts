@@ -29,6 +29,7 @@ export interface FamilyChild {
   id: string;
   firstName: string;
   age: string;
+  gender: string | null;
   avatar: string | null;
   personalityEmoji: string;
   relatives: any[];
