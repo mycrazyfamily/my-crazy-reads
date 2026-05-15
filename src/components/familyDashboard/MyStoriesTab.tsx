@@ -59,9 +59,12 @@ interface MockMonth {
   themeId?: string | null;
   configuredSummary?: string;
   savedNote?: string;
-  substituteThemeId?: string | null;
-  substituteThemeTitre?: string | null;
-  substitutePersonName?: string | null;
+  substituteOptions?: Array<{
+    substituteThemeId: string;
+    substituteThemeTitre: string;
+    substituteCondition: string;
+    substitutePersonName: string;
+  }>;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -76,9 +79,14 @@ const MOCK_MONTHS: MockMonth[] = [
     bookTags: ['32 pages', '6–7 ans', 'Résolution de problème'],
     deadline: '20 mai',
     daysLeft: 14,
-    substituteThemeId: 'sub-1',
-    substituteThemeTitre: "L'anniversaire de Jules",
-    substitutePersonName: 'Jules',
+    substituteOptions: [
+      {
+        substituteThemeId: 'sub-1',
+        substituteThemeTitre: "L'anniversaire de Jules",
+        substituteCondition: 'birthday',
+        substitutePersonName: 'Jules',
+      },
+    ],
   },
   {
     monthIndex: 1,
@@ -273,9 +281,12 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string): M
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
-    substituteThemeId: row.substitute_theme_id ?? null,
-    substituteThemeTitre: row.substitute_theme_titre ?? null,
-    substitutePersonName: row.substitute_person_name ?? null,
+    substituteOptions: (row.substitute_options || []).map((s: any) => ({
+      substituteThemeId: s.substitute_theme_id,
+      substituteThemeTitre: s.substitute_theme_titre,
+      substituteCondition: s.substitute_condition,
+      substitutePersonName: s.substitute_person_name,
+    })),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
@@ -850,7 +861,7 @@ interface ThemeSelectionSheetProps {
   onOpenChange: (open: boolean) => void;
   month: MockMonth | null;
   childName: string;
-  onChoose: (flow: FlowType) => void;
+  onChoose: (flow: FlowType, selectedThemeId?: string) => void;
 }
 
 const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose }) => {
@@ -866,7 +877,12 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
   const handleClose = (o: boolean) => onOpenChange(o);
 
   const handleContinue = () => {
-    onChoose(selected);
+    let substituteThemeId: string | undefined;
+    if (typeof selected === 'string' && selected.startsWith('special_')) {
+      const idx = parseInt(selected.split('_')[1], 10);
+      substituteThemeId = month?.substituteOptions?.[idx]?.substituteThemeId;
+    }
+    onChoose(selected, substituteThemeId);
   };
 
   const OptionCard: React.FC<{
@@ -929,15 +945,16 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           description={month.bookSummary}
         />
 
-        {month.substituteThemeId && (
+        {(month.substituteOptions || []).map((opt, idx) => (
           <OptionCard
-            value="special"
+            key={idx}
+            value={`special_${idx}` as FlowType}
             icon="🎉"
             label="Option spéciale MCF"
-            title={month.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
-            description={`Ce mois-ci, ${month.substitutePersonName} fête son anniversaire, on lui dédie ce livre !`}
+            title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
+            description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
           />
-        )}
+        ))}
 
         <OptionCard
           value="custom"
@@ -1085,6 +1102,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [themeSheetOpen, setThemeSheetOpen] = useState(false);
   const [activeFlow, setActiveFlow] = useState<FlowType>('monthly');
+  const [activeSubstituteThemeId, setActiveSubstituteThemeId] = useState<string | undefined>(undefined);
 
   const focusedMonth =
     focusedMonthIndex !== null
@@ -1143,8 +1161,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       toast.error('Livre introuvable, réessaie.');
       return;
     }
+    const isSpecial = typeof activeFlow === 'string' && activeFlow.startsWith('special');
     const themeType: 'standard' | 'substitute' | 'original' =
-      activeFlow === 'custom' ? 'original' : activeFlow === 'special' ? 'substitute' : 'standard';
+      activeFlow === 'custom' ? 'original' : isSpecial ? 'substitute' : 'standard';
 
     saveChoice(
       {
@@ -1152,10 +1171,10 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         selectedThemeType: themeType,
         selectedCharacters: payload.selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
-        selectedThemeId: activeFlow === 'special'
-          ? (focusedMonth?.substituteThemeId ?? undefined)
-          : activeFlow === 'monthly'
+        selectedThemeId: activeFlow === 'monthly'
           ? (focusedMonth?.themeId ?? undefined)
+          : isSpecial
+          ? activeSubstituteThemeId
           : undefined,
         note: payload.note,
       },
@@ -1183,8 +1202,13 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
 
   const wizardBookTitle = (() => {
     if (!focusedMonth) return '';
-    if (activeFlow === 'special' && focusedMonth.substituteThemeTitre) {
-      return focusedMonth.substituteThemeTitre.replace('[Prénom]', activeChild?.firstName ?? '');
+    if (typeof activeFlow === 'string' && activeFlow.startsWith('special')) {
+      const opt = (focusedMonth.substituteOptions || []).find(
+        (o) => o.substituteThemeId === activeSubstituteThemeId,
+      );
+      if (opt?.substituteThemeTitre) {
+        return opt.substituteThemeTitre.replace('[Prénom]', activeChild?.firstName ?? '');
+      }
     }
     return focusedMonth.bookTitle;
   })();
@@ -1401,8 +1425,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         onOpenChange={setThemeSheetOpen}
         month={focusedMonth}
         childName={activeChild?.firstName ?? ''}
-        onChoose={(flow) => {
+        onChoose={(flow, selectedThemeId) => {
           setActiveFlow(flow);
+          setActiveSubstituteThemeId(selectedThemeId);
           setThemeSheetOpen(false);
           setWizardOpen(true);
         }}

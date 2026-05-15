@@ -19,10 +19,12 @@ export interface BookTimelineRow {
   saved_note: string | null;
   production_status: string | null;
   pdf_url: string | null;
-  substitute_theme_id: string | null;
-  substitute_theme_titre: string | null;
-  substitute_condition: string | null;
-  substitute_person_name: string | null;
+  substitute_options: Array<{
+    substitute_theme_id: string;
+    substitute_theme_titre: string;
+    substitute_condition: string;
+    substitute_person_name: string;
+  }>;
   selected_theme_titre: string | null;
   selected_theme_resume: string | null;
 }
