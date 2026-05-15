@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
-import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import FormSteps from '@/components/childProfile/FormSteps';
 import { ChildProfileFormProvider } from '@/contexts/ChildProfileFormContext';
 import { useChildProfileSubmit } from '@/hooks/useChildProfileSubmit';
