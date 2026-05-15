@@ -861,7 +861,7 @@ interface ThemeSelectionSheetProps {
   onOpenChange: (open: boolean) => void;
   month: MockMonth | null;
   childName: string;
-  onChoose: (flow: FlowType) => void;
+  onChoose: (flow: FlowType, selectedThemeId?: string) => void;
 }
 
 const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose }) => {
@@ -877,7 +877,12 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
   const handleClose = (o: boolean) => onOpenChange(o);
 
   const handleContinue = () => {
-    onChoose(selected);
+    let substituteThemeId: string | undefined;
+    if (typeof selected === 'string' && selected.startsWith('special_')) {
+      const idx = parseInt(selected.split('_')[1], 10);
+      substituteThemeId = month?.substituteOptions?.[idx]?.substituteThemeId;
+    }
+    onChoose(selected, substituteThemeId);
   };
 
   const OptionCard: React.FC<{
@@ -940,15 +945,16 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           description={month.bookSummary}
         />
 
-        {month.substituteThemeId && (
+        {(month.substituteOptions || []).map((opt, idx) => (
           <OptionCard
-            value="special"
+            key={idx}
+            value={`special_${idx}` as FlowType}
             icon="🎉"
             label="Option spéciale MCF"
-            title={month.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
-            description={`Ce mois-ci, ${month.substitutePersonName} fête son anniversaire, on lui dédie ce livre !`}
+            title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
+            description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
           />
-        )}
+        ))}
 
         <OptionCard
           value="custom"
