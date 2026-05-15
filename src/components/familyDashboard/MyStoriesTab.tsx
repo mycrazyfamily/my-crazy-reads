@@ -55,13 +55,13 @@ interface MockMonth {
   daysLeft?: number;
   configuredOn?: string;
   configuredCharacters?: string[];
-  hasSpecialOption?: boolean;
-  specialOptionTitle?: string;
-  specialOptionSubtitle?: string;
   bookRequestId?: string;
   themeId?: string | null;
   configuredSummary?: string;
   savedNote?: string;
+  substituteThemeId?: string | null;
+  substituteThemeTitre?: string | null;
+  substitutePersonName?: string | null;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
