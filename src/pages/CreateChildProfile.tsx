@@ -492,8 +492,10 @@ const CreateChildProfile = ({
         if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
+        // Remplace l'entrée du formulaire dans l'historique pour que le bouton précédent du navigateur
+        // ne ramène pas vers le profil édité après l'enregistrement.
         setTimeout(() => {
-          navigate('/espace-famille');
+          navigate('/espace-famille', { replace: true });
         }, 500);
       } catch (error: any) {
         console.error('❌ [CREATE-CHILD] Error updating child profile:', error);
