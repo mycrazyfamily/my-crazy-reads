@@ -1085,8 +1085,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     useBookTimeline(activeChildId);
 
   const months: MockMonth[] = useMemo(
-    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '')),
-    [timelineRows, activeChild?.firstName]
+    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.gender)),
+    [timelineRows, activeChild?.firstName, activeChild?.gender]
   );
 
   const totalPlanned = months.length;
