@@ -912,7 +912,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             icon="🎉"
             label="Option spéciale MCF"
             title={month.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
-            description={`Ce mois-ci, ${month.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+            description={`Ce mois-ci, ${month.substitutePersonName} fête son anniversaire, on lui dédie ce livre !`}
           />
         )}
 
