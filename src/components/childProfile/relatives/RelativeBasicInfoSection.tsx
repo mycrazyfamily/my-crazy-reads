@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 
-import ErrorBoundary from '@/components/util/ErrorBoundary';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STANDALONE_RELATIVE_ROLE_OPTIONS, getRoleKeyFromRoleAndGender, roleNeedsGenderSelector } from '@/constants/childProfileOptions';
