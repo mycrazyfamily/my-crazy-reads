@@ -65,6 +65,8 @@ interface MockMonth {
     substituteCondition: string;
     substitutePersonName: string;
   }>;
+  selectedThemeType?: string | null;
+  dedicatedPersonName?: string | null;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
