@@ -27,6 +27,7 @@ export interface BookTimelineRow {
   }>;
   selected_theme_titre: string | null;
   selected_theme_resume: string | null;
+  selected_theme_id: string | null;
 }
 
 export function useBookTimeline(childId: string | null) {
