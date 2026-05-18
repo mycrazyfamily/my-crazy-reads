@@ -874,15 +874,28 @@ interface ThemeSelectionSheetProps {
   month: MockMonth | null;
   childName: string;
   onChoose: (flow: FlowType, selectedThemeId?: string) => void;
+  currentSelectedThemeId?: string;
 }
 
-const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose }) => {
+const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId }) => {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<FlowType>('monthly');
 
   React.useEffect(() => {
-    if (open) setSelected('monthly');
-  }, [open]);
+    if (open && month) {
+      // Pre-select special option if currently configured with a substitute theme
+      if (month.status === 'configured' && currentSelectedThemeId) {
+        const matchIdx = (month.substituteOptions || []).findIndex(
+          (opt) => opt.substituteThemeId === currentSelectedThemeId
+        );
+        if (matchIdx >= 0) {
+          setSelected(`special_${matchIdx}` as FlowType);
+          return;
+        }
+      }
+      setSelected('monthly');
+    }
+  }, [open, month, currentSelectedThemeId]);
 
   if (!month) return null;
 
@@ -963,6 +976,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             value={`special_${idx}` as FlowType}
             icon="🎉"
             label="Option spéciale MCF"
+            badge={opt.substituteThemeId === currentSelectedThemeId ? 'Choix actuel' : undefined}
             title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
             description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
           />
@@ -1439,6 +1453,10 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         onOpenChange={setThemeSheetOpen}
         month={focusedMonth}
         childName={activeChild?.firstName ?? ''}
+        currentSelectedThemeId={
+          timelineRows?.find(r => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_theme_id ?? undefined
+        }
         onChoose={(flow, selectedThemeId) => {
           setActiveFlow(flow);
           setActiveSubstituteThemeId(selectedThemeId);
