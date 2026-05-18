@@ -65,6 +65,8 @@ interface MockMonth {
     substituteCondition: string;
     substitutePersonName: string;
   }>;
+  selectedThemeType?: string | null;
+  dedicatedPersonName?: string | null;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -297,6 +299,14 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       substituteCondition: s.substitute_condition,
       substitutePersonName: s.substitute_person_name,
     })),
+    selectedThemeType: row.selected_theme_type ?? null,
+    dedicatedPersonName: (() => {
+      if (row.selected_theme_type !== 'substitute') return null;
+      const match = (row.substitute_options || []).find(
+        (s: any) => s.substitute_theme_id === row.selected_theme_id
+      );
+      return match?.substitute_person_name ?? null;
+    })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
@@ -713,12 +723,40 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Votre configuration
                   </p>
+                  {month.dedicatedPersonName && (
+                    <div className="mb-2">
+                      <p className="text-xs text-muted-foreground mb-1">Dédié à</p>
+                      <p className="text-sm font-semibold" style={{ color: PRIMARY_VIOLET }}>
+                        🎉 {month.dedicatedPersonName}
+                      </p>
+                    </div>
+                  )}
                   {month.configuredCharacters && month.configuredCharacters.length > 0 && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Personnages</p>
-                      <p className="text-sm font-medium text-foreground">
-                        {month.configuredCharacters.join(', ')}
-                      </p>
+                      {(() => {
+                        const dedicated = month.dedicatedPersonName;
+                        const chars = [...month.configuredCharacters];
+                        const ordered = dedicated
+                          ? [
+                              ...chars.filter((c) => c === dedicated),
+                              ...chars.filter((c) => c !== dedicated),
+                            ]
+                          : chars;
+                        const others = dedicated ? ordered.filter((c) => c !== dedicated) : ordered;
+                        const hasDedicatedInList = dedicated && chars.includes(dedicated);
+                        return (
+                          <p className="text-sm font-medium text-foreground">
+                            {hasDedicatedInList && (
+                              <span className="font-bold" style={{ color: PRIMARY_VIOLET }}>
+                                🎂 {dedicated}
+                              </span>
+                            )}
+                            {hasDedicatedInList && others.length > 0 && ', '}
+                            {others.join(', ')}
+                          </p>
+                        );
+                      })()}
                     </div>
                   )}
                   {month.savedNote && month.savedNote.trim() && (
