@@ -207,28 +207,28 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
           <span className="text-xl">🎂</span> Date de naissance
         </label>
         <div className="relative">
-          {ready ? (
-            <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
-              <div className="space-y-2">
-                <Input
-                  value={birthDate ? format(birthDate, 'dd/MM/yyyy') : ''}
-                  readOnly
-                  placeholder="JJ/MM/AAAA"
-                  className="border-mcf-amber cursor-pointer"
-                  onClick={() => {}}
-                />
-                <StepDatePicker
-                  value={birthDate}
-                  onChange={(date) => handleDateChange(date ?? null)}
-                  minYear={1920}
-                  maxYear={new Date().getFullYear()}
-                  className="border-mcf-amber/50"
-                />
-              </div>
-            </ErrorBoundary>
-          ) : (
-            <Input className="border-mcf-amber" placeholder="JJ/MM/AAAA" readOnly />
-          )}
+          <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
+            <Input
+              type="date"
+              value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
+              min="1920-01-01"
+              max={format(new Date(), 'yyyy-MM-dd')}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (!v) {
+                  handleDateChange(null);
+                  return;
+                }
+                const [y, m, d] = v.split('-').map(Number);
+                if (!y || !m || !d) {
+                  handleDateChange(null);
+                  return;
+                }
+                handleDateChange(new Date(y, m - 1, d, 12, 0, 0, 0));
+              }}
+              className="border-mcf-amber"
+            />
+          </ErrorBoundary>
         </div>
         {ageDisplay && (
           <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
