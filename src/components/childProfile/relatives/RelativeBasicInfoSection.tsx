@@ -1,14 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 
-import ErrorBoundary from '@/components/util/ErrorBoundary';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STANDALONE_RELATIVE_ROLE_OPTIONS, getRoleKeyFromRoleAndGender, roleNeedsGenderSelector } from '@/constants/childProfileOptions';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
-import { differenceInMonths, differenceInYears, isAfter, format } from "date-fns";
-import { fr } from 'date-fns/locale';
-import { StepDatePicker } from "@/components/ui/step-date-picker";
+import { differenceInMonths, differenceInYears, isAfter } from "date-fns";
 
 type RelativeBasicInfoSectionProps = {
   type: RelativeType;
@@ -206,30 +203,12 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">🎂</span> Date de naissance
         </label>
-        <div className="relative">
-          <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Erreur lors de l'affichage du calendrier</div>}>
-            <Input
-              type="date"
-              value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
-              min="1920-01-01"
-              max={format(new Date(), 'yyyy-MM-dd')}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (!v) {
-                  handleDateChange(null);
-                  return;
-                }
-                const [y, m, d] = v.split('-').map(Number);
-                if (!y || !m || !d) {
-                  handleDateChange(null);
-                  return;
-                }
-                handleDateChange(new Date(y, m - 1, d, 12, 0, 0, 0));
-              }}
-              className="border-mcf-amber"
-            />
-          </ErrorBoundary>
-        </div>
+        <Input
+          type="date"
+          value={birthDate ? birthDate.toISOString().split('T')[0] : ''}
+          onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
+          className="border-mcf-amber"
+        />
         {ageDisplay && (
           <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
             <p className="text-sm font-medium text-mcf-primary-dark">
