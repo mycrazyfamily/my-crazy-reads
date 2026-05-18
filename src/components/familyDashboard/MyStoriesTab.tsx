@@ -232,6 +232,7 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
     .replace(/\[son\/sa\]/g, isFemale ? 'sa' : 'son')
     .replace(/\[ami\/amie\]/g, isFemale ? 'amie' : 'ami')
     .replace(/\[cousin\/cousine\]/g, isFemale ? 'cousine' : 'cousin')
+    .replace(/\[cousine\/cousin\]/g, isFemale ? 'cousine' : 'cousin')
     .replace(/\[Curieux\/Curieuse\]/g, isFemale ? 'Curieuse' : 'Curieux');
 };
 
