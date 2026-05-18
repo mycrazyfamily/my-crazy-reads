@@ -299,6 +299,14 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       substituteCondition: s.substitute_condition,
       substitutePersonName: s.substitute_person_name,
     })),
+    selectedThemeType: row.selected_theme_type ?? null,
+    dedicatedPersonName: (() => {
+      if (row.selected_theme_type !== 'substitute') return null;
+      const match = (row.substitute_options || []).find(
+        (s: any) => s.substitute_theme_id === row.selected_theme_id
+      );
+      return match?.substitute_person_name ?? null;
+    })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
