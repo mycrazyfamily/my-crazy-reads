@@ -375,9 +375,10 @@ interface WizardProps {
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
+  dedicatedName?: string | null;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -506,6 +507,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
+          {dedicatedName && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+              <span>🎂</span>
+              <span><strong>{dedicatedName}</strong> est la star de ce livre</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
@@ -567,6 +575,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span>🧒</span>
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
+
+          {dedicatedName && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+              <span>🎂</span>
+              <span><strong>{dedicatedName}</strong> est la star de ce livre</span>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
@@ -1249,7 +1264,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       avatarUrl: s.avatar_url || undefined,
       locked: false,
     }));
-    return [child, ...members, ...pets, ...siblings];
+    return [child, ...siblings, ...members, ...pets];
   }, [activeChild]);
 
   const dedicatedName = (() => {
@@ -1525,6 +1540,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           setThemeSheetOpen(true);
         }}
         autoSelectedIds={autoSelectedMemberId ? [autoSelectedMemberId] : []}
+        dedicatedName={dedicatedName}
       />
 
       {/* Theme selection sheet */}
