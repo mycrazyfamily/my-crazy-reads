@@ -419,9 +419,7 @@ const ModifierProche: React.FC = () => {
       if (relativeId) signalAvatarRegeneration(relativeId);
       invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
-      setTimeout(() => {
-        navigate('/espace-famille');
-      }, 300);
+      window.location.href = '/espace-famille';
     } catch (e) {
       console.error('Error saving relative:', e);
       toast.error("Erreur lors de la sauvegarde");
