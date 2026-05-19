@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StepDatePicker } from "@/components/ui/step-date-picker";
+import ErrorBoundary from "@/components/util/ErrorBoundary";
 import { STANDALONE_RELATIVE_ROLE_OPTIONS, getRoleKeyFromRoleAndGender, roleNeedsGenderSelector } from '@/constants/childProfileOptions';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 import { differenceInMonths, differenceInYears, isAfter } from "date-fns";
@@ -203,12 +205,25 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">🎂</span> Date de naissance
         </label>
-        <Input
-          type="date"
-          value={birthDate ? birthDate.toISOString().split('T')[0] : ''}
-          onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
-          className="border-mcf-amber"
-        />
+        <div style={{ position: 'relative' }}>
+          <ErrorBoundary
+            fallback={
+              <Input
+                type="date"
+                value={birthDate ? birthDate.toISOString().split('T')[0] : ''}
+                onChange={(e) => setBirthDate(e.target.value ? new Date(e.target.value) : undefined)}
+                className="border-mcf-amber"
+              />
+            }
+          >
+            {ready && (
+              <StepDatePicker
+                value={birthDate}
+                onChange={handleDateChange as (d: Date | undefined) => void}
+              />
+            )}
+          </ErrorBoundary>
+        </div>
         {ageDisplay && (
           <div className="mt-2 p-2 bg-mcf-amber/10 rounded-md text-center">
             <p className="text-sm font-medium text-mcf-primary-dark">
