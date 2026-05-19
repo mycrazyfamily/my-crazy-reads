@@ -375,6 +375,7 @@ interface WizardProps {
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
+  dedicatedName?: string | null;
 }
 
 const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName }) => {
