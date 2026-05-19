@@ -954,9 +954,10 @@ interface ThemeSelectionSheetProps {
   childName: string;
   onChoose: (flow: FlowType, selectedThemeId?: string) => void;
   currentSelectedThemeId?: string;
+  currentDedicatedName?: string;
 }
 
-const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId }) => {
+const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId, currentDedicatedName }) => {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<FlowType>('monthly');
 
@@ -1055,7 +1056,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             value={`special_${idx}` as FlowType}
             icon="🎉"
             label="Option spéciale MCF"
-            badge={opt.substituteThemeId === currentSelectedThemeId ? 'Choix actuel' : undefined}
+            badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
             title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
             description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
           />
@@ -1593,6 +1594,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         currentSelectedThemeId={
           timelineRows?.find(r => r.book_request_id === focusedMonth?.bookRequestId)
             ?.selected_theme_id ?? undefined
+        }
+        currentDedicatedName={
+          (timelineRows?.find(r => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_characters as any[] | undefined)
+            ?.find((c: any) => c?.dedicated)?.name ?? undefined
         }
         onChoose={(flow, selectedThemeId) => {
           setActiveFlow(flow);
