@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StepDatePicker } from "@/components/ui/step-date-picker";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 import { STANDALONE_RELATIVE_ROLE_OPTIONS, getRoleKeyFromRoleAndGender, roleNeedsGenderSelector } from '@/constants/childProfileOptions';
@@ -121,21 +120,18 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
         <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
           <span className="text-xl">👤</span> Qui est ce proche ?
         </label>
-        <Select 
-          value={selectedKey} 
-          onValueChange={handleKeyChange}
+        <select
+          value={selectedKey}
+          onChange={(e) => handleKeyChange(e.target.value)}
+          className="w-full border-2 border-mcf-amber rounded-md px-3 py-2 text-sm 
+                     bg-white focus:outline-none focus:ring-2 focus:ring-mcf-amber"
         >
-          <SelectTrigger className="border-mcf-amber">
-            <SelectValue placeholder="Type de proche" />
-          </SelectTrigger>
-          <SelectContent>
-            {STANDALONE_RELATIVE_ROLE_OPTIONS.map(option => (
-              <SelectItem key={option.key} value={option.key}>
-                {option.icon} {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {STANDALONE_RELATIVE_ROLE_OPTIONS.map(option => (
+            <option key={option.key} value={option.key}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Gender selector for roles without implicit gender */}
