@@ -66,13 +66,6 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
     }
   }, [birthDate]);
 
-  // Delay mounting of DatePicker to avoid race with hydration/auth redirects
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const id = window.setTimeout(() => setReady(true), 200);
-    return () => window.clearTimeout(id);
-  }, []);
 
   const calculateExactAge = (birthDate: Date) => {
     const today = new Date();
@@ -216,12 +209,10 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
               />
             }
           >
-            {ready && (
-              <StepDatePicker
-                value={birthDate}
-                onChange={handleDateChange as (d: Date | undefined) => void}
-              />
-            )}
+            <StepDatePicker
+              value={birthDate}
+              onChange={handleDateChange as (d: Date | undefined) => void}
+            />
           </ErrorBoundary>
         </div>
         {ageDisplay && (
