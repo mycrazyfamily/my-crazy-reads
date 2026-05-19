@@ -24,7 +24,7 @@ export interface BookTimelineRow {
     substitute_theme_titre: string;
     substitute_condition: string;
     substitute_person_name: string;
-  }>;
+  }> | null;
   selected_theme_titre: string | null;
   selected_theme_resume: string | null;
   selected_theme_id: string | null;
