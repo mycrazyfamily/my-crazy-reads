@@ -1461,7 +1461,27 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           childName={activeChild?.firstName ?? ''}
           onBack={() => setFocusedMonthIndex(null)}
           onConfigure={() => {
-            setActiveFlow('monthly');
+            if (focusedMonth.selectedThemeType === 'original') {
+              setActiveFlow('custom');
+              setActiveSubstituteThemeId(undefined);
+            } else if (
+              focusedMonth.selectedThemeType === 'substitute' &&
+              focusedMonth.selectedThemeId
+            ) {
+              const idx = (focusedMonth.substituteOptions || []).findIndex(
+                (opt) => opt.substituteThemeId === focusedMonth.selectedThemeId
+              );
+              if (idx >= 0) {
+                setActiveFlow(`special_${idx}` as FlowType);
+                setActiveSubstituteThemeId(focusedMonth.selectedThemeId);
+              } else {
+                setActiveFlow('monthly');
+                setActiveSubstituteThemeId(undefined);
+              }
+            } else {
+              setActiveFlow('monthly');
+              setActiveSubstituteThemeId(undefined);
+            }
             setWizardOpen(true);
           }}
           onChooseTheme={() => setThemeSheetOpen(true)}
