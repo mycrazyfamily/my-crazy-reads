@@ -230,7 +230,10 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
   const isFemale = gender === 'girl' || gender === 'female';
   return text
     .replace(/\[Prénom\]/g, firstName)
+    .replace(/\[le\/la\]/g, isFemale ? 'la' : 'le')
+    .replace(/\[lui\/elle\]/g, isFemale ? 'elle' : 'lui')
     .replace(/\[il\/elle\]/g, isFemale ? 'elle' : 'il')
+    .replace(/\[son\/sa\] \[ami\/amie\]/g, isFemale ? 'son amie' : 'son ami')
     .replace(/\[son\/sa\]/g, isFemale ? 'sa' : 'son')
     .replace(/\[ami\/amie\]/g, isFemale ? 'amie' : 'ami')
     .replace(/\[cousin\/cousine\]/g, isFemale ? 'cousine' : 'cousin')
