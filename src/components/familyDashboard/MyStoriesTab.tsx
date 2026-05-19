@@ -1047,7 +1047,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
         Ce choix remplacera le livre prévu pour ce mois
       </p>
 
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3 mb-6 max-h-[60vh] overflow-y-auto">
         <OptionCard
           value="monthly"
           icon="📖"
