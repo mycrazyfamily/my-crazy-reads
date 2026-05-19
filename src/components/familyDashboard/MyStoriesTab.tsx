@@ -323,20 +323,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     selectedThemeId: row.selected_theme_id ?? null,
     originalThemeInstructions: row.original_theme_instructions ?? null,
     dedicatedPersonName: (() => {
-      if (!row.selected_theme_id) return null;
-      if (row.selected_theme_type !== 'substitute') return null;
-      let opts: any = row.substitute_options;
-      if (!opts) return null;
-      if (typeof opts === 'string') {
-        try { opts = JSON.parse(opts); } catch { return null; }
-      }
-      if (!Array.isArray(opts) || opts.length === 0) return null;
-      for (const s of opts) {
-        if (String(s.substitute_theme_id) === String(row.selected_theme_id)) {
-          return s.substitute_person_name || null;
-        }
-      }
-      return null;
+      if (!row.selected_characters || !Array.isArray(row.selected_characters)) return null;
+      const found = (row.selected_characters as any[]).find((c: any) => c?.dedicated === true);
+      return found?.name ?? null;
     })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
@@ -1301,11 +1290,18 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     const themeType: 'standard' | 'substitute' | 'original' =
       activeFlow === 'custom' ? 'original' : isSpecial ? 'substitute' : 'standard';
 
+    const selectedCharacters =
+      themeType === 'substitute' && dedicatedName
+        ? payload.selectedCharacters.map((c) =>
+            c.name === dedicatedName ? { ...c, dedicated: true } : c,
+          )
+        : payload.selectedCharacters;
+
     saveChoice(
       {
         bookRequestId: focusedMonth.bookRequestId,
         selectedThemeType: themeType,
-        selectedCharacters: payload.selectedCharacters,
+        selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
         selectedThemeId: activeFlow === 'monthly'
           ? (focusedMonth?.themeId ?? undefined)
@@ -1471,9 +1467,15 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
               focusedMonth.selectedThemeType === 'substitute' &&
               focusedMonth.selectedThemeId
             ) {
-              const idx = (focusedMonth.substituteOptions || []).findIndex(
-                (opt) => opt.substituteThemeId === focusedMonth.selectedThemeId
-              );
+              const dedicatedFromChars = focusedMonth.dedicatedPersonName;
+              const opts = focusedMonth.substituteOptions || [];
+              let idx = -1;
+              if (dedicatedFromChars) {
+                idx = opts.findIndex((opt) => opt.substitutePersonName === dedicatedFromChars);
+              }
+              if (idx < 0) {
+                idx = opts.findIndex((opt) => opt.substituteThemeId === focusedMonth.selectedThemeId);
+              }
               if (idx >= 0) {
                 setActiveFlow(`special_${idx}` as FlowType);
                 setActiveSubstituteThemeId(focusedMonth.selectedThemeId);
