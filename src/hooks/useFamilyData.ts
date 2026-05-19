@@ -39,6 +39,7 @@ export interface FamilyChild {
   preferencesCount: number;
   hasPets: number;
   birthDate: string | null;
+  siblings: Array<{ id: string; firstName: string; avatar_url: string | null }>;
 }
 
 async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
@@ -50,7 +51,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
 
   // Global family-level fetch: ALL members & pets of the family
   const familyId = userProfile?.family_id;
-  const [{ data: allFamilyMembers }, { data: allFamilyPets }] = await Promise.all([
+  const [{ data: allFamilyMembers }, { data: allFamilyPets }, { data: siblingProfiles }] = await Promise.all([
     familyId
       ? supabase
           .from('family_members')
@@ -61,6 +62,12 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
       ? supabase
           .from('pets')
           .select('id, name, type, emoji, avatar_url, breed')
+          .eq('family_id', familyId)
+      : Promise.resolve({ data: [] as any[], error: null }),
+    familyId
+      ? supabase
+          .from('child_profiles')
+          .select('id, first_name, avatar_url, birth_date')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
   ] as const);
@@ -108,6 +115,13 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     preferencesCount: 0,
     hasPets: (allFamilyPets || []).length,
     birthDate: profile.birth_date || null,
+    siblings: (siblingProfiles || [])
+      .filter((s: any) => s.id !== profile.id)
+      .map((s: any) => ({
+        id: s.id,
+        firstName: s.first_name,
+        avatar_url: s.avatar_url,
+      })),
   }));
 
   await Promise.all(
