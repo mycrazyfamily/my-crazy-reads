@@ -66,6 +66,8 @@ interface MockMonth {
     substitutePersonName: string;
   }>;
   selectedThemeType?: string | null;
+  selectedThemeId?: string | null;
+  originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
 }
 
@@ -285,6 +287,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     deliveryShort,
     status,
     bookTitle: (() => {
+      if (row.selected_theme_type === 'original')
+        return '✨ Histoire inédite';
       if (row.selected_theme_titre)
         return formatTitle(row.selected_theme_titre, childName);
       if (row.theme_titre)
@@ -292,6 +296,11 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       return PLACEHOLDER_TITLE;
     })(),
     bookSummary: (() => {
+      if (row.selected_theme_type === 'original') {
+        if (row.original_theme_instructions)
+          return row.original_theme_instructions;
+        return 'Votre histoire est en cours de préparation…';
+      }
       if (row.selected_theme_resume)
         return formatSummary(row.selected_theme_resume, childName, gender);
       if (row.theme_resume)
@@ -311,6 +320,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       substitutePersonName: s.substitute_person_name,
     })),
     selectedThemeType: row.selected_theme_type ?? null,
+    selectedThemeId: row.selected_theme_id ?? null,
+    originalThemeInstructions: row.original_theme_instructions ?? null,
     dedicatedPersonName: (() => {
       if (!row.selected_theme_id) return null;
       if (row.selected_theme_type !== 'substitute') return null;
