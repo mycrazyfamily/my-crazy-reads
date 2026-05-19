@@ -66,6 +66,8 @@ interface MockMonth {
     substitutePersonName: string;
   }>;
   selectedThemeType?: string | null;
+  selectedThemeId?: string | null;
+  originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
 }
 
