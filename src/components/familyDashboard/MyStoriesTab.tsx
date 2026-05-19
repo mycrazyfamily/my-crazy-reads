@@ -964,6 +964,49 @@ interface ThemeSelectionSheetProps {
   currentDedicatedName?: string;
 }
 
+const OptionCard: React.FC<{
+  value: FlowType;
+  icon: string;
+  label: string;
+  badge?: string;
+  title?: string;
+  description: string;
+  selected: FlowType;
+  onSelect: (value: FlowType) => void;
+}> = ({ value, icon, label, badge, title, description, selected, onSelect }) => {
+  const isSel = selected === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(value)}
+      className="w-full text-left p-4 rounded-xl border-2 transition-all"
+      style={{
+        borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+        backgroundColor: isSel ? `${PRIMARY_VIOLET}0D` : 'white',
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <span className="text-2xl flex-shrink-0">{icon}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <span className="text-sm font-semibold text-foreground">{label}</span>
+            {badge && (
+              <span
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, color: PRIMARY_VIOLET }}
+              >
+                {badge}
+              </span>
+            )}
+          </div>
+          {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
+          <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+        </div>
+      </div>
+    </button>
+  );
+};
+
 const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId, currentDedicatedName }) => {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<FlowType>('monthly');
