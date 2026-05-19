@@ -320,6 +320,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       substitutePersonName: s.substitute_person_name,
     })),
     selectedThemeType: row.selected_theme_type ?? null,
+    selectedThemeId: row.selected_theme_id ?? null,
+    originalThemeInstructions: row.original_theme_instructions ?? null,
     dedicatedPersonName: (() => {
       if (!row.selected_theme_id) return null;
       if (row.selected_theme_type !== 'substitute') return null;
