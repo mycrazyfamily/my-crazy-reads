@@ -1540,6 +1540,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           setThemeSheetOpen(true);
         }}
         autoSelectedIds={autoSelectedMemberId ? [autoSelectedMemberId] : []}
+        dedicatedName={dedicatedName}
       />
 
       {/* Theme selection sheet */}
