@@ -5,6 +5,7 @@ export interface CharacterChoice {
   type: 'child' | 'family_member' | 'pet';
   id: string;
   name: string;
+  dedicated?: boolean;
 }
 
 export interface SaveBookChoiceParams {
