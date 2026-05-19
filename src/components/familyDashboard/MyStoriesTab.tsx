@@ -323,20 +323,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     selectedThemeId: row.selected_theme_id ?? null,
     originalThemeInstructions: row.original_theme_instructions ?? null,
     dedicatedPersonName: (() => {
-      if (!row.selected_theme_id) return null;
-      if (row.selected_theme_type !== 'substitute') return null;
-      let opts: any = row.substitute_options;
-      if (!opts) return null;
-      if (typeof opts === 'string') {
-        try { opts = JSON.parse(opts); } catch { return null; }
-      }
-      if (!Array.isArray(opts) || opts.length === 0) return null;
-      for (const s of opts) {
-        if (String(s.substitute_theme_id) === String(row.selected_theme_id)) {
-          return s.substitute_person_name || null;
-        }
-      }
-      return null;
+      if (!row.selected_characters || !Array.isArray(row.selected_characters)) return null;
+      const found = (row.selected_characters as any[]).find((c: any) => c?.dedicated === true);
+      return found?.name ?? null;
     })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
