@@ -330,14 +330,14 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
-        .filter((c: any) => c.type !== 'child')
+        .filter((c: any) => c.name !== childName)
         .map((c: any) => c.name);
     })(),
     configuredSummary: (() => {
       const parts: string[] = [];
       if (row.selected_characters && Array.isArray(row.selected_characters)) {
         const names = (row.selected_characters as any[])
-          .filter((c: any) => c.type !== 'child')
+          .filter((c: any) => c.name !== childName)
           .map((c: any) => c.name);
         if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
       }
