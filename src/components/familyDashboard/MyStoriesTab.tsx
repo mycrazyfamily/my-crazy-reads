@@ -1249,7 +1249,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       avatarUrl: s.avatar_url || undefined,
       locked: false,
     }));
-    return [child, ...members, ...pets, ...siblings];
+    return [child, ...siblings, ...members, ...pets];
   }, [activeChild]);
 
   const dedicatedName = (() => {
