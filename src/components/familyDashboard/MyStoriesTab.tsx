@@ -1290,11 +1290,18 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     const themeType: 'standard' | 'substitute' | 'original' =
       activeFlow === 'custom' ? 'original' : isSpecial ? 'substitute' : 'standard';
 
+    const selectedCharacters =
+      themeType === 'substitute' && dedicatedName
+        ? payload.selectedCharacters.map((c) =>
+            c.name === dedicatedName ? { ...c, dedicated: true } : c,
+          )
+        : payload.selectedCharacters;
+
     saveChoice(
       {
         bookRequestId: focusedMonth.bookRequestId,
         selectedThemeType: themeType,
-        selectedCharacters: payload.selectedCharacters,
+        selectedCharacters,
         originalThemeInstructions: themeType === 'original' ? payload.storyIdea : undefined,
         selectedThemeId: activeFlow === 'monthly'
           ? (focusedMonth?.themeId ?? undefined)
