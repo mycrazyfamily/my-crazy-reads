@@ -249,7 +249,7 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
-function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, gender?: string): MockMonth {
+function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, childId: string, gender?: string): MockMonth {
   console.log('DEBUG dedicated:', {
     selected_theme_id: row.selected_theme_id,
     selected_theme_type: row.selected_theme_type,
@@ -330,14 +330,14 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
       return (row.selected_characters as any[])
-        .filter((c: any) => c.name !== childName)
+        .filter((c: any) => c.id !== childId)
         .map((c: any) => c.name);
     })(),
     configuredSummary: (() => {
       const parts: string[] = [];
       if (row.selected_characters && Array.isArray(row.selected_characters)) {
         const names = (row.selected_characters as any[])
-          .filter((c: any) => c.name !== childName)
+          .filter((c: any) => c.id !== childId)
           .map((c: any) => c.name);
         if (names.length > 0) parts.push(`Avec ${names.join(', ')}`);
       }
@@ -1187,7 +1187,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     useBookTimeline(activeChildId);
 
   const months: MockMonth[] = useMemo(
-    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.gender)),
+    () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.id ?? '', activeChild?.gender)),
     [timelineRows, activeChild?.firstName, activeChild?.gender]
   );
 
