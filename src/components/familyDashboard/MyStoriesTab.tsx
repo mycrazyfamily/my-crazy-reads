@@ -391,7 +391,14 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   React.useEffect(() => {
     if (open) {
       const lockedIds = characters.filter((c) => c.locked).map((c) => c.id);
-      const savedIds = (savedCharacters || []).map((c: any) => c.id);
+      const isSpecial = typeof flow === 'string' && flow.startsWith('special');
+      const savedIds = (savedCharacters || [])
+        .filter((c: any) => {
+          if (!isSpecial) return true;
+          if (c?.dedicated && c?.name !== dedicatedName) return false;
+          return true;
+        })
+        .map((c: any) => c.id);
       const autoIds = autoSelectedIds || [];
       setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
@@ -1293,10 +1300,14 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
 
     const selectedCharacters =
       themeType === 'substitute' && dedicatedName
-        ? payload.selectedCharacters.map((c) =>
-            c.name === dedicatedName ? { ...c, dedicated: true } : c,
-          )
-        : payload.selectedCharacters;
+        ? payload.selectedCharacters.map((c) => {
+            const { dedicated: _omit, ...rest } = c as any;
+            return rest.name === dedicatedName ? { ...rest, dedicated: true } : rest;
+          })
+        : payload.selectedCharacters.map((c) => {
+            const { dedicated: _omit, ...rest } = c as any;
+            return rest;
+          });
 
     saveChoice(
       {
