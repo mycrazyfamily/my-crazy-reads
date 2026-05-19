@@ -726,11 +726,17 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     Votre configuration
                   </p>
                   {month.dedicatedPersonName && (
-                    <div className="mb-2">
-                      <p className="text-xs text-muted-foreground mb-1">Dédié à</p>
-                      <p className="text-sm font-semibold" style={{ color: PRIMARY_VIOLET }}>
-                        🎉 {month.dedicatedPersonName}
-                      </p>
+                    <div
+                      className="flex items-center gap-2 mb-3 p-2 rounded-lg"
+                      style={{ backgroundColor: '#534AB715' }}
+                    >
+                      <span>🎂</span>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Livre dédié à</p>
+                        <p className="text-sm font-bold" style={{ color: '#534AB7' }}>
+                          {month.dedicatedPersonName}
+                        </p>
+                      </div>
                     </div>
                   )}
                   {month.configuredCharacters && month.configuredCharacters.length > 0 && (
