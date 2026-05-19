@@ -421,7 +421,7 @@ const ModifierProche: React.FC = () => {
       toast.success('Proche modifié avec succès !');
       setTimeout(() => {
         navigate('/espace-famille');
-      }, 500);
+      }, 300);
     } catch (e) {
       console.error('Error saving relative:', e);
       toast.error("Erreur lors de la sauvegarde");
