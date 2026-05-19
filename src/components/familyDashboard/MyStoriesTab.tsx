@@ -248,7 +248,12 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
 function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, gender?: string): MockMonth {
-  console.log('dedicatedPersonName debug:', row.selected_theme_type, row.selected_theme_id, row.substitute_options);
+  console.log('DEBUG dedicated:', {
+    selected_theme_id: row.selected_theme_id,
+    selected_theme_type: row.selected_theme_type,
+    substitute_options: row.substitute_options,
+    is_array: Array.isArray(row.substitute_options)
+  });
   const delivery = parseISO(row.delivery_month);
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
@@ -309,8 +314,12 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     dedicatedPersonName: (() => {
       if (!row.selected_theme_id) return null;
       if (row.selected_theme_type !== 'substitute') return null;
-      const opts = row.substitute_options;
-      if (!opts || !Array.isArray(opts) || opts.length === 0) return null;
+      let opts: any = row.substitute_options;
+      if (!opts) return null;
+      if (typeof opts === 'string') {
+        try { opts = JSON.parse(opts); } catch { return null; }
+      }
+      if (!Array.isArray(opts) || opts.length === 0) return null;
       for (const s of opts) {
         if (String(s.substitute_theme_id) === String(row.selected_theme_id)) {
           return s.substitute_person_name || null;
