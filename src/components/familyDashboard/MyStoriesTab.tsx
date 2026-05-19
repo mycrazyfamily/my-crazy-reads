@@ -248,6 +248,7 @@ const formatSummary = (text: string | null, firstName: string, gender?: string) 
 const PLACEHOLDER_TITLE = 'Thème à venir';
 
 function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, gender?: string): MockMonth {
+  console.log('dedicatedPersonName debug:', row.selected_theme_type, row.selected_theme_id, row.substitute_options);
   const delivery = parseISO(row.delivery_month);
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
@@ -306,14 +307,16 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     })),
     selectedThemeType: row.selected_theme_type ?? null,
     dedicatedPersonName: (() => {
-      if (row.selected_theme_type !== 'substitute') return null;
       if (!row.selected_theme_id) return null;
-      const opts = row.substitute_options as any[];
-      if (!opts || !Array.isArray(opts)) return null;
-      const match = opts.find(
-        (s) => s.substitute_theme_id === row.selected_theme_id
-      );
-      return match ? match.substitute_person_name : null;
+      if (row.selected_theme_type !== 'substitute') return null;
+      const opts = row.substitute_options;
+      if (!opts || !Array.isArray(opts) || opts.length === 0) return null;
+      for (const s of opts) {
+        if (String(s.substitute_theme_id) === String(row.selected_theme_id)) {
+          return s.substitute_person_name || null;
+        }
+      }
+      return null;
     })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
@@ -732,11 +735,21 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     Votre configuration
                   </p>
                   {month.dedicatedPersonName && (
-                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-purple-50">
-                      <span>🎂</span>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '12px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: '#F3F0FF'
+                    }}>
+                      <span style={{ fontSize: '20px' }}>🎂</span>
                       <div>
-                        <p className="text-xs text-muted-foreground">Livre dédié à</p>
-                        <p className="text-sm font-bold text-purple-700">
+                        <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>
+                          Livre dédié à
+                        </p>
+                        <p style={{ fontSize: '14px', fontWeight: 700, color: '#534AB7', margin: 0 }}>
                           {month.dedicatedPersonName}
                         </p>
                       </div>
