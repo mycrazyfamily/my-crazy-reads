@@ -964,6 +964,49 @@ interface ThemeSelectionSheetProps {
   currentDedicatedName?: string;
 }
 
+const OptionCard: React.FC<{
+  value: FlowType;
+  icon: string;
+  label: string;
+  badge?: string;
+  title?: string;
+  description: string;
+  selected: FlowType;
+  onSelect: (value: FlowType) => void;
+}> = ({ value, icon, label, badge, title, description, selected, onSelect }) => {
+  const isSel = selected === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(value)}
+      className="w-full text-left p-4 rounded-xl border-2 transition-all"
+      style={{
+        borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+        backgroundColor: isSel ? `${PRIMARY_VIOLET}0D` : 'white',
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <span className="text-2xl flex-shrink-0">{icon}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <span className="text-sm font-semibold text-foreground">{label}</span>
+            {badge && (
+              <span
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, color: PRIMARY_VIOLET }}
+              >
+                {badge}
+              </span>
+            )}
+          </div>
+          {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
+          <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+        </div>
+      </div>
+    </button>
+  );
+};
+
 const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId, currentDedicatedName }) => {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<FlowType>('monthly');
@@ -997,46 +1040,6 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
     onChoose(selected, substituteThemeId);
   };
 
-  const OptionCard: React.FC<{
-    value: FlowType;
-    icon: string;
-    label: string;
-    badge?: string;
-    title?: string;
-    description: string;
-  }> = ({ value, icon, label, badge, title, description }) => {
-    const isSel = selected === value;
-    return (
-      <button
-        type="button"
-        onClick={() => setSelected(value)}
-        className="w-full text-left p-4 rounded-xl border-2 transition-all"
-        style={{
-          borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
-          backgroundColor: isSel ? `${PRIMARY_VIOLET}0D` : 'white',
-        }}
-      >
-        <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">{icon}</span>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-sm font-semibold text-foreground">{label}</span>
-              {badge && (
-                <span
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, color: PRIMARY_VIOLET }}
-                >
-                  {badge}
-                </span>
-              )}
-            </div>
-            {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
-            <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
-          </div>
-        </div>
-      </button>
-    );
-  };
 
   const Content = (
     <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
@@ -1055,6 +1058,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           badge="Recommandé par MCF"
           title={month.bookTitle}
           description={month.bookSummary}
+          selected={selected}
+          onSelect={setSelected}
         />
 
         {(month.substituteOptions || []).map((opt, idx) => (
@@ -1066,6 +1071,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
             title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
             description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+            selected={selected}
+            onSelect={setSelected}
           />
         ))}
 
@@ -1074,6 +1081,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           icon="✨"
           label="Histoire inédite"
           description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
+          selected={selected}
+          onSelect={setSelected}
         />
       </div>
 
