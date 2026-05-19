@@ -377,7 +377,7 @@ interface WizardProps {
   autoSelectedIds?: string[];
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
