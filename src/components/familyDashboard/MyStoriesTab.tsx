@@ -1072,14 +1072,14 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={handleClose}>
-        <DrawerContent className="bg-white">{Content}</DrawerContent>
+        <DrawerContent className="bg-white max-h-[90vh] overflow-y-auto">{Content}</DrawerContent>
       </Drawer>
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-white max-w-md p-0">{Content}</DialogContent>
+      <DialogContent className="bg-white max-w-md p-0 max-h-[90vh] overflow-y-auto">{Content}</DialogContent>
     </Dialog>
   );
 };
@@ -1241,8 +1241,27 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       emoji: p.emoji || '🐾',
       avatarUrl: p.avatar_url || undefined,
     }));
-    return [child, ...members, ...pets];
+    const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => ({
+      type: 'child' as const,
+      id: s.id,
+      name: s.firstName || 'Enfant',
+      emoji: '🧒',
+      avatarUrl: s.avatar_url || undefined,
+      locked: false,
+    }));
+    return [child, ...members, ...pets, ...siblings];
   }, [activeChild]);
+
+  const dedicatedName = (() => {
+    if (!(typeof activeFlow === 'string' && activeFlow.startsWith('special_'))) return null;
+    const idx = parseInt(activeFlow.split('_')[1]);
+    return focusedMonth?.substituteOptions?.[idx]?.substitutePersonName ?? null;
+  })();
+
+  const wizardCharactersWithLock = wizardCharacters.map(c => ({
+    ...c,
+    locked: c.locked || (dedicatedName !== null && c.name === dedicatedName),
+  }));
 
   const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => {
     if (!focusedMonth?.bookRequestId) {
@@ -1489,7 +1508,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         childName={activeChild?.firstName ?? ''}
         flow={activeFlow}
         bookTitle={wizardBookTitle}
-        characters={wizardCharacters}
+        characters={wizardCharactersWithLock}
         isSaving={isSaving}
         savedCharacters={
           focusedMonth?.bookRequestId
