@@ -307,10 +307,13 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     selectedThemeType: row.selected_theme_type ?? null,
     dedicatedPersonName: (() => {
       if (row.selected_theme_type !== 'substitute') return null;
-      const match = (row.substitute_options || []).find(
-        (s: any) => s.substitute_theme_id === row.selected_theme_id
+      if (!row.selected_theme_id) return null;
+      const opts = row.substitute_options as any[];
+      if (!opts || !Array.isArray(opts)) return null;
+      const match = opts.find(
+        (s) => s.substitute_theme_id === row.selected_theme_id
       );
-      return match?.substitute_person_name ?? null;
+      return match ? match.substitute_person_name : null;
     })(),
     configuredCharacters: (() => {
       if (!row.selected_characters || !Array.isArray(row.selected_characters)) return [];
@@ -729,14 +732,11 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     Votre configuration
                   </p>
                   {month.dedicatedPersonName && (
-                    <div
-                      className="flex items-center gap-2 mb-3 p-2 rounded-lg"
-                      style={{ backgroundColor: '#534AB715' }}
-                    >
+                    <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-purple-50">
                       <span>🎂</span>
                       <div>
                         <p className="text-xs text-muted-foreground">Livre dédié à</p>
-                        <p className="text-sm font-bold" style={{ color: '#534AB7' }}>
+                        <p className="text-sm font-bold text-purple-700">
                           {month.dedicatedPersonName}
                         </p>
                       </div>
@@ -745,29 +745,19 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                   {month.configuredCharacters && month.configuredCharacters.length > 0 && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Personnages</p>
-                      {(() => {
-                        const dedicated = month.dedicatedPersonName;
-                        const chars = [...month.configuredCharacters];
-                        const ordered = dedicated
-                          ? [
-                              ...chars.filter((c) => c === dedicated),
-                              ...chars.filter((c) => c !== dedicated),
-                            ]
-                          : chars;
-                        const others = dedicated ? ordered.filter((c) => c !== dedicated) : ordered;
-                        const hasDedicatedInList = dedicated && chars.includes(dedicated);
-                        return (
-                          <p className="text-sm font-medium text-foreground">
-                            {hasDedicatedInList && (
-                              <span className="font-bold" style={{ color: PRIMARY_VIOLET }}>
-                                🎂 {dedicated}
-                              </span>
-                            )}
-                            {hasDedicatedInList && others.length > 0 && ', '}
-                            {others.join(', ')}
-                          </p>
-                        );
-                      })()}
+                      <p className="text-sm font-medium text-foreground">
+                        {[...month.configuredCharacters]
+                          .sort((a, b) =>
+                            a === month.dedicatedPersonName ? -1 :
+                            b === month.dedicatedPersonName ? 1 : 0
+                          )
+                          .map((name) =>
+                            name === month.dedicatedPersonName
+                              ? `🎂 ${name}`
+                              : name
+                          )
+                          .join(', ')}
+                      </p>
                     </div>
                   )}
                   {month.savedNote && month.savedNote.trim() && (
