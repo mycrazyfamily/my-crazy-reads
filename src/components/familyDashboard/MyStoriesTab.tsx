@@ -1058,6 +1058,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           badge="Recommandé par MCF"
           title={month.bookTitle}
           description={month.bookSummary}
+          selected={selected}
+          onSelect={setSelected}
         />
 
         {(month.substituteOptions || []).map((opt, idx) => (
@@ -1069,6 +1071,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
             title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
             description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+            selected={selected}
+            onSelect={setSelected}
           />
         ))}
 
@@ -1077,6 +1081,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           icon="✨"
           label="Histoire inédite"
           description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
+          selected={selected}
+          onSelect={setSelected}
         />
       </div>
 
