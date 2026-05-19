@@ -1467,9 +1467,15 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
               focusedMonth.selectedThemeType === 'substitute' &&
               focusedMonth.selectedThemeId
             ) {
-              const idx = (focusedMonth.substituteOptions || []).findIndex(
-                (opt) => opt.substituteThemeId === focusedMonth.selectedThemeId
-              );
+              const dedicatedFromChars = focusedMonth.dedicatedPersonName;
+              const opts = focusedMonth.substituteOptions || [];
+              let idx = -1;
+              if (dedicatedFromChars) {
+                idx = opts.findIndex((opt) => opt.substitutePersonName === dedicatedFromChars);
+              }
+              if (idx < 0) {
+                idx = opts.findIndex((opt) => opt.substituteThemeId === focusedMonth.selectedThemeId);
+              }
               if (idx >= 0) {
                 setActiveFlow(`special_${idx}` as FlowType);
                 setActiveSubstituteThemeId(focusedMonth.selectedThemeId);
