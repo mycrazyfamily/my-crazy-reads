@@ -387,9 +387,10 @@ interface WizardProps {
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
   dedicatedName?: string | null;
+  initialCustomStory?: string;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -405,7 +406,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       const autoIds = autoSelectedIds || [];
       setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
-      setCustomStory('');
+      setCustomStory(initialCustomStory || '');
       setStep(1);
     }
   }, [open]);
@@ -478,7 +479,9 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
               className="min-h-40"
             />
             <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
-              {customStory.length} / 30
+              {customStory.length < 30
+                ? `Encore ${30 - customStory.length} car. minimum`
+                : `${customStory.length} caractères ✓`}
             </div>
           </div>
 
@@ -1572,6 +1575,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         }}
         autoSelectedIds={autoSelectedMemberId ? [autoSelectedMemberId] : []}
         dedicatedName={dedicatedName}
+        initialCustomStory={
+          focusedMonth?.selectedThemeType === 'original'
+            ? (focusedMonth?.originalThemeInstructions ?? '')
+            : ''
+        }
       />
 
       {/* Theme selection sheet */}
