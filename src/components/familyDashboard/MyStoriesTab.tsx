@@ -515,8 +515,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
           )}
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.filter((c) => c.type !== 'child' || !c.locked || c.name === dedicatedName ? true : false).map((c) => {
-              const isSel = selected.includes(c.id) || c.locked;
+            {characters.filter((c) => !c.locked).map((c) => {
+              const isSel = selected.includes(c.id);
               return (
                 <button
                   key={c.id}
