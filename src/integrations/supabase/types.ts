@@ -1803,6 +1803,7 @@ export type Database = {
           production_status: string
           saved_note: string
           selected_characters: Json
+          selected_theme_id: string
           selected_theme_resume: string
           selected_theme_titre: string
           selected_theme_type: string
