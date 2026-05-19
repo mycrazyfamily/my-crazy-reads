@@ -287,6 +287,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
     deliveryShort,
     status,
     bookTitle: (() => {
+      if (row.selected_theme_type === 'original')
+        return '✨ Histoire inédite';
       if (row.selected_theme_titre)
         return formatTitle(row.selected_theme_titre, childName);
       if (row.theme_titre)
@@ -294,6 +296,11 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ge
       return PLACEHOLDER_TITLE;
     })(),
     bookSummary: (() => {
+      if (row.selected_theme_type === 'original') {
+        if (row.original_theme_instructions)
+          return row.original_theme_instructions;
+        return 'Votre histoire est en cours de préparation…';
+      }
       if (row.selected_theme_resume)
         return formatSummary(row.selected_theme_resume, childName, gender);
       if (row.theme_resume)
