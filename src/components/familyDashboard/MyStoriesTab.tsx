@@ -507,9 +507,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
+          {dedicatedName && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
+              <span>🎂</span>
+              <span><strong>{dedicatedName}</strong> est la star de ce livre</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-3 mb-8">
-            {characters.filter((c) => !c.locked).map((c) => {
-              const isSel = selected.includes(c.id);
+            {characters.filter((c) => c.type !== 'child' || !c.locked || c.name === dedicatedName ? true : false).map((c) => {
+              const isSel = selected.includes(c.id) || c.locked;
               return (
                 <button
                   key={c.id}
