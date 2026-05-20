@@ -765,7 +765,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                   {STATUS_CONFIG[month.status].label}
                 </span>
               </div>
-              {(month.status === 'to_personalize' || month.status === 'to_plan') && (
+              {!isConfigured && !isLocked && (
                 <p className="text-sm italic text-muted-foreground">
                   Votre histoire est déjà personnalisée — ce détail la rendra unique.
                 </p>
