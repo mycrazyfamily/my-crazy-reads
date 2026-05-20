@@ -1222,7 +1222,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       queryFn: async () => {
         const { data, error } = await supabase.rpc('get_child_book_timeline', { p_child_id: c.id });
         if (error) throw error;
-        return (data ?? []) as unknown as BookTimelineRow[];
+        return (data ?? []) as BookTimelineRow[];
       },
       staleTime: 1000 * 60 * 5,
     })),
