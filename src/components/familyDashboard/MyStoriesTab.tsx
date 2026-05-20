@@ -159,7 +159,7 @@ const MOCK_CHARACTERS = [
 
 const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; borderClass: string; secondaryClass: string }> = {
   to_personalize: {
-    label: 'À personnaliser',
+    label: 'Votre livre est prêt ✨',
     badgeClass: 'bg-orange-100 text-orange-700 border-orange-200',
     borderClass: 'border-l-[3px] border-l-orange-400',
     secondaryClass: 'text-orange-600',
@@ -183,10 +183,10 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
     secondaryClass: 'text-muted-foreground',
   },
   to_plan: {
-    label: 'À personnaliser',
-    badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
+    label: 'Bientôt disponible',
+    badgeClass: 'bg-gray-50 text-gray-400 border-gray-100',
     borderClass: 'border-l-[3px] border-l-transparent',
-    secondaryClass: 'text-muted-foreground',
+    secondaryClass: 'text-muted-foreground/60',
   },
   shipped: {
     label: '🚚 Expédié',
@@ -648,10 +648,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span>Précédent</span>
           </button>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
-            Une note pour nous ?
+            Votre touche secrète
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-2">
-            Un détail qui rendrait ce livre encore plus magique <span className="text-muted-foreground">(optionnel)</span>
+            Un détail qui rendra cette histoire unique pour {childName} <span className="text-muted-foreground">(optionnel)</span>
           </p>
           <p className="text-sm text-center italic text-muted-foreground mb-6">
             ✨ Pour le livre : « {bookTitle} »
@@ -765,6 +765,11 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                   {STATUS_CONFIG[month.status].label}
                 </span>
               </div>
+              {(month.status === 'to_personalize' || month.status === 'to_plan') && (
+                <p className="text-sm italic text-muted-foreground">
+                  Votre histoire est déjà personnalisée — ce détail la rendra unique.
+                </p>
+              )}
 
               {isConfigured && (
                 <div className="space-y-3 p-4 rounded-xl bg-muted/50 border border-border">
@@ -845,7 +850,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     style={{ backgroundColor: PRIMARY_VIOLET }}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    {isConfigured ? 'Modifier la configuration' : 'Configurer cette aventure'}
+                    {isConfigured ? 'Ajuster votre touche' : 'Ajouter votre touche'}
                   </Button>
                   <button
                     type="button"
@@ -906,7 +911,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
                 className={isPrimaryCta ? 'text-white hover:opacity-90' : ''}
                 style={isPrimaryCta ? { backgroundColor: PRIMARY_VIOLET } : undefined}
               >
-                Configurer
+                Personnaliser
               </Button>
             ) : (
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
