@@ -648,10 +648,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span>Précédent</span>
           </button>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
-            Une note pour nous ?
+            Votre touche secrète
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-2">
-            Un détail qui rendrait ce livre encore plus magique <span className="text-muted-foreground">(optionnel)</span>
+            Un détail qui rendra cette histoire unique pour {childName} <span className="text-muted-foreground">(optionnel)</span>
           </p>
           <p className="text-sm text-center italic text-muted-foreground mb-6">
             ✨ Pour le livre : « {bookTitle} »
