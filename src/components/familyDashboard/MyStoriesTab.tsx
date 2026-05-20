@@ -911,7 +911,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
                 className={isPrimaryCta ? 'text-white hover:opacity-90' : ''}
                 style={isPrimaryCta ? { backgroundColor: PRIMARY_VIOLET } : undefined}
               >
-                Configurer
+                Personnaliser
               </Button>
             ) : (
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
