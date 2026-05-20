@@ -11,9 +11,9 @@ export interface BookTimelineRow {
   is_original: boolean;
   selected_characters: any;
   original_theme_instructions: string | null;
-  theme_titre: string | null;
-  theme_resume: string | null;
-  theme_logique: string | null;
+  titre: string | null;
+  resume_narratif: string | null;
+  logique_pedagogique: string | null;
   theme_cast: any;
   theme_id: string | null;
   saved_note: string | null;
@@ -39,7 +39,7 @@ export function useBookTimeline(childId: string | null) {
         p_child_id: childId,
       });
       if (error) throw error;
-      return (data ?? []) as unknown as BookTimelineRow[];
+      return (data ?? []) as BookTimelineRow[];
     },
     enabled: !!childId,
     staleTime: 1000 * 60 * 5,
