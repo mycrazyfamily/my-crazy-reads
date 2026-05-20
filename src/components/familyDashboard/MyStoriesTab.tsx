@@ -159,7 +159,7 @@ const MOCK_CHARACTERS = [
 
 const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; borderClass: string; secondaryClass: string }> = {
   to_personalize: {
-    label: 'À personnaliser',
+    label: 'Votre livre est prêt ✨',
     badgeClass: 'bg-orange-100 text-orange-700 border-orange-200',
     borderClass: 'border-l-[3px] border-l-orange-400',
     secondaryClass: 'text-orange-600',
@@ -183,10 +183,10 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
     secondaryClass: 'text-muted-foreground',
   },
   to_plan: {
-    label: 'À personnaliser',
-    badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
+    label: 'Bientôt disponible',
+    badgeClass: 'bg-gray-50 text-gray-400 border-gray-100',
     borderClass: 'border-l-[3px] border-l-transparent',
-    secondaryClass: 'text-muted-foreground',
+    secondaryClass: 'text-muted-foreground/60',
   },
   shipped: {
     label: '🚚 Expédié',
