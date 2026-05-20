@@ -929,10 +929,10 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
               <span>⚠</span>
               <span>
                 {month.daysLeft === 0
-                  ? 'Dernier jour pour personnaliser !'
+                  ? 'Dernière chance d\'ajouter votre touche !'
                   : month.daysLeft !== undefined
-                    ? `Deadline : ${month.deadline} — dans ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''}`
-                    : `Deadline : ${month.deadline}`}
+                    ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — encore ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''} pour ajouter votre touche`
+                    : `Ajoutez votre touche avant le ${month.deadline} (optionnel)`}
               </span>
             </>
           )}
@@ -953,7 +953,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>{month.deadline ? `Deadline : ${month.deadline} — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
+              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
