@@ -52,6 +52,7 @@ export type Database = {
       }
       book_requests: {
         Row: {
+          archived_at: string | null
           child_id: string | null
           created_at: string | null
           created_by: string | null
@@ -75,6 +76,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          archived_at?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          archived_at?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
