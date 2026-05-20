@@ -1546,7 +1546,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
               <div className="text-sm">
                 <span className="font-bold text-foreground">{totalPlanned}</span>
-                <span className="text-muted-foreground ml-1">livres prévus</span>
+                <span className="text-muted-foreground ml-1">prochains livres</span>
               </div>
               <div className="text-sm">
                 <span className="font-bold" style={{ color: PRIMARY_VIOLET }}>{configuredCount}</span>
@@ -1564,7 +1564,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           <div className="sm:hidden flex items-center gap-4 mt-4 pt-4 border-t border-border text-sm">
             <div>
               <span className="font-bold text-foreground">{totalPlanned}</span>
-              <span className="text-muted-foreground ml-1">livres prévus</span>
+              <span className="text-muted-foreground ml-1">prochains livres</span>
             </div>
             <div>
               <span className="font-bold" style={{ color: PRIMARY_VIOLET }}>{configuredCount}</span>
