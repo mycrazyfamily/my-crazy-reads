@@ -1204,6 +1204,24 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const { data: timelineRows, isLoading: isLoadingTimeline, isError: isTimelineError } =
     useBookTimeline(activeChildId);
 
+  // 2b. Archived books
+  const { data: archivedBooks } = useQuery({
+    queryKey: ['archived-books', activeChildId],
+    queryFn: async () => {
+      if (!activeChildId) return [] as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+      const { data, error } = await supabase
+        .from('book_requests')
+        .select('id, delivery_month, title, selected_theme_type')
+        .eq('child_id', activeChildId)
+        .not('archived_at', 'is', null)
+        .order('delivery_month', { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+    },
+    enabled: !!activeChildId,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const months: MockMonth[] = useMemo(
     () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.id ?? '', activeChild?.gender)),
     [timelineRows, activeChild?.firstName, activeChild?.gender]
