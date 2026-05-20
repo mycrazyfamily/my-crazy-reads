@@ -924,7 +924,13 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
           {month.status === 'to_personalize' && (
             <>
               <span>⚠</span>
-              <span>Deadline : {month.deadline} — dans {month.daysLeft} jours</span>
+              <span>
+                {month.daysLeft === 0
+                  ? 'Dernier jour pour personnaliser !'
+                  : month.daysLeft !== undefined
+                    ? `Deadline : ${month.deadline} — dans ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''}`
+                    : `Deadline : ${month.deadline}`}
+              </span>
             </>
           )}
           {month.status === 'configured' && (
