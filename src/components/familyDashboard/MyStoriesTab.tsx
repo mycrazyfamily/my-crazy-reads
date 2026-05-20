@@ -850,7 +850,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     style={{ backgroundColor: PRIMARY_VIOLET }}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    {isConfigured ? 'Modifier la configuration' : 'Configurer cette aventure'}
+                    {isConfigured ? 'Ajuster votre touche' : 'Ajouter votre touche'}
                   </Button>
                   <button
                     type="button"
