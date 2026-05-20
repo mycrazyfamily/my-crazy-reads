@@ -750,7 +750,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
               {month.deadline && !isConfigured && (
                 <div className="flex items-center gap-2 text-sm text-orange-600 mt-2">
                   <span>⚠</span>
-                  <span>Deadline de personnalisation : {month.deadline}</span>
+                  <span>Ajoutez votre touche avant le {month.deadline} (optionnel)</span>
                 </div>
               )}
             </div>
