@@ -291,8 +291,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
         return '✨ Histoire inédite';
       if (row.selected_theme_titre)
         return formatTitle(row.selected_theme_titre, childName);
-      if (row.theme_titre)
-        return formatTitle(row.theme_titre, childName);
+      if (row.titre)
+        return formatTitle(row.titre, childName);
       return PLACEHOLDER_TITLE;
     })(),
     bookSummary: (() => {
@@ -303,8 +303,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
       }
       if (row.selected_theme_resume)
         return formatSummary(row.selected_theme_resume, childName, gender);
-      if (row.theme_resume)
-        return formatSummary(row.theme_resume, childName, gender);
+      if (row.resume_narratif)
+        return formatSummary(row.resume_narratif, childName, gender);
       return '';
     })(),
     bookTags: [],
