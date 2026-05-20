@@ -1600,6 +1600,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         </div>
       )}
 
+      {/* Archived books accordion */}
+      {archivedBooks && archivedBooks.length > 0 && (
+        <ArchivedBooksSection books={archivedBooks} />
+      )}
+
       {/* Wizard */}
       <Wizard
         open={wizardOpen}
