@@ -1023,9 +1023,12 @@ interface ArchivedBook {
   delivery_month: string;
   title: string | null;
   selected_theme_type: string | null;
+  selected_characters: any;
+  message: string | null;
+  original_theme_instructions: string | null;
 }
 
-const ArchivedBooksSection: React.FC<{ books: ArchivedBook[] }> = ({ books }) => {
+const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: string }> = ({ books, childFirstName }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -1047,18 +1050,40 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[] }> = ({ books }) =>
           {books.map((book) => {
             const deliveryDate = parseISO(book.delivery_month);
             const monthLabel = format(deliveryDate, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
+            const otherNames: string[] = Array.isArray(book.selected_characters)
+              ? (book.selected_characters as any[])
+                  .map((c: any) => c?.name)
+                  .filter((n: any) => typeof n === 'string' && n && n !== childFirstName)
+              : [];
+            let noteText: string | null = null;
+            if (book.selected_theme_type === 'original' && book.original_theme_instructions) {
+              const t = book.original_theme_instructions;
+              noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
+            } else if (book.message && book.message.trim()) {
+              const t = book.message;
+              noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
+            }
             return (
               <Card key={book.id} className="border border-border bg-white">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">{monthLabel}</span>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
-                    ✓ Livré
-                  </span>
-                  {book.title && (
-                    <span className="text-sm text-muted-foreground ml-auto truncate">
-                      {book.title}
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm font-medium text-foreground">{monthLabel}</span>
+                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
+                      ✓ Livré
                     </span>
+                    {book.title && (
+                      <span className="text-sm text-muted-foreground ml-auto truncate">
+                        {book.title}
+                      </span>
+                    )}
+                  </div>
+                  {(otherNames.length > 0 || noteText) && (
+                    <div className="mt-2 text-xs text-muted-foreground flex flex-wrap gap-x-2">
+                      {otherNames.length > 0 && <span>Avec {otherNames.join(', ')}</span>}
+                      {otherNames.length > 0 && noteText && <span>·</span>}
+                      {noteText && <span className="italic">{noteText}</span>}
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -1262,15 +1287,15 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const { data: archivedBooks } = useQuery({
     queryKey: ['archived-books', activeChildId],
     queryFn: async () => {
-      if (!activeChildId) return [] as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+      if (!activeChildId) return [] as ArchivedBook[];
       const { data, error } = await supabase
         .from('book_requests')
-        .select('id, delivery_month, title, selected_theme_type')
+        .select('id, delivery_month, title, selected_theme_type, selected_characters, message, original_theme_instructions')
         .eq('child_id', activeChildId)
         .not('archived_at', 'is', null)
         .order('delivery_month', { ascending: false });
       if (error) throw error;
-      return (data ?? []) as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+      return (data ?? []) as ArchivedBook[];
     },
     enabled: !!activeChildId,
     staleTime: 1000 * 60 * 5,
@@ -1656,7 +1681,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
 
       {/* Archived books accordion */}
       {archivedBooks && archivedBooks.length > 0 && (
-        <ArchivedBooksSection books={archivedBooks} />
+        <ArchivedBooksSection books={archivedBooks} childFirstName={activeChild?.firstName ?? ''} />
       )}
 
       {/* Wizard */}
