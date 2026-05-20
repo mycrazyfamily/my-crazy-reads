@@ -9,7 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, ArrowLeft, Calendar, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
@@ -1016,6 +1016,60 @@ const OptionCard: React.FC<{
   );
 };
 
+// ---------- Archived books section ----------
+
+interface ArchivedBook {
+  id: string;
+  delivery_month: string;
+  title: string | null;
+  selected_theme_type: string | null;
+}
+
+const ArchivedBooksSection: React.FC<{ books: ArchivedBook[] }> = ({ books }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mt-8">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-border bg-white hover:bg-muted/30 transition-all"
+      >
+        <span className="font-semibold text-foreground">
+          📚 Livres précédents ({books.length})
+        </span>
+        <ChevronDown
+          className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div className="space-y-3 mt-3 animate-fade-in">
+          {books.map((book) => {
+            const deliveryDate = parseISO(book.delivery_month);
+            const monthLabel = format(deliveryDate, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
+            return (
+              <Card key={book.id} className="border border-border bg-white">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm font-medium text-foreground">{monthLabel}</span>
+                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
+                    ✓ Livré
+                  </span>
+                  {book.title && (
+                    <span className="text-sm text-muted-foreground ml-auto truncate">
+                      {book.title}
+                    </span>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenChange, month, childName, onChoose, currentSelectedThemeId, currentDedicatedName }) => {
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<FlowType>('monthly');
@@ -1203,6 +1257,24 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   // 2. Real timeline from RPC
   const { data: timelineRows, isLoading: isLoadingTimeline, isError: isTimelineError } =
     useBookTimeline(activeChildId);
+
+  // 2b. Archived books
+  const { data: archivedBooks } = useQuery({
+    queryKey: ['archived-books', activeChildId],
+    queryFn: async () => {
+      if (!activeChildId) return [] as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+      const { data, error } = await supabase
+        .from('book_requests')
+        .select('id, delivery_month, title, selected_theme_type')
+        .eq('child_id', activeChildId)
+        .not('archived_at', 'is', null)
+        .order('delivery_month', { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as { id: string; delivery_month: string; title: string | null; selected_theme_type: string | null }[];
+    },
+    enabled: !!activeChildId,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const months: MockMonth[] = useMemo(
     () => (timelineRows ?? []).map((r, i) => mapTimelineRow(r, i, activeChild?.firstName ?? '', activeChild?.id ?? '', activeChild?.gender)),
@@ -1580,6 +1652,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             />
           ))}
         </div>
+      )}
+
+      {/* Archived books accordion */}
+      {archivedBooks && archivedBooks.length > 0 && (
+        <ArchivedBooksSection books={archivedBooks} />
       )}
 
       {/* Wizard */}
