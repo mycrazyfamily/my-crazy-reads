@@ -880,7 +880,6 @@ interface MonthRowProps {
 const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
-  const isPrimaryCta = month.status === 'to_personalize';
 
   return (
     <Card
@@ -907,11 +906,10 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
               <Button
                 size="sm"
                 onClick={onConfigure}
-                variant={isPrimaryCta ? 'default' : 'outline'}
-                className={isPrimaryCta ? 'text-white hover:opacity-90' : ''}
-                style={isPrimaryCta ? { backgroundColor: PRIMARY_VIOLET } : undefined}
+                className="text-white hover:opacity-90"
+                style={{ backgroundColor: PRIMARY_VIOLET }}
               >
-                Personnaliser
+                Ajouter votre touche
               </Button>
             ) : (
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
