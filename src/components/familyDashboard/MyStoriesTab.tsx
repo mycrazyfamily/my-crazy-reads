@@ -183,7 +183,7 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
     secondaryClass: 'text-muted-foreground',
   },
   to_plan: {
-    label: 'À planifier',
+    label: 'À personnaliser',
     badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
     borderClass: 'border-l-[3px] border-l-transparent',
     secondaryClass: 'text-muted-foreground',
