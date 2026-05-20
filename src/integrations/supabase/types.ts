@@ -1800,10 +1800,12 @@ export type Database = {
           delivery_month: string
           fabrication_month: string
           is_original: boolean
+          logique_pedagogique: string
           original_theme_instructions: string
           pdf_url: string
           personalization_deadline: string
           production_status: string
+          resume_narratif: string
           saved_note: string
           selected_characters: Json
           selected_theme_id: string
@@ -1814,9 +1816,7 @@ export type Database = {
           substitute_options: Json
           theme_cast: Json
           theme_id: string
-          theme_logique: string
-          theme_resume: string
-          theme_titre: string
+          titre: string
         }[]
       }
       get_substitutes: {
