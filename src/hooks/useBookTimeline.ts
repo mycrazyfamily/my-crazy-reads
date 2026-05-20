@@ -39,7 +39,7 @@ export function useBookTimeline(childId: string | null) {
         p_child_id: childId,
       });
       if (error) throw error;
-      return (data ?? []) as BookTimelineRow[];
+      return (data ?? []) as unknown as BookTimelineRow[];
     },
     enabled: !!childId,
     staleTime: 1000 * 60 * 5,

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import { Calendar, CreditCard, FileText, Trash2, Loader2, RefreshCw, PauseCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,7 @@ interface ManageSubscriptionProps {
 const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren = [] }) => {
   const { supabaseSession } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [subs, setSubs] = useState<StripeSubscriptionItem[] | null>(null);
   const [loadingSubs, setLoadingSubs] = useState(true);
@@ -161,6 +163,12 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
             )
           : prev
       );
+      queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      if (sub.child_id) {
+        queryClient.invalidateQueries({ queryKey: ['book-timeline', sub.child_id] });
+        queryClient.invalidateQueries({ queryKey: ['subscription', sub.child_id] });
+      }
       const childName = findChildName(sub.child_id);
       const dateStr = formatDate(cancelAt);
       toast.success(
@@ -200,6 +208,12 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
             )
           : prev
       );
+      queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      if (sub.child_id) {
+        queryClient.invalidateQueries({ queryKey: ['book-timeline', sub.child_id] });
+        queryClient.invalidateQueries({ queryKey: ['subscription', sub.child_id] });
+      }
       const childName = findChildName(sub.child_id);
       toast.success(
         childName ? `L'abonnement de ${childName} a été réactivé` : `L'abonnement a été réactivé`
