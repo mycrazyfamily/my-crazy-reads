@@ -750,7 +750,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
               {month.deadline && !isConfigured && (
                 <div className="flex items-center gap-2 text-sm text-orange-600 mt-2">
                   <span>⚠</span>
-                  <span>Deadline de personnalisation : {month.deadline}</span>
+                  <span>Ajoutez votre touche avant le {month.deadline} (optionnel)</span>
                 </div>
               )}
             </div>
@@ -766,8 +766,8 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                 </span>
               </div>
               {!isConfigured && !isLocked && (
-                <p className="text-sm italic text-muted-foreground">
-                  Votre histoire est déjà personnalisée — ce détail la rendra unique.
+              <p className="text-sm italic text-muted-foreground">
+                  Votre histoire est déjà personnalisée, ce détail la rendra unique.
                 </p>
               )}
 
@@ -880,7 +880,6 @@ interface MonthRowProps {
 const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
-  const isPrimaryCta = month.status === 'to_personalize';
 
   return (
     <Card
@@ -907,11 +906,10 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
               <Button
                 size="sm"
                 onClick={onConfigure}
-                variant={isPrimaryCta ? 'default' : 'outline'}
-                className={isPrimaryCta ? 'text-white hover:opacity-90' : ''}
-                style={isPrimaryCta ? { backgroundColor: PRIMARY_VIOLET } : undefined}
+                className="text-white hover:opacity-90"
+                style={{ backgroundColor: PRIMARY_VIOLET }}
               >
-                Personnaliser
+                Ajouter votre touche
               </Button>
             ) : (
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -931,10 +929,10 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
               <span>⚠</span>
               <span>
                 {month.daysLeft === 0
-                  ? 'Dernier jour pour personnaliser !'
+                  ? 'Dernière chance d\'ajouter votre touche !'
                   : month.daysLeft !== undefined
-                    ? `Deadline : ${month.deadline} — dans ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''}`
-                    : `Deadline : ${month.deadline}`}
+                    ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — encore ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''} pour ajouter votre touche`
+                    : `Ajoutez votre touche avant le ${month.deadline} (optionnel)`}
               </span>
             </>
           )}
@@ -955,7 +953,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>{month.deadline ? `Deadline : ${month.deadline} — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
+              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
