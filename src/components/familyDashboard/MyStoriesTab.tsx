@@ -766,8 +766,8 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                 </span>
               </div>
               {!isConfigured && !isLocked && (
-                <p className="text-sm italic text-muted-foreground">
-                  Votre histoire est déjà personnalisée — ce détail la rendra unique.
+              <p className="text-sm italic text-muted-foreground">
+                  Votre histoire est déjà personnalisée, ce détail la rendra unique.
                 </p>
               )}
 
