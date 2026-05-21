@@ -1893,6 +1893,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
                 e.stopPropagation();
                 setFocusedMonthIndex(m.monthIndex);
               }}
+              alternatives={m.bookRequestId ? alternativesByBookRequestId.get(m.bookRequestId) ?? [] : []}
               onAlternativeClick={handleAlternativeClick}
             />
           ))}
