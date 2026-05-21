@@ -1747,57 +1747,6 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       </Card>
       )}
 
-      {/* Proactive suggestions */}
-      {activeChild && suggestions.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">✨ Pour aller plus loin</p>
-          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex gap-3 pb-2">
-              {suggestions.map((s, i) => {
-                const childName = activeChild?.firstName ?? '';
-                let emoji = '✨';
-                let title = '';
-                let description = '';
-                let cta = '';
-                if (s.type === 'birthday') {
-                  emoji = '🎉';
-                  title = `Anniversaire de ${s.personName}`;
-                  description = `Ce mois-ci, ${s.personName} fête son anniversaire — dédier ce livre ?`;
-                  cta = 'Dédier ce livre →';
-                } else if (s.type === 'milestone') {
-                  emoji = '✨';
-                  title = (s.substituteThemeTitre || '').replace(/\[Prénom\]/g, childName);
-                  description = 'Un moment unique à capturer dans un livre';
-                  cta = 'Choisir ce thème →';
-                } else {
-                  emoji = '📖';
-                  title = 'Créez votre histoire';
-                  description = `Vous imaginez, nous créons. Décrivez l'aventure de vos rêves pour ${childName}.`;
-                  cta = 'Créer mon histoire →';
-                }
-                return (
-                  <div
-                    key={`${s.type}-${s.bookRequestId}-${i}`}
-                    className="w-64 flex-shrink-0 bg-white border border-border rounded-xl p-4 shadow-sm flex flex-col"
-                  >
-                    <div className="text-2xl mb-2">{emoji}</div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
-                    <p className="text-xs text-muted-foreground mb-3 flex-1">{description}</p>
-                    <button
-                      onClick={() => handleSuggestionClick(s)}
-                      className="text-sm font-medium text-left hover:opacity-80 transition-opacity"
-                      style={{ color: PRIMARY_VIOLET }}
-                    >
-                      {cta}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 3. List view OR Focus view */}
       {!activeChildId ? null : focusedMonth ? (
         <FocusView
@@ -1892,6 +1841,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
                 e.stopPropagation();
                 setFocusedMonthIndex(m.monthIndex);
               }}
+              onAlternativeClick={handleAlternativeClick}
             />
           ))}
         </div>
