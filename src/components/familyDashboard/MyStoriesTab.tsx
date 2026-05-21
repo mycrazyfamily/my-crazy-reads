@@ -917,8 +917,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
   const alts = alternatives ?? month.alternatives ?? [];
-  const showAlternatives =
-    (month.status === 'to_personalize' || month.status === 'to_plan') && alts.length > 0;
+  const showAlternatives = alts.length > 0;
 
   return (
     <Card
