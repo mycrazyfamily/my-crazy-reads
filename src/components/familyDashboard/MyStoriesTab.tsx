@@ -905,11 +905,20 @@ interface MonthRowProps {
   month: MockMonth;
   onClick: () => void;
   onConfigure: (e: React.MouseEvent) => void;
+  onAlternativeClick?: (
+    bookRequestId: string,
+    alternativeType: 'birthday' | 'milestone' | 'custom',
+    substituteIndex?: number,
+  ) => void;
 }
 
-const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
+const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, onAlternativeClick }) => {
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
+  const showAlternatives =
+    (month.status === 'to_personalize' || month.status === 'to_plan') &&
+    !!month.alternatives &&
+    month.alternatives.length > 0;
 
   return (
     <Card
@@ -987,6 +996,31 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
             </>
           )}
         </div>
+
+        {showAlternatives && (
+          <div className="mt-2 -mx-1 overflow-x-auto">
+            <div className="flex items-center gap-1.5 px-1 pb-1">
+              {month.alternatives!.map((alt, i) => (
+                <button
+                  key={`${alt.type}-${i}`}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!onAlternativeClick || !month.bookRequestId) return;
+                    onAlternativeClick(
+                      month.bookRequestId,
+                      alt.type,
+                      alt.type === 'custom' ? undefined : alt.substituteIndex,
+                    );
+                  }}
+                  className="whitespace-nowrap text-xs px-2.5 py-1 rounded-full border border-muted bg-muted/50 hover:border-primary hover:text-primary transition-colors"
+                >
+                  {alt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
