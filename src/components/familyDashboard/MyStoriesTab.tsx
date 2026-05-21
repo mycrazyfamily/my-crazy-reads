@@ -1217,19 +1217,27 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           onSelect={setSelected}
         />
 
-        {(month.substituteOptions || []).map((opt, idx) => (
-          <OptionCard
-            key={idx}
-            value={`special_${idx}` as FlowType}
-            icon="🎉"
-            label="Option spéciale MCF"
-            badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
-            title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
-            description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
-            selected={selected}
-            onSelect={setSelected}
-          />
-        ))}
+        {(month.substituteOptions || []).map((opt, idx) => {
+          const isBirthday =
+            typeof opt.substituteCondition === 'string' &&
+            opt.substituteCondition.startsWith('birthday_');
+          const title = isBirthday
+            ? `Anniversaire de ${opt.substitutePersonName}`
+            : (opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? '');
+          return (
+            <OptionCard
+              key={idx}
+              value={`special_${idx}` as FlowType}
+              icon="🎉"
+              label="Option spéciale MCF"
+              badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
+              title={title}
+              description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+              selected={selected}
+              onSelect={setSelected}
+            />
+          );
+        })}
 
         <OptionCard
           value="custom"
