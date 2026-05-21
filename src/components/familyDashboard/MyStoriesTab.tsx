@@ -905,6 +905,7 @@ interface MonthRowProps {
   month: MockMonth;
   onClick: () => void;
   onConfigure: (e: React.MouseEvent) => void;
+  alternatives?: NonNullable<MockMonth['alternatives']>;
   onAlternativeClick?: (
     bookRequestId: string,
     alternativeType: 'birthday' | 'milestone' | 'custom',
@@ -912,13 +913,12 @@ interface MonthRowProps {
   ) => void;
 }
 
-const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, onAlternativeClick }) => {
+const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, alternatives, onAlternativeClick }) => {
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
+  const alts = alternatives ?? month.alternatives ?? [];
   const showAlternatives =
-    (month.status === 'to_personalize' || month.status === 'to_plan') &&
-    !!month.alternatives &&
-    month.alternatives.length > 0;
+    (month.status === 'to_personalize' || month.status === 'to_plan') && alts.length > 0;
 
   return (
     <Card
@@ -998,27 +998,25 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, onAlte
         </div>
 
         {showAlternatives && (
-          <div className="mt-2 -mx-1 overflow-x-auto">
-            <div className="flex items-center gap-1.5 px-1 pb-1">
-              {month.alternatives!.map((alt, i) => (
-                <button
-                  key={`${alt.type}-${i}`}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!onAlternativeClick || !month.bookRequestId) return;
-                    onAlternativeClick(
-                      month.bookRequestId,
-                      alt.type,
-                      alt.type === 'custom' ? undefined : alt.substituteIndex,
-                    );
-                  }}
-                  className="whitespace-nowrap text-xs px-2.5 py-1 rounded-full border border-muted bg-muted/50 hover:border-primary hover:text-primary transition-colors"
-                >
-                  {alt.label}
-                </button>
-              ))}
-            </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {alts.map((alt, i) => (
+              <button
+                key={`${alt.type}-${i}`}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!onAlternativeClick || !month.bookRequestId) return;
+                  onAlternativeClick(
+                    month.bookRequestId,
+                    alt.type,
+                    alt.type === 'custom' ? undefined : alt.substituteIndex,
+                  );
+                }}
+                className="text-xs px-2.5 py-1 rounded-full border border-muted-foreground/30 bg-muted/40 hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+              >
+                {alt.label}
+              </button>
+            ))}
           </div>
         )}
       </CardContent>
@@ -1458,6 +1456,38 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     return map;
   }, [months]);
 
+  const alternativesByBookRequestId = useMemo(() => {
+    const map = new Map<string, NonNullable<MockMonth['alternatives']>>();
+    const childName = activeChild?.firstName ?? '';
+    (timelineRows ?? []).forEach((row) => {
+      const alts: NonNullable<MockMonth['alternatives']> = [];
+      (row.substitute_options || []).forEach((o: any, idx: number) => {
+        const cond = typeof o?.substitute_condition === 'string' ? o.substitute_condition : '';
+        if (cond.startsWith('birthday_')) {
+          alts.push({
+            type: 'birthday',
+            label: `🎉 Anniversaire ${o.substitute_person_name}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        } else if (cond.startsWith('milestone_')) {
+          alts.push({
+            type: 'milestone',
+            label: `✨ ${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        }
+      });
+      if (row.show_custom_story) {
+        alts.push({ type: 'custom', label: '📖 Histoire inédite' });
+      }
+      if (row.book_request_id) map.set(row.book_request_id, alts);
+    });
+    console.log('[MyStoriesTab] alternativesByBookRequestId', Array.from(map.entries()));
+    return map;
+  }, [timelineRows, activeChild?.firstName]);
+
   const handleSuggestionClick = (s: Suggestion) => {
     const monthIndex = monthIndexByBookRequestId.get(s.bookRequestId);
     if (monthIndex === undefined) return;
@@ -1863,6 +1893,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
                 e.stopPropagation();
                 setFocusedMonthIndex(m.monthIndex);
               }}
+              alternatives={m.bookRequestId ? alternativesByBookRequestId.get(m.bookRequestId) ?? [] : []}
               onAlternativeClick={handleAlternativeClick}
             />
           ))}
