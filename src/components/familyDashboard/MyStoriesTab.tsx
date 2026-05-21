@@ -69,6 +69,11 @@ interface MockMonth {
   selectedThemeId?: string | null;
   originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
+  alternatives?: Array<
+    | { type: 'birthday'; label: string; substituteIndex: number; substituteThemeId: string }
+    | { type: 'milestone'; label: string; substituteIndex: number; substituteThemeId: string }
+    | { type: 'custom'; label: string }
+  >;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
