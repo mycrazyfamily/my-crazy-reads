@@ -1812,6 +1812,7 @@ export type Database = {
           selected_theme_resume: string
           selected_theme_titre: string
           selected_theme_type: string
+          show_custom_story: boolean
           status: string
           substitute_options: Json
           theme_cast: Json
