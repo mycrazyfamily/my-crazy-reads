@@ -1309,6 +1309,98 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     [timelineRows, activeChild?.firstName, activeChild?.gender]
   );
 
+  // Proactive suggestions derived from timelineRows
+  type Suggestion =
+    | {
+        type: 'birthday';
+        personName: string;
+        substituteThemeId: string;
+        substituteThemeTitre: string;
+        bookRequestId: string;
+        substituteIndex: number;
+      }
+    | {
+        type: 'milestone';
+        substituteThemeId: string;
+        substituteThemeTitre: string;
+        bookRequestId: string;
+        substituteIndex: number;
+      }
+    | { type: 'custom'; bookRequestId: string };
+
+  const suggestions: Suggestion[] = useMemo(() => {
+    const rows = timelineRows ?? [];
+    const out: Suggestion[] = [];
+
+    // Birthdays: only the closest upcoming month that has any birthday_ option
+    for (const row of rows) {
+      const opts = row.substitute_options || [];
+      const birthdays = opts
+        .map((o, idx) => ({ o, idx }))
+        .filter(({ o }) => typeof o.substitute_condition === 'string' && o.substitute_condition.startsWith('birthday_'));
+      if (birthdays.length > 0) {
+        for (const { o, idx } of birthdays) {
+          out.push({
+            type: 'birthday',
+            personName: o.substitute_person_name,
+            substituteThemeId: o.substitute_theme_id,
+            substituteThemeTitre: o.substitute_theme_titre,
+            bookRequestId: row.book_request_id,
+            substituteIndex: idx,
+          });
+        }
+        break;
+      }
+    }
+
+    // Milestones: across all rows
+    for (const row of rows) {
+      const opts = row.substitute_options || [];
+      opts.forEach((o, idx) => {
+        if (typeof o.substitute_condition === 'string' && o.substitute_condition.startsWith('milestone_')) {
+          out.push({
+            type: 'milestone',
+            substituteThemeId: o.substitute_theme_id,
+            substituteThemeTitre: o.substitute_theme_titre,
+            bookRequestId: row.book_request_id,
+            substituteIndex: idx,
+          });
+        }
+      });
+    }
+
+    // Custom story: first row that allows it
+    const customRow = rows.find((r) => r.show_custom_story === true);
+    if (customRow) {
+      out.push({ type: 'custom', bookRequestId: customRow.book_request_id });
+    }
+
+    return out;
+  }, [timelineRows]);
+
+  const monthIndexByBookRequestId = useMemo(() => {
+    const map = new Map<string, number>();
+    months.forEach((m) => {
+      if (m.bookRequestId) map.set(m.bookRequestId, m.monthIndex);
+    });
+    return map;
+  }, [months]);
+
+  const handleSuggestionClick = (s: Suggestion) => {
+    const monthIndex = monthIndexByBookRequestId.get(s.bookRequestId);
+    if (monthIndex === undefined) return;
+    setFocusedMonthIndex(monthIndex);
+    if (s.type === 'custom') {
+      setActiveFlow('custom');
+      setActiveSubstituteThemeId(undefined);
+      setWizardOpen(true);
+    } else {
+      setActiveFlow(`special_${s.substituteIndex}` as FlowType);
+      setActiveSubstituteThemeId(s.substituteThemeId);
+      setThemeSheetOpen(true);
+    }
+  };
+
   const totalPlanned = months.length;
   const configuredCount = (timelineRows ?? []).filter(
     (r) => r.status === 'configured' || r.status === 'locked'
@@ -1581,6 +1673,57 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           )}
         </CardContent>
       </Card>
+      )}
+
+      {/* Proactive suggestions */}
+      {activeChild && suggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-muted-foreground">✨ Pour aller plus loin</p>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-3 pb-2">
+              {suggestions.map((s, i) => {
+                const childName = activeChild?.firstName ?? '';
+                let emoji = '✨';
+                let title = '';
+                let description = '';
+                let cta = '';
+                if (s.type === 'birthday') {
+                  emoji = '🎉';
+                  title = `Anniversaire de ${s.personName}`;
+                  description = `Ce mois-ci, ${s.personName} fête son anniversaire — dédier ce livre ?`;
+                  cta = 'Dédier ce livre →';
+                } else if (s.type === 'milestone') {
+                  emoji = '✨';
+                  title = (s.substituteThemeTitre || '').replace(/\[Prénom\]/g, childName);
+                  description = 'Un moment unique à capturer dans un livre';
+                  cta = 'Choisir ce thème →';
+                } else {
+                  emoji = '📖';
+                  title = 'Créez votre histoire';
+                  description = `Vous imaginez, nous créons. Décrivez l'aventure de vos rêves pour ${childName}.`;
+                  cta = 'Créer mon histoire →';
+                }
+                return (
+                  <div
+                    key={`${s.type}-${s.bookRequestId}-${i}`}
+                    className="w-64 flex-shrink-0 bg-white border border-border rounded-xl p-4 shadow-sm flex flex-col"
+                  >
+                    <div className="text-2xl mb-2">{emoji}</div>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+                    <p className="text-xs text-muted-foreground mb-3 flex-1">{description}</p>
+                    <button
+                      onClick={() => handleSuggestionClick(s)}
+                      className="text-sm font-medium text-left hover:opacity-80 transition-opacity"
+                      style={{ color: PRIMARY_VIOLET }}
+                    >
+                      {cta}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 3. List view OR Focus view */}
