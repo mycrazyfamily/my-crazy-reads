@@ -69,6 +69,11 @@ interface MockMonth {
   selectedThemeId?: string | null;
   originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
+  alternatives?: Array<
+    | { type: 'birthday'; label: string; substituteIndex: number; substituteThemeId: string }
+    | { type: 'milestone'; label: string; substituteIndex: number; substituteThemeId: string }
+    | { type: 'custom'; label: string }
+  >;
 }
 
 const MOCK_MONTHS: MockMonth[] = [
@@ -345,6 +350,31 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
         parts.push(`"${row.saved_note.slice(0, 40)}${row.saved_note.length > 40 ? '…' : ''}"`);
       }
       return parts.join(' · ') || undefined;
+    })(),
+    alternatives: (() => {
+      const alts: NonNullable<MockMonth['alternatives']> = [];
+      (row.substitute_options || []).forEach((o: any, idx: number) => {
+        const cond = typeof o?.substitute_condition === 'string' ? o.substitute_condition : '';
+        if (cond.startsWith('birthday_')) {
+          alts.push({
+            type: 'birthday',
+            label: `🎉 Anniversaire ${o.substitute_person_name}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        } else if (cond.startsWith('milestone_')) {
+          alts.push({
+            type: 'milestone',
+            label: `✨ ${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        }
+      });
+      if (row.show_custom_story) {
+        alts.push({ type: 'custom', label: '📖 Histoire inédite' });
+      }
+      return alts;
     })(),
   };
 }
@@ -875,11 +905,20 @@ interface MonthRowProps {
   month: MockMonth;
   onClick: () => void;
   onConfigure: (e: React.MouseEvent) => void;
+  onAlternativeClick?: (
+    bookRequestId: string,
+    alternativeType: 'birthday' | 'milestone' | 'custom',
+    substituteIndex?: number,
+  ) => void;
 }
 
-const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
+const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, onAlternativeClick }) => {
   const cfg = STATUS_CONFIG[month.status];
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
+  const showAlternatives =
+    (month.status === 'to_personalize' || month.status === 'to_plan') &&
+    !!month.alternatives &&
+    month.alternatives.length > 0;
 
   return (
     <Card
@@ -957,6 +996,31 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure }) => {
             </>
           )}
         </div>
+
+        {showAlternatives && (
+          <div className="mt-2 -mx-1 overflow-x-auto">
+            <div className="flex items-center gap-1.5 px-1 pb-1">
+              {month.alternatives!.map((alt, i) => (
+                <button
+                  key={`${alt.type}-${i}`}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!onAlternativeClick || !month.bookRequestId) return;
+                    onAlternativeClick(
+                      month.bookRequestId,
+                      alt.type,
+                      alt.type === 'custom' ? undefined : alt.substituteIndex,
+                    );
+                  }}
+                  className="whitespace-nowrap text-xs px-2.5 py-1 rounded-full border border-muted bg-muted/50 hover:border-primary hover:text-primary transition-colors"
+                >
+                  {alt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -1153,19 +1217,27 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           onSelect={setSelected}
         />
 
-        {(month.substituteOptions || []).map((opt, idx) => (
-          <OptionCard
-            key={idx}
-            value={`special_${idx}` as FlowType}
-            icon="🎉"
-            label="Option spéciale MCF"
-            badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
-            title={opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? ''}
-            description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
-            selected={selected}
-            onSelect={setSelected}
-          />
-        ))}
+        {(month.substituteOptions || []).map((opt, idx) => {
+          const isBirthday =
+            typeof opt.substituteCondition === 'string' &&
+            opt.substituteCondition.startsWith('birthday_');
+          const title = isBirthday
+            ? `Anniversaire de ${opt.substitutePersonName}`
+            : (opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? '');
+          return (
+            <OptionCard
+              key={idx}
+              value={`special_${idx}` as FlowType}
+              icon="🎉"
+              label="Option spéciale MCF"
+              badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
+              title={title}
+              description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+              selected={selected}
+              onSelect={setSelected}
+            />
+          );
+        })}
 
         <OptionCard
           value="custom"
@@ -1399,6 +1471,28 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       setActiveSubstituteThemeId(s.substituteThemeId);
       setThemeSheetOpen(true);
     }
+  };
+
+  const handleAlternativeClick = (
+    bookRequestId: string,
+    alternativeType: 'birthday' | 'milestone' | 'custom',
+    substituteIndex?: number,
+  ) => {
+    const monthIndex = monthIndexByBookRequestId.get(bookRequestId);
+    if (monthIndex === undefined) return;
+    setFocusedMonthIndex(monthIndex);
+    if (alternativeType === 'custom') {
+      setActiveFlow('custom');
+      setActiveSubstituteThemeId(undefined);
+      setWizardOpen(true);
+      return;
+    }
+    if (substituteIndex === undefined) return;
+    const target = months.find((m) => m.monthIndex === monthIndex);
+    const opt = target?.substituteOptions?.[substituteIndex];
+    setActiveFlow(`special_${substituteIndex}` as FlowType);
+    setActiveSubstituteThemeId(opt?.substituteThemeId);
+    setThemeSheetOpen(true);
   };
 
   const totalPlanned = months.length;
@@ -1675,57 +1769,6 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       </Card>
       )}
 
-      {/* Proactive suggestions */}
-      {activeChild && suggestions.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">✨ Pour aller plus loin</p>
-          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex gap-3 pb-2">
-              {suggestions.map((s, i) => {
-                const childName = activeChild?.firstName ?? '';
-                let emoji = '✨';
-                let title = '';
-                let description = '';
-                let cta = '';
-                if (s.type === 'birthday') {
-                  emoji = '🎉';
-                  title = `Anniversaire de ${s.personName}`;
-                  description = `Ce mois-ci, ${s.personName} fête son anniversaire — dédier ce livre ?`;
-                  cta = 'Dédier ce livre →';
-                } else if (s.type === 'milestone') {
-                  emoji = '✨';
-                  title = (s.substituteThemeTitre || '').replace(/\[Prénom\]/g, childName);
-                  description = 'Un moment unique à capturer dans un livre';
-                  cta = 'Choisir ce thème →';
-                } else {
-                  emoji = '📖';
-                  title = 'Créez votre histoire';
-                  description = `Vous imaginez, nous créons. Décrivez l'aventure de vos rêves pour ${childName}.`;
-                  cta = 'Créer mon histoire →';
-                }
-                return (
-                  <div
-                    key={`${s.type}-${s.bookRequestId}-${i}`}
-                    className="w-64 flex-shrink-0 bg-white border border-border rounded-xl p-4 shadow-sm flex flex-col"
-                  >
-                    <div className="text-2xl mb-2">{emoji}</div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
-                    <p className="text-xs text-muted-foreground mb-3 flex-1">{description}</p>
-                    <button
-                      onClick={() => handleSuggestionClick(s)}
-                      className="text-sm font-medium text-left hover:opacity-80 transition-opacity"
-                      style={{ color: PRIMARY_VIOLET }}
-                    >
-                      {cta}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 3. List view OR Focus view */}
       {!activeChildId ? null : focusedMonth ? (
         <FocusView
@@ -1820,6 +1863,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
                 e.stopPropagation();
                 setFocusedMonthIndex(m.monthIndex);
               }}
+              onAlternativeClick={handleAlternativeClick}
             />
           ))}
         </div>
