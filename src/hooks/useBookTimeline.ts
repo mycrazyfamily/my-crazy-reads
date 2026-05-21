@@ -28,6 +28,7 @@ export interface BookTimelineRow {
   selected_theme_titre: string | null;
   selected_theme_resume: string | null;
   selected_theme_id: string | null;
+  show_custom_story: boolean;
 }
 
 export function useBookTimeline(childId: string | null) {
