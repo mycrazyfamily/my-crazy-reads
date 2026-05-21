@@ -1456,6 +1456,38 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     return map;
   }, [months]);
 
+  const alternativesByBookRequestId = useMemo(() => {
+    const map = new Map<string, NonNullable<MockMonth['alternatives']>>();
+    const childName = activeChild?.firstName ?? '';
+    (timelineRows ?? []).forEach((row) => {
+      const alts: NonNullable<MockMonth['alternatives']> = [];
+      (row.substitute_options || []).forEach((o: any, idx: number) => {
+        const cond = typeof o?.substitute_condition === 'string' ? o.substitute_condition : '';
+        if (cond.startsWith('birthday_')) {
+          alts.push({
+            type: 'birthday',
+            label: `🎉 Anniversaire ${o.substitute_person_name}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        } else if (cond.startsWith('milestone_')) {
+          alts.push({
+            type: 'milestone',
+            label: `✨ ${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
+            substituteIndex: idx,
+            substituteThemeId: o.substitute_theme_id,
+          });
+        }
+      });
+      if (row.show_custom_story) {
+        alts.push({ type: 'custom', label: '📖 Histoire inédite' });
+      }
+      if (row.book_request_id) map.set(row.book_request_id, alts);
+    });
+    console.log('[MyStoriesTab] alternativesByBookRequestId', Array.from(map.entries()));
+    return map;
+  }, [timelineRows, activeChild?.firstName]);
+
   const handleSuggestionClick = (s: Suggestion) => {
     const monthIndex = monthIndexByBookRequestId.get(s.bookRequestId);
     if (monthIndex === undefined) return;
