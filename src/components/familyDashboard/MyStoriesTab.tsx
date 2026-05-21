@@ -1309,6 +1309,98 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     [timelineRows, activeChild?.firstName, activeChild?.gender]
   );
 
+  // Proactive suggestions derived from timelineRows
+  type Suggestion =
+    | {
+        type: 'birthday';
+        personName: string;
+        substituteThemeId: string;
+        substituteThemeTitre: string;
+        bookRequestId: string;
+        substituteIndex: number;
+      }
+    | {
+        type: 'milestone';
+        substituteThemeId: string;
+        substituteThemeTitre: string;
+        bookRequestId: string;
+        substituteIndex: number;
+      }
+    | { type: 'custom'; bookRequestId: string };
+
+  const suggestions: Suggestion[] = useMemo(() => {
+    const rows = timelineRows ?? [];
+    const out: Suggestion[] = [];
+
+    // Birthdays: only the closest upcoming month that has any birthday_ option
+    for (const row of rows) {
+      const opts = row.substitute_options || [];
+      const birthdays = opts
+        .map((o, idx) => ({ o, idx }))
+        .filter(({ o }) => typeof o.substitute_condition === 'string' && o.substitute_condition.startsWith('birthday_'));
+      if (birthdays.length > 0) {
+        for (const { o, idx } of birthdays) {
+          out.push({
+            type: 'birthday',
+            personName: o.substitute_person_name,
+            substituteThemeId: o.substitute_theme_id,
+            substituteThemeTitre: o.substitute_theme_titre,
+            bookRequestId: row.book_request_id,
+            substituteIndex: idx,
+          });
+        }
+        break;
+      }
+    }
+
+    // Milestones: across all rows
+    for (const row of rows) {
+      const opts = row.substitute_options || [];
+      opts.forEach((o, idx) => {
+        if (typeof o.substitute_condition === 'string' && o.substitute_condition.startsWith('milestone_')) {
+          out.push({
+            type: 'milestone',
+            substituteThemeId: o.substitute_theme_id,
+            substituteThemeTitre: o.substitute_theme_titre,
+            bookRequestId: row.book_request_id,
+            substituteIndex: idx,
+          });
+        }
+      });
+    }
+
+    // Custom story: first row that allows it
+    const customRow = rows.find((r) => r.show_custom_story === true);
+    if (customRow) {
+      out.push({ type: 'custom', bookRequestId: customRow.book_request_id });
+    }
+
+    return out;
+  }, [timelineRows]);
+
+  const monthIndexByBookRequestId = useMemo(() => {
+    const map = new Map<string, number>();
+    months.forEach((m) => {
+      if (m.bookRequestId) map.set(m.bookRequestId, m.monthIndex);
+    });
+    return map;
+  }, [months]);
+
+  const handleSuggestionClick = (s: Suggestion) => {
+    const monthIndex = monthIndexByBookRequestId.get(s.bookRequestId);
+    if (monthIndex === undefined) return;
+    setFocusedMonthIndex(monthIndex);
+    if (s.type === 'custom') {
+      setActiveFlow('custom');
+      setActiveSubstituteThemeId(undefined);
+      setWizardOpen(true);
+    } else {
+      setActiveFlow(`special_${s.substituteIndex}` as FlowType);
+      setActiveSubstituteThemeId(s.substituteThemeId);
+      setThemeSheetOpen(true);
+    }
+  };
+
   const totalPlanned = months.length;
   const configuredCount = (timelineRows ?? []).filter(
     (r) => r.status === 'configured' || r.status === 'locked'
