@@ -1473,6 +1473,28 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     }
   };
 
+  const handleAlternativeClick = (
+    bookRequestId: string,
+    alternativeType: 'birthday' | 'milestone' | 'custom',
+    substituteIndex?: number,
+  ) => {
+    const monthIndex = monthIndexByBookRequestId.get(bookRequestId);
+    if (monthIndex === undefined) return;
+    setFocusedMonthIndex(monthIndex);
+    if (alternativeType === 'custom') {
+      setActiveFlow('custom');
+      setActiveSubstituteThemeId(undefined);
+      setWizardOpen(true);
+      return;
+    }
+    if (substituteIndex === undefined) return;
+    const target = months.find((m) => m.monthIndex === monthIndex);
+    const opt = target?.substituteOptions?.[substituteIndex];
+    setActiveFlow(`special_${substituteIndex}` as FlowType);
+    setActiveSubstituteThemeId(opt?.substituteThemeId);
+    setThemeSheetOpen(true);
+  };
+
   const totalPlanned = months.length;
   const configuredCount = (timelineRows ?? []).filter(
     (r) => r.status === 'configured' || r.status === 'locked'
