@@ -69,6 +69,7 @@ interface MockMonth {
   selectedThemeId?: string | null;
   originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
+  isPreparing?: boolean;
   alternatives?: Array<
     | { type: 'birthday'; label: string; substituteIndex: number; substituteThemeId: string }
     | { type: 'milestone'; label: string; substituteIndex: number; substituteThemeId: string }
