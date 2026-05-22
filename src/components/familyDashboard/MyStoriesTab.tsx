@@ -982,14 +982,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
             </>
           )}
           {month.status === 'configured' && (
-            <div className="flex flex-col gap-0.5">
-              <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
-              {month.configuredSummary && (
-                <span className="text-xs text-muted-foreground/70 truncate">
-                  {month.configuredSummary}
-                </span>
-              )}
-            </div>
+            <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
           )}
           {month.status === 'in_creation' && <span>Livre en cours de génération</span>}
           {month.status === 'in_printing' && <span>Livraison prévue le {month.deliveryShort}</span>}
