@@ -69,6 +69,7 @@ interface MockMonth {
   selectedThemeId?: string | null;
   originalThemeInstructions?: string | null;
   dedicatedPersonName?: string | null;
+  isPreparing?: boolean;
   alternatives?: Array<
     | { type: 'birthday'; label: string; substituteIndex: number; substituteThemeId: string }
     | { type: 'milestone'; label: string; substituteIndex: number; substituteThemeId: string }
@@ -291,6 +292,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     deliveryDate,
     deliveryShort,
     status,
+    isPreparing: ['locked', 'generating', 'printing', 'shipped', 'delivered'].includes(row.status),
     bookTitle: (() => {
       if (row.selected_theme_type === 'original')
         return '✨ Histoire inédite';
@@ -752,6 +754,12 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
     || month.status === 'in_printing' || month.status === 'shipped' || month.status === 'delivered';
   const isLocked = month.status === 'in_creation' || month.status === 'in_printing'
     || month.status === 'shipped' || month.status === 'delivered';
+  const AUTO_MESSAGE = 'Livre généré automatiquement depuis le dashboard admin';
+  const hasCharacters = !!(month.configuredCharacters && month.configuredCharacters.length > 0);
+  const noteText = (month.savedNote ?? '').trim();
+  const hasNote = noteText.length > 0 && noteText !== AUTO_MESSAGE;
+  const showConfig = hasCharacters || hasNote;
+  const isPreparing = !!month.isPreparing;
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -801,7 +809,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                 </p>
               )}
 
-              {isConfigured && (
+              {isConfigured && showConfig && (
                 <div className="space-y-3 p-4 rounded-xl bg-muted/50 border border-border">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Votre configuration
@@ -827,11 +835,11 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                       </div>
                     </div>
                   )}
-                  {month.configuredCharacters && month.configuredCharacters.length > 0 && (
+                  {hasCharacters && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Personnages</p>
                       <p className="text-sm font-medium text-foreground">
-                        {[...month.configuredCharacters]
+                        {[...month.configuredCharacters!]
                           .sort((a, b) =>
                             a === month.dedicatedPersonName ? -1 :
                             b === month.dedicatedPersonName ? 1 : 0
@@ -845,15 +853,15 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                       </p>
                     </div>
                   )}
-                  {month.savedNote && month.savedNote.trim() && (
+                  {hasNote && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Votre note</p>
                       <p className="text-sm text-foreground italic">
-                        "{noteExpanded || month.savedNote.length <= 80
-                          ? month.savedNote
-                          : month.savedNote.slice(0, 80) + '…'}"
+                        "{noteExpanded || noteText.length <= 80
+                          ? noteText
+                          : noteText.slice(0, 80) + '…'}"
                       </p>
-                      {month.savedNote.length > 80 && (
+                      {noteText.length > 80 && (
                         <button
                           type="button"
                           onClick={() => setNoteExpanded(!noteExpanded)}
@@ -864,15 +872,14 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                       )}
                     </div>
                   )}
-                  {(!month.configuredCharacters?.length && !month.savedNote) && (
-                    <p className="text-sm text-muted-foreground">
-                      Aucun détail ajouté
-                    </p>
-                  )}
                 </div>
               )}
 
-              {!isLocked && (
+              {isPreparing ? (
+                <p className="text-sm text-muted-foreground italic">
+                  Votre livre est cours de préparation
+                </p>
+              ) : !isLocked && (
                 <>
                   <Button
                     onClick={onConfigure}
