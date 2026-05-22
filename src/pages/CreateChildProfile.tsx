@@ -85,7 +85,7 @@ const CreateChildProfile = ({
         const { error: updateError } = await supabase
           .from('child_profiles')
           .update({
-            first_name: data.firstName,
+            first_name: data.firstName.trim(),
             nickname: data.nickname?.type === 'custom' ? data.nickname.custom : 
                      data.nickname?.type !== 'none' ? data.nickname?.type : null,
             birth_date: data.birthDate ? data.birthDate.toISOString().split('T')[0] : null,
