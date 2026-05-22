@@ -292,6 +292,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     deliveryDate,
     deliveryShort,
     status,
+    isPreparing: ['locked', 'generating', 'printing', 'shipped', 'delivered'].includes(row.status),
     bookTitle: (() => {
       if (row.selected_theme_type === 'original')
         return '✨ Histoire inédite';
