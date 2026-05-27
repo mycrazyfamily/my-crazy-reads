@@ -29,6 +29,8 @@ export interface BookTimelineRow {
   selected_theme_resume: string | null;
   selected_theme_id: string | null;
   show_custom_story: boolean;
+  selected_location_id: string | null;
+  selected_location_label: string | null;
 }
 
 export function useBookTimeline(childId: string | null) {
@@ -40,7 +42,7 @@ export function useBookTimeline(childId: string | null) {
         p_child_id: childId,
       });
       if (error) throw error;
-      return (data ?? []) as BookTimelineRow[];
+      return (data ?? []) as unknown as BookTimelineRow[];
     },
     enabled: !!childId,
     staleTime: 1000 * 60 * 5,

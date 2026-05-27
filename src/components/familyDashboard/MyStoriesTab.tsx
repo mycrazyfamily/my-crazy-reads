@@ -59,6 +59,8 @@ interface MockMonth {
   themeId?: string | null;
   configuredSummary?: string;
   savedNote?: string;
+  savedLocationId?: string | null;
+  savedLocationLabel?: string | null;
   substituteOptions?: Array<{
     substituteThemeId: string;
     substituteThemeTitre: string;
@@ -320,6 +322,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
+    savedLocationId: row.selected_location_id ?? null,
+    savedLocationLabel: row.selected_location_label ?? null,
     substituteOptions: (row.substitute_options || []).map((s: any) => ({
       substituteThemeId: s.substitute_theme_id,
       substituteThemeTitre: s.substitute_theme_titre,
@@ -404,6 +408,8 @@ interface WizardProps {
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
   savedNote?: string;
+  savedLocationId?: string | null;
+  savedLocationLabel?: string | null;
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
@@ -413,7 +419,7 @@ interface WizardProps {
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -439,8 +445,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
       setCustomStory(initialCustomStory || '');
-      setSelectedLocationId(null);
-      setSelectedLocationLabel(null);
+      setSelectedLocationId(savedLocationId ?? null);
+      setSelectedLocationLabel(savedLocationLabel ?? null);
       setStep(1);
     }
   }, [open]);
@@ -466,8 +472,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       selectedCharacters: selectedChars,
       storyIdea: isCustom ? customStory.trim() : undefined,
       note: !isCustom ? note.trim() || undefined : undefined,
-      locationId: !isCustom ? selectedLocationId : undefined,
-      locationLabel: !isCustom ? selectedLocationLabel : undefined,
+      locationId: selectedLocationId,
+      locationLabel: selectedLocationLabel,
     });
   };
 
@@ -495,15 +501,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             backgroundColor: step === 2 ? PRIMARY_VIOLET : '#E5E7EB',
           }}
         />
-        {!isCustom && (
-          <div
-            className="h-2 rounded-full transition-all"
-            style={{
-              width: step === 3 ? 28 : 8,
-              backgroundColor: step === 3 ? PRIMARY_VIOLET : '#E5E7EB',
-            }}
-          />
-        )}
+        <div
+          className="h-2 rounded-full transition-all"
+          style={{
+            width: step === 3 ? 28 : 8,
+            backgroundColor: step === 3 ? PRIMARY_VIOLET : '#E5E7EB',
+          }}
+        />
       </div>
 
       {/* Custom flow: step 1 = story idea */}
@@ -612,12 +616,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         </>
       )}
 
-      {/* Step 2 — custom: characters; standard: note */}
-      {isCustom && step === 2 && (
+      {/* Step 3 (custom) — characters */}
+      {isCustom && step === 3 && (
         <>
           <button
             type="button"
-            onClick={() => setStep(1)}
+            onClick={() => setStep(2)}
             className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -686,7 +690,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         </>
       )}
 
-      {!isCustom && step === 2 && (
+      {step === 2 && (
         <>
           <button
             type="button"
@@ -890,7 +894,9 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
   const hasCharacters = !!(month.configuredCharacters && month.configuredCharacters.length > 0);
   const noteText = (month.savedNote ?? '').trim();
   const hasNote = noteText.length > 0 && noteText !== AUTO_MESSAGE;
-  const showConfig = hasCharacters || hasNote;
+  const locationLabel = (month.savedLocationLabel ?? '').trim();
+  const hasLocation = locationLabel.length > 0 || !!month.savedLocationId;
+  const showConfig = hasCharacters || hasNote || hasLocation;
   const isPreparing = !!month.isPreparing;
 
   return (
@@ -1002,6 +1008,14 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                           {noteExpanded ? 'Réduire' : 'Voir tout'}
                         </button>
                       )}
+                    </div>
+                  )}
+                  {hasLocation && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Lieu</p>
+                      <p className="text-sm text-foreground">
+                        📍 {locationLabel || 'Lieu sélectionné'}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1135,6 +1149,8 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
           const AUTO_MESSAGE = 'Livre généré automatiquement depuis le dashboard admin';
           const note = (month.savedNote ?? '').trim();
           const showNote = note.length > 0 && note !== AUTO_MESSAGE;
+          const loc = (month.savedLocationLabel ?? '').trim();
+          const showLoc = loc.length > 0 || !!month.savedLocationId;
           return (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {month.configuredCharacters!.map((name, i) => (
@@ -1145,6 +1161,11 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                   {name}
                 </span>
               ))}
+              {showLoc && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
+                  📍 {loc || 'Lieu'}
+                </span>
+              )}
               {showNote && (
                 <span className="text-xs text-muted-foreground italic truncate max-w-full">
                   « {note} »
@@ -1452,7 +1473,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       queryFn: async () => {
         const { data, error } = await supabase.rpc('get_child_book_timeline', { p_child_id: c.id });
         if (error) throw error;
-        return (data ?? []) as BookTimelineRow[];
+        return (data ?? []) as unknown as BookTimelineRow[];
       },
       staleTime: 1000 * 60 * 5,
     })),
@@ -2095,6 +2116,14 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         savedNote={
           timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
             ?.saved_note ?? ''
+        }
+        savedLocationId={
+          timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_location_id ?? null
+        }
+        savedLocationLabel={
+          timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_location_label ?? null
         }
         onSubmit={handleWizardSubmit}
         onBackToThemeSheet={() => {

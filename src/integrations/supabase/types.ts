@@ -1820,6 +1820,8 @@ export type Database = {
           resume_narratif: string
           saved_note: string
           selected_characters: Json
+          selected_location_id: string
+          selected_location_label: string
           selected_theme_id: string
           selected_theme_resume: string
           selected_theme_titre: string
