@@ -894,7 +894,9 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
   const hasCharacters = !!(month.configuredCharacters && month.configuredCharacters.length > 0);
   const noteText = (month.savedNote ?? '').trim();
   const hasNote = noteText.length > 0 && noteText !== AUTO_MESSAGE;
-  const showConfig = hasCharacters || hasNote;
+  const locationLabel = (month.savedLocationLabel ?? '').trim();
+  const hasLocation = locationLabel.length > 0 || !!month.savedLocationId;
+  const showConfig = hasCharacters || hasNote || hasLocation;
   const isPreparing = !!month.isPreparing;
 
   return (
