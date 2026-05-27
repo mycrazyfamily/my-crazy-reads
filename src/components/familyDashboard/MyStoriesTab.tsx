@@ -1717,6 +1717,20 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   // 3. Save mutation
   const { mutate: saveChoice, isPending: isSaving } = useSaveBookChoice(activeChildId);
 
+  // Family places for the wizard location step
+  const { data: familyPlaces } = useQuery({
+    queryKey: ['family-places', activeChild?.id],
+    queryFn: async () => {
+      if (!activeChild?.id) return [];
+      const { data } = await supabase
+        .from('child_places')
+        .select('places(id, label, type, city)')
+        .eq('child_id', activeChild.id);
+      return (data ?? []).map((r: any) => r.places).filter(Boolean);
+    },
+    enabled: !!activeChild?.id,
+  });
+
   // 4. Build characters list from real family data
   const wizardCharacters: WizardCharacter[] = useMemo(() => {
     if (!activeChild) return [];
