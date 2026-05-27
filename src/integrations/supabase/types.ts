@@ -68,6 +68,8 @@ export type Database = {
           personalization_deadline: string | null
           request_type: string | null
           selected_characters: Json | null
+          selected_location_id: string | null
+          selected_location_label: string | null
           selected_theme_id: string | null
           selected_theme_type: string | null
           slides_url: string | null
@@ -94,6 +96,8 @@ export type Database = {
           personalization_deadline?: string | null
           request_type?: string | null
           selected_characters?: Json | null
+          selected_location_id?: string | null
+          selected_location_label?: string | null
           selected_theme_id?: string | null
           selected_theme_type?: string | null
           slides_url?: string | null
@@ -120,6 +124,8 @@ export type Database = {
           personalization_deadline?: string | null
           request_type?: string | null
           selected_characters?: Json | null
+          selected_location_id?: string | null
+          selected_location_label?: string | null
           selected_theme_id?: string | null
           selected_theme_type?: string | null
           slides_url?: string | null
