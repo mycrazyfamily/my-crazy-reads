@@ -15,7 +15,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: unknown, errorInfo: unknown) {
-    console.error("🧯 ErrorBoundary caught an error in DatePicker tree", {
+    console.error("🧯 ErrorBoundary caught an error", {
       error,
       errorInfo,
       location: window.location.href,
