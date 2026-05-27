@@ -2108,6 +2108,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             ? (focusedMonth?.originalThemeInstructions ?? '')
             : ''
         }
+        familyPlaces={familyPlaces ?? []}
       />
 
       {/* Theme selection sheet */}
