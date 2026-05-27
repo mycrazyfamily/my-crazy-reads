@@ -495,6 +495,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             backgroundColor: step === 2 ? PRIMARY_VIOLET : '#E5E7EB',
           }}
         />
+        {!isCustom && (
+          <div
+            className="h-2 rounded-full transition-all"
+            style={{
+              width: step === 3 ? 28 : 8,
+              backgroundColor: step === 3 ? PRIMARY_VIOLET : '#E5E7EB',
+            }}
+          />
+        )}
       </div>
 
       {/* Custom flow: step 1 = story idea */}
