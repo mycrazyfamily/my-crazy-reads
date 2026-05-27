@@ -1010,6 +1010,14 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                       )}
                     </div>
                   )}
+                  {hasLocation && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Lieu</p>
+                      <p className="text-sm text-foreground">
+                        📍 {locationLabel || 'Lieu sélectionné'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
