@@ -1794,7 +1794,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     locked: c.locked || (dedicatedName !== null && c.name === dedicatedName),
   }));
 
-  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => {
+  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => {
     if (!focusedMonth?.bookRequestId) {
       toast.error('Livre introuvable, réessaie.');
       return;
@@ -1826,6 +1826,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           ? activeSubstituteThemeId
           : undefined,
         note: payload.note,
+        locationId: payload.locationId,
+        locationLabel: payload.locationLabel,
       },
       {
         onSuccess: () => {
