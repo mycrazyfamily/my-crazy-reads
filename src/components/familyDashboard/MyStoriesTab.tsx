@@ -616,12 +616,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         </>
       )}
 
-      {/* Step 2 — custom: characters; standard: note */}
-      {isCustom && step === 2 && (
+      {/* Step 3 (custom) — characters */}
+      {isCustom && step === 3 && (
         <>
           <button
             type="button"
-            onClick={() => setStep(1)}
+            onClick={() => setStep(2)}
             className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -690,7 +690,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
         </>
       )}
 
-      {!isCustom && step === 2 && (
+      {step === 2 && (
         <>
           <button
             type="button"
