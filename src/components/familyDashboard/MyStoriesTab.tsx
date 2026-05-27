@@ -408,6 +408,8 @@ interface WizardProps {
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
   savedNote?: string;
+  savedLocationId?: string | null;
+  savedLocationLabel?: string | null;
   onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
@@ -417,7 +419,7 @@ interface WizardProps {
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -443,8 +445,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
       setCustomStory(initialCustomStory || '');
-      setSelectedLocationId(null);
-      setSelectedLocationLabel(null);
+      setSelectedLocationId(savedLocationId ?? null);
+      setSelectedLocationLabel(savedLocationLabel ?? null);
       setStep(1);
     }
   }, [open]);
