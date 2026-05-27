@@ -128,7 +128,10 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
         <div>
           <Label htmlFor="place-type">Type de lieu *</Label>
-          <Select value={place.type} onValueChange={(value) => onChange({ ...place, type: value as any })}>
+          <Select
+            value={place.type}
+            onValueChange={(value) => onChange({ ...place, type: value as any })}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
@@ -174,9 +177,9 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
         </div>
       </div>
 
-      {/* Detailed Questions */}
-      {isVacationPlace ? (
-        // Vacation place specific questions
+      {/* Detailed Questions — both blocks stay mounted, only hidden, to avoid
+          unmounting Select/Popover portals mid-render when the type changes. */}
+      <div className={isVacationPlace ? '' : 'hidden'}>
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
           
@@ -335,8 +338,9 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             />
           </div>
         </div>
-      ) : (
-        // Regular place questions
+      </div>
+
+      <div className={isVacationPlace ? 'hidden' : ''}>
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
           
@@ -603,7 +607,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             noDetailsLabel="Aucun élément particulier"
           />
         </div>
-      )}
+      </div>
     </div>
   );
 };
