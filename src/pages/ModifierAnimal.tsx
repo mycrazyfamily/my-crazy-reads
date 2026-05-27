@@ -71,6 +71,7 @@ const ModifierAnimal: React.FC = () => {
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   const [originalBirthMonthYear, setOriginalBirthMonthYear] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadPetData();

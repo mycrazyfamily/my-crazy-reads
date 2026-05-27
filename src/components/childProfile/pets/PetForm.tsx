@@ -21,9 +21,10 @@ type PetFormProps = {
   showButtons?: boolean;
   onDataChange?: (pet: PetData) => void;
   linkedChildrenIds?: string[]; // IDs des enfants déjà liés à cet animal
+  isDisabled?: boolean;
 };
 
-const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange, linkedChildrenIds }) => {
+const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange, linkedChildrenIds, isDisabled = false }) => {
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
   const [otherType, setOtherType] = useState(pet?.otherType || '');
@@ -433,9 +434,10 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
           <Button 
             type="button"
             onClick={handleSubmit}
+            disabled={isDisabled}
             className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
           >
-            {pet ? 'Enregistrer les modifications' : 'Ajouter cet animal'}
+            {isDisabled ? 'Enregistrement...' : (pet ? 'Enregistrer les modifications' : 'Ajouter cet animal')}
           </Button>
         </div>
       )}

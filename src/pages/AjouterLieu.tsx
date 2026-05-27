@@ -34,6 +34,7 @@ export default function AjouterLieu() {
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (supabaseSession?.user) {
@@ -95,22 +96,24 @@ export default function AjouterLieu() {
   };
 
   const handleAddPlace = async () => {
-    if (selectedChildIds.length === 0) {
-      toast.error('Veuillez sélectionner au moins un enfant');
-      return;
-    }
-
-    if (!currentPlaceData.label?.trim()) {
-      toast.error('Veuillez renseigner le nom du lieu');
-      return;
-    }
-
-    if (!currentPlaceData.type) {
-      toast.error('Veuillez sélectionner le type de lieu');
-      return;
-    }
-
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
+      if (selectedChildIds.length === 0) {
+        toast.error('Veuillez sélectionner au moins un enfant');
+        return;
+      }
+
+      if (!currentPlaceData.label?.trim()) {
+        toast.error('Veuillez renseigner le nom du lieu');
+        return;
+      }
+
+      if (!currentPlaceData.type) {
+        toast.error('Veuillez sélectionner le type de lieu');
+        return;
+      }
+
       let familyId: string | null = null;
 
       // 1. Récupérer le family_id depuis le profil enfant
@@ -202,6 +205,8 @@ export default function AjouterLieu() {
     } catch (error) {
       console.error('Erreur lors de l\'ajout du lieu:', error);
       toast.error('Erreur lors de l\'ajout du lieu');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -329,9 +334,10 @@ export default function AjouterLieu() {
                 <Button 
                   type="button"
                   onClick={handleAddPlace}
+                  disabled={isSubmitting}
                   className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
                 >
-                  Enregistrer
+                  {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
                 </Button>
               </div>
             </CardContent>

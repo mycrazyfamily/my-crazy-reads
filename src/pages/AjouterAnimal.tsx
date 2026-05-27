@@ -35,6 +35,7 @@ export default function AjouterAnimal() {
   const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (supabaseSession?.user) {
@@ -88,12 +89,14 @@ export default function AjouterAnimal() {
   };
 
   const handleAddPet = async (petData: PetData) => {
-    if (selectedChildIds.length === 0) {
-      toast.error('Veuillez sélectionner au moins un enfant');
-      return;
-    }
-
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
+      if (selectedChildIds.length === 0) {
+        toast.error('Veuillez sélectionner au moins un enfant');
+        return;
+      }
+
       let familyId: string | null = null;
 
       // 1. D'abord, essayer de récupérer le family_id depuis le profil enfant (child_profiles)
@@ -229,6 +232,8 @@ export default function AjouterAnimal() {
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);
       toast.error('Erreur lors de l\'ajout de l\'animal');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -335,7 +340,7 @@ export default function AjouterAnimal() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <PetForm onSave={handleAddPet} onCancel={() => navigate('/espace-famille')} />
+              <PetForm onSave={handleAddPet} onCancel={() => navigate('/espace-famille')} isDisabled={isSubmitting} />
             </CardContent>
           </Card>
         )}
