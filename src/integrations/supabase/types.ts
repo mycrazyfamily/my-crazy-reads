@@ -53,6 +53,7 @@ export type Database = {
       book_requests: {
         Row: {
           archived_at: string | null
+          book_title: string | null
           child_id: string | null
           created_at: string | null
           created_by: string | null
@@ -69,6 +70,7 @@ export type Database = {
           selected_characters: Json | null
           selected_theme_id: string | null
           selected_theme_type: string | null
+          slides_url: string | null
           status: string | null
           theme_locked: boolean | null
           theme_locked_at: string | null
@@ -77,6 +79,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          book_title?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -93,6 +96,7 @@ export type Database = {
           selected_characters?: Json | null
           selected_theme_id?: string | null
           selected_theme_type?: string | null
+          slides_url?: string | null
           status?: string | null
           theme_locked?: boolean | null
           theme_locked_at?: string | null
@@ -101,6 +105,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          book_title?: string | null
           child_id?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -117,6 +122,7 @@ export type Database = {
           selected_characters?: Json | null
           selected_theme_id?: string | null
           selected_theme_type?: string | null
+          slides_url?: string | null
           status?: string | null
           theme_locked?: boolean | null
           theme_locked_at?: string | null
