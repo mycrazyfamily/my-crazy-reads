@@ -3,7 +3,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlaceData, PlaceDetails } from '@/types/place';
 import { DetailsInput } from './DetailsInput';
 
@@ -128,22 +127,19 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
         <div>
           <Label htmlFor="place-type">Type de lieu *</Label>
-          <Select
+          <select
+            id="place-type"
             value={place.type}
-            onValueChange={(value) => onChange({ ...place, type: value as any })}
-            modal={false}
+            onChange={(e) => onChange({ ...place, type: e.target.value as any })}
+            className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner un type" />
-            </SelectTrigger>
-            <SelectContent>
-              {placeTypeOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="" disabled>Sélectionner un type</option>
+            {placeTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -186,18 +182,18 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           
           <div>
             <Label>🏕 Quel type de lieu est-ce ?</Label>
-            <Select value={details.type_vacances || ''} onValueChange={(value) => updateDetails('type_vacances', value)} modal={false}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent>
-                {typeVacancesOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={details.type_vacances || ''}
+              onChange={(e) => updateDetails('type_vacances', e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+            >
+              <option value="" disabled>Sélectionner</option>
+              {typeVacancesOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.value}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -273,18 +269,18 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🍽️ Où prenez-vous les repas ?</Label>
-            <Select value={details.repas_ou || ''} onValueChange={(value) => updateDetails('repas_ou', value)} modal={false}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent>
-                {repasOuOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={details.repas_ou || ''}
+              onChange={(e) => updateDetails('repas_ou', e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+            >
+              <option value="" disabled>Sélectionner</option>
+              {repasOuOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.value}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -347,18 +343,18 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           
           <div>
             <Label>🏠 Quel type de logement est-ce ?</Label>
-            <Select value={details.habitat_type || ''} onValueChange={(value) => updateDetails('habitat_type', value)} modal={false}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent>
-                {habitatTypeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={details.habitat_type || ''}
+              onChange={(e) => updateDetails('habitat_type', e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+            >
+              <option value="" disabled>Sélectionner</option>
+              {habitatTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.value}
+                </option>
+              ))}
+            </select>
             {details.habitat_type === 'Autre' && (
               <Input
                 className="mt-2"
@@ -584,18 +580,18 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🧳 Ce lieu est-il utilisé à l'année ou ponctuellement ?</Label>
-            <Select value={details.frequence_utilisation || ''} onValueChange={(value) => updateDetails('frequence_utilisation', value)} modal={false}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner" />
-              </SelectTrigger>
-              <SelectContent>
-                {frequenceUtilisationOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              value={details.frequence_utilisation || ''}
+              onChange={(e) => updateDetails('frequence_utilisation', e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
+            >
+              <option value="" disabled>Sélectionner</option>
+              {frequenceUtilisationOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.value}
+                </option>
+              ))}
+            </select>
           </div>
 
           <DetailsInput

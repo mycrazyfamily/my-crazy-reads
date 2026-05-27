@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +31,11 @@ const NotificationsBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, supabaseSession } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const fetchNotifications = async () => {
     if (!isAuthenticated || !supabaseSession?.user) return;
