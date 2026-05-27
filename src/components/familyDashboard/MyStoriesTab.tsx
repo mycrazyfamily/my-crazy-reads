@@ -2100,6 +2100,14 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
             ?.saved_note ?? ''
         }
+        savedLocationId={
+          timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_location_id ?? null
+        }
+        savedLocationLabel={
+          timelineRows?.find((r) => r.book_request_id === focusedMonth?.bookRequestId)
+            ?.selected_location_label ?? null
+        }
         onSubmit={handleWizardSubmit}
         onBackToThemeSheet={() => {
           setWizardOpen(false);
