@@ -404,19 +404,23 @@ interface WizardProps {
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
   savedNote?: string;
-  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
+  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
   dedicatedName?: string | null;
   initialCustomStory?: string;
+  familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
+  onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
   const isMobile = useIsMobile();
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [customStory, setCustomStory] = useState('');
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [selectedLocationLabel, setSelectedLocationLabel] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
 
   // When the wizard opens, initialize all values; on close, leave state as-is to avoid flash
@@ -435,6 +439,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
       setNote(savedNote || '');
       setCustomStory(initialCustomStory || '');
+      setSelectedLocationId(null);
+      setSelectedLocationLabel(null);
       setStep(1);
     }
   }, [open]);
@@ -460,6 +466,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       selectedCharacters: selectedChars,
       storyIdea: isCustom ? customStory.trim() : undefined,
       note: !isCustom ? note.trim() || undefined : undefined,
+      locationId: !isCustom ? selectedLocationId : undefined,
+      locationLabel: !isCustom ? selectedLocationLabel : undefined,
     });
   };
 
@@ -487,6 +495,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             backgroundColor: step === 2 ? PRIMARY_VIOLET : '#E5E7EB',
           }}
         />
+        {!isCustom && (
+          <div
+            className="h-2 rounded-full transition-all"
+            style={{
+              width: step === 3 ? 28 : 8,
+              backgroundColor: step === 3 ? PRIMARY_VIOLET : '#E5E7EB',
+            }}
+          />
+        )}
       </div>
 
       {/* Custom flow: step 1 = story idea */}
@@ -674,6 +691,121 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
           <button
             type="button"
             onClick={() => setStep(1)}
+            className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Précédent</span>
+          </button>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            Où se passe l'histoire ?
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Optionnel — par défaut l'histoire se déroule chez vous
+          </p>
+
+          {familyPlaces && familyPlaces.length > 0 && (
+            <>
+              <p className="text-sm font-semibold text-foreground mb-2">Vos lieux</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {familyPlaces.map((place) => {
+                  const isSel = selectedLocationId === place.id;
+                  return (
+                    <button
+                      key={place.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLocationId(place.id);
+                        setSelectedLocationLabel(place.label);
+                      }}
+                      className="flex flex-col items-start gap-1 p-3 rounded-xl border-2 transition-all text-left"
+                      style={{
+                        borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                        backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                      }}
+                    >
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                      >
+                        {place.label}
+                      </span>
+                      {place.city && (
+                        <span className="text-xs text-muted-foreground">{place.city}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          <p className="text-sm font-semibold text-foreground mb-2">Ailleurs</p>
+          <div className="grid grid-cols-4 gap-2 mb-8">
+            {[
+              { emoji: '🏔️', label: 'À la montagne' },
+              { emoji: '🏖️', label: 'À la plage' },
+              { emoji: '⛷️', label: 'Au ski' },
+              { emoji: '🌲', label: 'En forêt' },
+              { emoji: '🏜️', label: 'Dans le désert' },
+              { emoji: '🚢', label: 'En bateau' },
+              { emoji: '🏰', label: 'Dans un château' },
+              { emoji: '🚀', label: 'Dans l\u2019espace' },
+            ].map((opt) => {
+              const isSel = selectedLocationId === null && selectedLocationLabel === opt.label;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLocationId(null);
+                    setSelectedLocationLabel(opt.label);
+                  }}
+                  className="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
+                  style={{
+                    borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                    backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                  }}
+                >
+                  <span className="text-2xl">{opt.emoji}</span>
+                  <span
+                    className="text-[11px] font-medium text-center leading-tight"
+                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                  >
+                    {opt.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSelectedLocationId(null);
+                setSelectedLocationLabel(null);
+                setStep(3);
+              }}
+              className="flex-1"
+            >
+              Passer
+            </Button>
+            <Button
+              onClick={() => setStep(3)}
+              className="flex-1 text-white hover:opacity-90"
+              style={{ backgroundColor: PRIMARY_VIOLET }}
+            >
+              Suivant →
+            </Button>
+          </div>
+        </>
+      )}
+
+      {!isCustom && step === 3 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setStep(2)}
             className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -1585,6 +1717,20 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   // 3. Save mutation
   const { mutate: saveChoice, isPending: isSaving } = useSaveBookChoice(activeChildId);
 
+  // Family places for the wizard location step
+  const { data: familyPlaces } = useQuery({
+    queryKey: ['family-places', activeChild?.id],
+    queryFn: async () => {
+      if (!activeChild?.id) return [];
+      const { data } = await supabase
+        .from('child_places')
+        .select('places(id, label, type, city)')
+        .eq('child_id', activeChild.id);
+      return (data ?? []).map((r: any) => r.places).filter(Boolean);
+    },
+    enabled: !!activeChild?.id,
+  });
+
   // 4. Build characters list from real family data
   const wizardCharacters: WizardCharacter[] = useMemo(() => {
     if (!activeChild) return [];
@@ -1648,7 +1794,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     locked: c.locked || (dedicatedName !== null && c.name === dedicatedName),
   }));
 
-  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => {
+  const handleWizardSubmit = (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => {
     if (!focusedMonth?.bookRequestId) {
       toast.error('Livre introuvable, réessaie.');
       return;
@@ -1680,6 +1826,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           ? activeSubstituteThemeId
           : undefined,
         note: payload.note,
+        locationId: payload.locationId,
+        locationLabel: payload.locationLabel,
       },
       {
         onSuccess: () => {
@@ -1960,6 +2108,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             ? (focusedMonth?.originalThemeInstructions ?? '')
             : ''
         }
+        familyPlaces={familyPlaces ?? []}
       />
 
       {/* Theme selection sheet */}
