@@ -996,6 +996,32 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
           )}
         </div>
 
+        {(() => {
+          const isConfiguredOrLater = ['configured', 'in_creation', 'in_printing', 'shipped', 'delivered'].includes(month.status);
+          const hasChars = !!(month.configuredCharacters && month.configuredCharacters.length > 0);
+          if (!isConfiguredOrLater || !hasChars) return null;
+          const AUTO_MESSAGE = 'Livre généré automatiquement depuis le dashboard admin';
+          const note = (month.savedNote ?? '').trim();
+          const showNote = note.length > 0 && note !== AUTO_MESSAGE;
+          return (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {month.configuredCharacters!.map((name, i) => (
+                <span
+                  key={`${name}-${i}`}
+                  className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20"
+                >
+                  {name}
+                </span>
+              ))}
+              {showNote && (
+                <span className="text-xs text-muted-foreground italic truncate max-w-full">
+                  « {note} »
+                </span>
+              )}
+            </div>
+          );
+        })()}
+
         {showAlternatives && (
           <div className="mt-3 flex flex-wrap gap-2">
             {alts.map((alt, i) => (
