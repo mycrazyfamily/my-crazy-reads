@@ -1149,6 +1149,8 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
           const AUTO_MESSAGE = 'Livre généré automatiquement depuis le dashboard admin';
           const note = (month.savedNote ?? '').trim();
           const showNote = note.length > 0 && note !== AUTO_MESSAGE;
+          const loc = (month.savedLocationLabel ?? '').trim();
+          const showLoc = loc.length > 0 || !!month.savedLocationId;
           return (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {month.configuredCharacters!.map((name, i) => (
@@ -1159,6 +1161,11 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                   {name}
                 </span>
               ))}
+              {showLoc && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
+                  📍 {loc || 'Lieu'}
+                </span>
+              )}
               {showNote && (
                 <span className="text-xs text-muted-foreground italic truncate max-w-full">
                   « {note} »
