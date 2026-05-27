@@ -409,6 +409,8 @@ interface WizardProps {
   autoSelectedIds?: string[];
   dedicatedName?: string | null;
   initialCustomStory?: string;
+  familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
+  onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
 const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory }) => {
