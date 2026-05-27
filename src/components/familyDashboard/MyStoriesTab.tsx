@@ -322,6 +322,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     bookRequestId: row.book_request_id,
     themeId: row.theme_id ?? null,
     savedNote: row.saved_note || '',
+    savedLocationId: row.selected_location_id ?? null,
+    savedLocationLabel: row.selected_location_label ?? null,
     substituteOptions: (row.substitute_options || []).map((s: any) => ({
       substituteThemeId: s.substitute_theme_id,
       substituteThemeTitre: s.substitute_theme_titre,
