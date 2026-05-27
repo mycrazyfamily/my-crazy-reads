@@ -178,7 +178,6 @@ export default function AjouterProche() {
         return;
       }
 
-      try {
       // Récupérer le family_id du premier enfant sélectionné
       const { data: firstChild } = await supabase
         .from('child_profiles')
