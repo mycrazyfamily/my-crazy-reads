@@ -128,7 +128,11 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
         <div>
           <Label htmlFor="place-type">Type de lieu *</Label>
-          <Select value={place.type} onValueChange={(value) => onChange({ ...place, type: value as any })}>
+          <Select
+            value={place.type}
+            onValueChange={(value) => onChange({ ...place, type: value as any })}
+            modal={false}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Sélectionner un type" />
             </SelectTrigger>
@@ -174,15 +178,15 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
         </div>
       </div>
 
-      {/* Detailed Questions */}
-      {isVacationPlace ? (
-        // Vacation place specific questions
+      {/* Detailed Questions — both blocks stay mounted, only hidden, to avoid
+          unmounting Select/Popover portals mid-render when the type changes. */}
+      <div className={isVacationPlace ? '' : 'hidden'}>
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
           
           <div>
             <Label>🏕 Quel type de lieu est-ce ?</Label>
-            <Select value={details.type_vacances || ''} onValueChange={(value) => updateDetails('type_vacances', value)}>
+            <Select value={details.type_vacances || ''} onValueChange={(value) => updateDetails('type_vacances', value)} modal={false}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -269,7 +273,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🍽️ Où prenez-vous les repas ?</Label>
-            <Select value={details.repas_ou || ''} onValueChange={(value) => updateDetails('repas_ou', value)}>
+            <Select value={details.repas_ou || ''} onValueChange={(value) => updateDetails('repas_ou', value)} modal={false}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -335,14 +339,15 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             />
           </div>
         </div>
-      ) : (
-        // Regular place questions
+      </div>
+
+      <div className={isVacationPlace ? 'hidden' : ''}>
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
           
           <div>
             <Label>🏠 Quel type de logement est-ce ?</Label>
-            <Select value={details.habitat_type || ''} onValueChange={(value) => updateDetails('habitat_type', value)}>
+            <Select value={details.habitat_type || ''} onValueChange={(value) => updateDetails('habitat_type', value)} modal={false}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -579,7 +584,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🧳 Ce lieu est-il utilisé à l'année ou ponctuellement ?</Label>
-            <Select value={details.frequence_utilisation || ''} onValueChange={(value) => updateDetails('frequence_utilisation', value)}>
+            <Select value={details.frequence_utilisation || ''} onValueChange={(value) => updateDetails('frequence_utilisation', value)} modal={false}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -603,7 +608,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
             noDetailsLabel="Aucun élément particulier"
           />
         </div>
-      )}
+      </div>
     </div>
   );
 };
