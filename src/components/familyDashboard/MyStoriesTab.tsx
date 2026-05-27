@@ -697,6 +697,121 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
             <span>Précédent</span>
           </button>
           <h3 className="text-xl font-bold text-foreground text-center mb-1">
+            Où se passe l'histoire ?
+          </h3>
+          <p className="text-sm text-muted-foreground text-center mb-6">
+            Optionnel — par défaut l'histoire se déroule chez vous
+          </p>
+
+          {familyPlaces && familyPlaces.length > 0 && (
+            <>
+              <p className="text-sm font-semibold text-foreground mb-2">Vos lieux</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {familyPlaces.map((place) => {
+                  const isSel = selectedLocationId === place.id;
+                  return (
+                    <button
+                      key={place.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLocationId(place.id);
+                        setSelectedLocationLabel(place.label);
+                      }}
+                      className="flex flex-col items-start gap-1 p-3 rounded-xl border-2 transition-all text-left"
+                      style={{
+                        borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                        backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                      }}
+                    >
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                      >
+                        {place.label}
+                      </span>
+                      {place.city && (
+                        <span className="text-xs text-muted-foreground">{place.city}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          <p className="text-sm font-semibold text-foreground mb-2">Ailleurs</p>
+          <div className="grid grid-cols-4 gap-2 mb-8">
+            {[
+              { emoji: '🏔️', label: 'À la montagne' },
+              { emoji: '🏖️', label: 'À la plage' },
+              { emoji: '⛷️', label: 'Au ski' },
+              { emoji: '🌲', label: 'En forêt' },
+              { emoji: '🏜️', label: 'Dans le désert' },
+              { emoji: '🚢', label: 'En bateau' },
+              { emoji: '🏰', label: 'Dans un château' },
+              { emoji: '🚀', label: 'Dans l\u2019espace' },
+            ].map((opt) => {
+              const isSel = selectedLocationId === null && selectedLocationLabel === opt.label;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLocationId(null);
+                    setSelectedLocationLabel(opt.label);
+                  }}
+                  className="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
+                  style={{
+                    borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
+                    backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                  }}
+                >
+                  <span className="text-2xl">{opt.emoji}</span>
+                  <span
+                    className="text-[11px] font-medium text-center leading-tight"
+                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
+                  >
+                    {opt.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSelectedLocationId(null);
+                setSelectedLocationLabel(null);
+                setStep(3);
+              }}
+              className="flex-1"
+            >
+              Passer
+            </Button>
+            <Button
+              onClick={() => setStep(3)}
+              className="flex-1 text-white hover:opacity-90"
+              style={{ backgroundColor: PRIMARY_VIOLET }}
+            >
+              Suivant →
+            </Button>
+          </div>
+        </>
+      )}
+
+      {!isCustom && step === 3 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Précédent</span>
+          </button>
+          <h3 className="text-xl font-bold text-foreground text-center mb-1">
             Votre touche secrète
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-2">
