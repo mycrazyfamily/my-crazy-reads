@@ -466,6 +466,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
       selectedCharacters: selectedChars,
       storyIdea: isCustom ? customStory.trim() : undefined,
       note: !isCustom ? note.trim() || undefined : undefined,
+      locationId: !isCustom ? selectedLocationId : undefined,
+      locationLabel: !isCustom ? selectedLocationLabel : undefined,
     });
   };
 
