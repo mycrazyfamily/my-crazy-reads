@@ -1162,7 +1162,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
               ))}
               {showLoc && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
-                  📍 {loc || 'Lieu'}
+                  📍 {month.savedLocationLabel || 'Lieu'}
                 </span>
               )}
               {showNote && (
