@@ -130,7 +130,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           <Label htmlFor="place-type">Type de lieu *</Label>
           <Select
             value={place.type}
-            onValueChange={(value) = modal={false}> onChange({ ...place, type: value as any })}
+            onValueChange={(value) => onChange({ ...place, type: value as any })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Sélectionner un type" />
@@ -185,7 +185,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           
           <div>
             <Label>🏕 Quel type de lieu est-ce ?</Label>
-            <Select value={details.type_vacances || ''} onValueChange={(value) = modal={false}> updateDetails('type_vacances', value)}>
+            <Select value={details.type_vacances || ''} onValueChange={(value) => updateDetails('type_vacances', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -272,7 +272,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🍽️ Où prenez-vous les repas ?</Label>
-            <Select value={details.repas_ou || ''} onValueChange={(value) = modal={false}> updateDetails('repas_ou', value)}>
+            <Select value={details.repas_ou || ''} onValueChange={(value) => updateDetails('repas_ou', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -346,7 +346,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           
           <div>
             <Label>🏠 Quel type de logement est-ce ?</Label>
-            <Select value={details.habitat_type || ''} onValueChange={(value) = modal={false}> updateDetails('habitat_type', value)}>
+            <Select value={details.habitat_type || ''} onValueChange={(value) => updateDetails('habitat_type', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -583,7 +583,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label>🧳 Ce lieu est-il utilisé à l'année ou ponctuellement ?</Label>
-            <Select value={details.frequence_utilisation || ''} onValueChange={(value) = modal={false}> updateDetails('frequence_utilisation', value)}>
+            <Select value={details.frequence_utilisation || ''} onValueChange={(value) => updateDetails('frequence_utilisation', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
