@@ -59,6 +59,8 @@ interface MockMonth {
   themeId?: string | null;
   configuredSummary?: string;
   savedNote?: string;
+  savedLocationId?: string | null;
+  savedLocationLabel?: string | null;
   substituteOptions?: Array<{
     substituteThemeId: string;
     substituteThemeTitre: string;
