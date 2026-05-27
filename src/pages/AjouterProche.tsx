@@ -40,6 +40,7 @@ export default function AjouterProche() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [relativeKey, setRelativeKey] = useState(0); // Pour forcer la réinitialisation du formulaire
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fonction pour créer un formulaire vide pour un nouveau proche
   const createEmptyRelative = (): RelativeData => ({
@@ -111,70 +112,73 @@ export default function AjouterProche() {
   };
 
   const handleAddRelative = async (relativeData: RelativeData) => {
-    // Validation des champs obligatoires
-    const errors: string[] = [];
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      // Validation des champs obligatoires
+      const errors: string[] = [];
 
-    if (!relativeData.firstName?.trim()) errors.push("le prénom");
+      if (!relativeData.firstName?.trim()) errors.push("le prénom");
 
-    // Blocklist : prénom et surnom personnalisé
-    if (containsForbiddenWord(relativeData.firstName)) {
-      toast.error(FORBIDDEN_NAME_ERROR);
-      return;
-    }
-    if (relativeData.nickname?.type === 'custom' && containsForbiddenWord(relativeData.nickname.custom)) {
-      toast.error(FORBIDDEN_NAME_ERROR);
-      return;
-    }
+      // Blocklist : prénom et surnom personnalisé
+      if (containsForbiddenWord(relativeData.firstName)) {
+        toast.error(FORBIDDEN_NAME_ERROR);
+        return;
+      }
+      if (relativeData.nickname?.type === 'custom' && containsForbiddenWord(relativeData.nickname.custom)) {
+        toast.error(FORBIDDEN_NAME_ERROR);
+        return;
+      }
 
-    if (!relativeData.type) errors.push("le type de relation");
-    if (relativeData.type === 'other' && !relativeData.otherTypeName?.trim()) {
-      errors.push("la description du type de relation personnalisé");
-    }
-    
-    // Gender must always be male or female
-    if (relativeData.gender !== 'male' && relativeData.gender !== 'female') {
-      errors.push("le genre (Homme / Femme)");
-    }
-    
-    if (relativeData.nickname.type === 'custom' && !relativeData.nickname.custom?.trim()) {
-      errors.push("le surnom personnalisé");
-    }
-    if (relativeData.skinColor.type === 'custom' && !relativeData.skinColor.custom?.trim()) {
-      errors.push("la couleur de peau personnalisée");
-    }
-    if (relativeData.hairColor.type === 'custom' && !relativeData.hairColor.custom?.trim()) {
-      errors.push("la couleur des cheveux personnalisée");
-    }
-    if (relativeData.hairType === 'custom' && !relativeData.hairTypeCustom?.trim()) {
-      errors.push("le type de cheveux personnalisé");
-    }
+      if (!relativeData.type) errors.push("le type de relation");
+      if (relativeData.type === 'other' && !relativeData.otherTypeName?.trim()) {
+        errors.push("la description du type de relation personnalisé");
+      }
+      
+      // Gender must always be male or female
+      if (relativeData.gender !== 'male' && relativeData.gender !== 'female') {
+        errors.push("le genre (Homme / Femme)");
+      }
+      
+      if (relativeData.nickname.type === 'custom' && !relativeData.nickname.custom?.trim()) {
+        errors.push("le surnom personnalisé");
+      }
+      if (relativeData.skinColor.type === 'custom' && !relativeData.skinColor.custom?.trim()) {
+        errors.push("la couleur de peau personnalisée");
+      }
+      if (relativeData.hairColor.type === 'custom' && !relativeData.hairColor.custom?.trim()) {
+        errors.push("la couleur des cheveux personnalisée");
+      }
+      if (relativeData.hairType === 'custom' && !relativeData.hairTypeCustom?.trim()) {
+        errors.push("le type de cheveux personnalisé");
+      }
 
-    // Validation des traits personnalisés
-    if (relativeData.customTraits) {
-      for (const traitKey of Object.keys(relativeData.customTraits)) {
-        if (!relativeData.customTraits[traitKey]?.trim()) {
-          errors.push(`le trait personnalisé "${traitKey}"`);
+      // Validation des traits personnalisés
+      if (relativeData.customTraits) {
+        for (const traitKey of Object.keys(relativeData.customTraits)) {
+          if (!relativeData.customTraits[traitKey]?.trim()) {
+            errors.push(`le trait personnalisé "${traitKey}"`);
+          }
         }
       }
-    }
 
-    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-    const hasPhysicalDetails = relativeData.physicalDetails && relativeData.physicalDetails.length > 0 && relativeData.physicalDetails.some(d => d.trim() !== '');
-    const hasNoDetailsFlag = relativeData.noPhysicalDetails === true;
-    if (!hasPhysicalDetails && !hasNoDetailsFlag) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+      // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
+      const hasPhysicalDetails = relativeData.physicalDetails && relativeData.physicalDetails.length > 0 && relativeData.physicalDetails.some(d => d.trim() !== '');
+      const hasNoDetailsFlag = relativeData.noPhysicalDetails === true;
+      if (!hasPhysicalDetails && !hasNoDetailsFlag) {
+        errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
+      }
 
-    if (selectedChildIds.length === 0) {
-      errors.push("au moins un enfant sélectionné");
-    }
+      if (selectedChildIds.length === 0) {
+        errors.push("au moins un enfant sélectionné");
+      }
 
-    if (errors.length > 0) {
-      toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
-      return;
-    }
+      if (errors.length > 0) {
+        toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+        return;
+      }
 
-    try {
+      try {
       // Récupérer le family_id du premier enfant sélectionné
       const { data: firstChild } = await supabase
         .from('child_profiles')
@@ -253,6 +257,8 @@ export default function AjouterProche() {
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
       toast.error('Erreur lors de l\'ajout du proche');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -364,7 +370,8 @@ export default function AjouterProche() {
                   key={relativeKey}
                   relative={createEmptyRelative()}
                   onSave={handleAddRelative} 
-                  onCancel={() => navigate('/espace-famille')} 
+                  onCancel={() => navigate('/espace-famille')}
+                  isDisabled={isSubmitting}
                 />
               </ErrorBoundary>
             </CardContent>

@@ -20,6 +20,7 @@ const ModifierLieu: React.FC = () => {
   const [currentPlaceData, setCurrentPlaceData] = useState<PlaceData | null>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadPlaceData();
@@ -95,6 +96,8 @@ const ModifierLieu: React.FC = () => {
 
   const handleSave = async (updatedPlace: PlaceData) => {
     if (!placeId) return;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
       // Mettre à jour le lieu dans la table places
@@ -143,6 +146,8 @@ const ModifierLieu: React.FC = () => {
     } catch (error) {
       console.error('Error saving place:', error);
       toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -246,9 +251,10 @@ const ModifierLieu: React.FC = () => {
             <Button 
               type="button"
               onClick={handleSubmitClick}
+              disabled={isSubmitting}
               className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
             >
-              Enregistrer les modifications
+              {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </Button>
           </div>
         </div>
