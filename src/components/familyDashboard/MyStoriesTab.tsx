@@ -404,7 +404,7 @@ interface WizardProps {
   isSaving: boolean;
   savedCharacters?: CharacterChoice[];
   savedNote?: string;
-  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string }) => void;
+  onSubmit: (payload: { selectedCharacters: CharacterChoice[]; storyIdea?: string; note?: string; locationId?: string | null; locationLabel?: string | null }) => void;
   onBackToThemeSheet?: () => void;
   autoSelectedIds?: string[];
   dedicatedName?: string | null;
