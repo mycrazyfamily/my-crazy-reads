@@ -95,6 +95,30 @@ const Footer: React.FC = () => {
             &copy; {new Date().getFullYear()} My Crazy Family. Tous droits réservés.
           </p>
         </div>
+
+        {/* Section équipe — discrète, pour audit technique */}
+        <div className="mt-6 text-center">
+          <p className="text-[11px] text-gray-400/80">
+            L'équipe :{" "}
+            <a
+              href="https://www.doctolib.fr/psychologue/paris/violaine-lallour"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-500 transition-colors"
+            >
+              Violaine Lallour (Psychologue pour enfants)
+            </a>
+            {" "}|{" "}
+            <a
+              href="https://www.linkedin.com/in/robindufayet/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-500 transition-colors"
+            >
+              Robin du Fayet (CEO)
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );
