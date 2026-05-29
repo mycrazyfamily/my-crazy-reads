@@ -10,19 +10,15 @@ export interface PlaceDetails {
 
   environnement?: string;
 
-  environnement_auto?: string; // généré par Edge Function enrich-place-environment
+  environnement_auto?: string;   // généré par Edge Function — description ambiance
 
-  jardin?: boolean;
-
-  jardin_elements?: string; // nouveau — remplace piscine/ping-pong/cabane séparés
+  landmarks_auto?: string[];     // généré par Edge Function — lieux emblématiques locaux
 
   // Vacances — champs actifs
 
   type_vacances?: string;
 
   activites?: string;
-
-  // environnement réutilisé pour vacances aussi
 
   // Champs legacy (conservés pour compatibilité données existantes en base — non affichés en front)
 
@@ -33,6 +29,10 @@ export interface PlaceDetails {
   enfants_chambre_avec_qui?: string;
 
   bruit_sol?: boolean;
+
+  jardin?: boolean;
+
+  jardin_elements?: string;
 
   jardin_piscine?: boolean;
 
