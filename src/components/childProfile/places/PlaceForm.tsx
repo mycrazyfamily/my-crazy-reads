@@ -16,8 +16,8 @@ interface PlaceFormProps {
   onChange: (place: PlaceData) => void;
 }
 
-export const PlaceForm: React.FC = ({ place, onChange }) => {
-  const [details, setDetails] = useState(place.details || {});
+export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
+  const [details, setDetails] = useState<PlaceDetails>(place.details || {});
 
   // Synchronise le state local quand on charge un lieu existant (mode édition)
   // Dépendance sur place.id uniquement pour ne pas boucler sur chaque keystroke
@@ -38,113 +38,91 @@ export const PlaceForm: React.FC = ({ place, onChange }) => {
   const isVacationPlace = place.type === 'vacances';
 
   return (
-    
-
-
-
-
+    <div className="space-y-6">
       {/* ─── Champs communs ─── */}
-      
-
-
-        
-
-
-          Nom du lieu *
-           onChange({ ...place, label: e.target.value })}
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="place-label">Nom du lieu *</Label>
+          <Input
+            id="place-label"
+            value={place.label}
+            onChange={(e) => onChange({ ...place, label: e.target.value })}
             placeholder="Ex: Notre maison, Chez Papa, Camping du Lac..."
             required
           />
-        
+        </div>
 
-
-
-        
-
-
-          Type de lieu *
-           onChange({ ...place, type: e.target.value as any })}
+        <div>
+          <Label htmlFor="place-type">Type de lieu *</Label>
+          <select
+            id="place-type"
+            value={place.type}
+            onChange={(e) => onChange({ ...place, type: e.target.value as any })}
             className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
           >
-            Sélectionner un type
+            <option value="" disabled>Sélectionner un type</option>
             {placeTypeOptions.map((option) => (
-              
+              <option key={option.value} value={option.value}>
                 {option.label}
-              
+              </option>
             ))}
-          
-        
+          </select>
+        </div>
 
-
-
-        
-
-
-          
-
-
-            Ville
-             onChange({ ...place, city: e.target.value })}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="place-city">Ville</Label>
+            <Input
+              id="place-city"
+              value={place.city || ''}
+              onChange={(e) => onChange({ ...place, city: e.target.value })}
               placeholder="Ville"
             />
-          
+          </div>
 
-
-          
-
-
-            Pays
-             onChange({ ...place, country: e.target.value })}
+          <div>
+            <Label htmlFor="place-country">Pays</Label>
+            <Input
+              id="place-country"
+              value={place.country || ''}
+              onChange={(e) => onChange({ ...place, country: e.target.value })}
               placeholder="Pays"
             />
-          
-
-
-        
-
-
-      
-
-
+          </div>
+        </div>
+      </div>
 
       {/* ─── Bloc VACANCES ───
           Reste monté même quand caché pour éviter les problèmes de portail Radix */}
-      
+      <div className={isVacationPlace ? '' : 'hidden'}>
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold">Questions détaillées</h3>
 
-
-        
-
-
-          
-
-Questions détaillées
-
-
-
-          
-
-            🏕 Quel type de lieu est-ce ?
-             updateDetails('type_vacances', e.target.value)}
+          <div>
+            <Label htmlFor="type-vacances">🏕 Quel type de lieu est-ce ?</Label>
+            <select
+              id="type-vacances"
+              value={details.type_vacances || ''}
+              onChange={(e) => updateDetails('type_vacances', e.target.value)}
               className="w-full border border-input rounded-md px-3 py-2 text-sm bg-white"
             >
-              Sélectionner
+              <option value="" disabled>Sélectionner</option>
               {typeVacancesOptions.map((option) => (
-                
+                <option key={option.value} value={option.value}>
                   {option.value}
-                
+                </option>
               ))}
-            
-          
+            </select>
+          </div>
 
-
-
-          
-
-
-            
+          <div>
+            <Label htmlFor="environnement-vacances">
               🌳 Décris l'environnement *
-            
-             updateDetails('environnement', e.target.value)}
+            </Label>
+            <Textarea
+              id="environnement-vacances"
+              value={details.environnement || ''}
+              onChange={(e) => updateDetails('environnement', e.target.value)}
               placeholder="Ex: Plage de sable fin, montagne enneigée, forêt de pins méditerranéens..."
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -197,11 +175,11 @@ Questions détaillées
           </div>
 
           <div>
-            <Label htmlFor="environnement">
+            <Label htmlFor="environnement-maison">
               🌳 Décris l'environnement autour du logement *
             </Label>
             <Textarea
-              id="environnement"
+              id="environnement-maison"
               value={details.environnement || ''}
               onChange={(e) => updateDetails('environnement', e.target.value)}
               placeholder="Ex: Garrigue provençale, forêt de châtaigniers, bord de mer, quartier animé de Paris..."
