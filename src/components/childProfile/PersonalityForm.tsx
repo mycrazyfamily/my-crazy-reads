@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { toast } from "sonner";
@@ -8,7 +7,6 @@ import {
   CHALLENGES_OPTIONS 
 } from '@/constants/childProfileOptions';
 import type { ChildProfileFormData } from '@/types/childProfile';
-import HeightSelector from './personality/HeightSelector';
 import MultiSelectOptionsGroup from './personality/MultiSelectOptionsGroup';
 import NavigationButtons from './personality/NavigationButtons';
 
@@ -28,13 +26,9 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
     const superpowers = form.getValues().superpowers || [];
     const passions = form.getValues().passions || [];
     const challenges = form.getValues().challenges || [];
-    const height = form.getValues().height;
 
     const errors: string[] = [];
 
-    if (!height) {
-      errors.push("la taille par rapport à son âge");
-    }
     if (superpowers.length === 0) {
       errors.push("au moins un super-pouvoir");
     }
@@ -64,7 +58,6 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
       return;
     }
 
-    // Passer à l'étape suivante
     handleNextStep();
   };
 
@@ -75,9 +68,6 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
       </h2>
       
       <div className="space-y-8" role="group" aria-label="Personnalité">
-        {/* Taille par rapport à son âge */}
-        <HeightSelector />
-
         {/* Super-pouvoirs */}
         <MultiSelectOptionsGroup 
           fieldName="superpowers"
