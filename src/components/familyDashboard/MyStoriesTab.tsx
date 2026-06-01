@@ -402,6 +402,7 @@ interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
+  childAge?: number | null;
   flow: FlowType;
   bookTitle: string;
   characters: WizardCharacter[];
@@ -419,7 +420,7 @@ interface WizardProps {
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -428,6 +429,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [selectedLocationLabel, setSelectedLocationLabel] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
+
+  // Selection caps based on child's age
+  const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
+  const MAX_PETS = 2;
+  const selectedPetsCount = characters.filter((c) => c.type === 'pet' && selected.includes(c.id)).length;
+  const totalCapReached = selected.length >= MAX_TOTAL;
+  const petsCapReached = selectedPetsCount >= MAX_PETS;
 
   // When the wizard opens, initialize all values; on close, leave state as-is to avoid flash
   React.useEffect(() => {
@@ -460,7 +468,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   const toggle = (id: string) => {
     const target = characters.find((c) => c.id === id);
     if (target?.locked) return;
-    setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= MAX_TOTAL) return prev;
+      if (target?.type === 'pet' && selectedPetsCount >= MAX_PETS) return prev;
+      return [...prev, id];
+    });
   };
 
   const handleValidate = () => {
