@@ -402,6 +402,7 @@ interface WizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   childName: string;
+  childAge?: number | null;
   flow: FlowType;
   bookTitle: string;
   characters: WizardCharacter[];
@@ -419,7 +420,7 @@ interface WizardProps {
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -428,6 +429,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [selectedLocationLabel, setSelectedLocationLabel] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
+
+  // Selection caps based on child's age
+  const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
+  const MAX_PETS = 2;
+  const selectedPetsCount = characters.filter((c) => c.type === 'pet' && selected.includes(c.id)).length;
+  const totalCapReached = selected.length >= MAX_TOTAL;
+  const petsCapReached = selectedPetsCount >= MAX_PETS;
 
   // When the wizard opens, initialize all values; on close, leave state as-is to avoid flash
   React.useEffect(() => {
@@ -460,7 +468,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
   const toggle = (id: string) => {
     const target = characters.find((c) => c.id === id);
     if (target?.locked) return;
-    setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= MAX_TOTAL) return prev;
+      if (target?.type === 'pet' && selectedPetsCount >= MAX_PETS) return prev;
+      return [...prev, id];
+    });
   };
 
   const handleValidate = () => {
@@ -580,18 +593,19 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
+              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => toggle(c.id)}
-                  disabled={c.locked}
+                  onClick={() => !disabledByCap && toggle(c.id)}
+                  disabled={c.locked || disabledByCap}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
-                    cursor: c.locked ? 'not-allowed' : 'pointer',
-                    opacity: 1,
+                    cursor: (c.locked || disabledByCap) ? 'not-allowed' : 'pointer',
+                    opacity: disabledByCap ? 0.4 : 1,
                   }}
                 >
                   <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
@@ -604,6 +618,21 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                 </button>
               );
             })}
+          </div>
+
+          <div className="text-center mb-4">
+            <p className="text-sm font-medium text-foreground">
+              {selected.length} / {MAX_TOTAL} personnages
+            </p>
+            {totalCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum de personnages et animaux atteint
+              </p>
+            ) : petsCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum d'animaux atteint
+              </p>
+            ) : null}
           </div>
 
           <Button
@@ -649,17 +678,19 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
+              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => toggle(c.id)}
-                  disabled={c.locked}
+                  onClick={() => !disabledByCap && toggle(c.id)}
+                  disabled={c.locked || disabledByCap}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
-                    cursor: c.locked ? 'not-allowed' : 'pointer',
+                    cursor: (c.locked || disabledByCap) ? 'not-allowed' : 'pointer',
+                    opacity: disabledByCap ? 0.4 : 1,
                   }}
                 >
                   <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
@@ -672,6 +703,21 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, flow, bo
                 </button>
               );
             })}
+          </div>
+
+          <div className="text-center mb-4">
+            <p className="text-sm font-medium text-foreground">
+              {selected.length} / {MAX_TOTAL} personnages
+            </p>
+            {totalCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum de personnages et animaux atteint
+              </p>
+            ) : petsCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum d'animaux atteint
+              </p>
+            ) : null}
           </div>
 
           <div className="flex gap-3">
@@ -2103,6 +2149,17 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
+        childAge={(() => {
+          const bd = (activeChild as any)?.birthDate;
+          if (!bd) return null;
+          const d = new Date(bd);
+          if (isNaN(d.getTime())) return null;
+          const now = new Date();
+          let age = now.getFullYear() - d.getFullYear();
+          const m = now.getMonth() - d.getMonth();
+          if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+          return age;
+        })()}
         flow={activeFlow}
         bookTitle={wizardBookTitle}
         characters={wizardCharactersWithLock}
