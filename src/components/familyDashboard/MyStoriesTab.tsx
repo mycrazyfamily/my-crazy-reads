@@ -2149,6 +2149,17 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         childName={activeChild?.firstName ?? ''}
+        childAge={(() => {
+          const bd = (activeChild as any)?.birthDate;
+          if (!bd) return null;
+          const d = new Date(bd);
+          if (isNaN(d.getTime())) return null;
+          const now = new Date();
+          let age = now.getFullYear() - d.getFullYear();
+          const m = now.getMonth() - d.getMonth();
+          if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+          return age;
+        })()}
         flow={activeFlow}
         bookTitle={wizardBookTitle}
         characters={wizardCharactersWithLock}
