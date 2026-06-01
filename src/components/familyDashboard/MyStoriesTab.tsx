@@ -593,18 +593,19 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
+              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => toggle(c.id)}
-                  disabled={c.locked}
+                  onClick={() => !disabledByCap && toggle(c.id)}
+                  disabled={c.locked || disabledByCap}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
-                    cursor: c.locked ? 'not-allowed' : 'pointer',
-                    opacity: 1,
+                    cursor: (c.locked || disabledByCap) ? 'not-allowed' : 'pointer',
+                    opacity: disabledByCap ? 0.4 : 1,
                   }}
                 >
                   <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
@@ -617,6 +618,21 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 </button>
               );
             })}
+          </div>
+
+          <div className="text-center mb-4">
+            <p className="text-sm font-medium text-foreground">
+              {selected.length} / {MAX_TOTAL} personnages
+            </p>
+            {totalCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum de personnages et animaux atteint
+              </p>
+            ) : petsCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum d'animaux atteint
+              </p>
+            ) : null}
           </div>
 
           <Button
