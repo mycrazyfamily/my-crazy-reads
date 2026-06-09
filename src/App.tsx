@@ -199,7 +199,17 @@ function App() {
                 </SubscriptionGuard>
               } />
               
-              <Route path="*" element={<NotFound />} />
+              {/* Pages à venir */}
+              <Route path="/fonctionnement" element={<ComingSoon />} />
+              <Route path="/a-propos" element={<ComingSoon />} />
+              <Route path="/faq" element={<ComingSoon />} />
+              <Route path="/contact" element={<ComingSoon />} />
+              <Route path="/blog" element={<ComingSoon />} />
+              <Route path="/conditions-generales" element={<ComingSoon />} />
+              <Route path="/confidentialite" element={<ComingSoon />} />
+              <Route path="/livraison" element={<ComingSoon />} />
+
+              <Route path="*" element={<ComingSoon />} />
             </Routes>
             
             {isDev && <DevMenu />}
