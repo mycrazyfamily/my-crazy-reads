@@ -31,6 +31,7 @@ import ConfirmationAbonnement from './pages/ConfirmationAbonnement'
 import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
+import ComingSoon from './components/ComingSoon'
 
 import CheckEmail from './pages/CheckEmail'
 import ResetPassword from './pages/ResetPassword'
