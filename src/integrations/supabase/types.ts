@@ -52,6 +52,7 @@ export type Database = {
       }
       book_requests: {
         Row: {
+          _structure_meta: Json | null
           archived_at: string | null
           book_title: string | null
           child_id: string | null
@@ -80,6 +81,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          _structure_meta?: Json | null
           archived_at?: string | null
           book_title?: string | null
           child_id?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          _structure_meta?: Json | null
           archived_at?: string | null
           book_title?: string | null
           child_id?: string | null
