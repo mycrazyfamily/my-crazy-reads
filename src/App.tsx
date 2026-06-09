@@ -32,6 +32,7 @@ import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
 import Abonnement from './pages/Abonnement'
 import ComingSoon from './components/ComingSoon'
+import APropos from './pages/APropos'
 
 import CheckEmail from './pages/CheckEmail'
 import ResetPassword from './pages/ResetPassword'
@@ -201,7 +202,7 @@ function App() {
               
               {/* Pages à venir */}
               <Route path="/fonctionnement" element={<ComingSoon />} />
-              <Route path="/a-propos" element={<ComingSoon />} />
+              <Route path="/a-propos" element={<APropos />} />
               <Route path="/faq" element={<ComingSoon />} />
               <Route path="/contact" element={<ComingSoon />} />
               <Route path="/blog" element={<ComingSoon />} />
