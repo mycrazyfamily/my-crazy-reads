@@ -202,7 +202,7 @@ function App() {
               
               {/* Pages à venir */}
               <Route path="/fonctionnement" element={<ComingSoon />} />
-              <Route path="/a-propos" element={<ComingSoon />} />
+              <Route path="/a-propos" element={<APropos />} />
               <Route path="/faq" element={<ComingSoon />} />
               <Route path="/contact" element={<ComingSoon />} />
               <Route path="/blog" element={<ComingSoon />} />
