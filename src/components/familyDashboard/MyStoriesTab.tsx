@@ -468,6 +468,25 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
       setIsPreparingDest(false);
       setDestError(null);
       setStep(1);
+      // Rehydrate custom destination ("Un lieu précis…") if the saved location
+      // points to a places row of type 'destination_libre'.
+      if (savedLocationId) {
+        (async () => {
+          try {
+            const { data: placeRow } = await supabase
+              .from('places')
+              .select('type')
+              .eq('id', savedLocationId)
+              .maybeSingle();
+            if (placeRow?.type === 'destination_libre') {
+              setCustomDestSelected(true);
+              setCustomDestText(savedLocationLabel ?? '');
+            }
+          } catch {
+            // ignore — fall back to default (no custom selection)
+          }
+        })();
+      }
     }
   }, [open]);
 
