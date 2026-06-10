@@ -804,12 +804,14 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <p className="text-sm font-semibold text-foreground mb-2">Ailleurs</p>
           <div className="grid grid-cols-4 gap-2 mb-8">
             {(locationPresets ?? []).map((preset) => {
-              const isSel = selectedLocationId === preset.id;
+              const isSel = !customDestSelected && selectedLocationId === preset.id;
               return (
                 <button
                   key={preset.id}
                   type="button"
                   onClick={() => {
+                    setCustomDestSelected(false);
+                    setDestError(null);
                     setSelectedLocationId(preset.id);
                     setSelectedLocationLabel(preset.label);
                   }}
@@ -829,26 +831,198 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => {
+                setCustomDestSelected(true);
+                setDestError(null);
+                setSelectedLocationId(null);
+                setSelectedLocationLabel(null);
+              }}
+              className="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
+              style={{
+                borderColor: customDestSelected ? PRIMARY_VIOLET : '#E5E7EB',
+                backgroundColor: customDestSelected ? `${PRIMARY_VIOLET}10` : 'white',
+              }}
+            >
+              <span className="text-2xl">📍</span>
+              <span
+                className="text-[11px] font-medium text-center leading-tight"
+                style={{ color: customDestSelected ? PRIMARY_VIOLET : '#374151' }}
+              >
+                Un lieu précis…
+              </span>
+            </button>
           </div>
+
+          {customDestSelected && (
+            <div className="mb-6 -mt-4">
+              <Input
+                type="text"
+                maxLength={80}
+                value={customDestText}
+                onChange={(e) => {
+                  setCustomDestText(e.target.value);
+                  setDestError(null);
+                }}
+                placeholder='Ex: "Koh Tao", "la jungle amazonienne", "New York"'
+                disabled={isPreparingDest}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Indique une seule ville ou un seul décor — par exemple "Koh Tao", "la jungle amazonienne", "New York"
+              </p>
+              {destError && (
+                <p className="text-xs mt-2" style={{ color: '#DC2626' }}>
+                  {destError}
+                </p>
+              )}
+              {isPreparingDest && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Préparation de la destination…</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-3">
             <Button
               variant="outline"
               onClick={() => {
+                setCustomDestSelected(false);
+                setCustomDestText('');
+                setDestError(null);
                 setSelectedLocationId(null);
                 setSelectedLocationLabel(null);
                 setStep(3);
               }}
+              disabled={isPreparingDest}
               className="flex-1"
             >
               Passer
             </Button>
             <Button
-              onClick={() => setStep(3)}
+              onClick={async () => {
+                if (!customDestSelected) {
+                  setStep(3);
+                  return;
+                }
+                const text = customDestText.trim();
+                if (!text) {
+                  setDestError('Veuillez indiquer un lieu.');
+                  return;
+                }
+                if (!childId) {
+                  setDestError('Impossible de préparer cette destination pour le moment, réessaie');
+                  return;
+                }
+                setIsPreparingDest(true);
+                setDestError(null);
+                let createdPlaceId: string | null = null;
+                try {
+                  // Resolve family_id + user
+                  const { data: authData } = await supabase.auth.getUser();
+                  const uid = authData?.user?.id;
+                  if (!uid) throw new Error('not_auth');
+                  const { data: profile } = await supabase
+                    .from('user_profiles')
+                    .select('family_id')
+                    .eq('id', uid)
+                    .maybeSingle();
+                  let familyId = profile?.family_id as string | null | undefined;
+                  if (!familyId) {
+                    const { data: cp } = await supabase
+                      .from('child_profiles')
+                      .select('family_id')
+                      .eq('id', childId)
+                      .maybeSingle();
+                    familyId = cp?.family_id ?? null;
+                  }
+                  if (!familyId) throw new Error('no_family');
+
+                  // 1) Insert place row
+                  const { data: placeRow, error: placeErr } = await supabase
+                    .from('places')
+                    .insert({
+                      family_id: familyId,
+                      label: text,
+                      type: 'destination_libre',
+                      is_preset: false,
+                      is_active: true,
+                      details: {},
+                      created_by: uid,
+                    })
+                    .select('id')
+                    .single();
+                  if (placeErr || !placeRow) throw placeErr || new Error('insert_failed');
+                  createdPlaceId = placeRow.id;
+
+                  // 2) Poll for destination_status (every 800ms up to 12s)
+                  const deadline = Date.now() + 12000;
+                  let status: string | null = null;
+                  let reason: string | null = null;
+                  while (Date.now() < deadline) {
+                    await new Promise((r) => setTimeout(r, 800));
+                    const { data: row } = await supabase
+                      .from('places')
+                      .select('details')
+                      .eq('id', createdPlaceId)
+                      .maybeSingle();
+                    const det: any = row?.details ?? {};
+                    if (det && det.destination_status) {
+                      status = det.destination_status;
+                      reason = det.destination_reason ?? null;
+                      break;
+                    }
+                  }
+
+                  if (status === 'ok') {
+                    // 3) Insert child_places
+                    await supabase
+                      .from('child_places')
+                      .insert({ child_id: childId, place_id: createdPlaceId });
+                    // Update book_request
+                    if (bookRequestId) {
+                      await supabase
+                        .from('book_requests')
+                        .update({
+                          selected_location_id: createdPlaceId,
+                          selected_location_label: text,
+                        })
+                        .eq('id', bookRequestId);
+                    }
+                    setSelectedLocationId(createdPlaceId);
+                    setSelectedLocationLabel(text);
+                    setIsPreparingDest(false);
+                    setStep(3);
+                    return;
+                  }
+
+                  if (status === 'rejected') {
+                    // 4) Delete the place row
+                    await supabase.from('places').delete().eq('id', createdPlaceId);
+                    setDestError(reason || 'Destination non acceptée.');
+                    setIsPreparingDest(false);
+                    return;
+                  }
+
+                  // 5) Timeout
+                  await supabase.from('places').delete().eq('id', createdPlaceId);
+                  setDestError('Impossible de préparer cette destination pour le moment, réessaie');
+                  setIsPreparingDest(false);
+                } catch (e) {
+                  if (createdPlaceId) {
+                    await supabase.from('places').delete().eq('id', createdPlaceId);
+                  }
+                  setDestError('Impossible de préparer cette destination pour le moment, réessaie');
+                  setIsPreparingDest(false);
+                }
+              }}
+              disabled={isPreparingDest || (customDestSelected && !customDestText.trim())}
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              Suivant →
+              {isPreparingDest ? 'Préparation…' : 'Suivant →'}
             </Button>
           </div>
         </>
