@@ -1973,7 +1973,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         .from('child_places')
         .select('places(id, label, type, city)')
         .eq('child_id', activeChild.id);
-      return (data ?? []).map((r: any) => r.places).filter(Boolean);
+      return (data ?? [])
+        .map((r: any) => r.places)
+        .filter((p: any) => p && p.type !== 'destination_libre');
     },
     enabled: !!activeChild?.id,
   });
