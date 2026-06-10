@@ -1442,6 +1442,7 @@ export type Database = {
           family_id: string | null
           id: string
           is_active: boolean | null
+          is_preset: boolean
           label: string
           type: string | null
           updated_at: string | null
@@ -1458,6 +1459,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_preset?: boolean
           label: string
           type?: string | null
           updated_at?: string | null
@@ -1474,6 +1476,7 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_preset?: boolean
           label?: string
           type?: string | null
           updated_at?: string | null
