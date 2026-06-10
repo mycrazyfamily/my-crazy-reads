@@ -417,10 +417,11 @@ interface WizardProps {
   dedicatedName?: string | null;
   initialCustomStory?: string;
   familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
+  locationPresets?: Array<{ id: string; label: string; details: any }>;
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces, locationPresets }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -791,24 +792,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
 
           <p className="text-sm font-semibold text-foreground mb-2">Ailleurs</p>
           <div className="grid grid-cols-4 gap-2 mb-8">
-            {[
-              { emoji: '🏔️', label: 'À la montagne' },
-              { emoji: '🏖️', label: 'À la plage' },
-              { emoji: '⛷️', label: 'Au ski' },
-              { emoji: '🌲', label: 'En forêt' },
-              { emoji: '🏜️', label: 'Dans le désert' },
-              { emoji: '🚢', label: 'En bateau' },
-              { emoji: '🏰', label: 'Dans un château' },
-              { emoji: '🚀', label: 'Dans l\u2019espace' },
-            ].map((opt) => {
-              const isSel = selectedLocationId === null && selectedLocationLabel === opt.label;
+            {(locationPresets ?? []).map((preset) => {
+              const isSel = selectedLocationId === preset.id;
               return (
                 <button
-                  key={opt.label}
+                  key={preset.id}
                   type="button"
                   onClick={() => {
-                    setSelectedLocationId(null);
-                    setSelectedLocationLabel(opt.label);
+                    setSelectedLocationId(preset.id);
+                    setSelectedLocationLabel(preset.label);
                   }}
                   className="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
                   style={{
@@ -816,12 +808,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
                   }}
                 >
-                  <span className="text-2xl">{opt.emoji}</span>
+                  <span className="text-2xl">{preset.details?.emoji || '📍'}</span>
                   <span
                     className="text-[11px] font-medium text-center leading-tight"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {opt.label}
+                    {preset.label}
                   </span>
                 </button>
               );
@@ -1797,6 +1789,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     enabled: !!activeChild?.id,
   });
 
+  // Location presets for the wizard "Ailleurs" step
+  const { data: locationPresets } = useQuery({
+    queryKey: ['location-presets'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('places')
+        .select('id, label, details')
+        .eq('is_preset', true)
+        .order('label', { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
   // 4. Build characters list from real family data
   const wizardCharacters: WizardCharacter[] = useMemo(() => {
     if (!activeChild) return [];
@@ -2194,6 +2201,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             : ''
         }
         familyPlaces={familyPlaces ?? []}
+        locationPresets={locationPresets ?? []}
       />
 
       {/* Theme selection sheet */}
