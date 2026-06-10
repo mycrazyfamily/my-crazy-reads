@@ -420,9 +420,11 @@ interface WizardProps {
   familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
   locationPresets?: Array<{ id: string; label: string; details: any }>;
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
+  childId?: string | null;
+  bookRequestId?: string | null;
 }
 
-const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces, locationPresets }) => {
+const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge, flow, bookTitle, characters, isSaving, savedCharacters, savedNote, savedLocationId, savedLocationLabel, onSubmit, onBackToThemeSheet, autoSelectedIds, dedicatedName, initialCustomStory, familyPlaces, locationPresets, childId, bookRequestId }) => {
   const isMobile = useIsMobile();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -430,6 +432,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const [customStory, setCustomStory] = useState('');
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [selectedLocationLabel, setSelectedLocationLabel] = useState<string | null>(null);
+  const [customDestSelected, setCustomDestSelected] = useState(false);
+  const [customDestText, setCustomDestText] = useState('');
+  const [isPreparingDest, setIsPreparingDest] = useState(false);
+  const [destError, setDestError] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
 
   // Selection caps based on child's age
