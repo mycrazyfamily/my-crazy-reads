@@ -770,12 +770,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               <p className="text-sm font-semibold text-foreground mb-2">Vos lieux</p>
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {familyPlaces.map((place) => {
-                  const isSel = selectedLocationId === place.id;
+                  const isSel = !customDestSelected && selectedLocationId === place.id;
                   return (
                     <button
                       key={place.id}
                       type="button"
                       onClick={() => {
+                        setCustomDestSelected(false);
+                        setCustomDestText('');
+                        setDestError(null);
                         setSelectedLocationId(place.id);
                         setSelectedLocationLabel(place.label);
                       }}
@@ -811,6 +814,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                   type="button"
                   onClick={() => {
                     setCustomDestSelected(false);
+                    setCustomDestText('');
                     setDestError(null);
                     setSelectedLocationId(preset.id);
                     setSelectedLocationLabel(preset.label);
