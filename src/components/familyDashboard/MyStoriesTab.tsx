@@ -2210,6 +2210,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             : ''
         }
         familyPlaces={familyPlaces ?? []}
+        locationPresets={locationPresets ?? []}
       />
 
       {/* Theme selection sheet */}
