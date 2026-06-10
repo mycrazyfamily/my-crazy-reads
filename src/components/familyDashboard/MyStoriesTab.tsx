@@ -1798,6 +1798,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     enabled: !!activeChild?.id,
   });
 
+  // Location presets for the wizard "Ailleurs" step
+  const { data: locationPresets } = useQuery({
+    queryKey: ['location-presets'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('places')
+        .select('id, label, details')
+        .eq('is_preset', true)
+        .order('label', { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
   // 4. Build characters list from real family data
   const wizardCharacters: WizardCharacter[] = useMemo(() => {
     if (!activeChild) return [];
