@@ -142,7 +142,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           const placeInfo = cp.places;
           if (!placeInfo) return null;
           return { id: placeInfo.id, label: placeInfo.label, type: placeInfo.type, emoji: placeInfo.emoji, address: placeInfo.address, city: placeInfo.city, country: placeInfo.country, description: placeInfo.description, details: placeInfo.details };
-        }).filter(Boolean);
+        }).filter((p: any) => p && p.type !== 'destination_libre');
 
         children[index] = {
           ...children[index],
