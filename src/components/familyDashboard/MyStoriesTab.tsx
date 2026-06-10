@@ -463,6 +463,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
       setCustomStory(initialCustomStory || '');
       setSelectedLocationId(savedLocationId ?? null);
       setSelectedLocationLabel(savedLocationLabel ?? null);
+      setCustomDestSelected(false);
+      setCustomDestText('');
+      setIsPreparingDest(false);
+      setDestError(null);
       setStep(1);
     }
   }, [open]);
