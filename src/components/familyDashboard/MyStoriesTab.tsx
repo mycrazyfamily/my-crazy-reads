@@ -2387,6 +2387,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         }
         familyPlaces={familyPlaces ?? []}
         locationPresets={locationPresets ?? []}
+        childId={activeChild?.id ?? null}
+        bookRequestId={focusedMonth?.bookRequestId ?? null}
       />
 
       {/* Theme selection sheet */}
