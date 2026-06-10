@@ -417,6 +417,7 @@ interface WizardProps {
   dedicatedName?: string | null;
   initialCustomStory?: string;
   familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
+  locationPresets?: Array<{ id: string; label: string; details: any }>;
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
 }
 
