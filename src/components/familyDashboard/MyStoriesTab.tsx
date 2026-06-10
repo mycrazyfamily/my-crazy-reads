@@ -792,24 +792,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
 
           <p className="text-sm font-semibold text-foreground mb-2">Ailleurs</p>
           <div className="grid grid-cols-4 gap-2 mb-8">
-            {[
-              { emoji: '🏔️', label: 'À la montagne' },
-              { emoji: '🏖️', label: 'À la plage' },
-              { emoji: '⛷️', label: 'Au ski' },
-              { emoji: '🌲', label: 'En forêt' },
-              { emoji: '🏜️', label: 'Dans le désert' },
-              { emoji: '🚢', label: 'En bateau' },
-              { emoji: '🏰', label: 'Dans un château' },
-              { emoji: '🚀', label: 'Dans l\u2019espace' },
-            ].map((opt) => {
-              const isSel = selectedLocationId === null && selectedLocationLabel === opt.label;
+            {(locationPresets ?? []).map((preset) => {
+              const isSel = selectedLocationId === preset.id;
               return (
                 <button
-                  key={opt.label}
+                  key={preset.id}
                   type="button"
                   onClick={() => {
-                    setSelectedLocationId(null);
-                    setSelectedLocationLabel(opt.label);
+                    setSelectedLocationId(preset.id);
+                    setSelectedLocationLabel(preset.label);
                   }}
                   className="flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all"
                   style={{
@@ -817,12 +808,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
                   }}
                 >
-                  <span className="text-2xl">{opt.emoji}</span>
+                  <span className="text-2xl">{preset.details?.emoji || '📍'}</span>
                   <span
                     className="text-[11px] font-medium text-center leading-tight"
                     style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
                   >
-                    {opt.label}
+                    {preset.label}
                   </span>
                 </button>
               );
