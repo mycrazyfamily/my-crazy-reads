@@ -935,6 +935,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                   setDestError('Veuillez indiquer un lieu.');
                   return;
                 }
+                // If the text matches the already-saved custom destination,
+                // skip creating a new place row and just proceed.
+                if (
+                  savedLocationId &&
+                  selectedLocationId === savedLocationId &&
+                  text === (savedLocationLabel ?? '').trim()
+                ) {
+                  setStep(3);
+                  return;
+                }
                 if (!childId) {
                   setDestError('Impossible de préparer cette destination pour le moment, réessaie');
                   return;
