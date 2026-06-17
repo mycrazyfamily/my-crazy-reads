@@ -1520,12 +1520,14 @@ interface ArchivedBook {
   id: string;
   delivery_month: string;
   title: string | null;
+  book_title: string | null;
   selected_theme_type: string | null;
   selected_characters: any;
   message: string | null;
   original_theme_instructions: string | null;
   selected_location_label: string | null;
   selected_location_id: string | null;
+  story_themes: { titre: string | null } | null;
 }
 
 const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: string }> = ({ books, childFirstName }) => {
@@ -1815,7 +1817,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       if (!activeChildId) return [] as ArchivedBook[];
       const { data, error } = await supabase
         .from('book_requests')
-        .select('id, delivery_month, title, selected_theme_type, selected_characters, message, original_theme_instructions, selected_location_label, selected_location_id')
+        .select('id, delivery_month, title, book_title, selected_theme_type, selected_characters, message, original_theme_instructions, selected_location_label, selected_location_id, story_themes:selected_theme_id (titre)')
         .eq('child_id', activeChildId)
         .not('archived_at', 'is', null)
         .order('delivery_month', { ascending: false });
