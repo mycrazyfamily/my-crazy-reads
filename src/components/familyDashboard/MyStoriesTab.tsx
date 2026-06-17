@@ -1548,6 +1548,7 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
       {open && (
         <div className="space-y-3 mt-3 animate-fade-in">
           {books.map((book) => {
+            const AUTO_MESSAGE = 'Livre généré automatiquement depuis le dashboard admin';
             const deliveryDate = parseISO(book.delivery_month);
             const monthLabel = format(deliveryDate, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
             const otherNames: string[] = Array.isArray(book.selected_characters)
@@ -1559,7 +1560,7 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
             if (book.selected_theme_type === 'original' && book.original_theme_instructions) {
               const t = book.original_theme_instructions;
               noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
-            } else if (book.message && book.message.trim()) {
+            } else if (book.message && book.message.trim() && book.message.trim() !== AUTO_MESSAGE) {
               const t = book.message;
               noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
             }
