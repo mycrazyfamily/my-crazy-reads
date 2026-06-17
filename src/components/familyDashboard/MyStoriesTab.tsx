@@ -1558,12 +1558,13 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                   .map((c: any) => c?.name)
                   .filter((n: any) => typeof n === 'string' && n && n !== childFirstName)
               : [];
+            const rawThemeTitle = book.story_themes?.titre ?? null;
+            const displayTitle =
+              book.book_title ??
+              (rawThemeTitle ? rawThemeTitle.replace(/\[Prénom\]/g, childFirstName) : null);
             let noteText: string | null = null;
-            if (book.selected_theme_type === 'original' && book.original_theme_instructions) {
-              const t = book.original_theme_instructions;
-              noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
-            } else if (book.message && book.message.trim() && book.message.trim() !== AUTO_MESSAGE) {
-              const t = book.message;
+            if (book.selected_theme_type !== 'original' && book.message && book.message.trim() && book.message.trim() !== AUTO_MESSAGE) {
+              const t = book.message.trim();
               noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
             }
             const showLoc = !!book.selected_location_id || !!(book.selected_location_label ?? '').trim();
