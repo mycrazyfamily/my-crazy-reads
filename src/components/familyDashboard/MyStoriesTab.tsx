@@ -1520,12 +1520,14 @@ interface ArchivedBook {
   id: string;
   delivery_month: string;
   title: string | null;
+  book_title: string | null;
   selected_theme_type: string | null;
   selected_characters: any;
   message: string | null;
   original_theme_instructions: string | null;
   selected_location_label: string | null;
   selected_location_id: string | null;
+  story_themes: { titre: string | null } | null;
 }
 
 const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: string }> = ({ books, childFirstName }) => {
@@ -1556,12 +1558,13 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                   .map((c: any) => c?.name)
                   .filter((n: any) => typeof n === 'string' && n && n !== childFirstName)
               : [];
+            const rawThemeTitle = book.story_themes?.titre ?? null;
+            const displayTitle =
+              book.book_title ??
+              (rawThemeTitle ? rawThemeTitle.replace(/\[Prénom\]/g, childFirstName) : null);
             let noteText: string | null = null;
-            if (book.selected_theme_type === 'original' && book.original_theme_instructions) {
-              const t = book.original_theme_instructions;
-              noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
-            } else if (book.message && book.message.trim() && book.message.trim() !== AUTO_MESSAGE) {
-              const t = book.message;
+            if (book.selected_theme_type !== 'original' && book.message && book.message.trim() && book.message.trim() !== AUTO_MESSAGE) {
+              const t = book.message.trim();
               noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
             }
             const showLoc = !!book.selected_location_id || !!(book.selected_location_label ?? '').trim();
@@ -1574,9 +1577,9 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                     <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
                       ✓ Livré
                     </span>
-                    {book.title && (
+                    {displayTitle && (
                       <span className="text-sm text-muted-foreground ml-auto truncate">
-                        {book.title}
+                        {displayTitle}
                       </span>
                     )}
                   </div>
@@ -1815,7 +1818,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       if (!activeChildId) return [] as ArchivedBook[];
       const { data, error } = await supabase
         .from('book_requests')
-        .select('id, delivery_month, title, selected_theme_type, selected_characters, message, original_theme_instructions, selected_location_label, selected_location_id')
+        .select('id, delivery_month, title, book_title, selected_theme_type, selected_characters, message, original_theme_instructions, selected_location_label, selected_location_id, story_themes:selected_theme_id (titre)')
         .eq('child_id', activeChildId)
         .not('archived_at', 'is', null)
         .order('delivery_month', { ascending: false });
