@@ -1524,6 +1524,8 @@ interface ArchivedBook {
   selected_characters: any;
   message: string | null;
   original_theme_instructions: string | null;
+  selected_location_label: string | null;
+  selected_location_id: string | null;
 }
 
 const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: string }> = ({ books, childFirstName }) => {
@@ -1561,6 +1563,7 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
               const t = book.message;
               noteText = `"${t.slice(0, 40)}${t.length > 40 ? '…' : ''}"`;
             }
+            const showLoc = !!book.selected_location_id || !!(book.selected_location_label ?? '').trim();
             return (
               <Card key={book.id} className="border border-border bg-white">
                 <CardContent className="p-4">
@@ -1576,11 +1579,26 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                       </span>
                     )}
                   </div>
-                  {(otherNames.length > 0 || noteText) && (
-                    <div className="mt-2 text-xs text-muted-foreground flex flex-wrap gap-x-2">
-                      {otherNames.length > 0 && <span>Avec {otherNames.join(', ')}</span>}
-                      {otherNames.length > 0 && noteText && <span>·</span>}
-                      {noteText && <span className="italic">{noteText}</span>}
+                  {(otherNames.length > 0 || showLoc || noteText) && (
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {otherNames.map((name, i) => (
+                        <span
+                          key={`${name}-${i}`}
+                          className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                      {showLoc && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
+                          📍 {book.selected_location_label || 'Lieu'}
+                        </span>
+                      )}
+                      {noteText && (
+                        <span className="text-xs text-muted-foreground italic truncate max-w-full">
+                          {noteText}
+                        </span>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -1796,7 +1814,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       if (!activeChildId) return [] as ArchivedBook[];
       const { data, error } = await supabase
         .from('book_requests')
-        .select('id, delivery_month, title, selected_theme_type, selected_characters, message, original_theme_instructions')
+        .select('id, delivery_month, title, selected_theme_type, selected_characters, message, original_theme_instructions, selected_location_label, selected_location_id')
         .eq('child_id', activeChildId)
         .not('archived_at', 'is', null)
         .order('delivery_month', { ascending: false });
