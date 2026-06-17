@@ -1577,9 +1577,9 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                     <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
                       ✓ Livré
                     </span>
-                    {book.title && (
+                    {displayTitle && (
                       <span className="text-sm text-muted-foreground ml-auto truncate">
-                        {book.title}
+                        {displayTitle}
                       </span>
                     )}
                   </div>
