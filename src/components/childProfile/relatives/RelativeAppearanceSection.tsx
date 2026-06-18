@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -65,8 +64,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
     <>
       {/* Couleur de peau */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">🖐️</span> Couleur de peau
+        <label className="block text-lg font-semibold mb-2">
+          Couleur de peau
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
           {[
@@ -93,8 +92,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       {/* Couleur de peau personnalisée */}
       {selectedSkinColor === "custom" && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">✨</span> Couleur de peau personnalisée
+          <label className="block text-lg font-semibold mb-2">
+            Couleur de peau personnalisée
           </label>
           <Input 
             value={skinColorCustomValue || ''} 
@@ -107,8 +106,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       
       {/* Couleur des cheveux */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">💇</span> Couleur des cheveux
+        <label className="block text-lg font-semibold mb-2">
+          Couleur des cheveux
         </label>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
           {[
@@ -138,8 +137,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       {/* Couleur des cheveux personnalisée */}
       {selectedHairColor === "custom" && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">✨</span> Couleur des cheveux personnalisée
+          <label className="block text-lg font-semibold mb-2">
+            Couleur des cheveux personnalisée
           </label>
           <Input 
             value={hairColorCustomValue || ''} 
@@ -152,8 +151,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       
       {/* Type de cheveux */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">〰️</span> Type de cheveux
+        <label className="block text-lg font-semibold mb-2">
+          Type de cheveux
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
           {[
@@ -183,8 +182,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       {/* Type de cheveux personnalisé */}
       {hairType === "custom" && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">✨</span> Type de cheveux personnalisé
+          <label className="block text-lg font-semibold mb-2">
+            Type de cheveux personnalisé
           </label>
           <Input 
             value={hairTypeCustom || ''} 
@@ -197,8 +196,8 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
       
       {/* Lunettes */}
       <div className="form-group mt-6">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">👓</span> {getGenderedText(
+        <label className="block text-lg font-semibold mb-2">
+          {getGenderedText(
             "Porte-t-il des lunettes ?",
             "Porte-t-elle des lunettes ?",
             "Porte-t-il/elle des lunettes ?"
