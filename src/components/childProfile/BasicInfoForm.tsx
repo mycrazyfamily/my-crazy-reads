@@ -251,8 +251,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">👶</span> L'enfant, le héros de l'histoire <span className="text-2xl">🌟</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
+        L'enfant, le héros de l'histoire
       </h2>
       
       <div className="space-y-6">
@@ -261,8 +261,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">👶</span> Quel est son prénom ?
+              <FormLabel className="text-lg font-semibold">
+                Quel est son prénom ?
               </FormLabel>
               <FormControl>
                 <Input placeholder="Son prénom" {...field} className="border-mcf-amber" />
@@ -277,8 +277,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="gender"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">🧑‍🍼</span> Quel est son genre ?
+              <FormLabel className="text-lg font-semibold">
+                Quel est son genre ?
               </FormLabel>
               <RadioGroup 
                 value={field.value ?? ""} 
@@ -314,8 +314,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="birthDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">🎂</span> Quelle est la date de naissance de votre enfant ?
+              <FormLabel className="text-lg font-semibold">
+                Quelle est la date de naissance de votre enfant ?
               </FormLabel>
               <FormControl>
                 <div className="relative">
@@ -373,8 +373,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="nickname.type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">💖</span> Comment le surnommez-vous ?
+              <FormLabel className="text-lg font-semibold">
+                Comment le surnommez-vous ?
               </FormLabel>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
                 {[
@@ -411,8 +411,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             name="nickname.custom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Surnom personnalisé
+                <FormLabel className="text-lg font-semibold">
+                  Surnom personnalisé
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="Son surnom personnalisé" {...field} className="border-mcf-amber" />
@@ -428,8 +428,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="skinColor.type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">🖐️</span> Quelle est sa couleur de peau ?
+              <FormLabel className="text-lg font-semibold">
+                Quelle est sa couleur de peau ?
               </FormLabel>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 {[
@@ -465,8 +465,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             name="skinColor.custom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Couleur de peau personnalisée
+                <FormLabel className="text-lg font-semibold">
+                  Couleur de peau personnalisée
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="Sa couleur de peau personnalisée" {...field} className="border-mcf-amber" />
@@ -482,8 +482,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="eyeColor.type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">👁️</span> Quelle est la couleur de ses yeux ?
+              <FormLabel className="text-lg font-semibold">
+                Quelle est la couleur de ses yeux ?
               </FormLabel>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 {[
@@ -520,8 +520,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             name="eyeColor.custom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Couleur des yeux personnalisée
+                <FormLabel className="text-lg font-semibold">
+                  Couleur des yeux personnalisée
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="Sa couleur des yeux personnalisée" {...field} className="border-mcf-amber" />
@@ -537,8 +537,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="hairColor.type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">💇</span> Quelle est la couleur de ses cheveux ?
+              <FormLabel className="text-lg font-semibold">
+                Quelle est la couleur de ses cheveux ?
               </FormLabel>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-2">
                 {[
@@ -577,8 +577,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             name="hairColor.custom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Couleur des cheveux personnalisée
+                <FormLabel className="text-lg font-semibold">
+                  Couleur des cheveux personnalisée
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="Sa couleur des cheveux personnalisée" {...field} className="border-mcf-amber" />
@@ -594,8 +594,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="hairType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">〰️</span> Comment sont ses cheveux ?
+              <FormLabel className="text-lg font-semibold">
+                Comment sont ses cheveux ?
               </FormLabel>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 {[
@@ -631,8 +631,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
             name="hairTypeCustom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                  <span className="text-xl">✨</span> Type de cheveux personnalisé
+                <FormLabel className="text-lg font-semibold">
+                  Type de cheveux personnalisé
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="Description personnalisée" {...field} className="border-mcf-amber" />
@@ -648,8 +648,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           name="glasses"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">👓</span> Porte-t-il/elle des lunettes ?
+              <FormLabel className="text-lg font-semibold">
+                Porte-t-il/elle des lunettes ?
               </FormLabel>
               <div className="grid grid-cols-2 gap-3 mt-2">
                 {[
