@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { ChildProfileFormData, PetData } from '@/types/childProfile';
 import PetForm from './pets/PetForm';
@@ -270,8 +270,8 @@ const PetsForm: React.FC<PetsFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">🐾</span> Animaux de compagnie <span className="text-2xl">🐱</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
+        Animaux de compagnie
       </h2>
       
       {!isAddingPet ? (
@@ -279,7 +279,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
           {/* Question sur la présence d'animaux */}
           <div className="space-y-4">
             <Label className="text-base font-medium">
-              Votre enfant a-t-il un animal de compagnie ? 🐶🐱
+              Votre enfant a-t-il un animal de compagnie ?
             </Label>
             
             <RadioGroup 
@@ -318,7 +318,8 @@ const PetsForm: React.FC<PetsFormProps> = ({
                   onClick={handleAddPet}
                   className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
                 >
-                  Ajouter un nouvel animal +
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter un nouvel animal
                 </Button>
               </div>
               
