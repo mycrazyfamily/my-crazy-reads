@@ -170,16 +170,16 @@ const NosHistoires: React.FC = () => {
         </section>
 
         {/* SECTION 5 - Ce qui rend My Crazy Family unique */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/50 via-transparent to-mcf-mint/30 animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-primary/95 via-mcf-mint/90 to-mcf-secondary/95 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Award className="w-10 h-10 text-mcf-primary" />
+                <Award className="w-10 h-10 text-white drop-shadow-md" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white drop-shadow-lg mb-4">
                 Ce qui rend My Crazy Family unique
               </h2>
-              <p className="text-lg text-mcf-text/70">
+              <p className="text-lg text-white/95">
                 Des livres d'exception, des valeurs fortes
               </p>
             </div>
