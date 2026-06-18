@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -337,7 +336,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       {/* Date de naissance de l'animal */}
       <div className="space-y-2">
         <Label htmlFor="pet-birth" className="text-base font-medium">
-          🐾 Date de naissance
+          Date de naissance
         </Label>
         <PetMonthYearPicker
           value={birthMonthYear}
