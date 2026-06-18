@@ -89,7 +89,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
     <div className="space-y-3">
       <div>
         <Label className="text-base font-medium">
-          🐾 Des détails physiques marquants ? *
+          Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
           Couleur du pelage, taches, grande taille, oreille coupée, etc.
