@@ -10,7 +10,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin } from 'lucide-react';
+import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
@@ -166,9 +166,10 @@ const MOCK_CHARACTERS = [
 
 // ---------- Status badge config ----------
 
-const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; borderClass: string; secondaryClass: string }> = {
+const STATUS_CONFIG: Record<MonthStatus, { label: string; Icon?: React.ElementType; badgeClass: string; borderClass: string; secondaryClass: string }> = {
   to_personalize: {
-    label: 'Votre livre est prêt ✨',
+    label: 'Votre livre est prêt',
+    Icon: Sparkles,
     badgeClass: 'bg-orange-100 text-orange-700 border-orange-200',
     borderClass: 'border-l-[3px] border-l-orange-400',
     secondaryClass: 'text-orange-600',
@@ -198,13 +199,15 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; badgeClass: string; bo
     secondaryClass: 'text-muted-foreground/60',
   },
   shipped: {
-    label: '🚚 Expédié',
+    label: 'Expédié',
+    Icon: Truck,
     badgeClass: 'bg-blue-100 text-blue-700 border-blue-200',
     borderClass: 'border-l-[3px] border-l-transparent',
     secondaryClass: 'text-muted-foreground',
   },
   delivered: {
-    label: '✓ Livré',
+    label: 'Livré',
+    Icon: Check,
     badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     borderClass: 'border-l-[3px] border-l-transparent',
     secondaryClass: 'text-muted-foreground',
@@ -298,7 +301,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     isPreparing: ['locked', 'generating', 'printing', 'shipped', 'delivered'].includes(row.status),
     bookTitle: (() => {
       if (row.selected_theme_type === 'original')
-        return '✨ Histoire inédite';
+        return 'Histoire inédite';
       if (row.selected_theme_titre)
         return formatTitle(row.selected_theme_titre, childName);
       if (row.titre)
@@ -365,21 +368,21 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
         if (cond.startsWith('birthday_')) {
           alts.push({
             type: 'birthday',
-            label: `🎉 Anniversaire ${o.substitute_person_name}`,
+            label: `Anniversaire ${o.substitute_person_name}`,
             substituteIndex: idx,
             substituteThemeId: o.substitute_theme_id,
           });
         } else if (cond.startsWith('milestone_')) {
           alts.push({
             type: 'milestone',
-            label: `✨ ${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
+            label: `${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
             substituteIndex: idx,
             substituteThemeId: o.substitute_theme_id,
           });
         }
       });
       if (row.show_custom_story) {
-        alts.push({ type: 'custom', label: '📖 Histoire inédite' });
+        alts.push({ type: 'custom', label: 'Histoire inédite' });
       }
       return alts;
     })(),
@@ -525,7 +528,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const charactersStepTitle = isCustom
     ? `Qui est dans cette histoire ?`
     : `Qui accompagne ${childName} dans ${bookTitle} ?`;
-  const validateLabel = isCustom ? '✨ Valider mon histoire inédite' : '✨ Valider mon livre';
+  const validateLabel = isCustom ? 'Valider mon histoire inédite' : 'Valider mon livre';
 
   const Content = (
     <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
@@ -574,7 +577,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
               {customStory.length < 30
                 ? `Encore ${30 - customStory.length} car. minimum`
-                : `${customStory.length} caractères ✓`}
+                : <span className="inline-flex items-center gap-0.5">{customStory.length} caractères <Check className="h-3 w-3" /></span>}
             </div>
           </div>
 
@@ -610,13 +613,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           </p>
 
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
-            <span>🧒</span>
+            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
           {dedicatedName && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
-              <span>🎂</span>
+              <Cake className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span><strong>{dedicatedName}</strong> est la star de ce livre</span>
             </div>
           )}
@@ -695,13 +698,13 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           </p>
 
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
-            <span>🧒</span>
+            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
           {dedicatedName && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
-              <span>🎂</span>
+              <Cake className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span><strong>{dedicatedName}</strong> est la star de ce livre</span>
             </div>
           )}
@@ -761,6 +764,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
+              <Sparkles className="h-4 w-4 mr-2" />
               {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
@@ -1078,7 +1082,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             Un détail qui rendra cette histoire unique pour {childName} <span className="text-muted-foreground">(optionnel)</span>
           </p>
           <p className="text-sm text-center italic text-muted-foreground mb-6">
-            ✨ Pour le livre : « {bookTitle} »
+            Pour le livre : « {bookTitle} »
           </p>
 
           <Textarea
@@ -1103,6 +1107,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
+              <Sparkles className="h-4 w-4 mr-2" />
               {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
@@ -1154,6 +1159,8 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
   const hasLocation = locationLabel.length > 0 || !!month.savedLocationId;
   const showConfig = hasCharacters || hasNote || hasLocation;
   const isPreparing = !!month.isPreparing;
+  const statusCfg = STATUS_CONFIG[month.status];
+  const StatusIcon = statusCfg.Icon;
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -1181,7 +1188,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
               </p>
               {month.deadline && !isConfigured && (
                 <div className="flex items-center gap-2 text-sm text-orange-600 mt-2">
-                  <span>⚠</span>
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                   <span>Ajoutez votre touche avant le {month.deadline} (optionnel)</span>
                 </div>
               )}
@@ -1193,8 +1200,9 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
             {/* Colonne droite — configuration */}
             <div className="lg:w-72 flex-shrink-0 space-y-4">
               <div>
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${STATUS_CONFIG[month.status].badgeClass}`}>
-                  {STATUS_CONFIG[month.status].label}
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${statusCfg.badgeClass}`}>
+                  {StatusIcon && <StatusIcon className="h-3 w-3" />}
+                  {statusCfg.label}
                 </span>
               </div>
               {!isConfigured && !isLocked && (
@@ -1218,7 +1226,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                       borderRadius: '8px',
                       backgroundColor: '#F3F0FF'
                     }}>
-                      <span style={{ fontSize: '20px' }}>🎂</span>
+                      <Cake style={{ width: 20, height: 20, color: '#534AB7', flexShrink: 0 }} />
                       <div>
                         <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>
                           Livre dédié à
@@ -1237,11 +1245,6 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                           .sort((a, b) =>
                             a === month.dedicatedPersonName ? -1 :
                             b === month.dedicatedPersonName ? 1 : 0
-                          )
-                          .map((name) =>
-                            name === month.dedicatedPersonName
-                              ? `🎂 ${name}`
-                              : name
                           )
                           .join(', ')}
                       </p>
@@ -1269,8 +1272,9 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                   {hasLocation && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Lieu</p>
-                      <p className="text-sm text-foreground">
-                        📍 {locationLabel || 'Lieu sélectionné'}
+                      <p className="text-sm text-foreground inline-flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                        {locationLabel || 'Lieu sélectionné'}
                       </p>
                     </div>
                   )}
@@ -1279,7 +1283,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
 
               {isPreparing ? (
                 <p className="text-sm text-muted-foreground italic">
-                  Votre livre est cours de préparation
+                  Votre livre est en cours de préparation
                 </p>
               ) : !isLocked && (
                 <>
@@ -1324,6 +1328,7 @@ interface MonthRowProps {
 
 const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, alternatives, onAlternativeClick }) => {
   const cfg = STATUS_CONFIG[month.status];
+  const StatusIcon = cfg.Icon;
   const showConfigureButton = month.status === 'to_personalize' || month.status === 'to_plan';
   const alts = alternatives ?? month.alternatives ?? [];
   const showAlternatives = alts.length > 0;
@@ -1340,7 +1345,8 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
             <span className="font-bold text-foreground text-base sm:text-lg whitespace-nowrap">
               {month.monthLabel}
             </span>
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${cfg.badgeClass} whitespace-nowrap`}>
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
+              {StatusIcon && <StatusIcon className="h-3 w-3" />}
               {cfg.label}
             </span>
           </div>
@@ -1373,7 +1379,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
         <div className={`flex items-center gap-1.5 text-xs sm:text-sm ${cfg.secondaryClass}`}>
           {month.status === 'to_personalize' && (
             <>
-              <span>⚠</span>
+              <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
               <span>
                 {month.daysLeft === 0
                   ? 'Dernière chance d\'ajouter votre touche !'
@@ -1417,8 +1423,9 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                 </span>
               ))}
               {showLoc && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
-                  📍 {month.savedLocationLabel || 'Lieu'}
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20 inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {month.savedLocationLabel || 'Lieu'}
                 </span>
               )}
               {showNote && (
@@ -1432,24 +1439,28 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
 
         {showAlternatives && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {alts.map((alt, i) => (
-              <button
-                key={`${alt.type}-${i}`}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!onAlternativeClick || !month.bookRequestId) return;
-                  onAlternativeClick(
-                    month.bookRequestId,
-                    alt.type,
-                    alt.type === 'custom' ? undefined : alt.substituteIndex,
-                  );
-                }}
-                className="text-xs px-2.5 py-1 rounded-full border border-muted-foreground/30 bg-muted/40 hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
-              >
-                {alt.label}
-              </button>
-            ))}
+            {alts.map((alt, i) => {
+              const AltIcon = alt.type === 'birthday' ? PartyPopper : alt.type === 'milestone' ? Sparkles : BookOpen;
+              return (
+                <button
+                  key={`${alt.type}-${i}`}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!onAlternativeClick || !month.bookRequestId) return;
+                    onAlternativeClick(
+                      month.bookRequestId,
+                      alt.type,
+                      alt.type === 'custom' ? undefined : alt.substituteIndex,
+                    );
+                  }}
+                  className="text-xs px-2.5 py-1 rounded-full border border-muted-foreground/30 bg-muted/40 hover:border-primary hover:text-primary transition-colors whitespace-nowrap inline-flex items-center gap-1"
+                >
+                  <AltIcon className="h-3 w-3" />
+                  {alt.label}
+                </button>
+              );
+            })}
           </div>
         )}
       </CardContent>
@@ -1473,7 +1484,7 @@ interface ThemeSelectionSheetProps {
 
 const OptionCard: React.FC<{
   value: FlowType;
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   badge?: string;
   title?: string;
@@ -1493,7 +1504,7 @@ const OptionCard: React.FC<{
       }}
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0">{icon}</span>
+        <span className="flex-shrink-0">{icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span className="text-sm font-semibold text-foreground">{label}</span>
@@ -1539,8 +1550,9 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-border bg-white hover:bg-muted/30 transition-all"
       >
-        <span className="font-semibold text-foreground">
-          📚 Livres précédents ({books.length})
+        <span className="font-semibold text-foreground inline-flex items-center gap-2">
+          <Library className="h-4 w-4" />
+          Livres précédents ({books.length})
         </span>
         <ChevronDown
           className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
@@ -1574,8 +1586,9 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                   <div className="flex items-center gap-3">
                     <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-sm font-medium text-foreground">{monthLabel}</span>
-                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
-                      ✓ Livré
+                    <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">
+                      <Check className="h-3 w-3" />
+                      Livré
                     </span>
                     {displayTitle && (
                       <span className="text-sm text-muted-foreground ml-auto truncate">
@@ -1594,8 +1607,9 @@ const ArchivedBooksSection: React.FC<{ books: ArchivedBook[]; childFirstName: st
                         </span>
                       ))}
                       {showLoc && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20">
-                          📍 {book.selected_location_label || 'Lieu'}
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground border border-muted-foreground/20 inline-flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {book.selected_location_label || 'Lieu'}
                         </span>
                       )}
                       {noteText && (
@@ -1661,7 +1675,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
       <div className="space-y-3 mb-6 max-h-[60vh] overflow-y-auto">
         <OptionCard
           value="monthly"
-          icon="📖"
+          icon={<BookOpen className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
           label="Livre du mois"
           badge="Recommandé par MCF"
           title={month.bookTitle}
@@ -1681,7 +1695,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             <OptionCard
               key={idx}
               value={`special_${idx}` as FlowType}
-              icon="🎉"
+              icon={<PartyPopper className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
               label="Option spéciale MCF"
               badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
               title={title}
@@ -1694,7 +1708,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 
         <OptionCard
           value="custom"
-          icon="✨"
+          icon={<Sparkles className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
           label="Histoire inédite"
           description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
           selected={selected}
@@ -1921,21 +1935,21 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         if (cond.startsWith('birthday_')) {
           alts.push({
             type: 'birthday',
-            label: `🎉 Anniversaire ${o.substitute_person_name}`,
+            label: `Anniversaire ${o.substitute_person_name}`,
             substituteIndex: idx,
             substituteThemeId: o.substitute_theme_id,
           });
         } else if (cond.startsWith('milestone_')) {
           alts.push({
             type: 'milestone',
-            label: `✨ ${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
+            label: `${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
             substituteIndex: idx,
             substituteThemeId: o.substitute_theme_id,
           });
         }
       });
       if (row.show_custom_story) {
-        alts.push({ type: 'custom', label: '📖 Histoire inédite' });
+        alts.push({ type: 'custom', label: 'Histoire inédite' });
       }
       if (row.book_request_id) map.set(row.book_request_id, alts);
     });
@@ -2149,9 +2163,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           setWizardOpen(false);
           setFocusedMonthIndex(null);
           if (themeType === 'original') {
-            toast.success('Votre idée a bien été enregistrée ! 🎉');
+            toast.success('Votre idée a bien été enregistrée !', { icon: <PartyPopper className="h-4 w-4" /> });
           } else {
-            toast.success('Livre configuré ! 🎉');
+            toast.success('Livre configuré !', { icon: <PartyPopper className="h-4 w-4" /> });
           }
         },
         onError: (err: any) => {
@@ -2347,7 +2361,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
             background: 'hsl(var(--background))',
           }}
         >
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
+          <Library style={{ width: 40, height: 40, margin: '0 auto 12px', color: 'hsl(var(--muted-foreground))' }} strokeWidth={1.5} />
           <p style={{ fontWeight: 500, fontSize: 16, marginBottom: 8 }}>
             {activeChild?.firstName} n'a pas encore d'abonnement
           </p>
