@@ -9,26 +9,21 @@ import {
 import type { ChildProfileFormData } from '@/types/childProfile';
 import MultiSelectOptionsGroup from './personality/MultiSelectOptionsGroup';
 import NavigationButtons from './personality/NavigationButtons';
-
 type PersonalityFormProps = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
 };
-
 const PersonalityForm: React.FC<PersonalityFormProps> = ({
   handleNextStep,
   handlePreviousStep
 }) => {
   const form = useFormContext<ChildProfileFormData>();
-
   const handleContinue = () => {
     // Validation obligatoire : au moins 1 sélection dans chaque catégorie
     const superpowers = form.getValues().superpowers || [];
     const passions = form.getValues().passions || [];
     const challenges = form.getValues().challenges || [];
-
     const errors: string[] = [];
-
     if (superpowers.length === 0) {
       errors.push("au moins un super-pouvoir");
     }
@@ -38,12 +33,10 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
     if (challenges.length === 0) {
       errors.push("au moins un défi");
     }
-
     if (errors.length > 0) {
       toast.error(`Veuillez sélectionner : ${errors.join(', ')}`);
       return;
     }
-
     // Validation des sélections maximales
     if (superpowers.length > 3) {
       toast.error("Veuillez sélectionner au maximum 3 super-pouvoirs");
@@ -57,14 +50,12 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
       toast.error("Veuillez sélectionner au maximum 3 défis");
       return;
     }
-
     handleNextStep();
   };
-
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">🎭</span> Personnalité et passions <span className="text-2xl">🚀</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
+        Personnalité et passions
       </h2>
       
       <div className="space-y-8" role="group" aria-label="Personnalité">
@@ -73,7 +64,6 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
           fieldName="superpowers"
           options={SUPERPOWERS_OPTIONS}
           label="Quels sont les super-pouvoirs de votre enfant ? (3 max)"
-          icon="🦸‍♀️"
         />
         
         {/* Passions */}
@@ -81,17 +71,13 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
           fieldName="passions"
           options={PASSIONS_OPTIONS}
           label="Qu'aime le plus votre enfant ? (3 max)"
-          icon="💖"
         />
-
         {/* Défis */}
         <MultiSelectOptionsGroup 
           fieldName="challenges"
           options={CHALLENGES_OPTIONS}
           label="Quels sont les grands défis de votre enfant ? (3 max)"
-          icon="🏆"
         />
-
         <NavigationButtons 
           handlePreviousStep={handlePreviousStep}
           handleContinue={handleContinue}
@@ -100,5 +86,4 @@ const PersonalityForm: React.FC<PersonalityFormProps> = ({
     </div>
   );
 };
-
 export default PersonalityForm;
