@@ -41,8 +41,7 @@ const NewHero: React.FC = () => {
               <div className="max-w-4xl mx-auto">
                 {/* Titre principal */}
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 text-white drop-shadow-lg animate-fade-in">
-                  Abonnez votre enfant à sa propre aventure{' '}
-                  <span className="inline-block animate-float">✨</span>
+                  Abonnez votre enfant à sa propre aventure
                 </h1>
                 
                 {/* Sous-titre */}
