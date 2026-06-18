@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
@@ -117,8 +118,8 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">🌍</span> Univers préféré & ouverture culturelle <span className="text-2xl">✨</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
+        Univers préféré & ouverture culturelle
       </h2>
       
       <div className="space-y-8" role="group" aria-label="Univers et découvertes">
@@ -126,7 +127,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
         <div className="space-y-4">
           <div>
             <Label className="text-base font-medium mb-2 block">
-              Quels sont ses univers préférés ? (3 maximum) 🚀
+              Quels sont ses univers préférés ? (3 maximum)
             </Label>
             <p className="text-gray-500 text-sm mb-4">Ces univers seront mis en avant dans ses histoires.</p>
           </div>
@@ -151,7 +152,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                         ? 'border-primary bg-primary text-primary-foreground' 
                         : 'border-primary'
                     }`}>
-                      {isSelected && <span className="h-4 w-4 text-xs text-white">✓</span>}
+                      {isSelected && <Check className="h-3 w-3 text-white" />}
                     </div>
                   </div>
                   <Label
@@ -203,7 +204,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
         <div className="space-y-4">
           <div>
             <Label className="text-base font-medium mb-2 block">
-              Quel type de découvertes aime-t-il faire ? (3 maximum) 🔍
+              Quel type de découvertes aime-t-il faire ? (3 maximum)
             </Label>
             <p className="text-gray-500 text-sm mb-4">Ces thèmes seront intégrés subtilement dans ses histoires pour l'ouvrir sur le monde.</p>
           </div>
@@ -228,7 +229,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
                         ? 'border-primary bg-primary text-primary-foreground' 
                         : 'border-primary'
                     }`}>
-                      {isSelected && <span className="h-4 w-4 text-xs text-white">✓</span>}
+                      {isSelected && <Check className="h-3 w-3 text-white" />}
                     </div>
                   </div>
                   <Label
