@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 import { Input } from "@/components/ui/input";
@@ -117,8 +116,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
     <>
       {/* Type de proche */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">👤</span> Qui est ce proche ?
+        <label className="block text-lg font-semibold mb-2">
+          Qui est ce proche ?
         </label>
         <select
           value={selectedKey}
@@ -137,8 +136,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       {/* Gender selector for roles without implicit gender */}
       {needsGender && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">⚧</span> Genre
+          <label className="block text-lg font-semibold mb-2">
+            Genre
           </label>
           <div className="grid grid-cols-2 gap-3">
             <div
@@ -164,8 +163,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       {/* Nom personnalisé pour "autre" */}
       {type === 'other' && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">✨</span> Précisez
+          <label className="block text-lg font-semibold mb-2">
+            Précisez
           </label>
           <Input 
             value={otherTypeName || ''} 
@@ -178,8 +177,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       
       {/* Prénom */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">👤</span> Prénom
+        <label className="block text-lg font-semibold mb-2">
+          Prénom
         </label>
         <Input 
           value={firstName} 
@@ -191,8 +190,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       
       {/* Date de naissance */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">🎂</span> Date de naissance
+        <label className="block text-lg font-semibold mb-2">
+          Date de naissance
         </label>
         <div style={{ position: 'relative' }}>
           <ErrorBoundary
@@ -222,8 +221,8 @@ const RelativeBasicInfoSection: React.FC<RelativeBasicInfoSectionProps> = ({
       
       {/* Métier */}
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">💼</span> Métier/Activité (facultatif)
+        <label className="block text-lg font-semibold mb-2">
+          Métier/Activité (facultatif)
         </label>
         <Input 
           value={job} 
