@@ -281,8 +281,8 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   const relatives = form.watch("family.relatives") || [];
   return <div className="mb-6 animate-fade-in">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-mcf-primary flex items-center justify-center gap-2 mb-2">
-          <span className="text-2xl">👨‍👩‍👦‍👦</span> Famille et entourage <span className="text-2xl">💞</span>
+        <h2 className="text-2xl font-bold text-mcf-primary mb-2">
+          Famille et entourage
         </h2>
         <p className="text-sm text-gray-600 italic">Vous pourrez toujours ajouter ou modifier les membres de la famille plus tard si vous le souhaitez</p>
       </div>
@@ -312,7 +312,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
                   Avez-vous ajouté tous les personnages importants pour votre enfant ?
                 </h3>
                 <p className="text-mcf-orange-dark font-medium">
-                  Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille 😉
+                  Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille
                 </p>
               </div>
             </div>
@@ -323,7 +323,7 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               </Button>
               
               <Button type="button" onClick={handleFamilySectionContinue} className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches ! 🧡" : "Continuer sans ajouter de proches →"}
+                {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches !" : "Continuer sans ajouter de proches →"}
               </Button>
             </div>
           </div>
