@@ -165,14 +165,14 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-mcf-primary-dark mb-2">
           {isGiftMode 
-            ? "Parfait ! Le profil est prêt ✨"
-            : "C'est prêt ! Voici le profil de votre enfant ✨"
+            ? "Parfait ! Le profil est prêt"
+            : "C'est prêt ! Voici le profil de votre enfant"
           }
         </h2>
         <p className="text-gray-600">
           {isGiftMode
             ? "Vérifiez les informations avant de choisir le thème de l'histoire"
-            : "Vous pouvez encore modifier un détail si besoin, sinon… place à l'imaginaire ! 🧠📚"
+            : "Vous pouvez encore modifier un détail si besoin, sinon… place à l'imaginaire !"
           }
         </p>
       </div>
