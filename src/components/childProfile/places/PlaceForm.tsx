@@ -99,7 +99,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
 
           <div>
-            <Label htmlFor="type-vacances">🏕 Quel type de lieu est-ce ?</Label>
+            <Label htmlFor="type-vacances">Quel type de lieu est-ce ?</Label>
             <select
               id="type-vacances"
               value={details.type_vacances || ''}
@@ -117,7 +117,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label htmlFor="environnement-vacances">
-              🌳 Décris l'environnement *
+              Décris l'environnement *
             </Label>
             <Textarea
               id="environnement-vacances"
@@ -132,7 +132,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label htmlFor="activites">
-              🎒 Quelles activités l'enfant y fait-il habituellement ?
+              Quelles activités l'enfant y fait-il habituellement ?
             </Label>
             <Textarea
               id="activites"
@@ -151,7 +151,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           <h3 className="text-lg font-semibold">Questions détaillées</h3>
 
           <div>
-            <Label>🏠 Quel type de logement est-ce ?</Label>
+            <Label>Quel type de logement est-ce ?</Label>
             <select
               value={details.habitat_type || ''}
               onChange={(e) => updateDetails('habitat_type', e.target.value)}
@@ -176,7 +176,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
 
           <div>
             <Label htmlFor="environnement-maison">
-              🌳 Décris l'environnement autour du logement *
+              Décris l'environnement autour du logement *
             </Label>
             <Textarea
               id="environnement-maison"
@@ -190,7 +190,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           </div>
 
           <div>
-            <Label>🏡 Y a-t-il un jardin ou une cour ?</Label>
+            <Label>Y a-t-il un jardin ou une cour ?</Label>
             <RadioGroup
               value={details.jardin === undefined ? '' : details.jardin ? 'oui' : 'non'}
               onValueChange={(value) => updateDetails('jardin', value === 'oui')}
@@ -209,7 +209,7 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
           {details.jardin && (
             <div>
               <Label htmlFor="jardin-elements">
-                🎠 Quels sont les jeux ou éléments marquants dans le jardin ?
+                Quels sont les jeux ou éléments marquants dans le jardin ?
               </Label>
               <Textarea
                 id="jardin-elements"
