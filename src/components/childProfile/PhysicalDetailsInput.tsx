@@ -1,63 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X } from "lucide-react";
 
-type PhysicalDetailsInputProps = {
-  value: string[] | undefined;
+type PetPhysicalDetailsInputProps = {
+  value: string[];
   onChange: (value: string[]) => void;
-  label?: string;
-  placeholder?: string;
   onNoDetailsChange?: (hasNoDetails: boolean) => void;
   noDetailsValue?: boolean;
 };
 
-const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
+const SUGGESTIONS = [
+  "Pelage noir",
+  "Pelage blanc",
+  "Pelage roux",
+  "Taches brunes",
+  "Taches blanches",
+  "Grande taille",
+  "Petite taille",
+  "Oreille coupée",
+  "Queue courte",
+  "Yeux bleus",
+  "Yeux verts",
+  "Collier",
+];
+
+const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   value = [],
   onChange,
-  label = "🧬 Un détail physique marquant ? *",
-  placeholder = "Ex : un grain de beauté sur la joue gauche, une cicatrice derrière l'oreille...",
   onNoDetailsChange,
   noDetailsValue = false
 }) => {
   const MAX_DETAILS = 5;
+  const [customInput, setCustomInput] = useState('');
   const [noDetails, setNoDetails] = useState(noDetailsValue);
-  const [savedDetails, setSavedDetails] = useState<string[]>([]);
-  const details = value.length > 0 ? value : [''];
+  const details = value.length > 0 ? value : [];
 
-  useEffect(() => {
-    setNoDetails(noDetailsValue);
-  }, [noDetailsValue]);
-
-  const handleAddDetail = () => {
-    if (details.length < MAX_DETAILS) {
-      onChange([...details, '']);
-    }
-  };
-
-  const handleRemoveDetail = (index: number) => {
-    const newDetails = details.filter((_, i) => i !== index);
-    onChange(newDetails.length > 0 ? newDetails : ['']);
-  };
-
-  const handleChangeDetail = (index: number, newValue: string) => {
-    const newDetails = [...details];
-    newDetails[index] = newValue;
-    onChange(newDetails);
-    
-    // Décocher automatiquement "aucun détail" quand on commence à remplir un détail
-    if (newValue.trim() !== '' && noDetails) {
-      setNoDetails(false);
-      if (onNoDetailsChange) {
-        onNoDetailsChange(false);
+  const handleAddSuggestion = (suggestion: string) => {
+    if (!details.includes(suggestion) && details.length < MAX_DETAILS) {
+      onChange([...details, suggestion]);
+      // Décocher automatiquement "aucun détail" quand on ajoute un détail
+      if (noDetails) {
+        setNoDetails(false);
+        if (onNoDetailsChange) {
+          onNoDetailsChange(false);
+        }
       }
     }
   };
 
+  const handleAddCustom = () => {
+    const trimmed = customInput.trim();
+    if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
+      onChange([...details, trimmed]);
+      setCustomInput('');
+      // Décocher automatiquement "aucun détail" quand on ajoute un détail
+      if (noDetails) {
+        setNoDetails(false);
+        if (onNoDetailsChange) {
+          onNoDetailsChange(false);
+        }
+      }
+    }
+  };
+
+  const handleRemoveDetail = (detailToRemove: string) => {
+    onChange(details.filter(d => d !== detailToRemove));
+  };
+
   const handleNoDetailsChange = (checked: boolean) => {
-    console.info('👆 noPhysicalDetails toggled', {
+    console.info('👆 noPhysicalDetails (animal) toggled', {
       checked,
       previous: noDetails,
       currentDetails: details,
@@ -67,17 +81,7 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
       onNoDetailsChange(checked);
     }
     if (checked) {
-      // Sauvegarder les détails actuels avant de les masquer
-      const currentDetails = details.filter(d => d.trim() !== '');
-      if (currentDetails.length > 0) {
-        setSavedDetails(currentDetails);
-      }
-      onChange(['']);
-    } else {
-      // Restaurer les détails sauvegardés si disponibles
-      if (savedDetails.length > 0) {
-        onChange(savedDetails);
-      }
+      onChange([]);
     }
   };
 
@@ -85,69 +89,112 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
     <div className="space-y-3">
       <div>
         <Label className="text-base font-medium">
-          {label}
+          Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
-          Boucles d'oreilles, cicatrice, tatouage… Donne-nous tous les petits détails, et surtout dis-nous exactement où ils sont !
+          Couleur du pelage, taches, grande taille, oreille coupée, etc.
         </p>
       </div>
 
       <div className="flex items-center space-x-2 p-3 border rounded-md bg-muted/30">
         <Checkbox
-          id="no-details"
+          id="no-physical-details-pet"
           checked={noDetails}
           onCheckedChange={handleNoDetailsChange}
         />
         <Label
-          htmlFor="no-details"
+          htmlFor="no-physical-details-pet"
           className="text-sm font-normal cursor-pointer"
         >
           Aucun détail physique particulier
         </Label>
       </div>
 
-      {!noDetails && (
+      {/* Détails sélectionnés */}
+      {!noDetails && details.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {details.map((detail, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-1 bg-mcf-secondary-light/50 border border-mcf-primary rounded-full px-3 py-1.5"
+            >
+              <span className="text-sm">{detail}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveDetail(detail)}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Suggestions */}
+      {!noDetails && details.length < MAX_DETAILS && (
         <>
-          <div className="space-y-2">
-            {details.map((detail, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <Input
-                  value={detail}
-                  onChange={(e) => handleChangeDetail(index, e.target.value)}
-                  placeholder={index === 0 ? placeholder : "Ajouter un autre détail..."}
-                  className="flex-1"
-                />
-                {details.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveDetail(index)}
-                    className="shrink-0 text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
+          <div>
+            <Label className="text-sm text-muted-foreground mb-2 block">
+              Suggestions ({details.length}/{MAX_DETAILS})
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTIONS.filter(s => !details.includes(s)).map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => handleAddSuggestion(suggestion)}
+                  className="px-3 py-1.5 text-sm border border-gray-200 rounded-full hover:border-mcf-primary hover:bg-mcf-secondary-light/30 transition-all"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {details.length < MAX_DETAILS && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddDetail}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un autre détail ({details.length}/{MAX_DETAILS})
-            </Button>
-          )}
+          {/* Champ personnalisé */}
+          <div>
+            <Label className="text-sm text-muted-foreground mb-2 block">
+              Autre (à préciser)
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                placeholder="Ex : Cicatrice sur la patte avant droite..."
+                className="flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustom();
+                  }
+                }}
+                onBlur={() => {
+                  // Ajouter automatiquement la valeur saisie si l'utilisateur oublie de cliquer sur +
+                  handleAddCustom();
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleAddCustom}
+                disabled={!customInput.trim() || details.length >= MAX_DETAILS}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </>
+      )}
+
+      {!noDetails && details.length >= MAX_DETAILS && (
+        <p className="text-sm text-muted-foreground">
+          Maximum de {MAX_DETAILS} détails atteint
+        </p>
       )}
     </div>
   );
 };
 
-export default PhysicalDetailsInput;
+export default PetPhysicalDetailsInput;
