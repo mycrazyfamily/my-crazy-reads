@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, User, Bell, LogOut } from 'lucide-react';
@@ -83,7 +82,7 @@ const Navbar: React.FC = () => {
               Accueil
             </Link>
             <Link to="/histoires" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
-              Nos Histoires
+              Comment ça marche
             </Link>
             <Link to="/abonnement" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
               Abonnement
@@ -144,11 +143,11 @@ const Navbar: React.FC = () => {
               className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Nos Histoires
+              Comment ça marche
             </Link>
             <Link 
               to="/abonnement" 
-              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
+              SRIs="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Abonnement
