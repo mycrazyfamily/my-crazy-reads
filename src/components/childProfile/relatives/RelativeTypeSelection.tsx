@@ -1,16 +1,14 @@
-
 import React from 'react';
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Check } from "lucide-react";
 import { RELATIVE_TYPE_OPTIONS } from '@/constants/childProfileOptions';
 import type { RelativeType } from '@/types/childProfile';
-
 type RelativeTypeSelectionProps = {
   selectedRelatives: RelativeType[];
   handleRelativeTypeToggle: (relativeType: RelativeType) => void;
   onAddRelative: (relativeType: RelativeType) => void;
 };
-
 const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
   selectedRelatives,
   handleRelativeTypeToggle,
@@ -22,8 +20,8 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
         name="family.selectedRelatives"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-lg font-semibold flex items-center gap-2">
-              <span className="text-xl">👪</span> Qui accompagnera votre enfant dans son aventure ?
+            <FormLabel className="text-lg font-semibold">
+              Qui accompagnera votre enfant dans son aventure ?
             </FormLabel>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
@@ -40,7 +38,7 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
                     <div className="flex items-start gap-2">
                       <div className="mt-1">
                         <div className="h-4 w-4 border border-primary rounded-sm flex items-center justify-center">
-                          {selectedRelatives.includes(option.value as RelativeType) && <span className="text-white text-xs">✓</span>}
+                          {selectedRelatives.includes(option.value as RelativeType) && <Check className="h-3 w-3 text-white" />}
                         </div>
                       </div>
                       <div>
@@ -63,8 +61,8 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
           name="family.otherRelativeType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                <span className="text-xl">✨</span> Précisez quel(s) autre(s) type(s) de proche(s)
+              <FormLabel className="text-lg font-semibold">
+                Précisez quel(s) autre(s) type(s) de proche(s)
               </FormLabel>
               <Input 
                 placeholder="Ex: nounou, ami de la famille..." 
@@ -79,5 +77,4 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
     </>
   );
 };
-
 export default RelativeTypeSelection;
