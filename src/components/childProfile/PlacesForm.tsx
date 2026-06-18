@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Plus } from 'lucide-react';
 import { PlaceData } from '@/types/place';
 import { PlaceForm } from './places/PlaceForm';
 import { PlacesList } from './places/PlacesList';
@@ -400,7 +401,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       {!isAddingPlace ? (
         <>
           <div>
-            <h2 className="text-2xl font-bold mb-2">🏡 Lieux de vie</h2>
+            <h2 className="text-2xl font-bold mb-2">Lieux de vie</h2>
             <p className="text-muted-foreground">
               Ajoutez les différents lieux de vie de votre enfant (maison principale, maison secondaire, maison de l'autre parent si séparés, lieux de vacances, etc.)
             </p>
@@ -422,7 +423,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
           />
 
           <Button onClick={handleAddPlace} variant="outline" className="w-full" type="button">
-            + Ajouter un lieu
+            <Plus className="h-4 w-4 mr-2" />
+            Ajouter un lieu
           </Button>
 
           <div className="flex gap-4">
