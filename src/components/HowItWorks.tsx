@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Users, PenLine, BookOpen } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const HowItWorks: React.FC = () => {
@@ -18,24 +19,24 @@ const HowItWorks: React.FC = () => {
   const steps = [
     {
       number: "1",
-      icon: "👨‍👩‍👧‍👦",
+      icon: <Users className="w-10 h-10 text-mcf-primary" />,
       title: "Créez votre famille",
       description: "Personnalisez les profils de vos enfants, proches, animaux ou amis. Chaque histoire s'ajuste aux liens qui l'entourent, pour des aventures riches de sens.",
-      highlight: "🧠 Un héros qu'il connaît, c'est un héros qui l'aide à grandir."
+      highlight: "Un héros qu'il connaît, c'est un héros qui l'aide à grandir."
     },
     {
-      number: "2", 
-      icon: "✨",
+      number: "2",
+      icon: <PenLine className="w-10 h-10 text-mcf-primary" />,
       title: "Personnalisez l'histoire",
       description: "Chaque livre repose sur une trame conçue par des spécialistes de l'enfance. Chaque mois, vous pouvez y ajoutez des éléments, ce qui rend l'histoire vraiment unique à ses et vos yeux.",
-      highlight: "✏️ Plus vous partagez, plus l'histoire devient la sienne."
+      highlight: "Plus vous partagez, plus l'histoire devient la sienne."
     },
     {
       number: "3",
-      icon: "📚",
+      icon: <BookOpen className="w-10 h-10 text-mcf-primary" />,
       title: "Recevez votre livre chaque mois",
       description: "Un vrai beau livre, personnalisé à chaque détail, imprimé en France 🇫🇷 avec des finitions haut de gamme et livré directement chez vous.",
-      highlight: "🧿 Illustré, durable, pensé pour être relu encore et encore même 15 ans plus tard."
+      highlight: "Illustré, durable, pensé pour être relu encore et encore même 15 ans plus tard."
     }
   ];
 
@@ -66,7 +67,7 @@ const HowItWorks: React.FC = () => {
               </div>
               
               {/* Icône */}
-              <div className="text-4xl mb-4">{step.icon}</div>
+              <div className="flex justify-center mb-4">{step.icon}</div>
               
               {/* Titre */}
               <h3 className="text-xl md:text-2xl font-bold text-mcf-text mb-4">
