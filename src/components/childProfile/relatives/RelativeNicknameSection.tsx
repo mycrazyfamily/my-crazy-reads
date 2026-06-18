@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import type { RelativeType } from '@/types/childProfile';
-
 type RelativeNicknameSectionProps = {
   selectedNickname: string;
   setSelectedNickname: (nickname: string) => void;
@@ -10,7 +8,6 @@ type RelativeNicknameSectionProps = {
   setNicknameCustomValue: (value: string) => void;
   relativeType: RelativeType;
 };
-
 // Define nickname options based on relative type
 const getNicknameOptions = (type: RelativeType) => {
   switch (type) {
@@ -73,7 +70,6 @@ const getNicknameOptions = (type: RelativeType) => {
       return [];
   }
 };
-
 const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
   selectedNickname,
   setSelectedNickname,
@@ -93,8 +89,8 @@ const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
   return (
     <>
       <div className="form-group">
-        <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-          <span className="text-xl">💖</span> Surnom (facultatif)
+        <label className="block text-lg font-semibold mb-2">
+          Surnom (facultatif)
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
           {options.map((option) => (
@@ -115,8 +111,8 @@ const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
       
       {selectedNickname === "custom" && (
         <div className="form-group">
-          <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-            <span className="text-xl">✨</span> Surnom personnalisé
+          <label className="block text-lg font-semibold mb-2">
+            Surnom personnalisé
           </label>
           <Input 
             value={nicknameCustomValue || ''} 
@@ -129,5 +125,4 @@ const RelativeNicknameSection: React.FC<RelativeNicknameSectionProps> = ({
     </>
   );
 };
-
 export default RelativeNicknameSection;
