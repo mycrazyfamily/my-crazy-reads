@@ -1454,7 +1454,8 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                       alt.type === 'custom' ? undefined : alt.substituteIndex,
                     );
                   }}
-                  className="text-xs px-2.5 py-1 rounded-full border border-muted-foreground/30 bg-muted/40 hover:border-primary hover:text-primary transition-colors whitespace-nowrap inline-flex items-center gap-1"
+                  className="text-xs px-2.5 py-1 rounded-full border font-medium transition-opacity whitespace-nowrap inline-flex items-center gap-1 hover:opacity-80"
+                  style={{ backgroundColor: `${PRIMARY_VIOLET}1A`, borderColor: `${PRIMARY_VIOLET}59`, color: PRIMARY_VIOLET }}
                 >
                   <AltIcon className="h-3 w-3" />
                   {alt.label}
