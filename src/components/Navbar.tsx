@@ -147,7 +147,7 @@ const Navbar: React.FC = () => {
             </Link>
             <Link 
               to="/abonnement" 
-              SRIs="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
+              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Abonnement
