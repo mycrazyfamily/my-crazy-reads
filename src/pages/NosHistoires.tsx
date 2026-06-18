@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HowItWorks from '@/components/HowItWorks';
-import { Sparkles, Users, MessageCircle, Award, Globe, Zap } from 'lucide-react';
+import { Sparkles, Users, MessageCircle, Award, Globe, Zap, Wand2, Palette } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const NosHistoires: React.FC = () => {
@@ -69,7 +69,7 @@ const NosHistoires: React.FC = () => {
                 <div className="pt-10 p-8 relative z-10">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-20 h-20 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-4xl shadow-md">
-                      🪄
+                      <Wand2 className="w-10 h-10 text-mcf-primary" />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-mcf-primary">
@@ -103,7 +103,7 @@ const NosHistoires: React.FC = () => {
                 <div className="pt-10 p-8 relative z-10">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-20 h-20 bg-mcf-secondary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-4xl shadow-md">
-                      🎨
+                      <Palette className="w-10 h-10 text-mcf-primary" />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-mcf-primary">
@@ -131,7 +131,7 @@ const NosHistoires: React.FC = () => {
             <div className="text-center bg-white rounded-2xl p-10 max-w-4xl mx-auto shadow-xl border-2 border-mcf-primary/20">
               <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
-                chaque mois devient une aventure personnalisée pour vous et votre enfant ✨
+                chaque mois devient une aventure personnalisée pour vous et votre enfant
               </p>
             </div>
           </div>
@@ -275,7 +275,6 @@ const NosHistoires: React.FC = () => {
                 <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-mcf-gradient-end/40 rounded-full animate-float animation-delay-300"></div>
 
                 <div className="relative bg-gradient-to-br from-mcf-gradient-start to-mcf-gradient-end/20 rounded-2xl p-8 md:p-12 shadow-lg">
-                  <div className="text-6xl mb-6">📖✨</div>
                   <p className="text-xl md:text-2xl font-medium text-mcf-text">
                     Embarquez dans cette aventure familiale exceptionnelle !
                   </p>
