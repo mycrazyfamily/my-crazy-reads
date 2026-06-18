@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { ChildProfileFormData, ToyData } from '@/types/childProfile';
 import ToyForm from './toys/ToyForm';
@@ -111,8 +111,8 @@ const ToysForm: React.FC<ToysFormProps> = ({
 
   return (
     <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary flex items-center justify-center gap-2">
-        <span className="text-2xl">🧸</span> Doudous et objets magiques <span className="text-2xl">🪄</span>
+      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
+        Doudous et objets magiques
       </h2>
       
       {!isAddingToy ? (
@@ -120,7 +120,7 @@ const ToysForm: React.FC<ToysFormProps> = ({
           {/* Question sur la présence de doudous */}
           <div className="space-y-4">
             <Label className="text-base font-medium">
-              Votre enfant a-t-il un doudou ou un objet fétiche ? 🧸
+              Votre enfant a-t-il un doudou ou un objet fétiche ?
             </Label>
             
             <RadioGroup 
@@ -163,7 +163,8 @@ const ToysForm: React.FC<ToysFormProps> = ({
                 onClick={handleAddToy}
                 className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
               >
-                Ajouter un doudou +
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un doudou
               </Button>
               
               <ToysList 
