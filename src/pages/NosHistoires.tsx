@@ -170,7 +170,7 @@ const NosHistoires: React.FC = () => {
         </section>
 
         {/* SECTION 5 - Ce qui rend My Crazy Family unique */}
-        <section className="py-24 bg-gradient-to-br from-mcf-mint/30 via-transparent to-mcf-secondary/10 animate-fade-in">
+        <section className="py-24 bg-gradient-to-br from-mcf-mint/50 via-transparent to-mcf-mint/30 animate-fade-in">
           <div className="container mx-auto px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-3 mb-4">
