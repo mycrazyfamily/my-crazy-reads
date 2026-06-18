@@ -1,10 +1,9 @@
-
 import React from 'react';
 
 interface BenefitCardProps {
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   delay: string;
 }
 
