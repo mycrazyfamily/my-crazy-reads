@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
+import { Check } from "lucide-react";
 import { CHARACTER_TRAITS_OPTIONS } from '@/constants/childProfileOptions';
 import type { RelativeGender } from '@/types/childProfile';
-
 type RelativeTraitsSectionProps = {
   traits: string[];
   handleTraitToggle: (trait: string) => void;
@@ -11,7 +10,6 @@ type RelativeTraitsSectionProps = {
   setCustomTraits: (traits: Record<string, string>) => void;
   gender: RelativeGender;
 };
-
 const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
   traits,
   handleTraitToggle,
@@ -44,7 +42,6 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
     // Return original label for non-gendered traits
     return trait.label;
   };
-
   // Gestion des traits personnalisés
   const handleCustomTraitChange = (traitKey: string, value: string) => {
     setCustomTraits({
@@ -52,11 +49,10 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
       [traitKey]: value
     });
   };
-
   return (
     <div className="form-group">
-      <label className="block text-lg font-semibold flex items-center gap-2 mb-2">
-        <span className="text-xl">💪</span> Traits de caractère (3 max)
+      <label className="block text-lg font-semibold mb-2">
+        Traits de caractère (3 max)
       </label>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
         {CHARACTER_TRAITS_OPTIONS.map((option) => {
@@ -78,7 +74,7 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
                     <div className={`flex h-4 w-4 items-center justify-center border ${
                       isChecked ? "border-primary bg-primary text-primary-foreground" : "border-primary"
                     } rounded-sm`}>
-                      {isChecked && <span className="text-xs">✓</span>}
+                      {isChecked && <Check className="h-3 w-3" />}
                     </div>
                   </div>
                   <div>
@@ -106,5 +102,4 @@ const RelativeTraitsSection: React.FC<RelativeTraitsSectionProps> = ({
     </div>
   );
 };
-
 export default RelativeTraitsSection;
