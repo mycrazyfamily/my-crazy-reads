@@ -1,8 +1,21 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // "Nos Histoires" pointe vers les exemples de livres, désormais sur l'accueil.
+  // Sur l'accueil : scroll local. Ailleurs : navigation vers / puis scroll (via Index).
+  // Les clics avec modificateur (cmd/ctrl/maj) gardent le comportement natif (nouvel onglet).
+  const handleStoriesClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    if (location.pathname === '/') {
+      document.getElementById('nos-histoires')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/', { state: { scrollTo: 'nos-histoires' } });
+    }
+  };
+
   return (
     <footer className="bg-mcf-gradient-start py-12">
       <div className="container mx-auto px-4 md:px-6">
@@ -25,12 +38,16 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/histoires" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+                <Link
+                  to="/"
+                  onClick={handleStoriesClick}
+                  className="text-muted-foreground hover:text-mcf-primary transition-colors"
+                >
                   Nos Histoires
                 </Link>
               </li>
               <li>
-                <Link to="/fonctionnement" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+                <Link to="/histoires" className="text-muted-foreground hover:text-mcf-primary transition-colors">
                   Comment ça marche
                 </Link>
               </li>
