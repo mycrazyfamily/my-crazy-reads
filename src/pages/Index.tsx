@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, MessageCircle, Sparkles, Brain, GraduationCap } from 'lucide-react';
+import { Heart, MessageCircle, Sparkles, Brain, GraduationCap, BookOpen, Library, Globe, Gift } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Navbar from '../components/Navbar';
 import NewHero from '../components/NewHero';
@@ -54,25 +54,25 @@ const NewIndex: React.FC = () => {
     {
       title: "Une aventure magique chaque mois",
       description: "Des histoires enchanteresses qui nourrissent l'imagination de votre enfant et renforcent votre lien familial.",
-      icon: "📖",
+      icon: <BookOpen className="w-12 h-12 text-mcf-primary" />,
       delay: "animation-delay-100"
     },
     {
       title: "Des livres imprimés de qualité à garder",
       description: "Des ouvrages soigneusement imprimés, conçus pour résister au temps et devenir de précieux souvenirs familiaux.",
-      icon: "📚",
+      icon: <Library className="w-12 h-12 text-mcf-primary" />,
       delay: "animation-delay-200"
     },
     {
       title: "Des thèmes essentiels et éducatifs",
       description: "Découvrez des aventures abordant l'écologie, les émotions, la culture et bien d'autres sujets important pour l'épanouissement de votre enfant.",
-      icon: "🌍",
+      icon: <Globe className="w-12 h-12 text-mcf-primary" />,
       delay: "animation-delay-300"
     },
     {
       title: "Un cadeau touchant et original",
       description: "Offrez une expérience unique qui se renouvelle chaque mois et crée des moments privilégiés en famille.",
-      icon: "🎁",
+      icon: <Gift className="w-12 h-12 text-mcf-primary" />,
       delay: "animation-delay-400"
     }
   ];
@@ -116,7 +116,7 @@ const NewIndex: React.FC = () => {
                     Une histoire tendre pour valoriser le lien parent-enfant
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    💖 Sécurité affective
+                    Sécurité affective
                   </p>
                 </CardContent>
               </Card>
@@ -134,7 +134,7 @@ const NewIndex: React.FC = () => {
                     Un lien unique entre enfant et animal pour grandir ensemble
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    🐾 Lien enfant-animal
+                    Lien enfant-animal
                   </p>
                 </CardContent>
               </Card>
@@ -152,7 +152,7 @@ const NewIndex: React.FC = () => {
                     Une magie de Noël où aider compte autant que recevoir
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    🎁 Entraide et participation
+                    Entraide et participation
                   </p>
                 </CardContent>
               </Card>
@@ -170,7 +170,7 @@ const NewIndex: React.FC = () => {
                     Une aventure écologique pour sauver la planète, ensemble
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    🌱 Éveil à la nature & responsabilité collective
+                    Éveil à la nature &amp; responsabilité collective
                   </p>
                 </CardContent>
               </Card>
@@ -188,7 +188,7 @@ const NewIndex: React.FC = () => {
                     Une plongée dans l'Égypte ancienne pour les petits explorateurs
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    🔍 Curiosité historique & esprit d'équipe
+                    Curiosité historique &amp; esprit d'équipe
                   </p>
                 </CardContent>
               </Card>
@@ -206,7 +206,7 @@ const NewIndex: React.FC = () => {
                     Réveiller la nature avec des rires et des histoires
                   </p>
                   <p className="text-sm text-mcf-secondary font-semibold">
-                    👥 Coopération joyeuse avec la nature
+                    Coopération joyeuse avec la nature
                   </p>
                 </CardContent>
               </Card>
@@ -256,7 +256,7 @@ const NewIndex: React.FC = () => {
                     <GraduationCap className="w-10 h-10 text-mcf-primary" />
                   </div>
                   <h3 className="text-xl font-bold text-mcf-primary mb-2">Enseignants</h3>
-                  <p className="text-mcf-text/70">& auteurs jeunesse</p>
+                  <p className="text-mcf-text/70">&amp; auteurs jeunesse</p>
                 </CardContent>
               </Card>
             </div>
@@ -264,11 +264,11 @@ const NewIndex: React.FC = () => {
             <div className="max-w-4xl mx-auto space-y-8 text-center">
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-10 md:p-12 space-y-6 shadow-lg border border-white/50">
                 <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
-                  ✏️ Chaque histoire suit un <strong className="text-mcf-primary font-semibold">tronc narratif structuré</strong>,
+                  Chaque histoire suit un <strong className="text-mcf-primary font-semibold">tronc narratif structuré</strong>,
                   conçu avec des spécialistes de l'enfance et spécifiquement adapté à chaque tranche d'âge de 0 à 10 ans.
                 </p>
                 <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
-                  📖 Elles sont relues et enrichies par des <strong className="text-mcf-primary font-semibold">auteurs jeunesse</strong> pour
+                  Elles sont relues et enrichies par des <strong className="text-mcf-primary font-semibold">auteurs jeunesse</strong> pour
                   assurer un ton et un rythme parfaitement adaptés.
                 </p>
               </div>
