@@ -15,6 +15,11 @@ const NewHero: React.FC = () => {
     return user ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
   };
 
+  // Scroll local vers la section des exemples de livres (présente sur l'accueil)
+  const scrollToStories = () => {
+    document.getElementById('nos-histoires')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section className="bg-white">
       {/* Image hero avec texte superposé */}
@@ -54,12 +59,13 @@ const NewHero: React.FC = () => {
                     {getButtonText()}
                   </Link>
                   
-                  <Link 
-                    to="/histoires" 
+                  <button 
+                    type="button"
+                    onClick={scrollToStories}
                     className="text-white/90 hover:text-white font-medium text-base underline underline-offset-4 hover:no-underline transition-all duration-300 drop-shadow-md"
                   >
                     Découvrir nos histoires
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
