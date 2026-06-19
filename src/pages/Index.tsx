@@ -160,7 +160,7 @@ const NewIndex: React.FC = () => {
               {/* Livre 4 - Jules et les protecteurs */}
               <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
                 <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-jules.png" alt="Jules et les protecteurs de la planète bleue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src="/__l5e/assets-v1/284e3252-6987-46d3-89b0-23eb30d00174/book-jules-corrige.png" alt="Jules et les protecteurs de la planète bleue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-6 pb-8">
                   <h3 className="text-xl font-bold text-mcf-primary mb-3">
