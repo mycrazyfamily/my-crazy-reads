@@ -631,27 +631,31 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
+              const isInactive = !!c.inactive;
+              const isDisabled = c.locked || disabledByCap || isInactive;
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => !disabledByCap && toggle(c.id)}
-                  disabled={c.locked || disabledByCap}
+                  onClick={() => !isDisabled && toggle(c.id)}
+                  disabled={isDisabled}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
-                    cursor: (c.locked || disabledByCap) ? 'not-allowed' : 'pointer',
-                    opacity: disabledByCap ? 0.4 : 1,
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isInactive ? 0.45 : disabledByCap ? 0.4 : 1,
                   }}
                 >
                   <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
-                  >
+                  <span className="text-sm font-medium" style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}>
                     {c.name}
                   </span>
+                  {isInactive && c.inactiveLabel && (
+                    <span className="text-[10px] font-medium text-muted-foreground leading-tight text-center">
+                      {c.inactiveLabel}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -716,27 +720,31 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
               const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
+              const isInactive = !!c.inactive;
+              const isDisabled = c.locked || disabledByCap || isInactive;
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => !disabledByCap && toggle(c.id)}
-                  disabled={c.locked || disabledByCap}
+                  onClick={() => !isDisabled && toggle(c.id)}
+                  disabled={isDisabled}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                   style={{
                     borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                     backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
-                    cursor: (c.locked || disabledByCap) ? 'not-allowed' : 'pointer',
-                    opacity: disabledByCap ? 0.4 : 1,
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isInactive ? 0.45 : disabledByCap ? 0.4 : 1,
                   }}
                 >
                   <WizardAvatar avatarUrl={c.avatarUrl} emoji={c.emoji} name={c.name} />
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}
-                  >
+                  <span className="text-sm font-medium" style={{ color: isSel ? PRIMARY_VIOLET : '#374151' }}>
                     {c.name}
                   </span>
+                  {isInactive && c.inactiveLabel && (
+                    <span className="text-[10px] font-medium text-muted-foreground leading-tight text-center">
+                      {c.inactiveLabel}
+                    </span>
+                  )}
                 </button>
               );
             })}
