@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit } from 'lucide-react';
+import { Edit, Heart, LogOut } from 'lucide-react';
 import type { PetData } from '@/types/childProfile';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
@@ -66,8 +66,17 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
     </span>
   );
 
+  // Statut « entité inactive » — badge discret (décès / donné-perdu)
+  const isDeceased = (pet as any).is_deceased === true;
+  const isGone = !isDeceased && (pet as any).is_active === false;
+  const statusBadge = isDeceased
+    ? { label: 'En mémoire', Icon: Heart }
+    : isGone
+    ? { label: "N'est plus avec nous", Icon: LogOut }
+    : null;
+
   return (
-    <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
+    <Card className={`overflow-hidden border-mcf-mint hover:shadow-md transition-shadow ${statusBadge ? 'opacity-90' : ''}`}>
       <CardHeader className="p-4">
         <div className="flex items-center gap-3">
           <AvatarDisplay
@@ -92,6 +101,12 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
             <p className="text-xs text-muted-foreground mt-1">
               Animal de {childrenNames.join(' et ')}
             </p>
+            {statusBadge && (
+              <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                <statusBadge.Icon className="h-3 w-3" />
+                {statusBadge.label}
+              </span>
+            )}
           </div>
         </div>
       </CardHeader>
