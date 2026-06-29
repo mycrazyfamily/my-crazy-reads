@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowLeft, Heart, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
@@ -14,6 +17,9 @@ import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetTrait } from '@/types/childProfile';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
+
+// Statut « entité inactive » de l'animal (mutuellement exclusif)
+type PetStatus = 'active' | 'deceased' | 'gone';
 
 /**
  * Safely parse traits_custom from DB — handles double-encoded strings
@@ -72,6 +78,8 @@ const ModifierAnimal: React.FC = () => {
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   const [originalBirthMonthYear, setOriginalBirthMonthYear] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [petStatus, setPetStatus] = useState<PetStatus>('active');
+  const [pendingDeceased, setPendingDeceased] = useState(false);
 
   useEffect(() => {
     loadPetData();
@@ -96,7 +104,10 @@ const ModifierAnimal: React.FC = () => {
             family_id,
             breed,
             physical_details,
-            clothing_style
+            clothing_style,
+            is_deceased,
+            is_active,
+            inactive_reason
           )
         `)
         .eq('child_id', childId)
@@ -137,6 +148,12 @@ const ModifierAnimal: React.FC = () => {
         };
         setPetData(pet);
         setOriginalBirthMonthYear(data.birth_month_year || null);
+
+        // Initialiser le statut « entité inactive » depuis la table pets
+        const petRow: any = data.pets;
+        setPetStatus(
+          petRow.is_deceased ? 'deceased' : (petRow.is_active === false ? 'gone' : 'active')
+        );
 
         // Charger tous les enfants de la famille
         const { data: childrenData, error: childrenError } = await supabase
@@ -184,13 +201,23 @@ const ModifierAnimal: React.FC = () => {
       const finalType = updatedPet.type === 'other' && updatedPet.otherType 
         ? updatedPet.otherType 
         : updatedPet.type;
-      
+
+      // Statut « entité inactive » — états mutuellement exclusifs.
+      // Les triggers DB horodatent deceased_recorded_at / inactive_at automatiquement.
+      const statusFields =
+        petStatus === 'deceased'
+          ? { is_deceased: true, is_active: true, inactive_reason: null }
+          : petStatus === 'gone'
+          ? { is_deceased: false, is_active: false, inactive_reason: 'given_away' }
+          : { is_deceased: false, is_active: true, inactive_reason: null };
+
       const { error: updatePetError } = await supabase
         .from('pets')
         .update({
           name: splitCamelCase(updatedPet.name),
           type: finalType,
-          breed: updatedPet.breed || null
+          breed: updatedPet.breed || null,
+          ...statusFields,
         })
         .eq('id', petId);
 
@@ -376,6 +403,15 @@ const ModifierAnimal: React.FC = () => {
     setCurrentPetData(updatedPet);
   };
 
+  const handleStatusChange = (value: PetStatus) => {
+    // Confirmation explicite pour le décès (action sensible)
+    if (value === 'deceased' && petStatus !== 'deceased') {
+      setPendingDeceased(true);
+      return;
+    }
+    setPetStatus(value);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -428,6 +464,39 @@ const ModifierAnimal: React.FC = () => {
             />
           )}
 
+          {/* Statut de l'animal */}
+          <div className="space-y-3 pt-4 border-t border-mcf-mint/40">
+            <Label className="text-base font-medium">Statut</Label>
+            <RadioGroup
+              value={petStatus}
+              onValueChange={(v) => handleStatusChange(v as PetStatus)}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="active" id="pet-status-active" />
+                <Label htmlFor="pet-status-active" className="cursor-pointer font-normal">Avec nous</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="deceased" id="pet-status-deceased" />
+                <Label htmlFor="pet-status-deceased" className="cursor-pointer font-normal">Décédé</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="gone" id="pet-status-gone" />
+                <Label htmlFor="pet-status-gone" className="cursor-pointer font-normal">Donné ou perdu</Label>
+              </div>
+            </RadioGroup>
+            {petStatus !== 'active' && (
+              <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                {petStatus === 'deceased'
+                  ? <Heart className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                  : <LogOut className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />}
+                <span>
+                  {petData?.name} n'apparaîtra plus dans les histoires ni les suggestions d'anniversaire. Vous pourrez revenir en arrière à tout moment.
+                </span>
+              </p>
+            )}
+          </div>
+
           {/* Boutons d'action */}
           <div className="flex flex-col gap-3 pt-4">
             <div className="flex justify-between">
@@ -456,6 +525,36 @@ const ModifierAnimal: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Confirmation décès (action sensible) */}
+        <Dialog open={pendingDeceased} onOpenChange={(o) => { if (!o) setPendingDeceased(false); }}>
+          <DialogContent className="bg-white max-w-sm">
+            <div className="text-center space-y-4 py-2">
+              <div className="mx-auto w-12 h-12 rounded-full bg-mcf-mint/20 flex items-center justify-center">
+                <Heart className="h-6 w-6 text-mcf-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-mcf-orange-dark">
+                  Marquer « {petData?.name} » comme décédé ?
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Il restera en mémoire dans vos données, mais n'apparaîtra plus dans les histoires ni les suggestions. Vous pourrez revenir en arrière à tout moment.
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setPendingDeceased(false)}>
+                  Annuler
+                </Button>
+                <Button
+                  className="flex-1 bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+                  onClick={() => { setPetStatus('deceased'); setPendingDeceased(false); }}
+                >
+                  Confirmer
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
       
       <Footer />
