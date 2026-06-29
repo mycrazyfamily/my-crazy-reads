@@ -400,6 +400,8 @@ interface WizardCharacter {
   emoji: string;
   avatarUrl?: string;
   locked?: boolean; // locked = always selected, cannot be unchecked
+  inactive?: boolean;
+  inactiveLabel?: string;
 }
 
 interface WizardProps {
@@ -461,7 +463,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
         })
         .map((c: any) => c.id);
       const autoIds = autoSelectedIds || [];
-      setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])]);
+      const inactiveIds = new Set(characters.filter((c) => c.inactive).map((c) => c.id));
+      setSelected([...new Set([...lockedIds, ...savedIds, ...autoIds])].filter((id) => !inactiveIds.has(id)));
       setNote(savedNote || '');
       setCustomStory(initialCustomStory || '');
       setSelectedLocationId(savedLocationId ?? null);
@@ -501,7 +504,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
 
   const toggle = (id: string) => {
     const target = characters.find((c) => c.id === id);
-    if (target?.locked) return;
+    if (target?.locked || target?.inactive) return;
     setSelected((prev) => {
       if (prev.includes(id)) return prev.filter((x) => x !== id);
       if (prev.length >= MAX_TOTAL) return prev;
@@ -2095,13 +2098,19 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         avatarUrl: m.avatar_url || undefined,
       };
     });
-    const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => ({
-      type: 'pet',
-      id: p.id,
-      name: p.name || 'Animal',
-      emoji: p.emoji || '🐾',
-      avatarUrl: p.avatar_url || undefined,
-    }));
+    const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => {
+      const isDeceased = p.is_deceased === true;
+      const isGone = !isDeceased && p.is_active === false;
+      return {
+        type: 'pet',
+        id: p.id,
+        name: p.name || 'Animal',
+        emoji: p.emoji || '🐾',
+        avatarUrl: p.avatar_url || undefined,
+        inactive: isDeceased || isGone,
+        inactiveLabel: isDeceased ? 'En mémoire' : isGone ? "N'est plus avec nous" : undefined,
+      };
+    });
     const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => ({
       type: 'child' as const,
       id: s.id,
