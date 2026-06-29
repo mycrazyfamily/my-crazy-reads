@@ -22,6 +22,29 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 type PetStatus = 'active' | 'deceased' | 'gone';
 
 /**
+ * Signature des champs qui influencent l'AVATAR (apparence physique).
+ * Sert à n'appeler MCF_Avatar_Factory que si l'apparence a réellement changé —
+ * pas pour un simple changement de statut (décès / donné-perdu) ou de liens enfants.
+ * Le nom est volontairement EXCLU (non visuel, absent du payload avatar).
+ */
+function petAvatarSignature(p: PetData | null): string {
+  const cd: any = p?.customTraits || {};
+  const phys = Array.isArray(cd.physicalDetails)
+    ? cd.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
+    : [];
+  const noPhys = cd.noPhysicalDetails === true || cd.noPhysicalDetails === 'true';
+  const finalType = p?.type === 'other' && p?.otherType ? p.otherType : (p?.type || '');
+  return JSON.stringify({
+    type: finalType,
+    breed: (p?.breed || '').trim(),
+    birth: p?.birthMonthYear || '',
+    traits: [...(p?.traits || [])].sort(),
+    phys,
+    noPhys,
+  });
+}
+
+/**
  * Safely parse traits_custom from DB — handles double-encoded strings
  * and spread-of-string bugs that produce {"0":"a","1":"b",...}
  */
@@ -196,6 +219,9 @@ const ModifierAnimal: React.FC = () => {
   const handleSave = async (updatedPet: PetData) => {
     if (!petId) return;
 
+    // L'avatar n'est régénéré QUE si un champ visuel a changé (pas pour le statut ni les liens enfants).
+    const avatarRelevantChanged = petAvatarSignature(petData) !== petAvatarSignature(updatedPet);
+
     try {
       // Mettre à jour le pet dans la table pets
       const finalType = updatedPet.type === 'other' && updatedPet.otherType 
@@ -289,30 +315,35 @@ const ModifierAnimal: React.FC = () => {
         if (insertError) throw insertError;
       }
       
-      // Récupérer l'avatar_url actuel avant de déclencher la regénération
-      const { data: petRow } = await supabase
-        .from('pets')
-        .select('avatar_url')
-        .eq('id', petId)
-        .maybeSingle();
+      // L'avatar n'est régénéré QUE si l'apparence a changé.
+      // Un changement de statut (décès / donné-perdu) ou de liens enfants ne doit PAS
+      // déclencher MCF_Avatar_Factory (coût de génération + risque d'altération non voulue).
+      if (avatarRelevantChanged) {
+        // Récupérer l'avatar_url actuel avant de déclencher la regénération
+        const { data: petRow } = await supabase
+          .from('pets')
+          .select('avatar_url')
+          .eq('id', petId)
+          .maybeSingle();
 
-      // Appel webhook pour regénérer l'avatar
-      try {
-        await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile_id: petId,
-            type: 'pet',
-            current_avatar_url: petRow?.avatar_url || null,
-            previous_birth_date: originalBirthMonthYear
-          })
-        });
-      } catch (webhookErr) {
-        console.error('Webhook avatar error:', webhookErr);
+        // Appel webhook pour regénérer l'avatar
+        try {
+          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile_id: petId,
+              type: 'pet',
+              current_avatar_url: petRow?.avatar_url || null,
+              previous_birth_date: originalBirthMonthYear
+            })
+          });
+        } catch (webhookErr) {
+          console.error('Webhook avatar error:', webhookErr);
+        }
+
+        if (petId) signalAvatarRegeneration(petId);
       }
-
-      if (petId) signalAvatarRegeneration(petId);
       invalidateFamilyData();
       toast.success('Animal modifié avec succès !');
       setTimeout(() => {
