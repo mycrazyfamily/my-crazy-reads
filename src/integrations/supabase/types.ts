@@ -421,6 +421,9 @@ export type Database = {
           created_at: string | null
           family_member_id: string | null
           id: string
+          inactive_at: string | null
+          inactive_reason: string | null
+          is_active: boolean
           relation_label: string | null
         }
         Insert: {
@@ -428,6 +431,9 @@ export type Database = {
           created_at?: string | null
           family_member_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
+          is_active?: boolean
           relation_label?: string | null
         }
         Update: {
@@ -435,6 +441,9 @@ export type Database = {
           created_at?: string | null
           family_member_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
+          is_active?: boolean
           relation_label?: string | null
         }
         Relationships: [
@@ -627,6 +636,8 @@ export type Database = {
           clothing_style: Json | null
           clothing_style_resolved: string | null
           created_at: string | null
+          deceased_recorded_at: string | null
+          deceased_year: number | null
           family_id: string | null
           first_name: string | null
           gender: string | null
@@ -634,6 +645,7 @@ export type Database = {
           height: string | null
           height_relative_to_age: string | null
           id: string
+          is_deceased: boolean
           nickname: string | null
           physical_details: Json | null
           updated_at: string | null
@@ -646,6 +658,8 @@ export type Database = {
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           family_id?: string | null
           first_name?: string | null
           gender?: string | null
@@ -653,6 +667,7 @@ export type Database = {
           height?: string | null
           height_relative_to_age?: string | null
           id?: string
+          is_deceased?: boolean
           nickname?: string | null
           physical_details?: Json | null
           updated_at?: string | null
@@ -665,6 +680,8 @@ export type Database = {
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           family_id?: string | null
           first_name?: string | null
           gender?: string | null
@@ -672,6 +689,7 @@ export type Database = {
           height?: string | null
           height_relative_to_age?: string | null
           id?: string
+          is_deceased?: boolean
           nickname?: string | null
           physical_details?: Json | null
           updated_at?: string | null
@@ -1006,6 +1024,8 @@ export type Database = {
           clothing_style: Json | null
           clothing_style_resolved: string | null
           created_at: string | null
+          deceased_recorded_at: string | null
+          deceased_year: number | null
           details: Json | null
           family_id: string | null
           id: string
@@ -1021,6 +1041,8 @@ export type Database = {
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           details?: Json | null
           family_id?: string | null
           id?: string
@@ -1036,6 +1058,8 @@ export type Database = {
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           details?: Json | null
           family_id?: string | null
           id?: string
@@ -1385,9 +1409,14 @@ export type Database = {
           breed: string | null
           clothing_style: Json | null
           created_at: string | null
+          deceased_recorded_at: string | null
+          deceased_year: number | null
           emoji: string | null
           family_id: string | null
           id: string
+          inactive_at: string | null
+          inactive_reason: string | null
+          is_active: boolean
           is_deceased: boolean | null
           name: string
           physical_details: Json | null
@@ -1398,9 +1427,14 @@ export type Database = {
           breed?: string | null
           clothing_style?: Json | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           emoji?: string | null
           family_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
+          is_active?: boolean
           is_deceased?: boolean | null
           name: string
           physical_details?: Json | null
@@ -1411,9 +1445,14 @@ export type Database = {
           breed?: string | null
           clothing_style?: Json | null
           created_at?: string | null
+          deceased_recorded_at?: string | null
+          deceased_year?: number | null
           emoji?: string | null
           family_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
+          is_active?: boolean
           is_deceased?: boolean | null
           name?: string
           physical_details?: Json | null
@@ -1441,6 +1480,8 @@ export type Database = {
           emoji: string | null
           family_id: string | null
           id: string
+          inactive_at: string | null
+          inactive_reason: string | null
           is_active: boolean | null
           is_preset: boolean
           label: string
@@ -1458,6 +1499,8 @@ export type Database = {
           emoji?: string | null
           family_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
           is_active?: boolean | null
           is_preset?: boolean
           label: string
@@ -1475,6 +1518,8 @@ export type Database = {
           emoji?: string | null
           family_id?: string | null
           id?: string
+          inactive_at?: string | null
+          inactive_reason?: string | null
           is_active?: boolean | null
           is_preset?: boolean
           label?: string

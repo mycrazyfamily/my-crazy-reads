@@ -61,7 +61,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     familyId
       ? supabase
           .from('pets')
-          .select('id, name, type, emoji, avatar_url, breed')
+          .select('id, name, type, emoji, avatar_url, breed, is_deceased, is_active, inactive_reason')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
     familyId
