@@ -53,7 +53,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         // Charger les données de famille (relatives)
         const { data: familyMembersLinks } = await supabase
           .from('child_family_members')
-          .select('family_member_id, family_members(*)')
+          .select('family_member_id, is_active, family_members(*)')
           .eq('child_id', editChildId);
 
         const relatives = familyMembersLinks?.map((link: any) => {
