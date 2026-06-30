@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Heart, UserMinus } from 'lucide-react';
 import type { ChildProfileFormData, RelativeData, RelativeType } from '@/types/childProfile';
 
 type FamilySummaryProps = {
@@ -51,7 +51,17 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
   } catch (error) {
     console.error('❌ Failed to log relative data:', error);
   }
-  
+
+  // Statut (lecture seule ; géré sur ModifierProche). Décès = entité ; brouille = lien enfant.
+  const relAny = relative as any;
+  const relInactive = relAny.is_deceased === true || relAny.link_is_active === false;
+  const relStatus = relAny.is_deceased === true
+    ? { label: 'En mémoire', Icon: Heart }
+    : relAny.link_is_active === false
+      ? { label: 'Plus en contact', Icon: UserMinus }
+      : null;
+  const RelStatusIcon = relStatus?.Icon;
+
   // Obtenir l'emoji du type de relation
   const getRelativeTypeIcon = (type: RelativeType) => {
     const icons: Partial<Record<RelativeType, string>> = {
@@ -119,7 +129,7 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
   const displayFirstName = normalizeValue(relative.firstName);
 
   return (
-    <div className="flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors">
+    <div className={`flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors ${relInactive ? 'opacity-60' : ''}`}>
       <Avatar className="h-9 w-9 bg-mcf-amber/20 text-lg flex-shrink-0">
         <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(displayType as RelativeType)}</AvatarFallback>
       </Avatar>
@@ -129,6 +139,14 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
           <span><SafeText value={getRelationshipLabel(displayType as RelativeType)} /></span>
           {getNickname() && <span className="text-mcf-orange-dark">· <SafeText value={getNickname()} /></span>}
         </div>
+        {relStatus && RelStatusIcon && (
+          <div className="mt-1">
+            <span className="inline-flex items-center gap-1 text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
+              <RelStatusIcon className="h-3 w-3" />
+              {relStatus.label}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
