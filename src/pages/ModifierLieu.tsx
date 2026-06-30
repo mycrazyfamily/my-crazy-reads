@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, MapPinOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
@@ -10,6 +12,9 @@ import Footer from '@/components/Footer';
 import { PlaceForm } from '@/components/childProfile/places/PlaceForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PlaceData } from '@/types/place';
+
+// Statut « lieu inactif » : seul état d'entité (déménagement). Pas de décès, pas de brouille par enfant.
+type PlaceStatus = 'active' | 'inactive';
 
 const ModifierLieu: React.FC = () => {
   const { childId, placeId } = useParams<{ childId: string; placeId: string }>();
@@ -21,6 +26,9 @@ const ModifierLieu: React.FC = () => {
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [placeStatus, setPlaceStatus] = useState<PlaceStatus>('active');
+  // Snapshot initial des liens, pour un diff qui préserve created_at (date d'apparition par enfant)
+  const initialLinkIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     loadPlaceData();
@@ -55,6 +63,7 @@ const ModifierLieu: React.FC = () => {
         };
         setPlaceData(placeDataObj);
         setCurrentPlaceData(placeDataObj);
+        setPlaceStatus(place.is_active === false ? 'inactive' : 'active');
 
         // Charger tous les enfants de la famille
         const { data: childrenData, error: childrenError } = await supabase
@@ -73,7 +82,8 @@ const ModifierLieu: React.FC = () => {
           .eq('place_id', placeId);
 
         if (linkedError) throw linkedError;
-        setSelectedChildrenIds(linkedChildren?.map(c => c.child_id) || []);
+        setSelectedChildrenIds((linkedChildren || []).map((c: any) => c.child_id));
+        initialLinkIdsRef.current = new Set((linkedChildren || []).map((c: any) => c.child_id));
       } else {
         toast.error("Lieu non trouvé");
         navigate('/espace-famille');
@@ -112,40 +122,55 @@ const ModifierLieu: React.FC = () => {
           city: updatedPlace.city || null,
           country: updatedPlace.country || null,
           details: (updatedPlace.details || {}) as any,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          // Statut « lieu inactif » (déménagement) — le trigger horodate inactive_at automatiquement.
+          is_active: placeStatus === 'active',
+          inactive_reason: placeStatus === 'active' ? null : 'moved_away',
         })
         .eq('id', placeId);
 
       if (updatePlaceError) throw updatePlaceError;
 
-      // Supprimer toutes les anciennes relations
-      const { error: deleteError } = await supabase
-        .from('child_places')
-        .delete()
-        .eq('place_id', placeId);
+      // Synchronisation des liens enfant↔lieu en DIFF ciblé (insert / delete).
+      // Préserve created_at (= date d'apparition par enfant) et n'effleure pas les liens conservés,
+      // ce qui évite de déclencher inutilement le guard « résidence principale » sur le DELETE.
+      const initialIds = initialLinkIdsRef.current;
+      const toInsert = selectedChildrenIds.filter((id) => !initialIds.has(id));
+      const toDelete = [...initialIds].filter((id) => !selectedChildrenIds.includes(id));
 
-      if (deleteError) throw deleteError;
-
-      // Créer les nouvelles relations
-      if (selectedChildrenIds.length > 0) {
-        const childPlacesData = selectedChildrenIds.map(childId => ({
-          child_id: childId,
-          place_id: placeId
-        }));
-
-        const { error: insertError } = await supabase
+      if (toDelete.length > 0) {
+        const { error: delErr } = await supabase
           .from('child_places')
-          .insert(childPlacesData);
+          .delete()
+          .eq('place_id', placeId)
+          .in('child_id', toDelete);
+        if (delErr) throw delErr;
+      }
 
-        if (insertError) throw insertError;
+      if (toInsert.length > 0) {
+        const rows = toInsert.map((cid) => ({ child_id: cid, place_id: placeId }));
+        const { error: insErr } = await supabase
+          .from('child_places')
+          .insert(rows);
+        if (insErr) throw insErr;
       }
 
       toast.success('Lieu de vie modifié avec succès !');
       invalidateFamilyData();
       navigate('/espace-famille');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving place:', error);
-      toast.error("Erreur lors de la sauvegarde");
+      // Guard DB « résidence principale obligatoire » → message clair (V1 : on n'automatise pas le remplacement).
+      const msg = String(error?.message || '');
+      const isResidenceGuard =
+        error?.code === '23514' || msg.includes('Résidence principale') || msg.includes('maison_principale');
+      if (isResidenceGuard) {
+        toast.error(
+          "Ce lieu est la résidence principale d'au moins un enfant. Ajoute d'abord une autre maison principale active pour cet enfant, puis reviens marquer ce lieu comme quitté."
+        );
+      } else {
+        toast.error("Erreur lors de la sauvegarde");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -237,6 +262,31 @@ const ModifierLieu: React.FC = () => {
               label="Enfants associés à ce lieu"
             />
           )}
+
+          {/* Statut du lieu */}
+          <div className="space-y-3 pt-4 border-t border-mcf-mint/40">
+            <Label className="text-base font-medium">Statut</Label>
+            <RadioGroup
+              value={placeStatus}
+              onValueChange={(v) => setPlaceStatus(v as PlaceStatus)}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="active" id="place-status-active" />
+                <Label htmlFor="place-status-active" className="cursor-pointer font-normal">Lieu actuel</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="inactive" id="place-status-inactive" />
+                <Label htmlFor="place-status-inactive" className="cursor-pointer font-normal">Nous n'y vivons plus</Label>
+              </div>
+            </RadioGroup>
+            {placeStatus === 'inactive' && (
+              <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                <MapPinOff className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                <span>Ce lieu n'apparaîtra plus dans les nouvelles histoires. Vous pourrez revenir en arrière à tout moment.</span>
+              </p>
+            )}
+          </div>
 
           {/* Boutons d'action */}
           <div className="flex justify-between pt-4">
