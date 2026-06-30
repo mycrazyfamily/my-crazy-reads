@@ -55,7 +55,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     familyId
       ? supabase
           .from('family_members')
-          .select('id, name, role, avatar_url, details')
+          .select('id, name, role, avatar_url, details, is_deceased')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
     familyId
@@ -102,6 +102,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
       type: fm.role,
       nickname: null,
       avatar_url: fm.avatar_url,
+      is_deceased: fm.is_deceased ?? false,
     })),
     pets: (allFamilyPets || []).map((p: any) => ({
       id: p.id,
