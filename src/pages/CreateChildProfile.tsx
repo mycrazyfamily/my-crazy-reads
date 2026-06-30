@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,16 +10,27 @@ import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Heart, Loader2 } from 'lucide-react';
 
 // --- Signature d'apparence avatar (gate de régénération) ---------------------
-// L'avatar n'est régénéré que si un champ VISUEL change. Robuste au double
-// encodage de physical_details / clothing_style et à la dérive de fuseau (UTC).
 function normalizePhysList(raw: any): string[] {
   let v: any = raw;
   for (let i = 0; i < 3 && typeof v === 'string'; i++) {
-    const s = v.trim();
-    if (!s) return [];
-    try { v = JSON.parse(s); } catch { return [s]; }
+    const str = v.trim();
+    if (!str) return [];
+    try { v = JSON.parse(str); } catch { return [str]; }
   }
   if (!Array.isArray(v)) return [];
   return v
@@ -34,9 +44,9 @@ function normalizePhysList(raw: any): string[] {
 function normalizeClothing(raw: any): string {
   let v: any = raw;
   for (let i = 0; i < 3 && typeof v === 'string'; i++) {
-    const s = v.trim();
-    if (!s) return '';
-    try { v = JSON.parse(s); } catch { return s; }
+    const str = v.trim();
+    if (!str) return '';
+    try { v = JSON.parse(str); } catch { return str; }
   }
   if (Array.isArray(v)) return String(v[0] ?? '').trim();
   if (typeof v === 'string') return v.trim();
@@ -101,18 +111,24 @@ const CreateChildProfile = ({
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
-  // Signature d'apparence au chargement : sert à ne régénérer l'avatar que si le visuel change
+  // Signature d'apparence au chargement : ne régénère l'avatar que si le visuel change
   const initialAvatarSigRef = React.useRef<string>('');
+  // Statut de l'enfant (décès) — mode édition uniquement
+  const [childFirstName, setChildFirstName] = React.useState<string>('');
+  const [isDeceased, setIsDeceased] = React.useState<boolean>(false);
+  const [initialIsDeceased, setInitialIsDeceased] = React.useState<boolean>(false);
+  const [savingStatus, setSavingStatus] = React.useState(false);
+  const [deceaseDialogOpen, setDeceaseDialogOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
-  // Charger la birth_date + l'apparence d'origine une seule fois à l'ouverture en mode édition
+  // Charger birth_date + apparence + statut une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
     if (editMode && editChildId) {
       (async () => {
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
-          .select('birth_date, appearance, physical_details, clothing_style')
+          .select('birth_date, appearance, physical_details, clothing_style, first_name, is_deceased')
           .eq('id', editChildId)
           .maybeSingle();
         setOriginalBirthDate(data?.birth_date || null);
@@ -128,9 +144,50 @@ const CreateChildProfile = ({
           clothingStyle: data?.clothing_style,
           birthDate: data?.birth_date,
         });
+        setChildFirstName(data?.first_name || '');
+        setIsDeceased(!!data?.is_deceased);
+        setInitialIsDeceased(!!data?.is_deceased);
       })();
     }
   }, [editMode, editChildId]);
+
+  // Écrit is_deceased ; le trigger DB renseigne deceased_recorded_at automatiquement.
+  // L'abonnement Stripe n'est PAS résilié ici : le parent le gère lui-même à son rythme.
+  const persistStatus = async (deceased: boolean) => {
+    if (!editChildId) return;
+    setSavingStatus(true);
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { error } = await supabase
+        .from('child_profiles')
+        .update({ is_deceased: deceased })
+        .eq('id', editChildId);
+      if (error) throw error;
+      setInitialIsDeceased(deceased);
+      setIsDeceased(deceased);
+      queryClient.invalidateQueries({ queryKey: ['family-data'] });
+      queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+      toast.success(
+        deceased
+          ? `Le statut de ${childFirstName || "l'enfant"} a été mis à jour.`
+          : `Le profil de ${childFirstName || "l'enfant"} est de nouveau actif.`
+      );
+      setDeceaseDialogOpen(false);
+      setTimeout(() => { navigate('/espace-famille', { replace: true }); }, 600);
+    } catch (e: any) {
+      toast.error(`Une erreur est survenue : ${e?.message || 'Erreur inconnue'}`);
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
+  const handleSaveStatus = () => {
+    if (isDeceased && !initialIsDeceased) {
+      setDeceaseDialogOpen(true);
+    } else {
+      persistStatus(isDeceased);
+    }
+  };
   
   const handleFormSubmit = async (data: ChildProfileFormData) => {
     if (isSubmitting) {
@@ -430,11 +487,14 @@ const CreateChildProfile = ({
             console.error('❌ No family_id found for child');
             toast.error("Erreur : impossible de trouver la famille de l'enfant");
           } else {
-            // Supprimer les anciens liens child_places
-            await supabase
+            // DIFF (et non DELETE global) : préserve les created_at d'apparition
+            // et ne déclenche pas le guard maison_principale. On n'insère que les
+            // liens manquants ; le retrait d'un lieu se gère sur la page ModifierLieu.
+            const { data: existingChildPlaces } = await supabase
               .from('child_places')
-              .delete()
+              .select('place_id')
               .eq('child_id', editChildId);
+            const existingPlaceIds = new Set((existingChildPlaces || []).map((l: any) => l.place_id));
             
             // Pour chaque lieu dans le formulaire
             for (const place of data.places.places) {
@@ -497,20 +557,23 @@ const CreateChildProfile = ({
                 console.log(`✅ Created place: ${place.label} with ID: ${placeId}`);
               }
               
-              // Créer le lien child_places
-              const { error: linkError } = await supabase
-                .from('child_places')
-                .insert([{
-                  child_id: editChildId,
-                  place_id: placeId,
-                  label: place.childLabel || null
-                }]);
-              
-              if (linkError) {
-                console.error('❌ Error linking place to child:', linkError);
-                toast.warning(`Erreur lors de l'association du lieu ${place.label}`);
-              } else {
-                console.log(`✅ Linked place ${place.label} to child`);
+              // Créer le lien child_places (seulement s'il n'existe pas déjà)
+              if (!existingPlaceIds.has(placeId)) {
+                const { error: linkError } = await supabase
+                  .from('child_places')
+                  .insert([{
+                    child_id: editChildId,
+                    place_id: placeId,
+                    label: place.childLabel || null
+                  }]);
+                
+                if (linkError) {
+                  console.error('❌ Error linking place to child:', linkError);
+                  toast.warning(`Erreur lors de l'association du lieu ${place.label}`);
+                } else {
+                  existingPlaceIds.add(placeId);
+                  console.log(`✅ Linked place ${place.label} to child`);
+                }
               }
             }
             
@@ -520,6 +583,7 @@ const CreateChildProfile = ({
               console.log('📍 Linking existing places to child in edit mode:', existingPlacesData);
               
               for (const place of existingPlacesData) {
+                if (existingPlaceIds.has(place.id)) continue;
                 const { error: linkError } = await supabase
                   .from('child_places')
                   .insert([{
@@ -532,6 +596,7 @@ const CreateChildProfile = ({
                   console.error('❌ Error linking existing place:', linkError);
                   toast.warning(`Erreur lors de l'association du lieu ${place.label}`);
                 } else {
+                  existingPlaceIds.add(place.id);
                   console.log(`✅ Linked existing place ${place.label} to child`);
                 }
               }
@@ -540,7 +605,7 @@ const CreateChildProfile = ({
         }
         
         // L'avatar n'est régénéré QUE si un champ d'apparence a réellement changé
-        // (éditer les goûts, doudous, lieux… ne doit PAS relancer la fabrique d'avatar).
+        // (éditer goûts, doudous, lieux… ne doit PAS relancer la fabrique d'avatar).
         const currentAvatarSig = childAvatarSig({
           skinColor: data.skinColor,
           eyeColor: data.eyeColor,
@@ -555,7 +620,7 @@ const CreateChildProfile = ({
         const avatarRelevantChanged = currentAvatarSig !== initialAvatarSigRef.current;
 
         if (avatarRelevantChanged) {
-          // Récupérer l'avatar_url actuel avant de déclencher la régénération
+          // Récupérer l'avatar_url actuel avant de déclencher la regénération
           const { data: childRow } = await supabase
             .from('child_profiles')
             .select('avatar_url')
@@ -646,6 +711,48 @@ const CreateChildProfile = ({
         }
       </p>
 
+      {editMode && editChildId && (
+        <Card className="border-mcf-mint shadow-sm mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-mcf-orange-dark flex items-center gap-2">
+              <Heart className="h-5 w-5 text-mcf-orange" />
+              Statut
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <RadioGroup
+              value={isDeceased ? 'deceased' : 'alive'}
+              onValueChange={(v) => setIsDeceased(v === 'deceased')}
+              className="gap-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="alive" id="status-alive" />
+                <Label htmlFor="status-alive" className="cursor-pointer font-normal">
+                  Avec nous
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="deceased" id="status-deceased" />
+                <Label htmlFor="status-deceased" className="cursor-pointer font-normal">
+                  Décédé
+                </Label>
+              </div>
+            </RadioGroup>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={handleSaveStatus}
+                disabled={savingStatus || isDeceased === initialIsDeceased}
+                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+              >
+                {savingStatus ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Enregistrer le statut
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
         <ChildProfileFormProvider 
           familyCode={familyCode} 
@@ -665,6 +772,37 @@ const CreateChildProfile = ({
           />
         </ChildProfileFormProvider>
       </div>
+
+      <Dialog open={deceaseDialogOpen} onOpenChange={(o) => !savingStatus && setDeceaseDialogOpen(o)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer le changement de statut</DialogTitle>
+            <DialogDescription className="pt-2 space-y-3">
+              <span className="block">
+                Vous êtes sur le point d'indiquer que {childFirstName || 'votre enfant'} nous a quittés.
+                Son profil sera conservé en mémoire et n'apparaîtra plus dans la création de nouvelles histoires.
+              </span>
+              <span className="block">
+                L'abonnement n'est pas résilié automatiquement : vous pourrez le faire à tout moment,
+                à votre rythme, depuis « Gérer mes abonnements ».
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2">
+            <Button variant="ghost" onClick={() => setDeceaseDialogOpen(false)} disabled={savingStatus}>
+              Annuler
+            </Button>
+            <Button
+              onClick={() => persistStatus(true)}
+              disabled={savingStatus}
+              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white flex items-center gap-2"
+            >
+              {savingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Confirmer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
