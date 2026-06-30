@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Edit, Users, Palette, Cat, Gamepad2, MapPin } from 'lucide-react';
+import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart } from 'lucide-react';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import { getChildAvatarAlert } from '@/utils/avatarAgeAlert';
