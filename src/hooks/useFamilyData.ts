@@ -145,7 +145,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
         const placesEnriched = (childPlaces || []).map((cp: any) => {
           const placeInfo = cp.places;
           if (!placeInfo) return null;
-          return { id: placeInfo.id, label: placeInfo.label, type: placeInfo.type, emoji: placeInfo.emoji, address: placeInfo.address, city: placeInfo.city, country: placeInfo.country, description: placeInfo.description, details: placeInfo.details };
+          return { id: placeInfo.id, label: placeInfo.label, type: placeInfo.type, emoji: placeInfo.emoji, address: placeInfo.address, city: placeInfo.city, country: placeInfo.country, description: placeInfo.description, details: placeInfo.details, is_active: placeInfo.is_active ?? true };
         }).filter((p: any) => p && p.type !== 'destination_libre');
 
         children[index] = {
