@@ -102,6 +102,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
       type: fm.role,
       nickname: null,
       avatar_url: fm.avatar_url,
+      is_deceased: fm.is_deceased ?? false,
     })),
     pets: (allFamilyPets || []).map((p: any) => ({
       id: p.id,
