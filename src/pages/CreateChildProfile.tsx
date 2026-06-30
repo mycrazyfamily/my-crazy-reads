@@ -11,6 +11,69 @@ import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+
+// --- Signature d'apparence avatar (gate de régénération) ---------------------
+// L'avatar n'est régénéré que si un champ VISUEL change. Robuste au double
+// encodage de physical_details / clothing_style et à la dérive de fuseau (UTC).
+function normalizePhysList(raw: any): string[] {
+  let v: any = raw;
+  for (let i = 0; i < 3 && typeof v === 'string'; i++) {
+    const s = v.trim();
+    if (!s) return [];
+    try { v = JSON.parse(s); } catch { return [s]; }
+  }
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((d: any) => {
+      if (typeof d === 'string') return d.trim();
+      if (d && typeof d === 'object') return String(d.value ?? d.label ?? d.text ?? '').trim();
+      return '';
+    })
+    .filter((d: string) => d.length > 0);
+}
+function normalizeClothing(raw: any): string {
+  let v: any = raw;
+  for (let i = 0; i < 3 && typeof v === 'string'; i++) {
+    const s = v.trim();
+    if (!s) return '';
+    try { v = JSON.parse(s); } catch { return s; }
+  }
+  if (Array.isArray(v)) return String(v[0] ?? '').trim();
+  if (typeof v === 'string') return v.trim();
+  return '';
+}
+function ymdLocal(d: any): string {
+  if (!d) return '';
+  const dt = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(dt.getTime())) return (typeof d === 'string' ? d.slice(0, 10) : '');
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function colorSig(c: any): [string, string] {
+  if (!c) return ['', ''];
+  if (typeof c === 'string') return [c, ''];
+  return [String(c.type ?? ''), String(c.custom ?? '')];
+}
+function childAvatarSig(input: {
+  skinColor: any; eyeColor: any; hairColor: any;
+  hairType: any; hairTypeCustom: any; glasses: any;
+  physicalDetails: any; clothingStyle: any; birthDate: any;
+}): string {
+  return JSON.stringify({
+    skin: colorSig(input.skinColor),
+    eye: colorSig(input.eyeColor),
+    hairColor: colorSig(input.hairColor),
+    hairType: String(input.hairType ?? ''),
+    hairTypeCustom: String(input.hairTypeCustom ?? '').trim(),
+    glasses: !!input.glasses,
+    phys: normalizePhysList(input.physicalDetails),
+    clothing: normalizeClothing(input.clothingStyle),
+    birth: ymdLocal(input.birthDate),
+  });
+}
+
 type CreateChildProfileProps = {
   isGiftMode?: boolean;
   familyCode?: string;
@@ -38,19 +101,33 @@ const CreateChildProfile = ({
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
+  // Signature d'apparence au chargement : sert à ne régénérer l'avatar que si le visuel change
+  const initialAvatarSigRef = React.useRef<string>('');
   const queryClient = useQueryClient();
 
-  // Charger la birth_date originale une seule fois à l'ouverture en mode édition
+  // Charger la birth_date + l'apparence d'origine une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
     if (editMode && editChildId) {
       (async () => {
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
-          .select('birth_date')
+          .select('birth_date, appearance, physical_details, clothing_style')
           .eq('id', editChildId)
           .maybeSingle();
         setOriginalBirthDate(data?.birth_date || null);
+        const ap: any = (data?.appearance as any) || {};
+        initialAvatarSigRef.current = childAvatarSig({
+          skinColor: ap.skinColor,
+          eyeColor: ap.eyeColor,
+          hairColor: ap.hairColor,
+          hairType: ap.hairType,
+          hairTypeCustom: ap.hairTypeCustom,
+          glasses: ap.glasses,
+          physicalDetails: data?.physical_details,
+          clothingStyle: data?.clothing_style,
+          birthDate: data?.birth_date,
+        });
       })();
     }
   }, [editMode, editChildId]);
@@ -462,34 +539,52 @@ const CreateChildProfile = ({
           }
         }
         
-        // Récupérer l'avatar_url actuel avant de déclencher la regénération
-        const { data: childRow } = await supabase
-          .from('child_profiles')
-          .select('avatar_url')
-          .eq('id', editChildId)
-          .maybeSingle();
+        // L'avatar n'est régénéré QUE si un champ d'apparence a réellement changé
+        // (éditer les goûts, doudous, lieux… ne doit PAS relancer la fabrique d'avatar).
+        const currentAvatarSig = childAvatarSig({
+          skinColor: data.skinColor,
+          eyeColor: data.eyeColor,
+          hairColor: data.hairColor,
+          hairType: data.hairType,
+          hairTypeCustom: data.hairTypeCustom,
+          glasses: data.glasses,
+          physicalDetails: data.noPhysicalDetails ? [] : data.physicalDetails,
+          clothingStyle: data.clothingStyle,
+          birthDate: data.birthDate,
+        });
+        const avatarRelevantChanged = currentAvatarSig !== initialAvatarSigRef.current;
 
-        // Appel webhook pour regénérer l'avatar
-        try {
-          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              profile_id: editChildId,
-              type: 'child',
-              current_avatar_url: childRow?.avatar_url || null,
-              previous_birth_date: originalBirthDate
-            })
-          });
-        } catch (webhookErr) {
-          console.error('Webhook avatar error:', webhookErr);
+        if (avatarRelevantChanged) {
+          // Récupérer l'avatar_url actuel avant de déclencher la régénération
+          const { data: childRow } = await supabase
+            .from('child_profiles')
+            .select('avatar_url')
+            .eq('id', editChildId)
+            .maybeSingle();
+
+          // Appel webhook pour regénérer l'avatar
+          try {
+            await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                profile_id: editChildId,
+                type: 'child',
+                current_avatar_url: childRow?.avatar_url || null,
+                previous_birth_date: originalBirthDate
+              })
+            });
+          } catch (webhookErr) {
+            console.error('Webhook avatar error:', webhookErr);
+          }
+
+          if (editChildId) signalAvatarRegeneration(editChildId);
         }
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
         queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
         queryClient.invalidateQueries({ queryKey: ['family-data'] });
-        if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         // Remplace l'entrée du formulaire dans l'historique pour que le bouton précédent du navigateur
