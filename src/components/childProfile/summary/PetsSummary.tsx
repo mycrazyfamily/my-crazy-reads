@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dog, Cat, Rabbit, Bird, Fish, HelpCircle } from 'lucide-react';
+import { Dog, Cat, Rabbit, Bird, Fish, HelpCircle, Heart, LogOut } from 'lucide-react';
 import type { ChildProfileFormData, PetData, PetType, PetTrait } from '@/types/childProfile';
 
 type PetsSummaryProps = {
@@ -35,6 +34,16 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
   const getInitial = () => {
     return pet.name ? pet.name.charAt(0).toUpperCase() : '?';
   };
+
+  // Statut d'inactivité (lecture seule ; les actions de statut restent sur ModifierAnimal)
+  const petAny = pet as any;
+  const petInactive = petAny.is_deceased === true || petAny.is_active === false;
+  const petStatus = petAny.is_deceased === true
+    ? { label: 'En mémoire', Icon: Heart }
+    : petAny.is_active === false
+      ? { label: "N'est plus avec nous", Icon: LogOut }
+      : null;
+  const PetStatusIcon = petStatus?.Icon;
 
   // Obtenir le libellé du type d'animal
   const getPetTypeLabel = (type: PetType) => {
@@ -88,7 +97,7 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
+    <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 ${petInactive ? 'opacity-60' : ''}`}>
       <Avatar className="h-12 w-12 bg-mcf-amber/20 text-2xl">
         <AvatarFallback className="flex items-center justify-center">
           {getPetEmoji()}
@@ -100,7 +109,16 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
           {getPetTypeLabel(pet.type)}
           {pet.breed && <span> • {pet.breed}</span>}
         </div>
-        
+
+        {petStatus && PetStatusIcon && (
+          <div className="mt-1 flex justify-center">
+            <span className="inline-flex items-center gap-1 text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
+              <PetStatusIcon className="h-3 w-3" />
+              {petStatus.label}
+            </span>
+          </div>
+        )}
+
         {pet.physicalDetails && (
           <div className="text-xs text-gray-500 mt-1 italic">
             {pet.physicalDetails}
