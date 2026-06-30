@@ -2082,6 +2082,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       emoji: '🧒',
       locked: true,
     };
+    const estrangedIds = new Set<string>(((activeChild as any).estrangedRelativeIds ?? []));
     const members: WizardCharacter[] = (activeChild.relatives ?? []).map((m: any) => {
       const role = (m.type ?? '').toLowerCase();
       const emoji =
@@ -2097,13 +2098,17 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           ? '👦'
           : role.includes('sœur') || role.includes('soeur')
           ? '👧'
-          : '👤';
+          sticky     : '👤';
+      const isDeceased = m.is_deceased === true;
+      const isEstranged = !isDeceased && estrangedIds.has(m.id);
       return {
         type: 'family_member',
         id: m.id,
         name: m.firstName || 'Proche',
         emoji,
         avatarUrl: m.avatar_url || undefined,
+        inactive: isDeceased || isEstranged,
+        inactiveLabel: isDeceased ? 'En mémoire' : isEstranged ? 'Plus en contact' : undefined,
       };
     });
     const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => {
