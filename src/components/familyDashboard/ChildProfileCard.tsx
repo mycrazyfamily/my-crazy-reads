@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Edit, Users, Palette, Cat, Gamepad2, MapPin } from 'lucide-react';
+import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart } from 'lucide-react';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import { getChildAvatarAlert } from '@/utils/avatarAgeAlert';
@@ -20,6 +20,7 @@ interface Child {
   preferencesCount?: number;
   hasPets?: number;
   birthDate?: string | null;
+  isDeceased?: boolean;
 }
 
 interface ChildProfileCardProps {
@@ -73,7 +74,14 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
         />
         <div>
           <h3 className="text-xl font-bold text-mcf-orange-dark">{child.firstName}</h3>
-          <p className="text-muted-foreground">{child.age}</p>
+          {child.isDeceased ? (
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-mcf-orange-dark/70 mt-0.5">
+              <Heart className="h-3.5 w-3.5" />
+              En mémoire
+            </span>
+          ) : (
+            <p className="text-muted-foreground">{child.age}</p>
+          )}
         </div>
       </CardHeader>
       
