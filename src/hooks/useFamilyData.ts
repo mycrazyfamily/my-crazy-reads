@@ -39,7 +39,8 @@ export interface FamilyChild {
   preferencesCount: number;
   hasPets: number;
   birthDate: string | null;
-  siblings: Array<{ id: string; firstName: string; avatar_url: string | null }>;
+  siblings: Array<{ id: string; firstName: string; avatar_url: string | null; is_deceased?: boolean }>;
+  estrangedRelativeIds: string[];
 }
 
 async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
@@ -67,7 +68,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     familyId
       ? supabase
           .from('child_profiles')
-          .select('id, first_name, avatar_url, birth_date')
+          .select('id, first_name, avatar_url, birth_date, is_deceased')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
   ] as const);
@@ -125,19 +126,22 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
         id: s.id,
         firstName: s.first_name,
         avatar_url: s.avatar_url,
+        is_deceased: s.is_deceased ?? false,
       })),
+    estrangedRelativeIds: [],
   }));
 
   await Promise.all(
     uniqueRows.map(async (profile: any, index: number) => {
       try {
-        const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
+        const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes, { data: childRelativeLinks }] = await Promise.all([
           supabase.from('child_places').select(`label, places:place_id (id, label, type, emoji, address, city, country, description, details, is_active)`).eq('child_id', profile.id),
           supabase.from('child_superpowers').select('superpowers(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_likes').select('likes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_challenges').select('challenges(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_universes').select('universes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_discoveries').select('discoveries(label, emoji)').eq('child_id', profile.id),
+          supabase.from('child_family_members').select('family_member_id, is_active').eq('child_id', profile.id),
         ]);
 
         const prefsTotal = (superpowersRes.data?.length || 0) + (likesRes.data?.length || 0) + (challengesRes.data?.length || 0) + (universesRes.data?.length || 0) + (discoveriesRes.data?.length || 0);
@@ -148,10 +152,15 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           return { id: placeInfo.id, label: placeInfo.label, type: placeInfo.type, emoji: placeInfo.emoji, address: placeInfo.address, city: placeInfo.city, country: placeInfo.country, description: placeInfo.description, details: placeInfo.details, is_active: placeInfo.is_active ?? true };
         }).filter((p: any) => p && p.type !== 'destination_libre');
 
+        const estrangedRelativeIds = (childRelativeLinks || [])
+          .filter((l: any) => l.is_active === false)
+          .map((l: any) => l.family_member_id);
+
         children[index] = {
           ...children[index],
           places: placesEnriched,
           preferencesCount: prefsTotal,
+          estrangedRelativeIds,
         };
       } catch (e) {
         console.error('Error enriching child data', e);
