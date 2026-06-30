@@ -2048,11 +2048,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       if (!activeChild?.id) return [];
       const { data } = await supabase
         .from('child_places')
-        .select('places(id, label, type, city)')
+        .select('places(id, label, type, city, is_active)')
         .eq('child_id', activeChild.id);
       return (data ?? [])
         .map((r: any) => r.places)
-        .filter((p: any) => p && p.type !== 'destination_libre');
+        .filter((p: any) => p && p.type !== 'destination_libre' && p.is_active !== false);
     },
     enabled: !!activeChild?.id,
   });
@@ -2082,6 +2082,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       emoji: '🧒',
       locked: true,
     };
+    const estrangedIds = new Set<string>(((activeChild as any).estrangedRelativeIds ?? []));
     const members: WizardCharacter[] = (activeChild.relatives ?? []).map((m: any) => {
       const role = (m.type ?? '').toLowerCase();
       const emoji =
@@ -2098,12 +2099,16 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           : role.includes('sœur') || role.includes('soeur')
           ? '👧'
           : '👤';
+      const isDeceased = m.is_deceased === true;
+      const isEstranged = !isDeceased && estrangedIds.has(m.id);
       return {
         type: 'family_member',
         id: m.id,
         name: m.firstName || 'Proche',
         emoji,
         avatarUrl: m.avatar_url || undefined,
+        inactive: isDeceased || isEstranged,
+        inactiveLabel: isDeceased ? 'En mémoire' : isEstranged ? 'Plus en contact' : undefined,
       };
     });
     const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => {
@@ -2119,14 +2124,19 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         inactiveLabel: isDeceased ? 'En mémoire' : isGone ? "N'est plus avec nous" : undefined,
       };
     });
-    const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => ({
-      type: 'child' as const,
-      id: s.id,
-      name: s.firstName || 'Enfant',
-      emoji: '🧒',
-      avatarUrl: s.avatar_url || undefined,
-      locked: false,
-    }));
+    const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => {
+      const isDeceased = s.is_deceased === true;
+      return {
+        type: 'child' as const,
+        id: s.id,
+        name: s.firstName || 'Enfant',
+        emoji: '🧒',
+        avatarUrl: s.avatar_url || undefined,
+        locked: false,
+        inactive: isDeceased,
+        inactiveLabel: isDeceased ? 'En mémoire' : undefined,
+      };
+    });
     return [child, ...siblings, ...members, ...pets];
   }, [activeChild]);
 
