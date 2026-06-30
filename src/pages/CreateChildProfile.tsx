@@ -539,34 +539,52 @@ const CreateChildProfile = ({
           }
         }
         
-        // Récupérer l'avatar_url actuel avant de déclencher la regénération
-        const { data: childRow } = await supabase
-          .from('child_profiles')
-          .select('avatar_url')
-          .eq('id', editChildId)
-          .maybeSingle();
+        // L'avatar n'est régénéré QUE si un champ d'apparence a réellement changé
+        // (éditer les goûts, doudous, lieux… ne doit PAS relancer la fabrique d'avatar).
+        const currentAvatarSig = childAvatarSig({
+          skinColor: data.skinColor,
+          eyeColor: data.eyeColor,
+          hairColor: data.hairColor,
+          hairType: data.hairType,
+          hairTypeCustom: data.hairTypeCustom,
+          glasses: data.glasses,
+          physicalDetails: data.noPhysicalDetails ? [] : data.physicalDetails,
+          clothingStyle: data.clothingStyle,
+          birthDate: data.birthDate,
+        });
+        const avatarRelevantChanged = currentAvatarSig !== initialAvatarSigRef.current;
 
-        // Appel webhook pour regénérer l'avatar
-        try {
-          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              profile_id: editChildId,
-              type: 'child',
-              current_avatar_url: childRow?.avatar_url || null,
-              previous_birth_date: originalBirthDate
-            })
-          });
-        } catch (webhookErr) {
-          console.error('Webhook avatar error:', webhookErr);
+        if (avatarRelevantChanged) {
+          // Récupérer l'avatar_url actuel avant de déclencher la régénération
+          const { data: childRow } = await supabase
+            .from('child_profiles')
+            .select('avatar_url')
+            .eq('id', editChildId)
+            .maybeSingle();
+
+          // Appel webhook pour regénérer l'avatar
+          try {
+            await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                profile_id: editChildId,
+                type: 'child',
+                current_avatar_url: childRow?.avatar_url || null,
+                previous_birth_date: originalBirthDate
+              })
+            });
+          } catch (webhookErr) {
+            console.error('Webhook avatar error:', webhookErr);
+          }
+
+          if (editChildId) signalAvatarRegeneration(editChildId);
         }
 
         // Message de succès général après toutes les mises à jour
         toast.success('Profil modifié avec succès !');
         queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
         queryClient.invalidateQueries({ queryKey: ['family-data'] });
-        if (editChildId) signalAvatarRegeneration(editChildId);
         
         // Petit délai pour laisser le toast s'afficher avant la navigation
         // Remplace l'entrée du formulaire dans l'historique pour que le bouton précédent du navigateur
