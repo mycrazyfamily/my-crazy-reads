@@ -101,19 +101,33 @@ const CreateChildProfile = ({
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
+  // Signature d'apparence au chargement : sert à ne régénérer l'avatar que si le visuel change
+  const initialAvatarSigRef = React.useRef<string>('');
   const queryClient = useQueryClient();
 
-  // Charger la birth_date originale une seule fois à l'ouverture en mode édition
+  // Charger la birth_date + l'apparence d'origine une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
     if (editMode && editChildId) {
       (async () => {
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
-          .select('birth_date')
+          .select('birth_date, appearance, physical_details, clothing_style')
           .eq('id', editChildId)
           .maybeSingle();
         setOriginalBirthDate(data?.birth_date || null);
+        const ap: any = (data?.appearance as any) || {};
+        initialAvatarSigRef.current = childAvatarSig({
+          skinColor: ap.skinColor,
+          eyeColor: ap.eyeColor,
+          hairColor: ap.hairColor,
+          hairType: ap.hairType,
+          hairTypeCustom: ap.hairTypeCustom,
+          glasses: ap.glasses,
+          physicalDetails: data?.physical_details,
+          clothingStyle: data?.clothing_style,
+          birthDate: data?.birth_date,
+        });
       })();
     }
   }, [editMode, editChildId]);
