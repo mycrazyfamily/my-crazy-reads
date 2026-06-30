@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit } from 'lucide-react';
+import { Edit, MapPinOff } from 'lucide-react';
 import type { PlaceData } from '@/types/place';
 
 interface PlaceProfileCardProps {
