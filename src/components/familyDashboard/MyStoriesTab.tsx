@@ -2098,7 +2098,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           ? '👦'
           : role.includes('sœur') || role.includes('soeur')
           ? '👧'
-          sticky     : '👤';
+          : '👤';
       const isDeceased = m.is_deceased === true;
       const isEstranged = !isDeceased && estrangedIds.has(m.id);
       return {
