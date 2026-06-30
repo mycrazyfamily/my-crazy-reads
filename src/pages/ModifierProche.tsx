@@ -27,17 +27,46 @@ import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 type RelativeStatus = 'active' | 'deceased';
 
 /**
+ * Déballe une liste de détails physiques quel que soit son encodage en base :
+ * tableau, chaîne JSON, chaîne JSON doublement encodée, ou tableau d'objets {value/label}.
+ * Indispensable pour comparer l'apparence « avant / après » sans faux positif.
+ */
+function normalizePhysList(raw: any): string[] {
+  let v = raw;
+  for (let i = 0; i < 3 && typeof v === 'string'; i++) {
+    const s = v.trim();
+    if (!s) return [];
+    try { v = JSON.parse(s); } catch { return [s]; }
+  }
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((d: any) => {
+      if (typeof d === 'string') return d.trim();
+      if (d && typeof d === 'object') return String(d.value ?? d.label ?? d.text ?? '').trim();
+      return '';
+    })
+    .filter((d: string) => d.length > 0);
+}
+
+/** Normalise une date en 'YYYY-MM-DD' sur le jour LOCAL (évite un décalage d'un jour dû à l'UTC). */
+function ymd(d: any): string {
+  if (!d) return '';
+  const dt = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(dt.getTime())) return (typeof d === 'string' ? d.slice(0, 10) : '');
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * Signature des champs qui influencent l'AVATAR (apparence physique).
  * Sert à n'appeler MCF_Avatar_Factory que si l'apparence a réellement changé —
  * pas pour un simple changement de statut (décès) ni de liens / brouille enfants.
- * Le nom et le surnom sont volontairement EXCLUS (non visuels).
+ * Le nom, le surnom et l'âge textuel sont volontairement EXCLUS (non visuels / dérivés).
  */
 function relativeAvatarSignature(i: any): string {
-  const phys = i?.noPhysicalDetails
-    ? []
-    : (Array.isArray(i?.physicalDetails)
-        ? i.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
-        : []);
+  const phys = i?.noPhysicalDetails ? [] : normalizePhysList(i?.physicalDetails);
   return JSON.stringify({
     role: i?.role || '',
     gender: i?.gender || '',
@@ -49,8 +78,7 @@ function relativeAvatarSignature(i: any): string {
     phys,
     noPhys: !!i?.noPhysicalDetails,
     clothing: (i?.clothingStyle || '').trim(),
-    birth: i?.birthDate || '',
-    age: (i?.age || '').toString().trim(),
+    birth: ymd(i?.birthDate),
     traits: [...(i?.traits || [])].sort(),
     customTraits: i?.customTraits || {},
   });
@@ -450,7 +478,7 @@ const ModifierProche: React.FC = () => {
       physicalDetails,
       noPhysicalDetails,
       clothingStyle,
-      birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : '',
+      birthDate: birthDate || '',
       age,
       traits,
       customTraits,
