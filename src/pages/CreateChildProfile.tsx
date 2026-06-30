@@ -779,7 +779,7 @@ const CreateChildProfile = ({
             <DialogTitle>Confirmer le changement de statut</DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <span className="block">
-                Vous êtes sur le point d'indiquer que {childFirstName || 'votre enfant'} nous a quittés.
+                Vous êtes sur le point d'indiquer que {childFirstName || 'votre enfant'} nous a quitté.
                 Son profil sera conservé en mémoire et n'apparaîtra plus dans la création de nouvelles histoires.
               </span>
               <span className="block">
