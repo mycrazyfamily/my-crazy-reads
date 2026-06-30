@@ -197,7 +197,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         </SummaryBlock>
 
         <SummaryBlock 
- the title="Famille & entourage" 
+          title="Famille & entourage" 
           icon={<Users className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(2)}
           className="lg:col-span-1"
