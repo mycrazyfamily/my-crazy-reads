@@ -34,7 +34,7 @@ const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenName
   };
 
   return (
-    <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
+    <Card className={`overflow-hidden border-mcf-mint hover:shadow-md transition-shadow ${isInactive ? 'opacity-90' : ''}`}>
       <CardHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="text-4xl">
