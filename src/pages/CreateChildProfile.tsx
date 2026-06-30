@@ -11,6 +11,69 @@ import 'react-datepicker/dist/react-datepicker.css';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
+
+// --- Signature d'apparence avatar (gate de régénération) ---------------------
+// L'avatar n'est régénéré que si un champ VISUEL change. Robuste au double
+// encodage de physical_details / clothing_style et à la dérive de fuseau (UTC).
+function normalizePhysList(raw: any): string[] {
+  let v: any = raw;
+  for (let i = 0; i < 3 && typeof v === 'string'; i++) {
+    const s = v.trim();
+    if (!s) return [];
+    try { v = JSON.parse(s); } catch { return [s]; }
+  }
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((d: any) => {
+      if (typeof d === 'string') return d.trim();
+      if (d && typeof d === 'object') return String(d.value ?? d.label ?? d.text ?? '').trim();
+      return '';
+    })
+    .filter((d: string) => d.length > 0);
+}
+function normalizeClothing(raw: any): string {
+  let v: any = raw;
+  for (let i = 0; i < 3 && typeof v === 'string'; i++) {
+    const s = v.trim();
+    if (!s) return '';
+    try { v = JSON.parse(s); } catch { return s; }
+  }
+  if (Array.isArray(v)) return String(v[0] ?? '').trim();
+  if (typeof v === 'string') return v.trim();
+  return '';
+}
+function ymdLocal(d: any): string {
+  if (!d) return '';
+  const dt = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(dt.getTime())) return (typeof d === 'string' ? d.slice(0, 10) : '');
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function colorSig(c: any): [string, string] {
+  if (!c) return ['', ''];
+  if (typeof c === 'string') return [c, ''];
+  return [String(c.type ?? ''), String(c.custom ?? '')];
+}
+function childAvatarSig(input: {
+  skinColor: any; eyeColor: any; hairColor: any;
+  hairType: any; hairTypeCustom: any; glasses: any;
+  physicalDetails: any; clothingStyle: any; birthDate: any;
+}): string {
+  return JSON.stringify({
+    skin: colorSig(input.skinColor),
+    eye: colorSig(input.eyeColor),
+    hairColor: colorSig(input.hairColor),
+    hairType: String(input.hairType ?? ''),
+    hairTypeCustom: String(input.hairTypeCustom ?? '').trim(),
+    glasses: !!input.glasses,
+    phys: normalizePhysList(input.physicalDetails),
+    clothing: normalizeClothing(input.clothingStyle),
+    birth: ymdLocal(input.birthDate),
+  });
+}
+
 type CreateChildProfileProps = {
   isGiftMode?: boolean;
   familyCode?: string;
