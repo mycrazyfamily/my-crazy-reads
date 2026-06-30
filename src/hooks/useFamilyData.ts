@@ -132,7 +132,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     uniqueRows.map(async (profile: any, index: number) => {
       try {
         const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes] = await Promise.all([
-          supabase.from('child_places').select(`label, places:place_id (id, label, type, emoji, address, city, country, description, details)`).eq('child_id', profile.id),
+          supabase.from('child_places').select(`label, places:place_id (id, label, type, emoji, address, city, country, description, details, is_active)`).eq('child_id', profile.id),
           supabase.from('child_superpowers').select('superpowers(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_likes').select('likes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_challenges').select('challenges(label, emoji)').eq('child_id', profile.id),
