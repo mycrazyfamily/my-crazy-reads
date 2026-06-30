@@ -702,6 +702,19 @@ const CreateChildProfile = ({
         }
       </p>
 
+      {/* Lien discret (sous le sous-titre) : ouvre la modale de statut. Visible mais non anxiogène. */}
+      {editMode && editChildId && (
+        <div className="text-center mb-6">
+          <button
+            type="button"
+            onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(true); }}
+            className="text-sm text-gray-500 hover:text-mcf-primary underline underline-offset-2 transition-colors"
+          >
+            Gérer le statut du profil
+          </button>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
         <ChildProfileFormProvider 
           familyCode={familyCode} 
@@ -721,19 +734,6 @@ const CreateChildProfile = ({
           />
         </ChildProfileFormProvider>
       </div>
-
-      {/* Déclencheur discret : le statut n'est pas affiché en permanence (évite l'anxiété) */}
-      {editMode && editChildId && (
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(true); }}
-            className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
-          >
-            Gérer le statut du profil
-          </button>
-        </div>
-      )}
 
       {/* Modale unique : choix + rappel abonnement intégré, réversible */}
       <Dialog
