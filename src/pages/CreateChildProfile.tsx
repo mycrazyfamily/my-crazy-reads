@@ -11,7 +11,6 @@ import type { ChildProfileFormData } from '@/types/childProfile';
 import { CHALLENGES_OPTIONS } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import {
@@ -118,7 +117,7 @@ const CreateChildProfile = ({
   const [isDeceased, setIsDeceased] = React.useState<boolean>(false);
   const [initialIsDeceased, setInitialIsDeceased] = React.useState<boolean>(false);
   const [savingStatus, setSavingStatus] = React.useState(false);
-  const [deceaseDialogOpen, setDeceaseDialogOpen] = React.useState(false);
+  const [statusOpen, setStatusOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
   // Charger birth_date + apparence + statut une seule fois à l'ouverture en mode édition
@@ -172,20 +171,12 @@ const CreateChildProfile = ({
           ? `Le statut de ${childFirstName || "l'enfant"} a été mis à jour.`
           : `Le profil de ${childFirstName || "l'enfant"} est de nouveau actif.`
       );
-      setDeceaseDialogOpen(false);
+      setStatusOpen(false);
       setTimeout(() => { navigate('/espace-famille', { replace: true }); }, 600);
     } catch (e: any) {
       toast.error(`Une erreur est survenue : ${e?.message || 'Erreur inconnue'}`);
     } finally {
       setSavingStatus(false);
-    }
-  };
-
-  const handleSaveStatus = () => {
-    if (isDeceased && !initialIsDeceased) {
-      setDeceaseDialogOpen(true);
-    } else {
-      persistStatus(isDeceased);
     }
   };
   
@@ -711,48 +702,6 @@ const CreateChildProfile = ({
         }
       </p>
 
-      {editMode && editChildId && (
-        <Card className="border-mcf-mint shadow-sm mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-mcf-orange-dark flex items-center gap-2">
-              <Heart className="h-5 w-5 text-mcf-orange" />
-              Statut
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <RadioGroup
-              value={isDeceased ? 'deceased' : 'alive'}
-              onValueChange={(v) => setIsDeceased(v === 'deceased')}
-              className="gap-3"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="alive" id="status-alive" />
-                <Label htmlFor="status-alive" className="cursor-pointer font-normal">
-                  Avec nous
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="deceased" id="status-deceased" />
-                <Label htmlFor="status-deceased" className="cursor-pointer font-normal">
-                  Décédé
-                </Label>
-              </div>
-            </RadioGroup>
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                onClick={handleSaveStatus}
-                disabled={savingStatus || isDeceased === initialIsDeceased}
-                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
-              >
-                {savingStatus ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Enregistrer le statut
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
         <ChildProfileFormProvider 
           familyCode={familyCode} 
@@ -773,32 +722,88 @@ const CreateChildProfile = ({
         </ChildProfileFormProvider>
       </div>
 
-      <Dialog open={deceaseDialogOpen} onOpenChange={(o) => !savingStatus && setDeceaseDialogOpen(o)}>
+      {/* Déclencheur discret : le statut n'est pas affiché en permanence (évite l'anxiété) */}
+      {editMode && editChildId && (
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(true); }}
+            className="text-sm text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+          >
+            Gérer le statut du profil
+          </button>
+        </div>
+      )}
+
+      {/* Modale unique : choix + rappel abonnement intégré, réversible */}
+      <Dialog
+        open={statusOpen}
+        onOpenChange={(o) => {
+          if (savingStatus) return;
+          if (!o) setIsDeceased(initialIsDeceased);
+          setStatusOpen(o);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirmer le changement de statut</DialogTitle>
-            <DialogDescription className="pt-2 space-y-3">
-              <span className="block">
-                Vous êtes sur le point d'indiquer que {childFirstName || 'votre enfant'} nous a quitté.
-                Son profil sera conservé en mémoire et n'apparaîtra plus dans la création de nouvelles histoires.
-              </span>
-              <span className="block">
-                L'abonnement n'est pas résilié automatiquement : vous pourrez le faire à tout moment,
-                à votre rythme, depuis « Gérer mes abonnements ».
-              </span>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-mcf-orange" />
+              Statut du profil
+            </DialogTitle>
+            <DialogDescription>
+              Indiquez si {childFirstName || "l'enfant"} est toujours avec vous.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2">
-            <Button variant="ghost" onClick={() => setDeceaseDialogOpen(false)} disabled={savingStatus}>
+
+          <div className="space-y-4 py-2">
+            <RadioGroup
+              value={isDeceased ? 'deceased' : 'alive'}
+              onValueChange={(v) => setIsDeceased(v === 'deceased')}
+              className="gap-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="alive" id="status-alive" />
+                <Label htmlFor="status-alive" className="cursor-pointer font-normal">
+                  Avec nous
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="deceased" id="status-deceased" />
+                <Label htmlFor="status-deceased" className="cursor-pointer font-normal">
+                  Décédé
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {isDeceased && !initialIsDeceased && (
+              <div className="rounded-md bg-mcf-amber/10 border border-mcf-amber/20 px-3 py-2.5 text-sm text-gray-600 space-y-2">
+                <p>
+                  {childFirstName || 'Votre enfant'} sera conservé en mémoire et n'apparaîtra plus
+                  dans la création de nouvelles histoires.
+                </p>
+                <p>
+                  L'abonnement n'est pas résilié automatiquement : vous pourrez le faire à tout moment,
+                  à votre rythme, depuis « Gérer mes abonnements ».
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(false); }}
+              disabled={savingStatus}
+            >
               Annuler
             </Button>
             <Button
-              onClick={() => persistStatus(true)}
-              disabled={savingStatus}
+              onClick={() => persistStatus(isDeceased)}
+              disabled={savingStatus || isDeceased === initialIsDeceased}
               className="bg-mcf-primary hover:bg-mcf-primary-dark text-white flex items-center gap-2"
             >
               {savingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Confirmer
+              Enregistrer
             </Button>
           </DialogFooter>
         </DialogContent>
