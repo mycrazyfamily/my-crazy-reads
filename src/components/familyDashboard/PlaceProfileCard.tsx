@@ -48,6 +48,12 @@ const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenName
             <p className="text-xs text-gray-500 mt-1">
               Lieu de vie de {childrenNames.join(' et ')}
             </p>
+            {isInactive && (
+              <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                <MapPinOff className="h-3 w-3" />
+                Nous n'y vivons plus
+              </span>
+            )}
           </div>
         </div>
       </CardHeader>
