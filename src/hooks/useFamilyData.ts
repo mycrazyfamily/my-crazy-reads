@@ -55,7 +55,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     familyId
       ? supabase
           .from('family_members')
-          .select('id, name, role, avatar_url, details')
+          .select('id, name, role, avatar_url, details, is_deceased')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
     familyId
