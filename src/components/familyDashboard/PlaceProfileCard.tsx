@@ -12,6 +12,7 @@ interface PlaceProfileCardProps {
 }
 
 const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenNames, primaryChildId }) => {
+  const isInactive = (place as any).is_active === false;
   const getPlaceTypeEmoji = (type: string) => {
     const emojiMap: Record<string, string> = {
       maison_principale: '🏠',
