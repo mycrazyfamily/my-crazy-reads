@@ -39,6 +39,7 @@ export interface FamilyChild {
   preferencesCount: number;
   hasPets: number;
   birthDate: string | null;
+  isDeceased: boolean;
   siblings: Array<{ id: string; firstName: string; avatar_url: string | null; is_deceased?: boolean }>;
   estrangedRelativeIds: string[];
 }
@@ -73,7 +74,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
       : Promise.resolve({ data: [] as any[], error: null }),
   ] as const);
 
-  const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url`;
+  const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url, is_deceased`;
 
   const qByUser = supabase.from('child_profiles').select(baseSelect).eq('user_id', userId);
   const qByFamily = userProfile?.family_id
@@ -120,6 +121,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     preferencesCount: 0,
     hasPets: (allFamilyPets || []).length,
     birthDate: profile.birth_date || null,
+    isDeceased: profile.is_deceased ?? false,
     siblings: (siblingProfiles || [])
       .filter((s: any) => s.id !== profile.id)
       .map((s: any) => ({
