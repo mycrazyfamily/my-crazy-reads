@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit } from 'lucide-react';
+import { Edit, MapPinOff } from 'lucide-react';
 import type { PlaceData } from '@/types/place';
 
 interface PlaceProfileCardProps {
@@ -12,6 +12,7 @@ interface PlaceProfileCardProps {
 }
 
 const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenNames, primaryChildId }) => {
+  const isInactive = (place as any).is_active === false;
   const getPlaceTypeEmoji = (type: string) => {
     const emojiMap: Record<string, string> = {
       maison_principale: '🏠',
@@ -33,7 +34,7 @@ const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenName
   };
 
   return (
-    <Card className="overflow-hidden border-mcf-mint hover:shadow-md transition-shadow">
+    <Card className={`overflow-hidden border-mcf-mint hover:shadow-md transition-shadow ${isInactive ? 'opacity-90' : ''}`}>
       <CardHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="text-4xl">
@@ -47,6 +48,12 @@ const PlaceProfileCard: React.FC<PlaceProfileCardProps> = ({ place, childrenName
             <p className="text-xs text-gray-500 mt-1">
               Lieu de vie de {childrenNames.join(' et ')}
             </p>
+            {isInactive && (
+              <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                <MapPinOff className="h-3 w-3" />
+                Nous n'y vivons plus
+              </span>
+            )}
           </div>
         </div>
       </CardHeader>
