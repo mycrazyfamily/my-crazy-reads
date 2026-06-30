@@ -57,15 +57,17 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           .eq('child_id', editChildId);
 
         const relatives = familyMembersLinks?.map((link: any) => {
-          const nicknameValue = link.family_members.details?.nickname;
+          // Le surnom est déjà stocké tel quel (objet {type, custom} ou chaîne).
+          // On ne le ré-emballe PLUS (sinon getNickname affiche « [objet] »).
+          const nicknameRaw = link.family_members.details?.nickname;
+          const nicknameObj = (nicknameRaw && typeof nicknameRaw === 'object')
+            ? nicknameRaw
+            : { type: (nicknameRaw ? 'custom' : 'none') as 'custom' | 'none', custom: nicknameRaw || '' };
           return {
             id: link.family_member_id,
             type: link.family_members.role,
             firstName: link.family_members.name,
-            nickname: {
-              type: (nicknameValue ? 'custom' : 'none') as 'custom' | 'none',
-              custom: nicknameValue || ''
-            },
+            nickname: nicknameObj,
           skinColor: link.family_members.details?.skinColor || '',
           hairColor: link.family_members.details?.hairColor || '',
           hairType: link.family_members.details?.hairType || '',
@@ -78,7 +80,10 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           job: link.family_members.details?.job || '',
           gender: link.family_members.details?.gender || '',
           otherTypeName: link.family_members.details?.otherTypeName || '',
-          physicalDetails: link.family_members.details?.physicalDetails || []
+          physicalDetails: link.family_members.details?.physicalDetails || [],
+          // Statuts (lecture seule) : décès = entité ; brouille = lien enfant
+          is_deceased: link.family_members.is_deceased ?? false,
+          link_is_active: link.is_active
         };
         }) || [];
 
@@ -94,7 +99,11 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           type: link.pets.type,
           breed: link.pets.breed,
           physicalDetails: link.pets.physical_details || [],
-          traits: [] // Champ requis par le type PetData
+          traits: [], // Champ requis par le type PetData
+          // Statuts (lecture seule) : décès / donné-perdu
+          is_deceased: link.pets.is_deceased ?? false,
+          is_active: link.pets.is_active,
+          inactive_reason: link.pets.inactive_reason ?? null
         })) || [];
 
         // Charger les lieux (places)
@@ -112,7 +121,10 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           city: link.places.city,
           country: link.places.country,
           description: link.places.description,
-          details: link.places.details
+          details: link.places.details,
+          // Statut (lecture seule) : lieu quitté
+          is_active: link.places.is_active,
+          inactive_reason: link.places.inactive_reason ?? null
         })) || [];
 
         // Fusionner les données chargées avec les données du formulaire
