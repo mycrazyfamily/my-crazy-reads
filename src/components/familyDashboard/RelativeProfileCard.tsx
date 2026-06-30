@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Users } from 'lucide-react';
+import { Edit, Users, Heart } from 'lucide-react';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import { getRelativeAvatarAlert } from '@/utils/avatarAgeAlert';
@@ -19,6 +19,7 @@ interface RelativeProfileCardProps {
     avatar_url?: string | null;
     birthDate?: string | null;
     details?: any;
+    is_deceased?: boolean;
   };
   childrenNames: string[];
   primaryChildId: string;
@@ -42,6 +43,8 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
 
   const relativeBirthDate = relative.birthDate || parsedDetails?.birthDate || null;
   const ageAlert = getRelativeAvatarAlert(relative.firstName, relativeBirthDate, avatarUrl);
+
+  const isDeceased = relative.is_deceased === true;
 
   const getRelativeTypeEmoji = (type: string) => {
     switch (type) {
@@ -108,7 +111,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
   );
 
   return (
-    <Card className="overflow-hidden border-mcf-mint hover:shadow-lg transition-shadow">
+    <Card className={`overflow-hidden border-mcf-mint hover:shadow-lg transition-shadow ${isDeceased ? 'opacity-90' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-4 mb-4">
           <AvatarDisplay
@@ -135,6 +138,12 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
             <p className="text-xs text-muted-foreground">
               Proche de {childrenNames.join(' et ')}
             </p>
+            {isDeceased && (
+              <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                <Heart className="h-3 w-3" />
+                En mémoire
+              </span>
+            )}
           </div>
         </div>
         
