@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowLeft, Heart } from 'lucide-react';
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
@@ -19,6 +22,40 @@ import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
+// Statut « entité inactive » du proche : seul le décès est un fait global d'entité.
+// La brouille (« plus en contact ») est gérée PAR ENFANT via la junction child_family_members.
+type RelativeStatus = 'active' | 'deceased';
+
+/**
+ * Signature des champs qui influencent l'AVATAR (apparence physique).
+ * Sert à n'appeler MCF_Avatar_Factory que si l'apparence a réellement changé —
+ * pas pour un simple changement de statut (décès) ni de liens / brouille enfants.
+ * Le nom et le surnom sont volontairement EXCLUS (non visuels).
+ */
+function relativeAvatarSignature(i: any): string {
+  const phys = i?.noPhysicalDetails
+    ? []
+    : (Array.isArray(i?.physicalDetails)
+        ? i.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
+        : []);
+  return JSON.stringify({
+    role: i?.role || '',
+    gender: i?.gender || '',
+    skin: [i?.skinColorType || '', (i?.skinColorCustom || '').trim()],
+    hairColor: [i?.hairColorType || '', (i?.hairColorCustom || '').trim()],
+    hairType: i?.hairType || '',
+    hairTypeCustom: (i?.hairTypeCustom || '').trim(),
+    glasses: !!i?.glasses,
+    phys,
+    noPhys: !!i?.noPhysicalDetails,
+    clothing: (i?.clothingStyle || '').trim(),
+    birth: i?.birthDate || '',
+    age: (i?.age || '').toString().trim(),
+    traits: [...(i?.traits || [])].sort(),
+    customTraits: i?.customTraits || {},
+  });
+}
+
 const ModifierProche: React.FC = () => {
   const navigate = useNavigate();
   const invalidateFamilyData = useInvalidateFamilyData();
@@ -29,6 +66,8 @@ const ModifierProche: React.FC = () => {
   const [childData, setChildData] = useState<any>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  // Enfants avec lesquels ce proche est « plus en contact » (brouille) — sous-ensemble de selectedChildrenIds
+  const [estrangedChildIds, setEstrangedChildIds] = useState<string[]>([]);
   
   // État pour toutes les informations du proche
   const [type, setType] = useState<RelativeType>('father');
@@ -60,6 +99,16 @@ const ModifierProche: React.FC = () => {
   const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
   const [clothingStyle, setClothingStyle] = useState<string>('');
 
+  // Statut (décès) + confirmation
+  const [relativeStatus, setRelativeStatus] = useState<RelativeStatus>('active');
+  const [pendingDeceased, setPendingDeceased] = useState(false);
+
+  // Signature d'apparence au chargement — pour ne régénérer l'avatar QUE si l'apparence change
+  const initialAvatarSigRef = useRef<string>('');
+  // Snapshot initial des liens (child_id -> is_active) et du type, pour un diff qui préserve les dates au save
+  const initialLinksRef = useRef<Map<string, boolean>>(new Map());
+  const initialTypeRef = useRef<string>('father');
+
   useEffect(() => {
     window.scrollTo(0, 0);
     loadRelativeData();
@@ -80,7 +129,8 @@ const ModifierProche: React.FC = () => {
               family_id,
               details,
               physical_details,
-              clothing_style
+              clothing_style,
+              is_deceased
             )
         `)
         .eq('child_id', childId)
@@ -94,7 +144,7 @@ const ModifierProche: React.FC = () => {
       if (!relative) {
         const { data: relativeDirect, error: relErr } = await supabase
           .from('family_members')
-          .select('id, name, role, avatar, family_id, details, physical_details, clothing_style')
+          .select('id, name, role, avatar, family_id, details, physical_details, clothing_style, is_deceased')
           .eq('id', relativeId)
           .maybeSingle();
         if (relErr) throw relErr;
@@ -119,10 +169,12 @@ const ModifierProche: React.FC = () => {
         // birthDate: support multiple formats
         const birthDateRaw = details.birthDate ?? details.birthdate ?? details.birth_date ?? null;
         console.log('birthDateRaw from details:', birthDateRaw);
+        let computedOriginalBirthDate: string | null = null;
         if (birthDateRaw) {
           try {
             setBirthDate(new Date(birthDateRaw));
-            setOriginalBirthDate(typeof birthDateRaw === 'string' ? birthDateRaw : new Date(birthDateRaw).toISOString().split('T')[0]);
+            computedOriginalBirthDate = typeof birthDateRaw === 'string' ? birthDateRaw : new Date(birthDateRaw).toISOString().split('T')[0];
+            setOriginalBirthDate(computedOriginalBirthDate);
           } catch {
             console.error('Failed to parse birthDate:', birthDateRaw);
             setBirthDate(undefined);
@@ -196,6 +248,29 @@ const ModifierProche: React.FC = () => {
         }
         setClothingStyle(clothingStyleData);
 
+        // Statut (décès) — fait global d'entité
+        setRelativeStatus(relative.is_deceased === true ? 'deceased' : 'active');
+
+        // Mémoriser la signature d'apparence initiale (pour le gate avatar au save)
+        initialAvatarSigRef.current = relativeAvatarSignature({
+          role: (relative.role as RelativeType) || 'father',
+          gender: details.gender || 'male',
+          skinColorType: skinColorType,
+          skinColorCustom: details.skinColor?.custom,
+          hairColorType: hairColorType,
+          hairColorCustom: details.hairColor?.custom,
+          hairType: details.hairType || 'straight',
+          hairTypeCustom: details.hairTypeCustom || '',
+          glasses: !!details.glasses,
+          physicalDetails: physicalDetailsData,
+          noPhysicalDetails: computedNoPhysical,
+          clothingStyle: clothingStyleData,
+          birthDate: computedOriginalBirthDate || '',
+          age: details.age || '',
+          traits: details.traits || [],
+          customTraits: details.customTraits || {},
+        });
+
         setChildData({ loaded: true });
 
         // Charger tous les enfants de la famille
@@ -208,14 +283,24 @@ const ModifierProche: React.FC = () => {
         if (childrenError) throw childrenError;
         setExistingChildren(childrenData || []);
 
-        // Charger les enfants liés à ce proche
+        // Charger les enfants liés à ce proche (+ état de brouille par enfant)
         const { data: linkedChildren, error: linkedError } = await supabase
           .from('child_family_members')
-          .select('child_id')
+          .select('child_id, is_active, inactive_reason')
           .eq('family_member_id', relativeId);
 
         if (linkedError) throw linkedError;
-        setSelectedChildrenIds(linkedChildren?.map(c => c.child_id) || []);
+        setSelectedChildrenIds((linkedChildren || []).map((c: any) => c.child_id));
+        setEstrangedChildIds(
+          (linkedChildren || [])
+            .filter((c: any) => c.is_active === false)
+            .map((c: any) => c.child_id)
+        );
+        // Snapshot initial pour le diff au save (préservation des dates)
+        initialLinksRef.current = new Map(
+          (linkedChildren || []).map((c: any) => [c.child_id, c.is_active !== false])
+        );
+        initialTypeRef.current = (relative.role as string) || 'father';
       } else {
         toast.error("Proche non trouvé");
         navigate('/espace-famille');
@@ -239,11 +324,32 @@ const ModifierProche: React.FC = () => {
   };
 
   const handleToggleChild = (childIdToToggle: string) => {
-    setSelectedChildrenIds(prev => 
+    setSelectedChildrenIds(prev =>
       prev.includes(childIdToToggle)
         ? prev.filter(id => id !== childIdToToggle)
         : [...prev, childIdToToggle]
     );
+    // Si on retire le lien, on retire aussi une éventuelle brouille (cohérence)
+    setEstrangedChildIds(prev => prev.filter(id => id !== childIdToToggle));
+  };
+
+  const handleToggleEstrangement = (childIdToToggle: string) => {
+    // La brouille n'a de sens que pour un enfant lié
+    if (!selectedChildrenIds.includes(childIdToToggle)) return;
+    setEstrangedChildIds(prev =>
+      prev.includes(childIdToToggle)
+        ? prev.filter(id => id !== childIdToToggle)
+        : [...prev, childIdToToggle]
+    );
+  };
+
+  const handleStatusChange = (value: RelativeStatus) => {
+    // Confirmation explicite pour le décès (action sensible)
+    if (value === 'deceased' && relativeStatus !== 'deceased') {
+      setPendingDeceased(true);
+      return;
+    }
+    setRelativeStatus(value);
   };
 
   const handleSave = async () => {
@@ -330,6 +436,27 @@ const ModifierProche: React.FC = () => {
       return;
     }
 
+    // L'avatar n'est régénéré QUE si l'apparence a changé (pas pour le statut ni les liens / brouille enfants).
+    const currentAvatarSig = relativeAvatarSignature({
+      role: type,
+      gender,
+      skinColorType: selectedSkinColor,
+      skinColorCustom: skinColorCustomValue,
+      hairColorType: selectedHairColor,
+      hairColorCustom: hairColorCustomValue,
+      hairType,
+      hairTypeCustom,
+      glasses,
+      physicalDetails,
+      noPhysicalDetails,
+      clothingStyle,
+      birthDate: birthDate ? new Date(birthDate).toISOString().split('T')[0] : '',
+      age,
+      traits,
+      customTraits,
+    });
+    const avatarRelevantChanged = currentAvatarSig !== initialAvatarSigRef.current;
+
     setSaving(true);
     try {
       // Mettre à jour dans family_members
@@ -360,7 +487,9 @@ const ModifierProche: React.FC = () => {
           ? JSON.stringify([""])
           : (physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([])),
         clothing_style: clothingStyle ? JSON.stringify([clothingStyle]) : JSON.stringify([]),
-        details: detailsPayload
+        details: detailsPayload,
+        // Statut (décès) — fait global d'entité ; le trigger DB horodate deceased_recorded_at automatiquement.
+        is_deceased: relativeStatus === 'deceased'
       };
 
       const { error } = await supabase
@@ -370,53 +499,113 @@ const ModifierProche: React.FC = () => {
 
       if (error) throw error;
 
-      // Supprimer toutes les anciennes relations
-      const { error: deleteError } = await supabase
-        .from('child_family_members')
-        .delete()
-        .eq('family_member_id', relativeId);
+      // Synchronisation des liens enfant↔proche en DIFF ciblé (insert / delete / flip de brouille)
+      // pour PRÉSERVER les dates : created_at = date d'apparition, inactive_at = date de disparition.
+      // Un DELETE+INSERT global réinitialiserait created_at à chaque sauvegarde.
+      const nowIso = new Date().toISOString();
+      const initialLinks = initialLinksRef.current; // child_id -> is_active (au chargement)
+      const initialIds = new Set(initialLinks.keys());
 
-      if (deleteError) throw deleteError;
+      const desiredActive = new Map<string, boolean>();
+      selectedChildrenIds.forEach((cid) => desiredActive.set(cid, !estrangedChildIds.includes(cid)));
 
-      // Créer les nouvelles relations
-      if (selectedChildrenIds.length > 0) {
-        const childFamilyMembersData = selectedChildrenIds.map(childId => ({
-          child_id: childId,
-          family_member_id: relativeId,
-          relation_label: type
-        }));
+      const toInsert = selectedChildrenIds.filter((cid) => !initialIds.has(cid));
+      const toDelete = [...initialIds].filter((cid) => !desiredActive.has(cid));
+      const conserved = selectedChildrenIds.filter((cid) => initialIds.has(cid));
+      const flipToInactive = conserved.filter((cid) => initialLinks.get(cid) === true && desiredActive.get(cid) === false);
+      const flipToActive = conserved.filter((cid) => initialLinks.get(cid) === false && desiredActive.get(cid) === true);
 
-        const { error: insertError } = await supabase
+      // 1) Liens retirés (enfant décoché) → suppression
+      if (toDelete.length > 0) {
+        const { error: delErr } = await supabase
           .from('child_family_members')
-          .insert(childFamilyMembersData);
+          .delete()
+          .eq('family_member_id', relativeId)
+          .in('child_id', toDelete);
+        if (delErr) throw delErr;
+      }
 
-        if (insertError) throw insertError;
+      // 2) Nouveaux liens → insertion (created_at = date d'apparition, posée automatiquement par la DB).
+      //    Le trigger ne se déclenche pas sur INSERT : on pose inactive_at explicitement si brouillé dès la création.
+      if (toInsert.length > 0) {
+        const rows = toInsert.map((cid) => {
+          const active = desiredActive.get(cid) !== false;
+          return {
+            child_id: cid,
+            family_member_id: relativeId,
+            relation_label: type,
+            is_active: active,
+            inactive_reason: active ? null : 'estranged',
+            inactive_at: active ? null : nowIso,
+          };
+        });
+        const { error: insErr } = await supabase
+          .from('child_family_members')
+          .insert(rows);
+        if (insErr) throw insErr;
+      }
+
+      // 3) Passage en brouille (actif → inactif) → le trigger pose inactive_at = date de disparition
+      if (flipToInactive.length > 0) {
+        const { error: offErr } = await supabase
+          .from('child_family_members')
+          .update({ is_active: false, inactive_reason: 'estranged' })
+          .eq('family_member_id', relativeId)
+          .in('child_id', flipToInactive);
+        if (offErr) throw offErr;
+      }
+
+      // 4) Reprise de contact (inactif → actif) → le trigger efface inactive_at + inactive_reason
+      if (flipToActive.length > 0) {
+        const { error: onErr } = await supabase
+          .from('child_family_members')
+          .update({ is_active: true })
+          .eq('family_member_id', relativeId)
+          .in('child_id', flipToActive);
+        if (onErr) throw onErr;
+      }
+
+      // 5) Si le type de relation a changé, resynchroniser relation_label sur les liens conservés
+      //    (sans toucher is_active → ne déclenche pas le trigger, donc inactive_at préservé)
+      if (conserved.length > 0 && type !== initialTypeRef.current) {
+        const { error: lblErr } = await supabase
+          .from('child_family_members')
+          .update({ relation_label: type })
+          .eq('family_member_id', relativeId)
+          .in('child_id', conserved);
+        if (lblErr) throw lblErr;
       }
       
-      // Récupérer l'avatar_url actuel avant de déclencher la regénération
-      const { data: relativeRow } = await supabase
-        .from('family_members')
-        .select('avatar_url')
-        .eq('id', relativeId)
-        .maybeSingle();
+      // L'avatar n'est régénéré QUE si l'apparence a changé.
+      // Un changement de statut (décès) ou de liens / brouille enfants ne doit PAS
+      // déclencher MCF_Avatar_Factory (coût de génération + risque d'altération non voulue).
+      if (avatarRelevantChanged) {
+        // Récupérer l'avatar_url actuel avant de déclencher la regénération
+        const { data: relativeRow } = await supabase
+          .from('family_members')
+          .select('avatar_url')
+          .eq('id', relativeId)
+          .maybeSingle();
 
-      // Appel webhook pour regénérer l'avatar
-      try {
-        await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile_id: relativeId,
-            type: 'relative',
-            current_avatar_url: relativeRow?.avatar_url || null,
-            previous_birth_date: originalBirthDate
-          })
-        });
-      } catch (webhookErr) {
-        console.error('Webhook avatar error:', webhookErr);
+        // Appel webhook pour regénérer l'avatar
+        try {
+          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile_id: relativeId,
+              type: 'relative',
+              current_avatar_url: relativeRow?.avatar_url || null,
+              previous_birth_date: originalBirthDate
+            })
+          });
+        } catch (webhookErr) {
+          console.error('Webhook avatar error:', webhookErr);
+        }
+
+        if (relativeId) signalAvatarRegeneration(relativeId);
       }
 
-      if (relativeId) signalAvatarRegeneration(relativeId);
       invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
       window.location.href = '/espace-famille';
@@ -526,8 +715,37 @@ const ModifierProche: React.FC = () => {
               selectedChildrenIds={selectedChildrenIds}
               onToggleChild={handleToggleChild}
               label="Enfants associés à ce proche"
+              estrangedChildIds={estrangedChildIds}
+              onToggleEstrangement={handleToggleEstrangement}
             />
           )}
+
+          {/* Statut du proche (décès) */}
+          <div className="space-y-3 pt-4 border-t border-mcf-mint/40">
+            <Label className="text-base font-medium">Statut</Label>
+            <RadioGroup
+              value={relativeStatus}
+              onValueChange={(v) => handleStatusChange(v as RelativeStatus)}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="active" id="relative-status-active" />
+                <Label htmlFor="relative-status-active" className="cursor-pointer font-normal">Avec nous</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="deceased" id="relative-status-deceased" />
+                <Label htmlFor="relative-status-deceased" className="cursor-pointer font-normal">Décédé</Label>
+              </div>
+            </RadioGroup>
+            {relativeStatus === 'deceased' && (
+              <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                <Heart className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                <span>
+                  {firstName} n'apparaîtra plus dans les histoires ni les suggestions d'anniversaire. Vous pourrez revenir en arrière à tout moment.
+                </span>
+              </p>
+            )}
+          </div>
         </Card>
 
         <div className="flex flex-col gap-3 mt-8">
@@ -555,6 +773,36 @@ const ModifierProche: React.FC = () => {
             />
           </div>
         </div>
+
+        {/* Confirmation décès (action sensible) */}
+        <Dialog open={pendingDeceased} onOpenChange={(o) => { if (!o) setPendingDeceased(false); }}>
+          <DialogContent className="bg-white max-w-sm">
+            <div className="text-center space-y-4 py-2">
+              <div className="mx-auto w-12 h-12 rounded-full bg-mcf-mint/20 flex items-center justify-center">
+                <Heart className="h-6 w-6 text-mcf-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-mcf-orange-dark">
+                  Marquer « {firstName} » comme décédé ?
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Il restera en mémoire dans vos données, mais n'apparaîtra plus dans les histoires ni les suggestions. Vous pourrez revenir en arrière à tout moment.
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setPendingDeceased(false)}>
+                  Annuler
+                </Button>
+                <Button
+                  className="flex-1 bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+                  onClick={() => { setRelativeStatus('deceased'); setPendingDeceased(false); }}
+                >
+                  Confirmer
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
       
       <Footer />
