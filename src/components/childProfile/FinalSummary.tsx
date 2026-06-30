@@ -53,7 +53,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         // Charger les données de famille (relatives)
         const { data: familyMembersLinks } = await supabase
           .from('child_family_members')
-          .select('family_member_id, family_members(*)')
+          .select('family_member_id, is_active, family_members(*)')
           .eq('child_id', editChildId);
 
         const relatives = familyMembersLinks?.map((link: any) => {
@@ -197,7 +197,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         </SummaryBlock>
 
         <SummaryBlock 
-          title="Famille & entourage" 
+ the title="Famille & entourage" 
           icon={<Users className="h-5 w-5 text-mcf-primary" />}
           onEdit={() => handleGoToStep(2)}
           className="lg:col-span-1"
