@@ -113,9 +113,15 @@ const ModifierAnimal: React.FC = () => {
 
     try {
       setLoading(true);
-      
-      // Charger l'animal depuis child_pets
-      const { data, error } = await supabase
+
+      // Charger l'animal par pet_id (échelle FAMILLE, pas enfant).
+      // v2.8: un animal appartient à la famille et peut être lié à d'AUTRES enfants
+      // que celui du contexte courant (childId de l'URL). L'ancien filtre .eq('child_id', childId)
+      // + .maybeSingle() renvoyait null pour Réglisse/Stormy (pas de jonction avec l'enfant courant)
+      // → « Animal non trouvé ». On récupère toutes les jonctions child_pets de ce pet, puis on
+      // privilégie la ligne de l'enfant courant si elle existe, sinon la première disponible.
+      // handleSave synchronise childPetUpdates sur toutes les jonctions → données identiques.
+      const { data: petRows, error } = await supabase
         .from('child_pets')
         .select(`
           *,
@@ -133,11 +139,14 @@ const ModifierAnimal: React.FC = () => {
             inactive_reason
           )
         `)
-        .eq('child_id', childId)
-        .eq('pet_id', petId)
-        .maybeSingle();
+        .eq('pet_id', petId);
 
       if (error) throw error;
+
+      const data =
+        (petRows || []).find(r => r.child_id === childId) ||
+        (petRows || [])[0] ||
+        null;
 
       if (data && data.pets) {
         const storedType = data.relation_label || data.pets.type;
