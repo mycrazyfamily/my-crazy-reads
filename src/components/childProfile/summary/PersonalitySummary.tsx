@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import { 
@@ -12,22 +11,6 @@ type PersonalitySummaryProps = {
 };
 
 const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
-  // Fonction pour obtenir le libellé de la taille accordé au genre
-  const getHeightLabel = () => {
-    const gender = data.gender || 'neutral';
-    
-    switch (data.height) {
-      case 'small': 
-        return gender === 'girl' ? 'Petite' : gender === 'boy' ? 'Petit' : 'Petit(e)';
-      case 'medium': 
-        return gender === 'girl' ? 'Moyenne' : gender === 'boy' ? 'Moyen' : 'Moyen(ne)';
-      case 'tall': 
-        return gender === 'girl' ? 'Grande' : gender === 'boy' ? 'Grand' : 'Grand(e)';
-      default: 
-        return 'Non spécifiée';
-    }
-  };
-
   // Fonction pour obtenir le label français à partir de la valeur, en accord avec le genre
   const getLabelFromValue = (value: string, options: any[]) => {
     const option = options.find(opt => opt.value === value);
@@ -64,11 +47,6 @@ const PersonalitySummary: React.FC<PersonalitySummaryProps> = ({ data }) => {
 
   return (
     <div className="space-y-2.5">
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-gray-500">Taille:</span>
-        <span className="text-sm text-gray-700">{getHeightLabel()}</span>
-      </div>
-      
       {data.superpowers && data.superpowers.length > 0 && (
         <div>
           <h4 className="text-xs font-medium text-gray-500 mb-1.5">Super-pouvoirs:</h4>
