@@ -25,6 +25,20 @@ interface Notification {
   created_at: string;
 }
 
+// Retire un éventuel emoji en tout début de chaîne (+ espace) : l'icône de gauche
+// porte déjà l'emoji, on évite le doublon (ex. "🎂 Léo a fêté…" → "Léo a fêté…").
+const stripLeadingEmoji = (s?: string | null): string =>
+  (s ?? '').replace(/^\s*\p{Extended_Pictographic}\uFE0F?\s*/u, '');
+
+// Remappe les liens de notification vers une route existante.
+// Le workflow n8n écrit un lien historique "/children/:id" qui n'existe pas
+// dans le routeur → on redirige vers l'espace famille (tous les profils).
+const resolveNotificationLink = (link: string | null): string | null => {
+  if (!link) return null;
+  if (link.startsWith('/children/')) return '/espace-famille';
+  return link;
+};
+
 const NotificationsBell: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -139,8 +153,9 @@ const NotificationsBell: React.FC = () => {
                   );
                   setUnreadCount(prev => notification.read ? prev : Math.max(0, prev - 1));
                   await markAsRead(notification.id);
-                  if (notification.link) {
-                    navigate(notification.link);
+                  const target = resolveNotificationLink(notification.link);
+                  if (target) {
+                    navigate(target);
                   }
                   setIsOpen(false);
                 }}
@@ -151,7 +166,7 @@ const NotificationsBell: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-foreground leading-snug">
-                    {notification.title || notification.content}
+                    {stripLeadingEmoji(notification.title || notification.content)}
                   </p>
                   {notification.title && (
                     <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{notification.content}</p>
