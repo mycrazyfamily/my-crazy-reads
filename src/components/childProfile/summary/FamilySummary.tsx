@@ -1,10 +1,15 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, UserMinus } from 'lucide-react';
 import type { ChildProfileFormData, RelativeData, RelativeType } from '@/types/childProfile';
 
 type FamilySummaryProps = {
   data: ChildProfileFormData;
+};
+
+// Première lettre en majuscule (saisie utilisateur), sans toucher au reste.
+const capitalizeFirst = (s?: string | null): string => {
+  const str = (s ?? '').trim();
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 };
 
 const FamilySummary: React.FC<FamilySummaryProps> = ({ data }) => {
@@ -37,21 +42,6 @@ type RelativeSummaryItemProps = {
 };
 
 const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) => {
-  try {
-    console.group('🧩 DEBUG RelativeSummaryItem');
-    console.log('Raw relative:', relative);
-    for (const [key, value] of Object.entries(relative)) {
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        console.warn(`⚠️ ${key} is an object`, value);
-      } else {
-        console.log(`✅ ${key}:`, value);
-      }
-    }
-    console.groupEnd();
-  } catch (error) {
-    console.error('❌ Failed to log relative data:', error);
-  }
-
   // Statut (lecture seule ; géré sur ModifierProche). Décès = entité ; brouille = lien enfant.
   const relAny = relative as any;
   const relInactive = relAny.is_deceased === true || relAny.link_is_active === false;
@@ -61,23 +51,6 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
       ? { label: 'Plus en contact', Icon: UserMinus }
       : null;
   const RelStatusIcon = relStatus?.Icon;
-
-  // Obtenir l'emoji du type de relation
-  const getRelativeTypeIcon = (type: RelativeType) => {
-    const icons: Partial<Record<RelativeType, string>> = {
-      mother: '👩', father: '👨', otherParent: '🧑',
-      sister: '👧', brother: '👦',
-      grandmother: '👵', grandfather: '👴',
-      uncle: '👨', aunt: '👩',
-      cousin: '👦', bestFriend: '👬',
-      partner: '💑', teacher: '👨‍🏫',
-      babysitter: '👶', nanny: '👶',
-      femaleCousin: '👧', maleCousin: '👦',
-      femaleFriend: '👧', maleFriend: '👦',
-      other: '👤'
-    };
-    return icons[type] || '👤';
-  };
 
   // Obtenir le libellé du type de relation
   const getRelationshipLabel = (type: RelativeType) => {
@@ -92,7 +65,7 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
       babysitter: 'Baby-sitter', nanny: 'Nounou',
       femaleCousin: 'Cousine', maleCousin: 'Cousin',
       femaleFriend: 'Amie', maleFriend: 'Ami',
-      other: relative.otherTypeName || 'Autre'
+      other: capitalizeFirst(relative.otherTypeName) || 'Autre'
     };
     return labels[type] || type;
   };
@@ -113,8 +86,6 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
     return '';
   };
 
-  const avatarBgColor = getAvatarColor(relative.type);
-
   // Normaliser les valeurs pour éviter d'afficher des objets directement
   const normalizeValue = (value: any): string => {
     if (!value) return '';
@@ -130,14 +101,11 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
 
   return (
     <div className={`flex items-center gap-2 p-2 rounded-lg border border-mcf-amber/20 hover:bg-mcf-amber/5 transition-colors ${relInactive ? 'opacity-60' : ''}`}>
-      <Avatar className="h-9 w-9 bg-mcf-amber/20 text-lg flex-shrink-0">
-        <AvatarFallback className="bg-transparent">{getRelativeTypeIcon(displayType as RelativeType)}</AvatarFallback>
-      </Avatar>
       <div className="min-w-0 flex-1">
-        <div className="font-medium text-sm text-gray-700 truncate"><SafeText value={displayFirstName} /></div>
+        <div className="font-medium text-sm text-gray-700 truncate"><SafeText value={capitalizeFirst(displayFirstName)} /></div>
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <span><SafeText value={getRelationshipLabel(displayType as RelativeType)} /></span>
-          {getNickname() && <span className="text-mcf-orange-dark">· <SafeText value={getNickname()} /></span>}
+          {getNickname() && <span className="text-mcf-orange-dark">· <SafeText value={capitalizeFirst(getNickname())} /></span>}
         </div>
         {relStatus && RelStatusIcon && (
           <div className="mt-1">
@@ -150,25 +118,6 @@ const RelativeSummaryItem: React.FC<RelativeSummaryItemProps> = ({ relative }) =
       </div>
     </div>
   );
-};
-
-// Fonction pour déterminer la couleur de l'avatar en fonction du type de relation
-const getAvatarColor = (type: RelativeType): string => {
-  const colors: Record<string, string> = {
-    mother: 'bg-pink-500',
-    father: 'bg-blue-500',
-    otherParent: 'bg-purple-500',
-    sister: 'bg-pink-400',
-    brother: 'bg-blue-400',
-    grandmother: 'bg-pink-600',
-    grandfather: 'bg-blue-600',
-    femaleCousin: 'bg-pink-300',
-    maleCousin: 'bg-blue-300',
-    femaleFriend: 'bg-green-400',
-    maleFriend: 'bg-green-500',
-    other: 'bg-gray-500'
-  };
-  return colors[type] || 'bg-gray-500';
 };
 
 export default FamilySummary;
