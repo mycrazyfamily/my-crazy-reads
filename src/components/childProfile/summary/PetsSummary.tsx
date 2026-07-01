@@ -1,10 +1,15 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dog, Cat, Rabbit, Bird, Fish, HelpCircle, Heart, LogOut } from 'lucide-react';
+import { Heart, LogOut } from 'lucide-react';
 import type { ChildProfileFormData, PetData, PetType, PetTrait } from '@/types/childProfile';
 
 type PetsSummaryProps = {
   data: ChildProfileFormData;
+};
+
+// Première lettre en majuscule (saisie utilisateur), sans toucher au reste.
+const capitalizeFirst = (s?: string | null): string => {
+  const str = (s ?? '').trim();
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 };
 
 const PetsSummary: React.FC<PetsSummaryProps> = ({ data }) => {
@@ -30,11 +35,6 @@ type PetSummaryItemProps = {
 };
 
 const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
-  // Obtenir l'initiale du nom
-  const getInitial = () => {
-    return pet.name ? pet.name.charAt(0).toUpperCase() : '?';
-  };
-
   // Statut d'inactivité (lecture seule ; les actions de statut restent sur ModifierAnimal)
   const petAny = pet as any;
   const petInactive = petAny.is_deceased === true || petAny.is_active === false;
@@ -54,7 +54,7 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
       bird: 'Oiseau',
       fish: 'Poisson',
       reptile: 'Reptile',
-      other: pet.otherType || 'Autre'
+      other: capitalizeFirst(pet.otherType) || 'Autre'
     };
     return labels[type] || type;
   };
@@ -71,43 +71,25 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
       gentle: { label: 'Doux', icon: '💕' },
       noisy: { label: 'Bruyant', icon: '📢' },
       talkative: { label: 'Bavard', icon: '💬' },
-      other: { 
-        label: typeof pet.customTraits?.other === 'string' ? pet.customTraits.other : 'Autre', 
-        icon: '✨' 
+      other: {
+        label: typeof pet.customTraits?.other === 'string' ? pet.customTraits.other : 'Autre',
+        icon: '✨'
       },
-      other2: { 
-        label: typeof pet.customTraits?.other2 === 'string' ? pet.customTraits.other2 : 'Autre', 
-        icon: '✨' 
+      other2: {
+        label: typeof pet.customTraits?.other2 === 'string' ? pet.customTraits.other2 : 'Autre',
+        icon: '✨'
       }
     };
     return traitData[trait] || { label: trait, icon: '❓' };
   };
 
-  // Obtenir l'emoji en fonction du type d'animal
-  const getPetEmoji = () => {
-    switch (pet.type) {
-      case 'dog': return '🐶';
-      case 'cat': return '🐱';
-      case 'rabbit': return '🐰';
-      case 'bird': return '🦜';
-      case 'fish': return '🐟';
-      case 'reptile': return '🐍';
-      default: return '🐾';
-    }
-  };
-
   return (
     <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 ${petInactive ? 'opacity-60' : ''}`}>
-      <Avatar className="h-12 w-12 bg-mcf-amber/20 text-2xl">
-        <AvatarFallback className="flex items-center justify-center">
-          {getPetEmoji()}
-        </AvatarFallback>
-      </Avatar>
       <div className="text-center w-full">
-        <div className="font-medium">{pet.name}</div>
+        <div className="font-medium">{capitalizeFirst(pet.name)}</div>
         <div className="text-xs text-gray-600">
           {getPetTypeLabel(pet.type)}
-          {pet.breed && <span> • {pet.breed}</span>}
+          {pet.breed && <span> • {capitalizeFirst(pet.breed)}</span>}
         </div>
 
         {petStatus && PetStatusIcon && (
@@ -124,14 +106,14 @@ const PetSummaryItem: React.FC<PetSummaryItemProps> = ({ pet }) => {
             {pet.physicalDetails}
           </div>
         )}
-        
+
         {pet.traits && pet.traits.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2 justify-center">
             {pet.traits.map((trait, index) => {
               const { label, icon } = getPetTraitLabelWithIcon(trait);
               return (
-                <span 
-                  key={index} 
+                <span
+                  key={index}
                   className="inline-flex items-center gap-1 text-xs bg-mcf-amber/10 text-mcf-orange-dark px-2 py-0.5 rounded-full font-medium"
                 >
                   <span>{icon}</span>
