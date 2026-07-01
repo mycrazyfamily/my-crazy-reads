@@ -50,6 +50,8 @@ interface MockMonth {
   status: MonthStatus;
   bookTitle: string;
   bookSummary: string;
+  standardTitle?: string;
+  standardSummary?: string;
   bookTags: string[];
   // contextual
   deadline?: string;
@@ -320,6 +322,8 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
         return formatSummary(row.resume_narratif, childName, gender);
       return '';
     })(),
+    standardTitle: row.titre ? formatTitle(row.titre, childName) : PLACEHOLDER_TITLE,
+    standardSummary: row.resume_narratif ? formatSummary(row.resume_narratif, childName, gender) : '',
     bookTags: [],
     deadline: deadlineShort,
     daysLeft: daysLeft !== undefined && daysLeft >= 0 ? daysLeft : undefined,
@@ -1690,8 +1694,8 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           icon={<BookOpen className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
           label="Livre du mois"
           badge="Recommandé par MCF"
-          title={month.bookTitle}
-          description={month.bookSummary}
+          title={month.standardTitle ?? month.bookTitle}
+          description={month.standardSummary ?? month.bookSummary}
           selected={selected}
           onSelect={setSelected}
         />
@@ -2218,7 +2222,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         return opt.substituteThemeTitre.replace('[Prénom]', activeChild?.firstName ?? '');
       }
     }
-    return focusedMonth.bookTitle;
+    return focusedMonth.standardTitle ?? focusedMonth.bookTitle;
   })();
 
   return (
