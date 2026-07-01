@@ -1,9 +1,17 @@
 import React from 'react';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import { MapPin, MapPinOff } from 'lucide-react';
+
 type PlacesSummaryProps = {
   data: ChildProfileFormData;
 };
+
+// Première lettre en majuscule (saisie utilisateur), sans toucher au reste.
+const capitalizeFirst = (s?: string | null): string => {
+  const str = (s ?? '').trim();
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+};
+
 const PlacesSummary: React.FC<PlacesSummaryProps> = ({ data }) => {
   if (!data.places?.places || data.places.places.length === 0) {
     return <p className="text-gray-500 text-xs">Aucun lieu de vie ajouté.</p>;
@@ -22,7 +30,7 @@ const PlacesSummary: React.FC<PlacesSummaryProps> = ({ data }) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
                 <h4 className="text-sm font-semibold text-mcf-primary-dark">
-                  {place.label}
+                  {capitalizeFirst(place.label)}
                 </h4>
                 {place.type && (
                   <span className="text-xs text-gray-500 bg-white px-1.5 py-0.5 rounded">
@@ -59,10 +67,11 @@ const PlacesSummary: React.FC<PlacesSummaryProps> = ({ data }) => {
     </div>
   );
 };
+
 const getPlaceTypeLabel = (type: string): string => {
   // Formatter les types avec underscores
   const formattedType = type.replace(/_/g, ' ');
-  
+
   const labels: Record<string, string> = {
     'house': 'Maison',
     'apartment': 'Appartement',
@@ -70,9 +79,12 @@ const getPlaceTypeLabel = (type: string): string => {
     'secondary house': 'Maison secondaire',
     'other': 'Autre'
   };
-  
-  return labels[formattedType.toLowerCase()] || formattedType;
+
+  const label = labels[formattedType.toLowerCase()] || formattedType;
+  // Première lettre en majuscule pour les libellés non mappés (ex. « maison principale »).
+  return label.charAt(0).toUpperCase() + label.slice(1);
 };
+
 const renderDetails = (details: any) => {
   const detailsArray = [];
   if (details.hasGarden && details.gardenElements && details.gardenElements.length > 0) {
@@ -114,4 +126,5 @@ const renderDetails = (details: any) => {
   }
   return detailsArray.length > 0 ? detailsArray : null;
 };
+
 export default PlacesSummary;
