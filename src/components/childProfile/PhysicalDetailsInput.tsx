@@ -13,18 +13,16 @@ type PetPhysicalDetailsInputProps = {
 };
 
 const SUGGESTIONS = [
-  "Pelage noir",
-  "Pelage blanc",
-  "Pelage roux",
-  "Taches brunes",
-  "Taches blanches",
+  "Taches de rousseur",
+  "Grain de beauté",
+  "Fossettes",
+  "Cicatrice",
+  "Appareil dentaire",
+  "Boucles d'oreilles",
+  "Mèche colorée",
   "Grande taille",
   "Petite taille",
-  "Oreille coupée",
-  "Queue courte",
-  "Yeux bleus",
-  "Yeux verts",
-  "Collier",
+  "Tache de naissance",
 ];
 
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
@@ -92,7 +90,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
           Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
-          Couleur du pelage, taches, grande taille, oreille coupée, etc.
+          Taches de rousseur, grain de beauté, fossettes, cicatrice, etc.
         </p>
       </div>
 
@@ -161,7 +159,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
               <Input
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="Ex : Cicatrice sur la patte avant droite..."
+                placeholder="Ex : petite cicatrice au menton, une mèche plus claire..."
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
