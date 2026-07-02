@@ -43,8 +43,10 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
   const [typeUI, setTypeUI] = useState<string>(relative.id ? relative.type : '');
   const [selectedNickname, setSelectedNickname] = useState<string>(relative.id ? relative.nickname.type : '');
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.id ? relative.skinColor.type : '');
+  const [selectedEyeColor, setSelectedEyeColor] = useState<string>(relative.id ? (relative.eyeColor?.type || '') : '');
   const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.id ? relative.hairColor.type : '');
   const [hairTypeUI, setHairTypeUI] = useState<string>(relative.id ? relative.hairType : '');
+  const [hairLengthUI, setHairLengthUI] = useState<string>(relative.id ? (relative.hairLength || '') : '');
   const [glassesUI, setGlassesUI] = useState<boolean | null>(relative.id ? relative.glasses : null);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
@@ -100,8 +102,10 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setTypeUI(relative.type);
       setSelectedNickname(relative.nickname.type);
       setSelectedSkinColor(relative.skinColor.type);
+      setSelectedEyeColor(relative.eyeColor?.type || '');
       setSelectedHairColor(relative.hairColor.type);
       setHairTypeUI(relative.hairType);
+      setHairLengthUI(relative.hairLength || '');
       setGlassesUI(relative.glasses);
       setCustomTraits(relative.customTraits || {});
       // Réinitialiser les enfants liés lors de l'édition
@@ -116,8 +120,10 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       setTypeUI('');
       setSelectedNickname('');
       setSelectedSkinColor('');
+      setSelectedEyeColor('');
       setSelectedHairColor('');
       setHairTypeUI('');
+      setHairLengthUI('');
       setGlassesUI(null);
       setCustomTraits({});
       setSelectedChildrenIds([]);
@@ -187,6 +193,12 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     if (selectedSkinColor === 'custom' && !formData.skinColor.custom?.trim()) {
       errors.push("la couleur de peau personnalisée");
     }
+
+    // Couleur des yeux
+    if (!selectedEyeColor) errors.push("la couleur des yeux");
+    if (selectedEyeColor === 'custom' && !formData.eyeColor?.custom?.trim()) {
+      errors.push("la couleur des yeux personnalisée");
+    }
     
     // Couleur des cheveux
     if (!selectedHairColor) errors.push("la couleur des cheveux");
@@ -198,6 +210,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     if (!hairTypeUI) errors.push("le type de cheveux");
     if (hairTypeUI === 'custom' && !formData.hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
+    }
+
+    // Longueur des cheveux (obligatoire sauf si Chauve)
+    if (hairTypeUI !== 'bald' && !hairLengthUI) {
+      errors.push("la longueur des cheveux");
     }
     
     // Lunettes
@@ -235,6 +252,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       return;
     }
 
+    // Longueur des cheveux : forcée à undefined si Chauve (cohérence donnée/avatar)
+    const resolvedHairLength = hairTypeUI === 'bald'
+      ? undefined
+      : (hairLengthUI as "short" | "medium" | "long" | undefined);
+
     // Update all custom fields before saving
     const updatedRelative = {
       ...formData,
@@ -246,10 +268,15 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
         type: selectedSkinColor as "light" | "medium" | "dark" | "custom",
         custom: selectedSkinColor === 'custom' ? formData.skinColor.custom : undefined
       },
+      eyeColor: {
+        type: selectedEyeColor as "blue" | "green" | "brown" | "black" | "custom",
+        custom: selectedEyeColor === 'custom' ? formData.eyeColor?.custom : undefined
+      },
       hairColor: {
         type: selectedHairColor as "blonde" | "chestnut" | "brown" | "red" | "black" | "white" | "custom",
         custom: selectedHairColor === 'custom' ? formData.hairColor.custom : undefined
       },
+      hairLength: resolvedHairLength,
       customTraits: customTraits,
       physicalDetails: physicalDetails.length > 0 && !noPhysicalDetails ? physicalDetails : undefined,
       noPhysicalDetails: noPhysicalDetails,
@@ -310,6 +337,16 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
               custom: value
             }
           }))}
+          selectedEyeColor={selectedEyeColor}
+          setSelectedEyeColor={setSelectedEyeColor}
+          eyeColorCustomValue={formData.eyeColor?.custom}
+          setEyeColorCustomValue={(value) => setFormData(prev => ({
+            ...prev,
+            eyeColor: {
+              ...(prev.eyeColor || { type: 'custom' }),
+              custom: value
+            }
+          }))}
           selectedHairColor={selectedHairColor}
           setSelectedHairColor={setSelectedHairColor}
           hairColorCustomValue={formData.hairColor.custom}
@@ -324,6 +361,8 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
           setHairType={(value) => { setHairTypeUI(value); updateFormData('hairType', value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom"); }}
           hairTypeCustom={formData.hairTypeCustom}
           setHairTypeCustom={(value) => updateFormData('hairTypeCustom', value)}
+          hairLength={hairLengthUI}
+          setHairLength={(value) => { setHairLengthUI(value); updateFormData('hairLength', value as "short" | "medium" | "long"); }}
           glasses={glassesUI}
           setGlasses={(value) => { setGlassesUI(value); updateFormData('glasses', value); }}
           gender={formData.gender}
