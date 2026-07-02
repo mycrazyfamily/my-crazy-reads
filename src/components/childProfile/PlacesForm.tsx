@@ -52,6 +52,12 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
   const placesData = form.watch('places');
   const places = placesData?.places || [];
 
+  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un lieu
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isAddingPlace]);
+
+
   // Charger les enfants existants
   useEffect(() => {
     const loadExistingChildren = async () => {
