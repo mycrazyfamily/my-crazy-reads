@@ -28,6 +28,11 @@ const ToysForm: React.FC<ToysFormProps> = ({
   // Getter pour la liste des doudous
   const toys = form.watch("toys.toys") || [];
 
+  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un doudou
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isAddingToy]);
+
   const handleHasToysChange = (value: string) => {
     const hasToysValue = value === "true";
     
