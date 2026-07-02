@@ -218,6 +218,11 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     if (formData.hairType === 'custom' && !formData.hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
     }
+
+    // Longueur des cheveux (obligatoire sauf si Chauve)
+    if (formData.hairType !== 'bald' && !formData.hairLength) {
+      errors.push("la longueur des cheveux");
+    }
     
     // Lunettes
     if (formData.glasses === undefined || formData.glasses === null) {
@@ -296,12 +301,6 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     <RadioGroupItem value="boy" id="gender-boy" className="peer h-5 w-5" />
                   </FormControl>
                   <FormLabel htmlFor="gender-boy">Garçon</FormLabel>
-                </FormItem>
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <RadioGroupItem value="neutral" id="gender-neutral" className="peer h-5 w-5" />
-                  </FormControl>
-                  <FormLabel htmlFor="gender-neutral">Neutre</FormLabel>
                 </FormItem>
               </RadioGroup>
               <FormMessage />
@@ -614,7 +613,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                         ? "border-mcf-primary bg-mcf-secondary-light/50"
                         : "border-gray-200 hover:border-mcf-amber"
                     }`}
-                    onClick={() => form.setValue("hairType", option.value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom")}
+                    onClick={() => {
+                      form.setValue("hairType", option.value as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom");
+                      if (option.value === "bald") form.setValue("hairLength", undefined);
+                    }}
                   >
                     {option.label}
                   </div>
@@ -637,6 +639,40 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 <FormControl>
                   <Input placeholder="Description personnalisée" {...field} className="border-mcf-amber" />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {form.watch("hairType") !== "bald" && (
+          <FormField
+            control={form.control}
+            name="hairLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold">
+                  Quelle est la longueur de ses cheveux ?
+                </FormLabel>
+                <div className="grid grid-cols-3 gap-3 mt-2">
+                  {[
+                    { value: "short", label: "Court" },
+                    { value: "medium", label: "Mi-long" },
+                    { value: "long", label: "Long" },
+                  ].map((option) => (
+                    <div
+                      key={option.value}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                        field.value === option.value
+                          ? "border-mcf-primary bg-mcf-secondary-light/50"
+                          : "border-gray-200 hover:border-mcf-amber"
+                      }`}
+                      onClick={() => form.setValue("hairLength", option.value as "short" | "medium" | "long")}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
                 <FormMessage />
               </FormItem>
             )}
