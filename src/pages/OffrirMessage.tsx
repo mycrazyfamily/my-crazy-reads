@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,18 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, MessageSquare, Gift } from 'lucide-react';
-
 const OffrirMessage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { childProfile, theme, customPlace } = location.state || {};
   
   const [giftMessage, setGiftMessage] = useState('');
-
   const handleBackClick = () => {
     navigate(-1);
   };
-
   const handleContinue = () => {
     navigate('/offrir/livraison', { 
       state: { 
@@ -28,7 +24,6 @@ const OffrirMessage = () => {
       } 
     });
   };
-
   return (
     <div className="min-h-screen bg-white py-12">
       <div className="container px-4 mx-auto max-w-3xl">
@@ -48,7 +43,6 @@ const OffrirMessage = () => {
             Votre message sera imprimé dans le livre comme une dédicace pour {childProfile?.firstName || "l'enfant"}
           </p>
         </div>
-
         {/* Message de cadeau */}
         <Card className="mb-8 border border-mcf-amber/30">
           <CardContent className="pt-6">
@@ -62,7 +56,7 @@ const OffrirMessage = () => {
                   id="gift-message"
                   value={giftMessage}
                   onChange={(e) => setGiftMessage(e.target.value)}
-                  placeholder="Pour Léo, que cette histoire t'accompagne dans tes rêves les plus fous – Tonton Maxime 💙"
+                  placeholder="Pour Léo, que cette histoire t'accompagne dans tes rêves les plus fous, Tonton Maxime 💙"
                   className="mt-2 h-32 resize-none"
                 />
                 <p className="text-sm text-gray-500 italic mt-2">
@@ -82,7 +76,6 @@ const OffrirMessage = () => {
             </div>
           </CardContent>
         </Card>
-
         {/* Bouton de continuation */}
         <div className="flex justify-center">
           <Button 
@@ -97,5 +90,4 @@ const OffrirMessage = () => {
     </div>
   );
 };
-
 export default OffrirMessage;
