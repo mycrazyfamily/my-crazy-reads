@@ -571,7 +571,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             Quelle aventure imaginez-vous pour {childName} ?
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            Décrivez librement — le lieu, les personnages, l'ambiance, un souvenir… On s'occupe du reste.
+            Décrivez librement : le lieu, les personnages, l'ambiance, un souvenir… On s'occupe du reste.
           </p>
 
           <div className="relative mb-6">
@@ -800,7 +800,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             Où se passe l'histoire ?
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            Optionnel — par défaut l'histoire se déroule chez vous
+            Optionnel : par défaut l'histoire se déroule chez vous
           </p>
 
           {familyPlaces && familyPlaces.length > 0 && (
@@ -911,7 +911,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 disabled={isPreparingDest}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Indique une seule ville ou un seul décor — par exemple "Koh Tao", "la jungle amazonienne", "New York"
+                Indique une seule ville ou un seul décor, par exemple "Koh Tao", "la jungle amazonienne", "New York"
               </p>
               {destError && (
                 <p className="text-xs mt-2" style={{ color: '#DC2626' }}>
@@ -1399,7 +1399,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                 {month.daysLeft === 0
                   ? 'Dernière chance d\'ajouter votre touche !'
                   : month.daysLeft !== undefined
-                    ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — encore ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''} pour ajouter votre touche`
+                    ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) · encore ${month.daysLeft} jour${month.daysLeft > 1 ? 's' : ''} pour ajouter votre touche`
                     : `Ajoutez votre touche avant le ${month.deadline} (optionnel)`}
               </span>
             </>
@@ -1715,7 +1715,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
               label="Option spéciale MCF"
               badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
               title={title}
-              description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire — on lui dédie ce livre !`}
+              description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire, on lui dédie ce livre !`}
               selected={selected}
               onSelect={setSelected}
             />
