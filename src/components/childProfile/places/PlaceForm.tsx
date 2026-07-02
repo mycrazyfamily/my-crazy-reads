@@ -125,9 +125,6 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ place, onChange }) => {
               onChange={(e) => updateDetails('environnement', e.target.value)}
               placeholder="Ex: Plage de sable fin, montagne enneigée, forêt de pins méditerranéens..."
             />
-            <p className="text-xs text-gray-500 mt-1">
-              C'est la description la plus importante pour personnaliser l'histoire !
-            </p>
           </div>
 
           <div>
