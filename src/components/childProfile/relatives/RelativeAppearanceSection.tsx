@@ -15,6 +15,12 @@ type RelativeAppearanceSectionProps = {
   setSelectedHairColor: (color: string) => void;
   hairColorCustomValue: string | undefined;
   setHairColorCustomValue: (value: string) => void;
+  selectedEyeColor?: string;
+  setSelectedEyeColor?: (color: string) => void;
+  eyeColorCustomValue?: string | undefined;
+  setEyeColorCustomValue?: (value: string) => void;
+  hairLength?: string;
+  setHairLength?: (value: string) => void;
   hairType: string;
   setHairType: (type: string) => void;
   hairTypeCustom?: string;
@@ -39,6 +45,12 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
   setSelectedHairColor,
   hairColorCustomValue,
   setHairColorCustomValue,
+  selectedEyeColor,
+  setSelectedEyeColor,
+  eyeColorCustomValue,
+  setEyeColorCustomValue,
+  hairLength,
+  setHairLength,
   hairType,
   setHairType,
   hairTypeCustom,
@@ -104,6 +116,48 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         </div>
       )}
       
+      {/* Couleur des yeux */}
+      <div className="form-group">
+        <label className="block text-lg font-semibold mb-2">
+          Couleur des yeux
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-2">
+          {[
+            { value: "blue", label: "Bleus" },
+            { value: "green", label: "Verts" },
+            { value: "brown", label: "Marrons" },
+            { value: "black", label: "Noirs" },
+            { value: "custom", label: "Autre" },
+          ].map((option) => (
+            <div
+              key={option.value}
+              className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                selectedEyeColor === option.value
+                  ? "border-mcf-primary bg-mcf-secondary-light/50"
+                  : "border-gray-200 hover:border-mcf-primary/50"
+              }`}
+              onClick={() => setSelectedEyeColor && setSelectedEyeColor(option.value)}
+            >
+              {option.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedEyeColor === "custom" && (
+        <div className="form-group">
+          <label className="block text-lg font-semibold mb-2">
+            Couleur des yeux personnalisée
+          </label>
+          <Input
+            value={eyeColorCustomValue || ''}
+            onChange={(e) => setEyeColorCustomValue && setEyeColorCustomValue(e.target.value)}
+            placeholder="Description de la couleur des yeux"
+            className="border-mcf-primary/50"
+          />
+        </div>
+      )}
+
       {/* Couleur des cheveux */}
       <div className="form-group">
         <label className="block text-lg font-semibold mb-2">
@@ -194,6 +248,34 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
         </div>
       )}
       
+      {/* Longueur des cheveux — masquée si Chauve */}
+      {hairType !== "bald" && (
+        <div className="form-group">
+          <label className="block text-lg font-semibold mb-2">
+            Longueur des cheveux
+          </label>
+          <div className="grid grid-cols-3 gap-3 mt-2">
+            {[
+              { value: "short", label: "Court" },
+              { value: "medium", label: "Mi-long" },
+              { value: "long", label: "Long" },
+            ].map((option) => (
+              <div
+                key={option.value}
+                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                  hairLength === option.value
+                    ? "border-mcf-primary bg-mcf-secondary-light/50"
+                    : "border-gray-200 hover:border-mcf-primary/50"
+                }`}
+                onClick={() => setHairLength && setHairLength(option.value)}
+              >
+                {option.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Lunettes */}
       <div className="form-group mt-6">
         <label className="block text-lg font-semibold mb-2">
