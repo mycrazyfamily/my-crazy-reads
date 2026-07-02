@@ -345,6 +345,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
             hairColor: appearance.hairColor || { type: 'blonde' },
             hairType: appearance.hairType || 'straight',
             hairTypeCustom: appearance.hairTypeCustom,
+            hairLength: appearance.hairLength,
             glasses: appearance.glasses ?? false,
             physicalDetails,
             noPhysicalDetails,
