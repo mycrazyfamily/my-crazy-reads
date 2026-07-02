@@ -278,45 +278,16 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
 
     if (currentPlace.type === 'vacances') {
       if (!details.type_vacances) errors.push("Type de lieu de vacances");
-      if (!details.frequence_annuelle || !details.frequence_annuelle.trim()) errors.push("Fréquence annuelle");
-      if (details.hebergement_attitre === undefined) errors.push("Hébergement attitré (oui/non)");
-      if (details.famille_complete === undefined) errors.push("Famille au complet (oui/non)");
-      if (details.espace_partage === undefined) errors.push("Espace partagé (oui/non)");
+      if (!details.environnement || !details.environnement.trim()) errors.push("Description de l'environnement");
       if (!details.activites || !details.activites.trim()) errors.push("Activités habituelles");
-      if (!details.repas_ou) errors.push("Lieu des repas");
-      if (details.propre_lit === undefined) errors.push("Propre lit (oui/non)");
-      if (details.objets_familiers === undefined) errors.push("Objets familiers (oui/non)");
-      if (details.objets_familiers && (!details.objets_familiers_description || !details.objets_familiers_description.trim())) errors.push("Description des objets familiers");
-      if (!details.souvenir_marquant || !details.souvenir_marquant.trim()) errors.push("Souvenir marquant");
     } else {
       if (!details.habitat_type) errors.push("Type de logement");
       if (details.habitat_type === 'Autre' && (!details.habitat_type_autre || !details.habitat_type_autre.trim())) errors.push("Précision du type de logement");
-      if (!details.luminosite) errors.push("Lumineux ou sombre");
-      if (details.enfants_dans_meme_chambre === undefined) errors.push("Partage de la chambre (oui/non)");
-      if (details.enfants_dans_meme_chambre && (!details.enfants_chambre_avec_qui || !details.enfants_chambre_avec_qui.trim())) errors.push("Avec qui l'enfant partage sa chambre");
-      if (!details.nombre_pieces || !details.nombre_pieces.trim()) errors.push("Nombre de pièces");
-      if (!details.salon_details || !details.salon_details.trim()) errors.push("Description du salon");
-      if (details.television === undefined) errors.push("Présence d'une télévision (oui/non)");
-      if (details.television && (!details.television_ou || !details.television_ou.trim())) errors.push("Où se trouve la télévision");
-      if (details.piece_jeu === undefined) errors.push("Présence d'une pièce de jeu (oui/non)");
-      if (details.bruit_sol === undefined) errors.push("Le sol fait-il du bruit ? (oui/non)");
+      if (!details.environnement || !details.environnement.trim()) errors.push("Description de l'environnement autour du logement");
       if (details.jardin === undefined) errors.push("Présence d'un jardin ou d'une cour (oui/non)");
-      if (details.jardin) {
-        if (details.jardin_piscine === undefined) errors.push("Piscine dans le jardin (oui/non)");
-        if (details.jardin_ping_pong === undefined) errors.push("Table de ping-pong dans le jardin (oui/non)");
-        if (details.jardin_cabane === undefined) errors.push("Cabane/annexe dans le jardin (oui/non)");
-        const hasJardinDetails = [details.jardin_autres_1, details.jardin_autres_2, details.jardin_autres_3].some(d => d && d.trim() !== '');
-        if (!hasJardinDetails && !details.noJardinDetails) {
-          errors.push("Autres éléments du jardin (ou cochez 'Aucun élément particulier')");
-        }
-      }
-      if (!details.environnement || !details.environnement.trim()) errors.push("Environnement autour du logement");
-      if (!details.frequence_utilisation) errors.push("Fréquence d'utilisation du lieu");
-      const hasAutreDetails = [details.autre_detail_1, details.autre_detail_2, details.autre_detail_3].some(d => d && d.trim() !== '');
-      if (!hasAutreDetails && !details.noAutreDetails) {
-        errors.push("Éléments marquants du logement (ou cochez 'Aucun élément particulier')");
-      }
+      if (details.jardin && (!details.jardin_elements || !details.jardin_elements.trim())) errors.push("Éléments marquants du jardin");
     }
+
 
     if (errors.length > 0) {
       toast.error('Veuillez compléter les champs obligatoires', {
