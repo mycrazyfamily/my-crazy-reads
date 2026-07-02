@@ -43,8 +43,8 @@ const APropos: React.FC = () => {
                 renforcent la confiance en soi et créent des souvenirs familiaux précieux.
               </p>
               <p>
-                Chaque mois, nous proposons un nouveau thème éducatif et ludique — de l'écologie aux émotions,
-                en passant par la culture et la créativité — pour accompagner l'épanouissement de votre enfant de 0 à 10 ans.
+                Chaque mois, nous proposons un nouveau thème éducatif et ludique (de l'écologie aux émotions,
+                en passant par la culture et la créativité) pour accompagner l'épanouissement de votre enfant de 0 à 10 ans.
               </p>
             </div>
           </section>
