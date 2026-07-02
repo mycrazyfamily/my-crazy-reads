@@ -67,7 +67,7 @@ function colorSig(c: any): [string, string] {
 }
 function childAvatarSig(input: {
   skinColor: any; eyeColor: any; hairColor: any;
-  hairType: any; hairTypeCustom: any; glasses: any;
+  hairType: any; hairTypeCustom: any; hairLength: any; glasses: any;
   physicalDetails: any; clothingStyle: any; birthDate: any;
 }): string {
   return JSON.stringify({
@@ -76,6 +76,7 @@ function childAvatarSig(input: {
     hairColor: colorSig(input.hairColor),
     hairType: String(input.hairType ?? ''),
     hairTypeCustom: String(input.hairTypeCustom ?? '').trim(),
+    hairLength: String(input.hairLength ?? ''),
     glasses: !!input.glasses,
     phys: normalizePhysList(input.physicalDetails),
     clothing: normalizeClothing(input.clothingStyle),
@@ -138,6 +139,7 @@ const CreateChildProfile = ({
           hairColor: ap.hairColor,
           hairType: ap.hairType,
           hairTypeCustom: ap.hairTypeCustom,
+          hairLength: ap.hairLength,
           glasses: ap.glasses,
           physicalDetails: data?.physical_details,
           clothingStyle: data?.clothing_style,
@@ -222,6 +224,7 @@ const CreateChildProfile = ({
               hairColor: data.hairColor,
               hairType: data.hairType,
               hairTypeCustom: data.hairTypeCustom,
+              hairLength: data.hairType === 'bald' ? undefined : data.hairLength,
               glasses: data.glasses
             },
             physical_details: data.noPhysicalDetails 
