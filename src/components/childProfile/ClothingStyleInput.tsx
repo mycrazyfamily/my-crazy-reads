@@ -33,14 +33,12 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
       setCustomText(normalized);
     } else if (isPredefined) {
       setShowCustomInput(false);
-      setCustomText('');
     }
   }, [value]);
   const handleOptionClick = (optionValue: string, optionLabel: string, optionEmoji: string) => {
     const fullValue = `${optionEmoji} ${optionLabel}`;
     onChange(fullValue);
     setShowCustomInput(false);
-    setCustomText('');
   };
   const handleCustomClick = () => {
     setShowCustomInput(true);
