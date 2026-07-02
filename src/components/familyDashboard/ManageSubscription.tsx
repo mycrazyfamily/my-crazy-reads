@@ -228,9 +228,9 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
 
   const getPlanInfo = (priceId: string | null) => {
     if (priceId === SUBSCRIPTION_PLANS.yearly.priceId) {
-      return { type: 'yearly' as const, label: 'Annuelle — 299,99€/an' };
+      return { type: 'yearly' as const, label: 'Annuelle : 299,99€/an' };
     }
-    return { type: 'monthly' as const, label: 'Mensuelle — 29,99€/mois' };
+    return { type: 'monthly' as const, label: 'Mensuelle : 29,99€/mois' };
   };
 
   const getStatusBadge = (sub: StripeSubscriptionItem) => {
