@@ -71,9 +71,11 @@ function relativeAvatarSignature(i: any): string {
     role: i?.role || '',
     gender: i?.gender || '',
     skin: [i?.skinColorType || '', (i?.skinColorCustom || '').trim()],
+    eye: [i?.eyeColorType || '', (i?.eyeColorCustom || '').trim()],
     hairColor: [i?.hairColorType || '', (i?.hairColorCustom || '').trim()],
     hairType: i?.hairType || '',
     hairTypeCustom: (i?.hairTypeCustom || '').trim(),
+    hairLength: i?.hairLength || '',
     glasses: !!i?.glasses,
     phys,
     noPhys: !!i?.noPhysicalDetails,
@@ -114,10 +116,13 @@ const ModifierProche: React.FC = () => {
   // Apparence
   const [selectedSkinColor, setSelectedSkinColor] = useState('light');
   const [skinColorCustomValue, setSkinColorCustomValue] = useState<string | undefined>(undefined);
+  const [selectedEyeColor, setSelectedEyeColor] = useState('');
+  const [eyeColorCustomValue, setEyeColorCustomValue] = useState<string | undefined>(undefined);
   const [selectedHairColor, setSelectedHairColor] = useState('brown');
   const [hairColorCustomValue, setHairColorCustomValue] = useState<string | undefined>(undefined);
   const [hairType, setHairType] = useState('straight');
   const [hairTypeCustom, setHairTypeCustom] = useState('');
+  const [hairLength, setHairLength] = useState('');
   const [glasses, setGlasses] = useState(false);
   
   // Traits
@@ -229,12 +234,18 @@ const ModifierProche: React.FC = () => {
         setSelectedSkinColor(skinColorType);
         setSkinColorCustomValue(details.skinColor?.custom || undefined);
 
+        const eyeColorType = details.eyeColor?.type || '';
+        setSelectedEyeColor(eyeColorType);
+        setEyeColorCustomValue(details.eyeColor?.custom || undefined);
+
         const hairColorType = details.hairColor?.type || 'brown';
         setSelectedHairColor(hairColorType);
         setHairColorCustomValue(details.hairColor?.custom || undefined);
 
         setHairType(details.hairType || 'straight');
         setHairTypeCustom(details.hairTypeCustom || '');
+        const hairLengthValue = details.hairLength || '';
+        setHairLength(hairLengthValue);
         setGlasses(!!details.glasses);
 
         // Pré-remplir les traits
@@ -285,10 +296,13 @@ const ModifierProche: React.FC = () => {
           gender: details.gender || 'male',
           skinColorType: skinColorType,
           skinColorCustom: details.skinColor?.custom,
+          eyeColorType: eyeColorType,
+          eyeColorCustom: details.eyeColor?.custom,
           hairColorType: hairColorType,
           hairColorCustom: details.hairColor?.custom,
           hairType: details.hairType || 'straight',
           hairTypeCustom: details.hairTypeCustom || '',
+          hairLength: hairLengthValue,
           glasses: !!details.glasses,
           physicalDetails: physicalDetailsData,
           noPhysicalDetails: computedNoPhysical,
@@ -413,6 +427,12 @@ const ModifierProche: React.FC = () => {
     if (selectedSkinColor === 'custom' && !skinColorCustomValue?.trim()) {
       errors.push("la couleur de peau personnalisée");
     }
+
+    // Couleur des yeux
+    if (!selectedEyeColor) errors.push("la couleur des yeux");
+    if (selectedEyeColor === 'custom' && !eyeColorCustomValue?.trim()) {
+      errors.push("la couleur des yeux personnalisée");
+    }
     
     // Couleur des cheveux
     if (!selectedHairColor) errors.push("la couleur des cheveux");
@@ -424,6 +444,11 @@ const ModifierProche: React.FC = () => {
     if (!hairType) errors.push("le type de cheveux");
     if (hairType === 'custom' && !hairTypeCustom?.trim()) {
       errors.push("le type de cheveux personnalisé");
+    }
+
+    // Longueur des cheveux (obligatoire sauf si Chauve)
+    if (hairType !== 'bald' && !hairLength) {
+      errors.push("la longueur des cheveux");
     }
     
     // Lunettes
@@ -464,16 +489,22 @@ const ModifierProche: React.FC = () => {
       return;
     }
 
+    // Longueur des cheveux : forcée à null si Chauve (cohérence donnée/avatar)
+    const resolvedHairLength = hairType === 'bald' ? null : (hairLength || null);
+
     // L'avatar n'est régénéré QUE si l'apparence a changé (pas pour le statut ni les liens / brouille enfants).
     const currentAvatarSig = relativeAvatarSignature({
       role: type,
       gender,
       skinColorType: selectedSkinColor,
       skinColorCustom: skinColorCustomValue,
+      eyeColorType: selectedEyeColor,
+      eyeColorCustom: eyeColorCustomValue,
       hairColorType: selectedHairColor,
       hairColorCustom: hairColorCustomValue,
       hairType,
       hairTypeCustom,
+      hairLength: resolvedHairLength || '',
       glasses,
       physicalDetails,
       noPhysicalDetails,
@@ -494,9 +525,11 @@ const ModifierProche: React.FC = () => {
           custom: nicknameCustomValue ? splitCamelCase(nicknameCustomValue) : nicknameCustomValue,
         },
         skinColor: { type: selectedSkinColor, custom: skinColorCustomValue },
+        eyeColor: { type: selectedEyeColor, custom: eyeColorCustomValue },
         hairColor: { type: selectedHairColor, custom: hairColorCustomValue },
         hairType: hairType,
         hairTypeCustom,
+        hairLength: resolvedHairLength,
         glasses,
         traits,
         customTraits,
@@ -710,6 +743,10 @@ const ModifierProche: React.FC = () => {
             setSelectedSkinColor={setSelectedSkinColor}
             skinColorCustomValue={skinColorCustomValue}
             setSkinColorCustomValue={setSkinColorCustomValue}
+            selectedEyeColor={selectedEyeColor}
+            setSelectedEyeColor={setSelectedEyeColor}
+            eyeColorCustomValue={eyeColorCustomValue}
+            setEyeColorCustomValue={setEyeColorCustomValue}
             selectedHairColor={selectedHairColor}
             setSelectedHairColor={setSelectedHairColor}
             hairColorCustomValue={hairColorCustomValue}
@@ -718,6 +755,8 @@ const ModifierProche: React.FC = () => {
             setHairType={setHairType}
             hairTypeCustom={hairTypeCustom}
             setHairTypeCustom={setHairTypeCustom}
+            hairLength={hairLength}
+            setHairLength={setHairLength}
             glasses={glasses}
             setGlasses={setGlasses}
             gender={gender}
