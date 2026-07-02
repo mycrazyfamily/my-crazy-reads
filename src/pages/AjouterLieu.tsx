@@ -36,6 +36,11 @@ export default function AjouterLieu() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Revenir en haut quand on passe de la sélection d'enfant au formulaire (et inversement)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [showForm]);
+
   useEffect(() => {
     if (supabaseSession?.user) {
       fetchChildren();
@@ -104,13 +109,30 @@ export default function AjouterLieu() {
         return;
       }
 
-      if (!currentPlaceData.label?.trim()) {
-        toast.error('Veuillez renseigner le nom du lieu');
-        return;
+      const errors: string[] = [];
+      const details = currentPlaceData.details || {};
+
+      if (!currentPlaceData.label?.trim()) errors.push("Nom du lieu");
+      if (!currentPlaceData.type) errors.push("Type de lieu");
+      if (!currentPlaceData.city || !currentPlaceData.city.trim()) errors.push("Ville");
+      if (!currentPlaceData.country || !currentPlaceData.country.trim()) errors.push("Pays");
+
+      if (currentPlaceData.type === 'vacances') {
+        if (!details.type_vacances) errors.push("Type de lieu de vacances");
+        if (!details.environnement || !details.environnement.trim()) errors.push("Description de l'environnement");
+        if (!details.activites || !details.activites.trim()) errors.push("Activités habituelles");
+      } else {
+        if (!details.habitat_type) errors.push("Type de logement");
+        if (details.habitat_type === 'Autre' && (!details.habitat_type_autre || !details.habitat_type_autre.trim())) errors.push("Précision du type de logement");
+        if (!details.environnement || !details.environnement.trim()) errors.push("Description de l'environnement autour du logement");
+        if (details.jardin === undefined) errors.push("Présence d'un jardin ou d'une cour (oui/non)");
+        if (details.jardin && (!details.jardin_elements || !details.jardin_elements.trim())) errors.push("Éléments marquants du jardin");
       }
 
-      if (!currentPlaceData.type) {
-        toast.error('Veuillez sélectionner le type de lieu');
+      if (errors.length > 0) {
+        toast.error('Veuillez compléter les champs obligatoires', {
+          description: `Champs manquants:\n• ${errors.join('\n• ')}`,
+        });
         return;
       }
 
