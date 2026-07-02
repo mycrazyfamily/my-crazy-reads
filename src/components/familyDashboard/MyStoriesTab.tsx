@@ -1414,7 +1414,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) — Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
+              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) · Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
