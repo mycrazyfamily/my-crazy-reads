@@ -221,6 +221,7 @@ export default function AjouterProche() {
             hairColor: relativeData.hairColor, // Already an object with type/custom
             hairType: relativeData.hairType,
             hairTypeCustom: relativeData.hairTypeCustom,
+            hairLength: relativeData.hairLength,
             glasses: relativeData.glasses,
             traits: relativeData.traits,
             customTraits: relativeData.customTraits || {},
