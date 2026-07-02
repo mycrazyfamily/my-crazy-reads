@@ -13,18 +13,16 @@ type PetPhysicalDetailsInputProps = {
 };
 
 const SUGGESTIONS = [
-  "Pelage noir",
-  "Pelage blanc",
-  "Pelage roux",
-  "Taches brunes",
-  "Taches blanches",
+  "Taches de rousseur",
+  "Grain de beauté",
+  "Fossettes",
+  "Cicatrice",
+  "Appareil dentaire",
+  "Boucles d'oreilles",
+  "Mèche colorée",
   "Grande taille",
   "Petite taille",
-  "Oreille coupée",
-  "Queue courte",
-  "Yeux bleus",
-  "Yeux verts",
-  "Collier",
+  "Tache de naissance",
 ];
 
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
