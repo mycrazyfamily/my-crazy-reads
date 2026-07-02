@@ -41,6 +41,11 @@ const PetsForm: React.FC<PetsFormProps> = ({
   // Getter pour la liste des animaux
   const pets = form.watch("pets.pets") || [];
 
+  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un animal
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isAddingPet]);
+
   // Charger les animaux existants de la famille
   useEffect(() => {
     const loadExistingPets = async () => {
