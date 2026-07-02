@@ -42,6 +42,12 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
   const [selectedExistingRelativeIds, setSelectedExistingRelativeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un proche
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isEditingRelative]);
+
+
   // Charger les proches existants de la famille
   useEffect(() => {
     const loadExistingRelatives = async () => {
