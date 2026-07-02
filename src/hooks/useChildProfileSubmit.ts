@@ -168,9 +168,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                   }
                 : relative.nickname,
               skinColor: relative.skinColor,
+              eyeColor: relative.eyeColor,
               hairColor: relative.hairColor,
               hairType: relative.hairType,
               hairTypeCustom: relative.hairTypeCustom,
+              hairLength: relative.hairLength,
               glasses: relative.glasses,
               traits: relative.traits,
               customTraits: relative.customTraits || {},
@@ -224,6 +226,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 hairColor: data.hairColor,
                 hairType: data.hairType,
                 hairTypeCustom: data.hairTypeCustom,
+                hairLength: data.hairType === 'bald' ? undefined : data.hairLength,
                 glasses: data.glasses
               },
               physical_details: data.physicalDetails && data.physicalDetails.length > 0 
