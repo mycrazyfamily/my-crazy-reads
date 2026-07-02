@@ -62,6 +62,14 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
         </Label>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <OptionCard
+          isSelected={showCustomInput && !isPredefinedStyle}
+          isDisabled={false}
+          onClick={handleCustomClick}
+          icon="✏️"
+          label="Créez un style sur mesure"
+        />
+
         {CLOTHING_STYLE_OPTIONS.map((option) => (
           <OptionCard
             key={option.value}
@@ -72,14 +80,6 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
             label={option.label}
           />
         ))}
-        
-        <OptionCard
-          isSelected={showCustomInput && !isPredefinedStyle}
-          isDisabled={false}
-          onClick={handleCustomClick}
-          icon="✏️"
-          label="Autre style"
-        />
       </div>
       {showCustomInput && (
         <div className="space-y-2 mt-4 p-4 border-2 border-mcf-primary/50 rounded-lg bg-mcf-secondary-light/20">
