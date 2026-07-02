@@ -606,6 +606,7 @@ const CreateChildProfile = ({
           hairColor: data.hairColor,
           hairType: data.hairType,
           hairTypeCustom: data.hairTypeCustom,
+          hairLength: data.hairType === 'bald' ? undefined : data.hairLength,
           glasses: data.glasses,
           physicalDetails: data.noPhysicalDetails ? [] : data.physicalDetails,
           clothingStyle: data.clothingStyle,
