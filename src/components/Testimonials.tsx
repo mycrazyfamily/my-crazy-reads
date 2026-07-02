@@ -6,7 +6,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
 interface Testimonial {
   id: number;
   content: string;
@@ -14,7 +13,6 @@ interface Testimonial {
   subtitle: string;
   image: string;
 }
-
 const Testimonials: React.FC = () => {
   const testimonials: Testimonial[] = [
     {
@@ -60,7 +58,6 @@ const Testimonials: React.FC = () => {
       image: "/lovable-uploads/testimonials/julien.png"
     }
   ];
-
   return (
     <div className="relative w-full">
       {/* Carousel */}
@@ -83,18 +80,16 @@ const Testimonials: React.FC = () => {
                     className="w-28 h-28 rounded-full object-cover border-2 border-border shadow-sm"
                   />
                 </div>
-
                 {/* Citation */}
                 <div className="flex-1 mb-6">
                   <p className="text-[#333] text-base md:text-lg leading-relaxed text-center">
                     "{testimonial.content}"
                   </p>
                 </div>
-
                 {/* Auteur */}
                 <div className="text-center">
                   <p className="text-[#2272e4] font-semibold text-base mb-1">
-                    — {testimonial.author}
+                    {testimonial.author}
                   </p>
                   <p className="text-[#777] text-sm">
                     {testimonial.subtitle}
@@ -110,5 +105,4 @@ const Testimonials: React.FC = () => {
     </div>
   );
 };
-
 export default Testimonials;
