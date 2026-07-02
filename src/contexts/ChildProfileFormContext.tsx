@@ -78,6 +78,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
       hairColor: { type: "blonde" },
       hairType: undefined as unknown as "straight" | "wavy" | "curly" | "coily" | "bald" | "ponytail" | "custom",
       hairTypeCustom: undefined,
+      hairLength: undefined,
       glasses: undefined,
       physicalDetails: [],
       noPhysicalDetails: false,
