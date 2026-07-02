@@ -61,15 +61,31 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
           {label}
         </Label>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <OptionCard
-          isSelected={showCustomInput && !isPredefinedStyle}
-          isDisabled={false}
-          onClick={handleCustomClick}
-          icon="✏️"
-          label="Créez un style sur mesure"
-        />
 
+      <OptionCard
+        isSelected={showCustomInput && !isPredefinedStyle}
+        isDisabled={false}
+        onClick={handleCustomClick}
+        icon="✏️"
+        label="Créez un style sur mesure"
+      />
+
+      {showCustomInput && (
+        <div className="space-y-2 p-4 border-2 border-mcf-primary/50 rounded-lg bg-mcf-secondary-light/20">
+          <Label htmlFor="custom-clothing" className="text-sm font-medium">
+            Décris le style vestimentaire favori
+          </Label>
+          <Input
+            id="custom-clothing"
+            placeholder="Ex : sweat bleu, pantalon beige et baskets noires"
+            value={customText}
+            onChange={handleCustomTextChange}
+            className="w-full"
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {CLOTHING_STYLE_OPTIONS.map((option) => (
           <OptionCard
             key={option.value}
@@ -81,20 +97,6 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
           />
         ))}
       </div>
-      {showCustomInput && (
-        <div className="space-y-2 mt-4 p-4 border-2 border-mcf-primary/50 rounded-lg bg-mcf-secondary-light/20">
-          <Label htmlFor="custom-clothing" className="text-sm font-medium">
-            Décris le style vestimentaire favori
-          </Label>
-          <Input
-            id="custom-clothing"
-            placeholder="Ex : souvent des leggings licornes, porte toujours un chapeau..."
-            value={customText}
-            onChange={handleCustomTextChange}
-            className="w-full"
-          />
-        </div>
-      )}
     </div>
   );
 };
