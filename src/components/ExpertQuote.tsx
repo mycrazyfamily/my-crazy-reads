@@ -23,7 +23,7 @@ const ExpertQuote: React.FC = () => {
 Avec My Crazy Family, ils retrouvent leurs repères affectifs et s'identifient à des personnages familiers, ce qui stimule l'apprentissage et renforce la confiance en soi.</p>
                   
                   <footer className="text-base md:text-lg font-semibold text-mcf-text">
-                    <span className="text-mcf-secondary">— Violaine Lallour</span>
+                    <span className="text-mcf-secondary">Violaine Lallour</span>
                     <span className="block mt-1 text-mcf-text/70 font-normal">
                       Psychologue pour enfants depuis 20 ans
                     </span>
