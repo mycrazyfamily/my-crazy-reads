@@ -645,6 +645,40 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           />
         )}
 
+        {form.watch("hairType") !== "bald" && (
+          <FormField
+            control={form.control}
+            name="hairLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold">
+                  Quelle est la longueur de ses cheveux ?
+                </FormLabel>
+                <div className="grid grid-cols-3 gap-3 mt-2">
+                  {[
+                    { value: "short", label: "Court" },
+                    { value: "medium", label: "Mi-long" },
+                    { value: "long", label: "Long" },
+                  ].map((option) => (
+                    <div
+                      key={option.value}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition-all ${
+                        field.value === option.value
+                          ? "border-mcf-primary bg-mcf-secondary-light/50"
+                          : "border-gray-200 hover:border-mcf-amber"
+                      }`}
+                      onClick={() => form.setValue("hairLength", option.value as "short" | "medium" | "long")}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="glasses"
