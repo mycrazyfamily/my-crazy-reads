@@ -198,6 +198,7 @@ export default function AjouterAnimal() {
         .insert({
           name: splitCamelCase(petData.name),
           type: finalType,
+          gender: petData.gender || null,
           breed: petData.breed || null,
           emoji: null,
           family_id: familyId
