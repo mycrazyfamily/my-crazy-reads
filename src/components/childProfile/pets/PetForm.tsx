@@ -1,10 +1,13 @@
+// PetForm v1.1
+// Changelog v1.1 : ajout du champ Sexe (Mâle/Femelle), obligatoire — state + UI + getPetData + validatePetData
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { PET_TYPE_OPTIONS, PET_TRAIT_OPTIONS } from '@/constants/petOptions';
-import type { PetData, PetType, PetTrait } from '@/types/childProfile';
+import type { PetData, PetType, PetGender, PetTrait } from '@/types/childProfile';
 import { Dog, Cat, Rabbit, Bird, Fish } from 'lucide-react';
 import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +29,7 @@ type PetFormProps = {
 const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewChild = false, showButtons = true, onDataChange, linkedChildrenIds, isDisabled = false }) => {
   const [name, setName] = useState(pet?.name || '');
   const [type, setType] = useState<PetType>(pet?.type || 'dog');
+  const [gender, setGender] = useState<PetGender | undefined>(pet?.gender);
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [birthMonthYear, setBirthMonthYear] = useState(pet?.birthMonthYear || '');
   const [breed, setBreed] = useState(pet?.breed || '');
@@ -95,6 +99,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       // Restaurer name, type, etc.
       setName(pet.name || '');
       setType(pet.type || 'dog');
+      setGender(pet.gender);
       setOtherType(pet.otherType || '');
       setBirthMonthYear(pet.birthMonthYear || '');
       setBreed(pet.breed || '');
@@ -191,6 +196,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       id: pet?.id || Date.now().toString(),
       name: name.trim(),
       type,
+      gender: gender as PetGender,
       otherType: type === 'other' ? otherType.trim() : undefined,
       birthMonthYear: birthMonthYear || undefined,
       breed: breed.trim() || undefined,
@@ -220,6 +226,10 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
     if (type === 'other' && !otherType.trim()) {
       errors.push("le type d'animal personnalisé");
+    }
+
+    if (!gender) {
+      errors.push("le sexe de l'animal");
     }
 
     if (!birthMonthYear) {
@@ -273,7 +283,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, otherType, birthMonthYear, breed, petPhysicalDetails, noPhysicalDetails, selectedTraits, customTraits]);
+  }, [name, type, gender, otherType, birthMonthYear, breed, petPhysicalDetails, noPhysicalDetails, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -331,6 +341,27 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             />
           </div>
         )}
+      </div>
+
+      {/* Sexe de l'animal */}
+      <div className="space-y-3">
+        <Label className="text-base font-medium block">
+          Sexe
+        </Label>
+        <RadioGroup
+          value={gender}
+          onValueChange={(v) => setGender(v as PetGender)}
+          className="flex gap-6"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="male" id="pet-gender-male" />
+            <Label htmlFor="pet-gender-male" className="cursor-pointer">Mâle</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="female" id="pet-gender-female" />
+            <Label htmlFor="pet-gender-female" className="cursor-pointer">Femelle</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       {/* Date de naissance de l'animal */}
