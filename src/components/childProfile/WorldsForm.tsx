@@ -1,3 +1,6 @@
+// WorldsForm v1.1
+// Changelog v1.1 : wording bouton corrigé — "Voir le récapitulatif →" était trompeur (l'étape
+// suivante est Lieux, pas Résumé) → "Continuer l'aventure →"
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -293,7 +296,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
             onClick={handleSubmit}
             className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
           >
-            Voir le récapitulatif →
+            Continuer l'aventure →
           </Button>
         </div>
       </div>
