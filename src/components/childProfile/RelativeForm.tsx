@@ -1,3 +1,5 @@
+// RelativeForm v1.1
+// Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSaveClick (jamais vérifiée jusqu'ici)
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import type { RelativeData, RelativeType, RelativeGender } from '@/types/childProfile';
@@ -186,6 +188,11 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     // Gender must always be male or female
     if (formData.gender !== 'male' && formData.gender !== 'female') {
       errors.push("le genre (Homme / Femme)");
+    }
+
+    // Date de naissance
+    if (!formData.birthDate) {
+      errors.push("la date de naissance");
     }
     
     // Couleur de peau
