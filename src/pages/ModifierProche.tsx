@@ -1,3 +1,5 @@
+// ModifierProche v1.1
+// Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSave (jamais vérifiée jusqu'ici)
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -420,6 +422,11 @@ const ModifierProche: React.FC = () => {
     // Gender must always be male or female
     if (gender !== 'male' && gender !== 'female') {
       errors.push("le genre (Homme / Femme)");
+    }
+
+    // Date de naissance
+    if (!birthDate) {
+      errors.push("la date de naissance");
     }
     
     // Couleur de peau
