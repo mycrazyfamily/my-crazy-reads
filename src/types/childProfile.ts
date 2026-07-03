@@ -1,4 +1,3 @@
-
 export type RelativeType = 
   | "mother" | "father" | "otherParent" 
   | "sister" | "brother" 
@@ -78,6 +77,8 @@ export type FamilyData = {
 
 export type PetType = "dog" | "cat" | "rabbit" | "bird" | "fish" | "reptile" | "other";
 
+export type PetGender = "male" | "female";
+
 export type PetTrait = 
   | "playful" | "lazy" | "protective" | "clingy" 
   | "clever" | "grumpy" | "gentle" | "noisy" | "talkative" 
@@ -87,6 +88,7 @@ export type PetData = {
   id: string;
   name: string;
   type: PetType;
+  gender: PetGender;
   otherType?: string;
   birthMonthYear?: string; // Format: YYYY-MM (ex: 2025-11)
   breed?: string;
