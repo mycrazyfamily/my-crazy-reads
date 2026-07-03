@@ -139,6 +139,11 @@ export default function AjouterProche() {
       if (relativeData.gender !== 'male' && relativeData.gender !== 'female') {
         errors.push("le genre (Homme / Femme)");
       }
+
+      // Date de naissance
+      if (!relativeData.birthDate) {
+        errors.push("la date de naissance");
+      }
       
       if (relativeData.nickname.type === 'custom' && !relativeData.nickname.custom?.trim()) {
         errors.push("le surnom personnalisé");
