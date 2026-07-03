@@ -1,3 +1,7 @@
+// ModifierAnimal v2.9
+// Changelog v2.9 : ajout gender (select pets, chargement, sauvegarde, validation obligatoire)
+//                  + fix validation manquante birthMonthYear dans handleSubmitClick (existait déjà
+//                  côté PetForm/AjouterAnimal mais pas ici, showButtons=false contourne PetForm.validatePetData)
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -15,7 +19,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
-import type { PetData, PetType, PetTrait } from '@/types/childProfile';
+import type { PetData, PetType, PetGender, PetTrait } from '@/types/childProfile';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
 // Statut « entité inactive » de l'animal (mutuellement exclusif)
@@ -129,6 +133,7 @@ const ModifierAnimal: React.FC = () => {
             id,
             name,
             type,
+            gender,
             emoji,
             family_id,
             breed,
@@ -172,6 +177,7 @@ const ModifierAnimal: React.FC = () => {
           id: data.pets.id,
           name: data.name || data.pets.name,
           type: isCustomType ? 'other' : (storedType as PetType),
+          gender: data.pets.gender as PetGender,
           otherType: isCustomType ? storedType : undefined,
           birthMonthYear: data.birth_month_year || undefined,
           breed: data.race || (data.pets as any).breed || undefined,
@@ -251,6 +257,7 @@ const ModifierAnimal: React.FC = () => {
         .update({
           name: splitCamelCase(updatedPet.name),
           type: finalType,
+          gender: updatedPet.gender || null,
           breed: updatedPet.breed || null,
           ...statusFields,
         })
@@ -393,6 +400,14 @@ const ModifierAnimal: React.FC = () => {
 
     if (currentPetData.type === 'other' && !currentPetData.otherType?.trim()) {
       errors.push("le type d'animal personnalisé");
+    }
+
+    if (!currentPetData.gender) {
+      errors.push("le sexe de l'animal");
+    }
+
+    if (!currentPetData.birthMonthYear) {
+      errors.push("la date de naissance de l'animal");
     }
 
     if (!currentPetData.breed?.trim()) {
