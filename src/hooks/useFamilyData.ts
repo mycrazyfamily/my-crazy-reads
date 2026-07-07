@@ -1,3 +1,7 @@
+// useFamilyData v1.1
+// Changelog v1.1 : ajout du fetch family-wide des doudous (comforters + 1ere ligne
+// child_comforters dispo pour appearance/roles/name), même pattern que relatives/pets.
+// toysCount n'est plus hardcodé à 0.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +39,7 @@ export interface FamilyChild {
   relatives: any[];
   pets: any[];
   places: any[];
+  toys: any[];
   toysCount: number;
   preferencesCount: number;
   hasPets: number;
@@ -53,7 +58,7 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
 
   // Global family-level fetch: ALL members & pets of the family
   const familyId = userProfile?.family_id;
-  const [{ data: allFamilyMembers }, { data: allFamilyPets }, { data: siblingProfiles }] = await Promise.all([
+  const [{ data: allFamilyMembers }, { data: allFamilyPets }, { data: siblingProfiles }, { data: allFamilyComfortersRaw }] = await Promise.all([
     familyId
       ? supabase
           .from('family_members')
@@ -72,7 +77,46 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           .select('id, first_name, avatar_url, birth_date, is_deceased')
           .eq('family_id', familyId)
       : Promise.resolve({ data: [] as any[], error: null }),
+    familyId
+      ? supabase
+          .from('comforters')
+          .select('id, label, emoji, avatar_url, is_active')
+          .eq('family_id', familyId)
+      : Promise.resolve({ data: [] as any[], error: null }),
   ] as const);
+
+  // Les doudous n'ont pas appearance/roles/name sur comforters (uniquement sur la jonction
+  // child_comforters, comme birth_month_year/race pour les animaux). On va chercher la 1ère
+  // ligne de jonction disponible par comforter pour compléter ces champs — même logique que
+  // ModifierDoudou (famille, pas enfant).
+  const comforterIds = (allFamilyComfortersRaw || []).map((c: any) => c.id);
+  const { data: allChildComfortersRaw } = comforterIds.length > 0
+    ? await supabase
+        .from('child_comforters')
+        .select('comforter_id, name, appearance, roles, relation_label')
+        .in('comforter_id', comforterIds)
+    : { data: [] as any[] };
+
+  const childComforterByComforterId = new Map<string, any>();
+  (allChildComfortersRaw || []).forEach((cc: any) => {
+    if (!childComforterByComforterId.has(cc.comforter_id)) {
+      childComforterByComforterId.set(cc.comforter_id, cc);
+    }
+  });
+
+  const allFamilyComforters = (allFamilyComfortersRaw || []).map((c: any) => {
+    const link = childComforterByComforterId.get(c.id);
+    return {
+      id: c.id,
+      name: link?.name || c.label,
+      type: link?.relation_label || 'plush',
+      appearance: link?.appearance || '',
+      roles: link?.roles ? String(link.roles).split(',').map((r: string) => r.trim()).filter(Boolean) : [],
+      emoji: c.emoji,
+      avatar_url: c.avatar_url,
+      is_active: c.is_active ?? true,
+    };
+  });
 
   const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url, is_deceased`;
 
@@ -117,7 +161,8 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
       inactive_reason: p.inactive_reason ?? null,
     })),
     places: [],
-    toysCount: 0,
+    toys: allFamilyComforters,
+    toysCount: allFamilyComforters.length,
     preferencesCount: 0,
     hasPets: (allFamilyPets || []).length,
     birthDate: profile.birth_date || null,
