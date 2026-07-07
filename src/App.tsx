@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
@@ -50,6 +49,8 @@ import AjouterAnimal from './pages/AjouterAnimal'
 import AjouterProche from './pages/AjouterProche'
 import AjouterLieu from './pages/AjouterLieu'
 import ModifierLieu from './pages/ModifierLieu'
+import AjouterDoudou from './pages/AjouterDoudou'
+import ModifierDoudou from './pages/ModifierDoudou'
 import NosHistoires from './pages/NosHistoires'
 
 function App() {
@@ -168,6 +169,21 @@ function App() {
               <Route path="/modifier-lieu/:childId/:placeId" element={
                 <AuthGuard>
                   <ModifierLieu />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-doudou" element={
+                <AuthGuard>
+                  <AjouterDoudou />
+                </AuthGuard>
+              } />
+              <Route path="/ajouter-doudou/:childId" element={
+                <AuthGuard>
+                  <AjouterDoudou />
+                </AuthGuard>
+              } />
+              <Route path="/modifier-doudou/:childId/:comforterId" element={
+                <AuthGuard>
+                  <ModifierDoudou />
                 </AuthGuard>
               } />
 
