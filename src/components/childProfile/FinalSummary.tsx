@@ -1,3 +1,8 @@
+// FinalSummary v1.1
+// Changelog v1.1 : (a) fix typo handleGoToStep(7)→(5) sur le bloc Univers, qui ramenait au
+// résumé lui-même au lieu d'aller à l'étape Univers ; (b) bouton "Modifier" masqué en mode
+// édition pour Famille/Animaux/Doudous/Lieux (étapes 2/3/4/6, exclues de la navigation d'édition
+// — cliquer menait à une page blanche) ; SummaryBlock.onEdit rendu optionnel en conséquence.
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -211,7 +216,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         <SummaryBlock 
           title="Famille & entourage" 
           icon={<Users className="h-5 w-5 text-mcf-primary" />}
-          onEdit={() => handleGoToStep(2)}
+          onEdit={editMode ? undefined : () => handleGoToStep(2)}
           className="lg:col-span-1"
         >
           <FamilySummary data={completeData} />
@@ -221,7 +226,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <SummaryBlock 
             title="Animaux de compagnie" 
             icon={<Cat className="h-5 w-5 text-mcf-primary" />}
-            onEdit={() => handleGoToStep(3)}
+            onEdit={editMode ? undefined : () => handleGoToStep(3)}
             className="lg:col-span-1"
           >
             <PetsSummary data={completeData} />
@@ -232,7 +237,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <SummaryBlock 
             title="Doudous & objets magiques" 
             icon={<Sparkles className="h-5 w-5 text-mcf-primary" />}
-            onEdit={() => handleGoToStep(4)}
+            onEdit={editMode ? undefined : () => handleGoToStep(4)}
             className="lg:col-span-1"
           >
             <ToysSummary data={completeData} />
@@ -243,7 +248,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           <SummaryBlock 
             title="Lieux de vie" 
             icon={<MapPin className="h-5 w-5 text-mcf-primary" />}
-            onEdit={() => handleGoToStep(6)}
+            onEdit={editMode ? undefined : () => handleGoToStep(6)}
             className="lg:col-span-1"
           >
             <PlacesSummary data={completeData} />
@@ -253,7 +258,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         <SummaryBlock 
           title="Univers préféré & culture" 
           icon={<Globe className="h-5 w-5 text-mcf-primary" />}
-          onEdit={() => handleGoToStep(7)}
+          onEdit={() => handleGoToStep(5)}
           className={`${(!completeData.pets?.hasPets && !completeData.toys?.hasToys && (!completeData.places?.places || completeData.places.places.length === 0)) ? 'lg:col-span-1' : 'lg:col-span-2'}`}
         >
           <WorldsSummary data={completeData} />
@@ -309,7 +314,7 @@ type SummaryBlockProps = {
   title: string;
   icon: React.ReactNode;
   children: React.ReactNode;
-  onEdit: () => void;
+  onEdit?: () => void;
   className?: string;
 };
 
@@ -327,15 +332,17 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           {icon}
           <h3 className="text-sm font-bold">{title}</h3>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onEdit}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-mcf-primary hover:bg-mcf-amber/10 h-7 px-2 rounded-md transition-colors"
-        >
-          <Pencil className="h-3 w-3" /> 
-          Modifier
-        </Button>
+        {onEdit && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onEdit}
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-mcf-primary hover:bg-mcf-amber/10 h-7 px-2 rounded-md transition-colors"
+          >
+            <Pencil className="h-3 w-3" /> 
+            Modifier
+          </Button>
+        )}
       </div>
       <div className="p-3">
         {children}
