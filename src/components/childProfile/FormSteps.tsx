@@ -1,4 +1,7 @@
-
+// FormSteps v1.1
+// Changelog v1.1 : étape Jouets retirée du mode édition (garde !editMode ajoutée, cohérent avec
+// Famille/Animaux/Lieux) + stepLabels/totalSteps/stepMap mis à jour en conséquence (4 étapes
+// au lieu de 5 en édition). Contrepartie obligatoire dans ChildProfileFormContext.tsx (v1.1).
 import React from 'react';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
@@ -71,10 +74,10 @@ const FormSteps: React.FC<FormStepsProps> = ({
   };
 
   const stepLabels = editMode 
-    ? ['Infos', 'Personnalité', 'Jouets', 'Univers', 'Résumé']
+    ? ['Infos', 'Personnalité', 'Univers', 'Résumé']
     : ['Infos', 'Personnalité', 'Famille', 'Animaux', 'Jouets', 'Univers', 'Lieux', 'Résumé'];
   
-  const totalSteps = editMode ? 5 : 8;
+  const totalSteps = editMode ? 4 : 8;
   
   // Mapping correct des étapes en mode édition
   const getAdjustedStep = () => {
@@ -83,9 +86,8 @@ const FormSteps: React.FC<FormStepsProps> = ({
     const stepMap: { [key: number]: number } = {
       0: 0, // Infos
       1: 1, // Personnalité
-      4: 2, // Jouets
-      5: 3, // Univers
-      7: 4, // Résumé
+      5: 2, // Univers
+      7: 3, // Résumé
     };
     
     return stepMap[formStep] ?? 0;
@@ -138,7 +140,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
         />
       )}
 
-      {formStep === 4 && (
+      {formStep === 4 && !editMode && (
         <ToysForm
           handleNextStep={goNext}
           handlePreviousStep={goPrev}
