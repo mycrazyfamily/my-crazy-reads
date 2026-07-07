@@ -1,3 +1,8 @@
+// ChildProfileFormContext v1.1
+// Changelog v1.1 : étape Jouets (4) totalement retirée de la navigation en mode édition
+// (handleNextStep/handlePreviousStep) — elle ne doit plus s'afficher qu'en création.
+// Point de vigilance non vérifié dans ce lot : si FinalSummary.tsx propose un lien "modifier
+// Jouets" en mode édition (handleGoToStep(4)), il faudra aussi le retirer là-bas.
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from "sonner";
@@ -457,10 +462,10 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     if (isValidNow) {
       let nextStep = formStep + 1;
       
-      // En mode édition, skip les étapes 2 (famille), 3 (pets) et 6 (places)
+      // En mode édition, skip les étapes 2 (famille), 3 (pets), 4 (jouets) et 6 (places)
       if (editMode) {
         if (formStep === 1) {
-          nextStep = 4; // De Personalité (1) à Toys (4)
+          nextStep = 5; // De Personalité (1) à Univers (5), skip Famille/Animaux/Jouets
         } else if (formStep === 5) {
           nextStep = 7; // De Univers (5) à Résumé (7), skip Places (6)
         }
@@ -476,10 +481,10 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   const handlePreviousStep = () => {
     let prevStep = formStep - 1;
     
-    // En mode édition, skip les étapes 2 (famille), 3 (pets) et 6 (places)
+    // En mode édition, skip les étapes 2 (famille), 3 (pets), 4 (jouets) et 6 (places)
     if (editMode) {
-      if (formStep === 4) {
-        prevStep = 1; // De Toys (4) à Personalité (1)
+      if (formStep === 5) {
+        prevStep = 1; // De Univers (5) à Personalité (1), skip Jouets/Animaux/Famille
       } else if (formStep === 7) {
         prevStep = 5; // De Résumé (7) à Univers (5), skip Places (6)
       }
