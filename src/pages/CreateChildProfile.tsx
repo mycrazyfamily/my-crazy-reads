@@ -1,3 +1,6 @@
+// CreateChildProfile v1.1
+// Changelog v1.1 : fix family_id manquant à la création d'un nouveau comforter en mode édition
+// (CAS 2) — récupéré une fois via child_profiles avant la boucle, injecté dans l'insert comforters.
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -343,6 +346,14 @@ const CreateChildProfile = ({
         // Gérer les doudous (comforters) - mise à jour et création
         if (data.toys?.toys && data.toys.toys.length > 0) {
           console.log('🧸 Updating/Creating comforters:', data.toys.toys);
+
+          // family_id de l'enfant courant (nécessaire pour les nouveaux comforters — v1.1)
+          const { data: childForFamily } = await supabase
+            .from('child_profiles')
+            .select('family_id')
+            .eq('id', editChildId)
+            .maybeSingle();
+          const currentFamilyId = childForFamily?.family_id || null;
           
           // Récupérer les liens existants dans child_comforters
           const { data: existingComforterLinks } = await supabase
@@ -406,6 +417,7 @@ const CreateChildProfile = ({
                 .insert([{
                   label: toy.name,
                   emoji,
+                  family_id: currentFamilyId,
                   created_by: userId,
                   is_active: toy.isActive !== false
                 }])
