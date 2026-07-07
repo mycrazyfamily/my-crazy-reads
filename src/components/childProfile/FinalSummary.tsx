@@ -1,4 +1,10 @@
-// FinalSummary v1.1
+// FinalSummary v1.2
+// Changelog v1.2 : bug 5B — en mode création, le résumé n'affichait que les proches/animaux/
+// lieux nouvellement créés dans la session, jamais les sélections parmi l'existant
+// (existingRelativesData/existingPetsData/existingPlacesData n'ont qu'un ID). Nouvelle branche
+// qui va chercher leurs données complètes (family_members/pets/places) et les fusionne avec les
+// nouveaux pour un récap global. Aucun changement nécessaire dans FamilySummary/PetsSummary/
+// PlacesSummary.tsx — ils affichaient déjà correctement ce qu'on leur donnait.
 // Changelog v1.1 : (a) fix typo handleGoToStep(7)→(5) sur le bloc Univers, qui ramenait au
 // résumé lui-même au lieu d'aller à l'étape Univers ; (b) bouton "Modifier" masqué en mode
 // édition pour Famille/Animaux/Doudous/Lieux (étapes 2/3/4/6, exclues de la navigation d'édition
@@ -43,16 +49,12 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
   const form = useFormContext<ChildProfileFormData>();
   const formData = form.getValues();
   const [completeData, setCompleteData] = useState<ChildProfileFormData>(formData);
-  const [isLoadingData, setIsLoadingData] = useState(editMode);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // En mode édition, charger toutes les données existantes
+  // Charger toutes les données existantes (édition) OU enrichir les sélections "existant" (création)
   useEffect(() => {
     const loadCompleteData = async () => {
-      if (!editMode || !editChildId) {
-        setCompleteData(formData);
-        setIsLoadingData(false);
-        return;
-      }
+      if (editMode && editChildId) {
 
       try {
         // Charger les données de famille (relatives)
@@ -153,8 +155,106 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
             placeChildLinks: {}
           }
         });
+        setIsLoadingData(false);
+        return;
       } catch (error) {
         console.error('Error loading complete child data:', error);
+        setCompleteData(formData);
+        setIsLoadingData(false);
+        return;
+      }
+      }
+
+      // Mode création : les proches/animaux/lieux nouvellement créés sont déjà complets dans
+      // formData, mais les SÉLECTIONS PARMI L'EXISTANT (existingRelativesData/existingPetsData/
+      // existingPlacesData) n'ont que l'ID + un résumé minimal. On va chercher leurs données
+      // complètes pour que le résumé montre le récap global (ajoutés + existants), pas juste
+      // les ajoutés.
+      try {
+        const existingRelativeIds = (formData.family?.existingRelativesData || [])
+          .map((r: any) => r.id).filter(Boolean);
+        const existingPetIds = (formData.pets?.existingPetsData || [])
+          .map((p: any) => p.id).filter(Boolean);
+        const existingPlaceIds = (formData.places?.existingPlacesData || [])
+          .map((p: any) => p.id).filter(Boolean);
+
+        if (existingRelativeIds.length === 0 && existingPetIds.length === 0 && existingPlaceIds.length === 0) {
+          setCompleteData(formData);
+          setIsLoadingData(false);
+          return;
+        }
+
+        const [relativesRes, petsRes, placesRes] = await Promise.all([
+          existingRelativeIds.length > 0
+            ? supabase.from('family_members').select('*').in('id', existingRelativeIds)
+            : Promise.resolve({ data: [] as any[] }),
+          existingPetIds.length > 0
+            ? supabase.from('pets').select('*').in('id', existingPetIds)
+            : Promise.resolve({ data: [] as any[] }),
+          existingPlaceIds.length > 0
+            ? supabase.from('places').select('*').in('id', existingPlaceIds)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+
+        // Même mapping que la branche édition ci-dessus, pour un rendu identique dans les
+        // *Summary.tsx (qui n'ont besoin d'aucune modification).
+        const existingRelativesFull = (relativesRes.data || []).map((fm: any) => {
+          const nicknameRaw = fm.details?.nickname;
+          const nicknameObj = (nicknameRaw && typeof nicknameRaw === 'object')
+            ? nicknameRaw
+            : { type: (nicknameRaw ? 'custom' : 'none') as 'custom' | 'none', custom: nicknameRaw || '' };
+          return {
+            id: fm.id,
+            type: fm.role,
+            firstName: fm.name,
+            nickname: nicknameObj,
+            traits: fm.details?.traits || [],
+            otherTypeName: fm.details?.otherTypeName || '',
+            is_deceased: fm.is_deceased ?? false,
+          };
+        });
+
+        const existingPetsFull = (petsRes.data || []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          type: p.type,
+          breed: p.breed,
+          physicalDetails: p.physical_details || [],
+          traits: [],
+          is_deceased: p.is_deceased ?? false,
+          is_active: p.is_active,
+        }));
+
+        const existingPlacesFull = (placesRes.data || []).map((p: any) => ({
+          id: p.id,
+          label: p.label,
+          type: p.type,
+          emoji: p.emoji,
+          address: p.address,
+          city: p.city,
+          country: p.country,
+          details: p.details,
+          is_active: p.is_active,
+        }));
+
+        setCompleteData({
+          ...formData,
+          family: {
+            ...formData.family,
+            relatives: [...(formData.family?.relatives || []), ...existingRelativesFull]
+          },
+          pets: {
+            hasPets: formData.pets?.hasPets || existingPetsFull.length > 0,
+            pets: [...(formData.pets?.pets || []), ...existingPetsFull]
+          },
+          places: {
+            places: [...(formData.places?.places || []), ...existingPlacesFull],
+            existingPlacesData: formData.places?.existingPlacesData || [],
+            placeChildLinks: formData.places?.placeChildLinks || {}
+          }
+        });
+      } catch (error) {
+        console.error('Error enriching existing selections for summary:', error);
         setCompleteData(formData);
       } finally {
         setIsLoadingData(false);
