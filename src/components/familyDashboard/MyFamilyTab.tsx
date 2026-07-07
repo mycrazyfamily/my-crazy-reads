@@ -1,12 +1,16 @@
+// MyFamilyTab v1.1
+// Changelog v1.1 : ajout de la section "Doudous et objets magiques" (entre Animaux et Lieux,
+// même ordre que QuickActionsSection et le wizard) — extraction allToys + ToyProfileCard.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Baby, Users, Heart, MapPin } from 'lucide-react';
+import { Plus, Baby, Users, Heart, MapPin, Sparkles } from 'lucide-react';
 import ChildProfileCard from './ChildProfileCard';
 import RelativeProfileCard from './RelativeProfileCard';
 import PetProfileCard from './PetProfileCard';
 import PlaceProfileCard from './PlaceProfileCard';
+import ToyProfileCard from './ToyProfileCard';
 
 interface Child {
   id: string;
@@ -17,6 +21,7 @@ interface Child {
   relatives?: any[];
   pets?: any[];
   places?: any[];
+  toys?: any[];
   toysCount?: number;
   preferencesCount?: number;
   hasPets?: number;
@@ -83,6 +88,33 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
     
     return Array.from(petsMap.values())
       .sort((a, b) => (a.pet.name || '').localeCompare(b.pet.name || '', 'fr'));
+  }, [children]);
+
+  // Extraire tous les doudous uniques
+  const allToys = React.useMemo(() => {
+    const toysMap = new Map<string, { toy: any; childrenNames: string[]; childrenIds: string[] }>();
+
+    children.forEach((child) => {
+      if (!child.toys || child.toys.length === 0) return;
+
+      child.toys.forEach((toy: any) => {
+        const toyKey = toy.id || toy.name;
+        if (toysMap.has(toyKey)) {
+          const entry = toysMap.get(toyKey)!;
+          entry.childrenNames.push(child.firstName);
+          entry.childrenIds.push(child.id);
+        } else {
+          toysMap.set(toyKey, {
+            toy,
+            childrenNames: [child.firstName],
+            childrenIds: [child.id]
+          });
+        }
+      });
+    });
+
+    return Array.from(toysMap.values())
+      .sort((a, b) => (a.toy.name || '').localeCompare(b.toy.name || '', 'fr'));
   }, [children]);
 
   // Extraire tous les lieux uniques
@@ -273,6 +305,49 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
               >
                 <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
                 Ajouter un autre animal
+              </Button>
+            </>
+          )}
+        </section>
+      )}
+
+      {/* Section Doudous */}
+      {children.length > 0 && (
+        <section className="animate-fade-in animation-delay-250">
+          <SectionHeader
+            icon={Sparkles}
+            title="Doudous et objets magiques"
+          />
+
+          {allToys.length === 0 ? (
+            <EmptyState
+              icon={Sparkles}
+              title="Ajoutez ses doudous"
+              description="Peluche, couverture, figurine... Ils peuvent aussi devenir des personnages de l'histoire !"
+              buttonText="Ajouter un doudou"
+              onClick={() => navigate(children.length === 1 ? `/ajouter-doudou/${children[0].id}` : '/ajouter-doudou')}
+              gradient="from-mcf-amber/5 to-mcf-mint/10"
+            />
+          ) : (
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {allToys.map(({ toy, childrenNames, childrenIds }) => (
+                  <ToyProfileCard
+                    key={toy.id || toy.name}
+                    toy={toy}
+                    childrenNames={childrenNames}
+                    primaryChildId={childrenIds[0]}
+                  />
+                ))}
+              </div>
+
+              <Button
+                onClick={() => navigate(children.length === 1 ? `/ajouter-doudou/${children[0].id}` : '/ajouter-doudou')}
+                variant="ghost"
+                className="w-full text-[#4A90E2] hover:text-[#2E6BB8] hover:bg-[#F8FBFF] font-medium h-12 rounded-xl transition-all"
+              >
+                <Plus className="h-5 w-5 mr-2" strokeWidth={2.5} />
+                Ajouter un autre doudou
               </Button>
             </>
           )}
