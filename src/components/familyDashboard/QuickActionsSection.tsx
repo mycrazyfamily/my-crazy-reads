@@ -1,7 +1,9 @@
+// QuickActionsSection v1.1
+// Changelog v1.1 : ajout de la carte "Ajouter un doudou" (entre animal et lieu) + grille passée à 5 colonnes en desktop
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
-import { Baby, Users, Heart, MapPin, Plus } from 'lucide-react';
+import { Baby, Users, Heart, MapPin, Plus, Sparkles } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface QuickActionsSectionProps {
@@ -58,6 +60,23 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
       iconColor: 'text-blue-500',
     },
     {
+      id: 'toy',
+      title: 'Ajouter un doudou',
+      description: 'Ajoutez le doudou ou objet fétiche de votre enfant',
+      icon: Sparkles,
+      onClick: () => {
+        if (childrenCount === 1 && firstChildId) {
+          navigate(`/ajouter-doudou/${firstChildId}`);
+        } else {
+          navigate('/ajouter-doudou');
+        }
+      },
+      disabled: childrenCount === 0,
+      disabledMessage: 'Ajoutez d\'abord un enfant pour pouvoir ajouter ses doudous.',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-500',
+    },
+    {
       id: 'place',
       title: 'Ajouter un lieu',
       description: 'Ajoutez un lieu de vie pour situer les aventures',
@@ -78,7 +97,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {actions.map((action) => {
           const Icon = action.icon;
           
