@@ -1,3 +1,8 @@
+// useChildProfileSubmit v1.1
+// Changelog v1.1 : 3 fixes sur la création de doudou (section 16, cas nouveau doudou) —
+// (a) family_id manquant sur l'insert comforters, (b) appearance stockait toy.type au lieu du
+// texte libre de l'utilisateur (vraie perte de données), (c) relation_label ignorait otherType
+// pour les types "Autre". Emoji mapping complété (doll/miniCar/figurine) sur les 2 branches.
 
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -619,7 +624,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 .update({
                   is_active: toy.isActive !== false, // Par défaut actif si non spécifié
                   label: toy.name,
-                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨'
+                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨'
                 })
                 .eq('id', toy.comforterId);
 
@@ -632,7 +637,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 .from('comforters')
                 .insert([{
                   label: toy.name,
-                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🛏️' : '✨',
+                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨',
+                  family_id: familyId,
                   created_by: userId,
                   is_active: toy.isActive !== false // Par défaut actif si non spécifié
                 }])
@@ -652,9 +658,9 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                     child_id: childId,
                     comforter_id: createdComforter.id,
                     name: toy.name,
-                    appearance: toy.type,
-                    roles: Array.isArray(toy.roles) ? toy.roles.join(', ') : toy.roles,
-                    relation_label: toy.type
+                    appearance: toy.appearance?.trim() || '',
+                    roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
+                    relation_label: toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type
                   }]);
 
                 if (linkError) {
