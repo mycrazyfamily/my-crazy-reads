@@ -1,7 +1,10 @@
-// useFamilyData v1.1
-// Changelog v1.1 : ajout du fetch family-wide des doudous (comforters + 1ere ligne
-// child_comforters dispo pour appearance/roles/name), même pattern que relatives/pets.
-// toysCount n'est plus hardcodé à 0.
+// useFamilyData v2.0
+// Changelog v2.0 : BUG CORRIGÉ — relatives/pets/toys étaient chargés family-wide et assignés
+// IDENTIQUES à chaque enfant (au lieu d'être filtrés par les vraies jonctions), contrairement à
+// places qui était déjà correct. Chaque enfant n'affiche désormais que SES proches/animaux/
+// doudous réels, via child_family_members/child_pets/comforters.child_id (respectivement).
+// Adaptation au nouveau schéma doudou : comforters.child_id direct, plus de jonction
+// child_comforters (1 doudou = 1 enfant).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,67 +59,17 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     .eq('id', userId)
     .maybeSingle();
 
-  // Global family-level fetch: ALL members & pets of the family
+  // Fetch family-wide : uniquement les enfants (pour les fratries). Relatives/pets/toys sont
+  // désormais chargés PAR ENFANT via leurs jonctions respectives (comme places l'était déjà) —
+  // corrige le bug où tous les enfants d'une même famille affichaient les MÊMES proches/animaux/
+  // doudous, qu'ils y soient réellement liés ou non.
   const familyId = userProfile?.family_id;
-  const [{ data: allFamilyMembers }, { data: allFamilyPets }, { data: siblingProfiles }, { data: allFamilyComfortersRaw }] = await Promise.all([
-    familyId
-      ? supabase
-          .from('family_members')
-          .select('id, name, role, avatar_url, details, is_deceased')
-          .eq('family_id', familyId)
-      : Promise.resolve({ data: [] as any[], error: null }),
-    familyId
-      ? supabase
-          .from('pets')
-          .select('id, name, type, emoji, avatar_url, breed, is_deceased, is_active, inactive_reason')
-          .eq('family_id', familyId)
-      : Promise.resolve({ data: [] as any[], error: null }),
-    familyId
-      ? supabase
-          .from('child_profiles')
-          .select('id, first_name, avatar_url, birth_date, is_deceased')
-          .eq('family_id', familyId)
-      : Promise.resolve({ data: [] as any[], error: null }),
-    familyId
-      ? supabase
-          .from('comforters')
-          .select('id, label, emoji, avatar_url, is_active')
-          .eq('family_id', familyId)
-      : Promise.resolve({ data: [] as any[], error: null }),
-  ] as const);
-
-  // Les doudous n'ont pas appearance/roles/name sur comforters (uniquement sur la jonction
-  // child_comforters, comme birth_month_year/race pour les animaux). On va chercher la 1ère
-  // ligne de jonction disponible par comforter pour compléter ces champs — même logique que
-  // ModifierDoudou (famille, pas enfant).
-  const comforterIds = (allFamilyComfortersRaw || []).map((c: any) => c.id);
-  const { data: allChildComfortersRaw } = comforterIds.length > 0
+  const { data: siblingProfiles } = familyId
     ? await supabase
-        .from('child_comforters')
-        .select('comforter_id, name, appearance, roles, relation_label')
-        .in('comforter_id', comforterIds)
+        .from('child_profiles')
+        .select('id, first_name, avatar_url, birth_date, is_deceased')
+        .eq('family_id', familyId)
     : { data: [] as any[] };
-
-  const childComforterByComforterId = new Map<string, any>();
-  (allChildComfortersRaw || []).forEach((cc: any) => {
-    if (!childComforterByComforterId.has(cc.comforter_id)) {
-      childComforterByComforterId.set(cc.comforter_id, cc);
-    }
-  });
-
-  const allFamilyComforters = (allFamilyComfortersRaw || []).map((c: any) => {
-    const link = childComforterByComforterId.get(c.id);
-    return {
-      id: c.id,
-      name: link?.name || c.label,
-      type: link?.relation_label || 'plush',
-      appearance: link?.appearance || '',
-      roles: link?.roles ? String(link.roles).split(',').map((r: string) => r.trim()).filter(Boolean) : [],
-      emoji: c.emoji,
-      avatar_url: c.avatar_url,
-      is_active: c.is_active ?? true,
-    };
-  });
 
   const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url, is_deceased`;
 
@@ -142,29 +95,13 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     gender: profile.gender || null,
     avatar: profile.avatar_url || null,
     personalityEmoji: '🧒',
-    relatives: (allFamilyMembers || []).map((fm: any) => ({
-      id: fm.id,
-      firstName: fm.name,
-      type: fm.role,
-      nickname: null,
-      avatar_url: fm.avatar_url,
-      is_deceased: fm.is_deceased ?? false,
-    })),
-    pets: (allFamilyPets || []).map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      type: p.type,
-      emoji: p.emoji,
-      avatar_url: p.avatar_url,
-      is_deceased: p.is_deceased ?? false,
-      is_active: p.is_active ?? true,
-      inactive_reason: p.inactive_reason ?? null,
-    })),
+    relatives: [],
+    pets: [],
     places: [],
-    toys: allFamilyComforters,
-    toysCount: allFamilyComforters.length,
+    toys: [],
+    toysCount: 0,
     preferencesCount: 0,
-    hasPets: (allFamilyPets || []).length,
+    hasPets: 0,
     birthDate: profile.birth_date || null,
     isDeceased: profile.is_deceased ?? false,
     siblings: (siblingProfiles || [])
@@ -181,14 +118,17 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
   await Promise.all(
     uniqueRows.map(async (profile: any, index: number) => {
       try {
-        const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes, { data: childRelativeLinks }] = await Promise.all([
+        const [{ data: childPlaces }, superpowersRes, likesRes, challengesRes, universesRes, discoveriesRes, { data: childRelativeLinks }, { data: childPetLinks }, { data: childToys }] = await Promise.all([
           supabase.from('child_places').select(`label, places:place_id (id, label, type, emoji, address, city, country, description, details, is_active)`).eq('child_id', profile.id),
           supabase.from('child_superpowers').select('superpowers(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_likes').select('likes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_challenges').select('challenges(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_universes').select('universes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_discoveries').select('discoveries(label, emoji)').eq('child_id', profile.id),
-          supabase.from('child_family_members').select('family_member_id, is_active').eq('child_id', profile.id),
+          supabase.from('child_family_members').select('family_member_id, is_active, family_members(id, name, role, avatar_url, details, is_deceased)').eq('child_id', profile.id),
+          supabase.from('child_pets').select('pet_id, pets(id, name, type, emoji, avatar_url, breed, is_deceased, is_active, inactive_reason)').eq('child_id', profile.id),
+          // Nouveau schéma : 1 doudou = 1 enfant, child_id direct sur comforters (plus de jonction)
+          supabase.from('comforters').select('id, label, emoji, avatar_url, is_active, appearance, roles, relation_label').eq('child_id', profile.id),
         ]);
 
         const prefsTotal = (superpowersRes.data?.length || 0) + (likesRes.data?.length || 0) + (challengesRes.data?.length || 0) + (universesRes.data?.length || 0) + (discoveriesRes.data?.length || 0);
@@ -203,9 +143,53 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           .filter((l: any) => l.is_active === false)
           .map((l: any) => l.family_member_id);
 
+        const relativesEnriched = (childRelativeLinks || []).map((link: any) => {
+          const fm = link.family_members;
+          if (!fm) return null;
+          return {
+            id: fm.id,
+            firstName: fm.name,
+            type: fm.role,
+            nickname: null,
+            avatar_url: fm.avatar_url,
+            is_deceased: fm.is_deceased ?? false,
+          };
+        }).filter(Boolean);
+
+        const petsEnriched = (childPetLinks || []).map((link: any) => {
+          const p = link.pets;
+          if (!p) return null;
+          return {
+            id: p.id,
+            name: p.name,
+            type: p.type,
+            emoji: p.emoji,
+            avatar_url: p.avatar_url,
+            is_deceased: p.is_deceased ?? false,
+            is_active: p.is_active ?? true,
+            inactive_reason: p.inactive_reason ?? null,
+          };
+        }).filter(Boolean);
+
+        const toysEnriched = (childToys || []).map((c: any) => ({
+          id: c.id,
+          name: c.label,
+          type: c.relation_label || 'plush',
+          appearance: c.appearance || '',
+          roles: c.roles ? String(c.roles).split(',').map((r: string) => r.trim()).filter(Boolean) : [],
+          emoji: c.emoji,
+          avatar_url: c.avatar_url,
+          is_active: c.is_active ?? true,
+        }));
+
         children[index] = {
           ...children[index],
           places: placesEnriched,
+          relatives: relativesEnriched,
+          pets: petsEnriched,
+          hasPets: petsEnriched.length,
+          toys: toysEnriched,
+          toysCount: toysEnriched.length,
           preferencesCount: prefsTotal,
           estrangedRelativeIds,
         };
