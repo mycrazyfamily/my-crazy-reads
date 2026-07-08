@@ -1,3 +1,7 @@
+// AjouterLieu v1.1
+// Changelog v1.1 : garde-fou — impossible d'ajouter un lieu non-principal si l'enfant n'a pas
+// déjà une maison principale (vérifiée via child_places + places.type, pour chaque enfant
+// sélectionné). Ne bloque pas la création de la maison principale elle-même.
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -134,6 +138,36 @@ export default function AjouterLieu() {
           description: `Champs manquants:\n• ${errors.join('\n• ')}`,
         });
         return;
+      }
+
+      // Garde-fou : un enfant doit avoir une maison principale AVANT tout autre type de lieu.
+      // On ne bloque QUE si le lieu qu'on ajoute maintenant n'est pas lui-même la principale —
+      // sinon on empêcherait justement de la créer.
+      if (currentPlaceData.type !== 'maison_principale') {
+        const { data: childPlacesLinks, error: checkError } = await supabase
+          .from('child_places')
+          .select('child_id, places(type)')
+          .in('child_id', selectedChildIds);
+
+        if (checkError) {
+          console.error('Error checking maison principale:', checkError);
+        } else {
+          const childrenWithPrincipal = new Set(
+            (childPlacesLinks || [])
+              .filter((l: any) => l.places?.type === 'maison_principale')
+              .map((l: any) => l.child_id)
+          );
+          const missing = selectedChildIds.filter(id => !childrenWithPrincipal.has(id));
+
+          if (missing.length > 0) {
+            const names = missing
+              .map(id => children.find(c => c.id === id)?.firstName)
+              .filter(Boolean)
+              .join(', ');
+            toast.error(`Ajoutez d'abord une maison principale pour ${names} avant d'ajouter un autre type de lieu`);
+            return;
+          }
+        }
       }
 
       let familyId: string | null = null;
