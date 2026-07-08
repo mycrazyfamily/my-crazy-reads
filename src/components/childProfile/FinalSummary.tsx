@@ -1,4 +1,8 @@
-// FinalSummary v1.2
+// FinalSummary v1.3
+// Changelog v1.3 : fix clignotement visuel (ex: 2 animaux qui semblent s'inverser plusieurs fois
+// avant de se stabiliser) — cause réelle : .in('id', [...]) ne garantit aucun ordre de retour
+// côté Postgres pour les 3 fetches d'enrichissement (proches/animaux/lieux existants). Résultats
+// désormais re-triés selon l'ordre des IDs d'origine, déterministe à chaque appel.
 // Changelog v1.2 : bug 5B — en mode création, le résumé n'affichait que les proches/animaux/
 // lieux nouvellement créés dans la session, jamais les sélections parmi l'existant
 // (existingRelativesData/existingPetsData/existingPlacesData n'ont qu'un ID). Nouvelle branche
@@ -196,9 +200,21 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
             : Promise.resolve({ data: [] as any[] }),
         ]);
 
+        // IMPORTANT : .in('id', [...]) ne garantit AUCUN ordre de retour côté Postgres — sans
+        // ce re-tri, l'ordre peut varier d'un appel à l'autre et provoquer un clignotement
+        // visuel (éléments qui semblent s'inverser) le temps que le composant se stabilise.
+        const reorderById = <T extends { id: string }>(rows: T[], ids: string[]): T[] => {
+          const byId = new Map(rows.map((r) => [r.id, r]));
+          return ids.map((id) => byId.get(id)).filter((r): r is T => !!r);
+        };
+
+        const relativesRows = reorderById(relativesRes.data || [], existingRelativeIds);
+        const petsRows = reorderById(petsRes.data || [], existingPetIds);
+        const placesRows = reorderById(placesRes.data || [], existingPlaceIds);
+
         // Même mapping que la branche édition ci-dessus, pour un rendu identique dans les
         // *Summary.tsx (qui n'ont besoin d'aucune modification).
-        const existingRelativesFull = (relativesRes.data || []).map((fm: any) => {
+        const existingRelativesFull = relativesRows.map((fm: any) => {
           const nicknameRaw = fm.details?.nickname;
           const nicknameObj = (nicknameRaw && typeof nicknameRaw === 'object')
             ? nicknameRaw
@@ -214,7 +230,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           };
         });
 
-        const existingPetsFull = (petsRes.data || []).map((p: any) => ({
+        const existingPetsFull = petsRows.map((p: any) => ({
           id: p.id,
           name: p.name,
           type: p.type,
@@ -225,7 +241,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           is_active: p.is_active,
         }));
 
-        const existingPlacesFull = (placesRes.data || []).map((p: any) => ({
+        const existingPlacesFull = placesRows.map((p: any) => ({
           id: p.id,
           label: p.label,
           type: p.type,
