@@ -1,3 +1,6 @@
+// PlacesForm v1.1
+// Changelog v1.1 : même garde-fou que AjouterLieu.tsx — au moins une maison principale requise
+// (parmi les lieux nouvellement ajoutés + ceux sélectionnés comme existants) avant de continuer.
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -370,6 +373,17 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       toast.error("Veuillez ajouter ou sélectionner au moins un lieu de vie pour votre enfant");
       return;
     }
+
+    // Garde-fou : au moins une maison principale parmi les lieux (nouveaux + existants
+    // sélectionnés). Même règle que sur AjouterLieu.tsx (page standalone).
+    const hasPrincipal = places.some(p => p.type === 'maison_principale')
+      || selectedPlacesData.some(p => p.type === 'maison_principale');
+
+    if (!hasPrincipal) {
+      toast.error("Ajoutez (ou sélectionnez) une maison principale avant de continuer — c'est le lieu de référence de l'enfant");
+      return;
+    }
+
     onNext();
   };
 
