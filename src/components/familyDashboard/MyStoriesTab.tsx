@@ -1,4 +1,8 @@
-// MyStoriesTab v1.2
+// MyStoriesTab v1.3
+// Changelog v1.3 : vrai fix du message de plafond — gère maintenant les 4 combinaisons (aucun /
+// animaux / doudous / les deux) À LA FOIS pour le plafond partiel ET le plafond total. Avant,
+// le plafond total affichait toujours "et animaux" même si seuls des doudous (ou aucun des deux)
+// étaient en cause.
 // Changelog v1.2 : message de plafond corrigé pour distinguer/combiner animaux et doudous — si
 // les deux plafonds sont atteints en même temps, affiche désormais "animaux et doudous" au lieu
 // de n'afficher que "animaux" (les deux blocs dupliqués — flow standard et flow custom — mis à
@@ -688,23 +692,24 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
-            {totalCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum de personnages et animaux atteint
-              </p>
-            ) : petsCapReached && toysCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum d'animaux et de doudous atteint
-              </p>
-            ) : petsCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum d'animaux atteint
-              </p>
-            ) : toysCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum de doudous atteint
-              </p>
-            ) : null}
+            {(() => {
+              let capMessage: string | null = null;
+              if (totalCapReached) {
+                if (petsCapReached && toysCapReached) capMessage = "Nombre maximum de personnages, animaux et doudous atteint";
+                else if (petsCapReached) capMessage = "Nombre maximum de personnages et animaux atteint";
+                else if (toysCapReached) capMessage = "Nombre maximum de personnages et doudous atteint";
+                else capMessage = "Nombre maximum de personnages atteint";
+              } else if (petsCapReached && toysCapReached) {
+                capMessage = "Nombre maximum d'animaux et de doudous atteint";
+              } else if (petsCapReached) {
+                capMessage = "Nombre maximum d'animaux atteint";
+              } else if (toysCapReached) {
+                capMessage = "Nombre maximum de doudous atteint";
+              }
+              return capMessage ? (
+                <p className="text-xs text-muted-foreground mt-1">{capMessage}</p>
+              ) : null;
+            })()}
           </div>
 
           <Button
@@ -785,23 +790,24 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
-            {totalCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum de personnages et animaux atteint
-              </p>
-            ) : petsCapReached && toysCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum d'animaux et de doudous atteint
-              </p>
-            ) : petsCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum d'animaux atteint
-              </p>
-            ) : toysCapReached ? (
-              <p className="text-xs text-muted-foreground mt-1">
-                Nombre maximum de doudous atteint
-              </p>
-            ) : null}
+            {(() => {
+              let capMessage: string | null = null;
+              if (totalCapReached) {
+                if (petsCapReached && toysCapReached) capMessage = "Nombre maximum de personnages, animaux et doudous atteint";
+                else if (petsCapReached) capMessage = "Nombre maximum de personnages et animaux atteint";
+                else if (toysCapReached) capMessage = "Nombre maximum de personnages et doudous atteint";
+                else capMessage = "Nombre maximum de personnages atteint";
+              } else if (petsCapReached && toysCapReached) {
+                capMessage = "Nombre maximum d'animaux et de doudous atteint";
+              } else if (petsCapReached) {
+                capMessage = "Nombre maximum d'animaux atteint";
+              } else if (toysCapReached) {
+                capMessage = "Nombre maximum de doudous atteint";
+              }
+              return capMessage ? (
+                <p className="text-xs text-muted-foreground mt-1">{capMessage}</p>
+              ) : null;
+            })()}
           </div>
 
           <div className="flex gap-3">
