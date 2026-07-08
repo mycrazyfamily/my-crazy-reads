@@ -2,6 +2,9 @@
 // Nouveau fichier — calqué sur PetProfileCard.tsx pour la parité visuelle.
 // Note : labels des types/rôles devinés (pas d'accès à constants/toyOptions.ts) — à ajuster
 // si le wording ne colle pas exactement à ce qui est affiché ailleurs dans l'app.
+// ToyProfileCard v1.1
+// Changelog v1.1 : fix bug badge "Perdu" — isActive (camelCase, inexistant) → is_active
+// (snake_case, le vrai champ fourni par useFamilyData.ts, comme pour PetProfileCard).
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -64,7 +67,7 @@ const ToyProfileCard: React.FC<ToyProfileCardProps> = ({ toy, childrenNames, pri
   );
 
   // Statut « perdu » — badge discret, même esprit que pets/relatives
-  const isLost = toy.isActive === false;
+  const isLost = (toy as any).is_active === false;
   const statusBadge = isLost ? { label: 'Perdu', Icon: LogOut } : null;
 
   return (
