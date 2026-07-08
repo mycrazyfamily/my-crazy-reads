@@ -1,7 +1,7 @@
-// AjouterDoudou v1.0
-// Nouveau fichier — calqué sur AjouterAnimal.tsx pour la parité CRUD doudou/proche/animal/lieu.
-// Différences volontaires : table comforters/child_comforters au lieu de pets/child_pets,
-// champs spécifiques doudou (appearance texte libre, roles, otherType) au lieu de breed/birthMonthYear/traits.
+// AjouterDoudou v2.0
+// Changelog v2.0 : simplification architecturale — 1 doudou = 1 enfant (plus de multi-sélection,
+// plus d'insert dans child_comforters). Sélection d'un SEUL enfant, insert direct dans
+// comforters avec child_id + appearance + roles + relation_label.
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export default function AjouterDoudou() {
   useFamilyIdSync();
 
   const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,6 +78,10 @@ export default function AjouterDoudou() {
       }));
 
       setChildren(mappedChildren);
+      // Un seul enfant → le sélectionner automatiquement, pas besoin de le demander
+      if (mappedChildren.length === 1) {
+        setSelectedChildId(mappedChildren[0].id);
+      }
     } catch (error) {
       console.error('Erreur lors de la récupération des enfants:', error);
       toast.error('Erreur lors de la récupération des enfants');
@@ -86,17 +90,13 @@ export default function AjouterDoudou() {
     }
   };
 
-  const toggleChildSelection = (childId: string) => {
-    setSelectedChildIds(prev =>
-      prev.includes(childId)
-        ? prev.filter(id => id !== childId)
-        : [...prev, childId]
-    );
+  const handleSelectChild = (childId: string) => {
+    setSelectedChildId(childId);
   };
 
   const handleContinue = () => {
-    if (selectedChildIds.length === 0) {
-      toast.error('Veuillez sélectionner au moins un enfant');
+    if (!selectedChildId) {
+      toast.error('Veuillez sélectionner un enfant');
       return;
     }
     setShowForm(true);
@@ -104,20 +104,19 @@ export default function AjouterDoudou() {
 
   const handleAddToy = async (toyData: ToyData) => {
     if (isSubmitting) return;
+    if (!selectedChildId) {
+      toast.error('Veuillez sélectionner un enfant');
+      return;
+    }
     setIsSubmitting(true);
     try {
-      if (selectedChildIds.length === 0) {
-        toast.error('Veuillez sélectionner au moins un enfant');
-        return;
-      }
-
       let familyId: string | null = null;
 
       // 1. D'abord, essayer de récupérer le family_id depuis le profil enfant (child_profiles)
       const { data: childProfile, error: childError } = await supabase
         .from('child_profiles')
         .select('family_id')
-        .eq('id', selectedChildIds[0])
+        .eq('id', selectedChildId)
         .maybeSingle();
 
       if (!childError && childProfile?.family_id) {
@@ -174,60 +173,41 @@ export default function AjouterDoudou() {
           .eq('id', supabaseSession!.user.id);
       }
 
-      // 5. Les enfants sélectionnés sont déjà des child_profiles.id
-      const childProfileIds = selectedChildIds;
+      // Synchroniser child_profiles.family_id si nécessaire
+      const { data: child } = await supabase
+        .from('child_profiles')
+        .select('family_id')
+        .eq('id', selectedChildId)
+        .maybeSingle();
 
-      // Synchroniser les child_profiles.family_id si nécessaire
-      for (const childId of childProfileIds) {
-        const { data: child } = await supabase
+      if (child && child.family_id !== familyId) {
+        await supabase
           .from('child_profiles')
-          .select('family_id')
-          .eq('id', childId)
-          .maybeSingle();
-
-        if (child && child.family_id !== familyId) {
-          await supabase
-            .from('child_profiles')
-            .update({ family_id: familyId })
-            .eq('id', childId);
-        }
+          .update({ family_id: familyId })
+          .eq('id', selectedChildId);
       }
 
-      // 6. Créer le doudou dans la table comforters avec le family_id
+      // 5. Créer le doudou directement dans comforters, lié à cet enfant (1 doudou = 1 enfant)
       const finalType = toyData.type === 'other' && toyData.otherType
         ? toyData.otherType
         : toyData.type;
       const emoji = emojiForToyType(toyData.type);
 
-      const { data: comforter, error: comforterError } = await supabase
+      const { error: comforterError } = await supabase
         .from('comforters')
         .insert({
           label: splitCamelCase(toyData.name),
           emoji,
           family_id: familyId,
+          child_id: selectedChildId,
+          appearance: toyData.appearance?.trim() || '',
+          roles: Array.isArray(toyData.roles) ? toyData.roles.join(',') : (toyData.roles as any) || '',
+          relation_label: finalType,
           created_by: supabaseSession!.user.id,
           is_active: toyData.isActive !== false
-        })
-        .select()
-        .single();
+        });
 
       if (comforterError) throw comforterError;
-
-      // 7. Lier le doudou à chaque enfant (en utilisant les IDs de child_profiles)
-      const childComforterRecords = childProfileIds.map(childProfileId => ({
-        child_id: childProfileId,
-        comforter_id: comforter.id,
-        name: splitCamelCase(toyData.name),
-        appearance: toyData.appearance?.trim() || '',
-        roles: Array.isArray(toyData.roles) ? toyData.roles.join(',') : (toyData.roles as any) || '',
-        relation_label: finalType
-      }));
-
-      const { error: linkError } = await supabase
-        .from('child_comforters')
-        .insert(childComforterRecords);
-
-      if (linkError) throw linkError;
 
       toast.success('Doudou ajouté avec succès !');
       invalidateFamilyData();
@@ -274,15 +254,15 @@ export default function AjouterDoudou() {
 
         {!showForm ? (
           <>
-            {/* Sélection des enfants */}
+            {/* Sélection de l'enfant — un seul, un doudou appartient à un enfant précis */}
             {children.length > 0 && (
               <Card className="mb-8">
                 <CardHeader>
                   <CardTitle className="text-mcf-orange-dark">
-                    Sélectionnez le(s) enfant(s) concerné(s)
+                    Sélectionnez l'enfant concerné
                   </CardTitle>
                   <p className="text-sm text-gray-600">
-                    Vous pouvez sélectionner plusieurs enfants pour leur ajouter le même doudou
+                    Un doudou appartient à un seul enfant
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -291,18 +271,18 @@ export default function AjouterDoudou() {
                       <ChildSelectionCard
                         key={child.id}
                         child={child}
-                        selected={selectedChildIds.includes(child.id)}
-                        onToggle={toggleChildSelection}
+                        selected={selectedChildId === child.id}
+                        onToggle={() => handleSelectChild(child.id)}
                       />
                     ))}
                   </div>
                   <div className="mt-6 flex items-center justify-between">
                     <p className="text-sm text-gray-600">
-                      {selectedChildIds.length} enfant(s) sélectionné(s)
+                      {selectedChildId ? '1 enfant sélectionné' : 'Aucun enfant sélectionné'}
                     </p>
                     <Button
                       onClick={handleContinue}
-                      disabled={selectedChildIds.length === 0}
+                      disabled={!selectedChildId}
                       className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
                     >
                       Continuer <CheckCircle2 className="h-4 w-4" />
@@ -319,7 +299,7 @@ export default function AjouterDoudou() {
                     Aucun enfant trouvé
                   </p>
                   <p className="text-gray-600">
-                    Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter des doudous.
+                    Vous devez d'abord créer le profil d'un enfant pour pouvoir lui ajouter un doudou.
                   </p>
                   <Button
                     className="bg-mcf-orange hover:bg-mcf-orange-dark text-white gap-2"
@@ -338,12 +318,12 @@ export default function AjouterDoudou() {
                 <Plus className="h-5 w-5" />
                 Nouveau doudou
                 <span className="text-sm font-normal text-gray-600">
-                  pour {selectedChildIds.map(id => children.find(c => c.id === id)?.firstName).join(', ')}
+                  pour {children.find(c => c.id === selectedChildId)?.firstName}
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ToyForm onSave={handleAddToy} onCancel={() => navigate('/espace-famille')} />
+              <ToyForm onSave={handleAddToy} onCancel={() => navigate('/espace-famille')} isDisabled={isSubmitting} />
             </CardContent>
           </Card>
         )}
