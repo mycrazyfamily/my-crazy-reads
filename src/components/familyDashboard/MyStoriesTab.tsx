@@ -1,13 +1,18 @@
-// MyStoriesTab v1.1
+// MyStoriesTab v1.2
+// Changelog v1.2 : message de plafond corrigé pour distinguer/combiner animaux et doudous — si
+// les deux plafonds sont atteints en même temps, affiche désormais "animaux et doudous" au lieu
+// de n'afficher que "animaux" (les deux blocs dupliqués — flow standard et flow custom — mis à
+// jour identiquement). Le message du plafond TOTAL (non demandé) n'a pas changé.
 // Changelog v1.1 : doudous ajoutés au wizard de sélection de personnages (choix "Qui accompagne
 // [enfant] dans [livre] ?"). Nouveau type 'comforter' sur WizardCharacter, plafond dédié
-// MAX_TOYS=2 (même mécanique que MAX_PETS), construit depuis activeChild.toys (désormais
-// correctement filtré par enfant grâce au fix useFamilyData v2.0). Statut "Perdu" grisé comme
-// pour les animaux "N'est plus avec nous". Note : la partie n8n (Book Factory) doit reconnaître
-// type:"comforter" dans selected_characters pour que la sélection ait un effet visuel/narratif
-// complet — à confirmer/aligner à la Phase 3. La "règle random" quand les parents ne
-// personnalisent pas vit côté n8n (ex: shuffledPets dans 4A_Build_Context_Client) — pas
-// modifiable depuis ce fichier, à traiter aussi en Phase 3.
+// MAX_TOYS=2 (même mécanique que MAX_PETS, INDÉPENDANT — pas partagé avec les animaux ; c'est une
+// règle différente du budget d'image de référence Book Factory qui, lui, partage un seul slot
+// non-humain par page). Construit depuis activeChild.toys (désormais correctement filtré par
+// enfant grâce au fix useFamilyData v2.0). Statut "Perdu" grisé comme pour les animaux "N'est
+// plus avec nous". Note : la partie n8n (Book Factory) doit reconnaître type:"comforter" dans
+// selected_characters pour que la sélection ait un effet visuel/narratif complet — à
+// confirmer/aligner à la Phase 3. La "règle random" quand les parents ne personnalisent pas vit
+// côté n8n (ex: shuffledPets dans 4A_Build_Context_Client) — pas modifiable depuis ce fichier.
 import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -687,6 +692,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               <p className="text-xs text-muted-foreground mt-1">
                 Nombre maximum de personnages et animaux atteint
               </p>
+            ) : petsCapReached && toysCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum d'animaux et de doudous atteint
+              </p>
             ) : petsCapReached ? (
               <p className="text-xs text-muted-foreground mt-1">
                 Nombre maximum d'animaux atteint
@@ -779,6 +788,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             {totalCapReached ? (
               <p className="text-xs text-muted-foreground mt-1">
                 Nombre maximum de personnages et animaux atteint
+              </p>
+            ) : petsCapReached && toysCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum d'animaux et de doudous atteint
               </p>
             ) : petsCapReached ? (
               <p className="text-xs text-muted-foreground mt-1">
