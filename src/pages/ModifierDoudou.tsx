@@ -1,4 +1,8 @@
-// ModifierDoudou v2.0
+// ModifierDoudou v2.1
+// Changelog v2.1 : régénération automatique de l'avatar à la sauvegarde si l'apparence a changé
+// — même mécanisme que ModifierAnimal (comforterAvatarSignature avant/après, appel fire-and-forget
+// à edit-avatar-mcf, signalAvatarRegeneration). Pas de ResetAvatarButton ajouté pour l'instant
+// (Robin reconsidère ce bouton séparément).
 // Changelog v2.0 : (a) simplification architecturale — requête directe sur comforters par id
 // (child_id direct, plus de jonction child_comforters, plus de logique "famille vs enfant
 // courant") ; (b) ChildrenSelector retiré — un doudou appartient à un seul enfant, affiché en
@@ -13,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import Navbar from '@/components/Navbar';
@@ -21,6 +26,22 @@ import ToyForm from '@/components/childProfile/toys/ToyForm';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
 
 type ToyStatus = 'active' | 'lost';
+
+/**
+ * Signature des champs qui influencent l'AVATAR du doudou (calqué sur petAvatarSignature dans
+ * ModifierAnimal.tsx). Sert à n'appeler MCF_Avatar_Factory que si l'apparence a réellement
+ * changé — pas pour un simple changement de statut (perdu) ou de rôle imaginaire.
+ * Le nom (label) et les rôles (roles) sont volontairement EXCLUS : seuls `type` et `appearance`
+ * alimentent réellement 3_Build_Edit_Prompt côté comforter (voir la branche type==='comforter').
+ */
+function comforterAvatarSignature(t: ToyData | null): string {
+  if (!t) return '';
+  const finalType = t.type === 'other' && t.otherType ? t.otherType : (t.type || '');
+  return JSON.stringify({
+    type: finalType,
+    appearance: (t.appearance || '').trim(),
+  });
+}
 
 function emojiForToyType(type: string): string {
   switch (type) {
@@ -129,6 +150,11 @@ const ModifierDoudou: React.FC = () => {
   const handleSave = async (updatedToy: ToyData) => {
     if (!comforterId) return;
 
+    // L'avatar n'est régénéré QUE si l'apparence a réellement changé (pas pour un simple
+    // changement de statut Perdu). Comparaison faite AVANT toute écriture, entre les données
+    // chargées au départ (toyData) et celles du formulaire (updatedToy).
+    const avatarRelevantChanged = comforterAvatarSignature(toyData) !== comforterAvatarSignature(updatedToy);
+
     try {
       const finalType = updatedToy.type === 'other' && updatedToy.otherType
         ? updatedToy.otherType
@@ -149,6 +175,32 @@ const ModifierDoudou: React.FC = () => {
         .eq('id', comforterId);
 
       if (updateError) throw updateError;
+
+      // Régénération de l'avatar — uniquement si l'apparence a changé, même mécanisme que
+      // ModifierAnimal (fetch de l'avatar_url actuel, appel fire-and-forget du webhook).
+      if (avatarRelevantChanged) {
+        const { data: comforterRow } = await supabase
+          .from('comforters')
+          .select('avatar_url')
+          .eq('id', comforterId)
+          .maybeSingle();
+
+        try {
+          await fetch('https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/edit-avatar-mcf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile_id: comforterId,
+              type: 'comforter',
+              current_avatar_url: comforterRow?.avatar_url || null
+            })
+          });
+        } catch (webhookErr) {
+          console.error('Webhook avatar error:', webhookErr);
+        }
+
+        signalAvatarRegeneration(comforterId);
+      }
 
       invalidateFamilyData();
       toast.success('Doudou modifié avec succès !');
