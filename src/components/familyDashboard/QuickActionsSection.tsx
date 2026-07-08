@@ -1,4 +1,8 @@
-// QuickActionsSection v1.1
+// QuickActionsSection v1.2
+// Changelog v1.2 : fix hauteur de carte non homogène — cause réelle = la description (2 vs 3
+// lignes selon le texte) ne réservait pas d'espace fixe. Ajout de h-full sur Card + wrappers, et
+// min-h-[3.75rem] sur la description pour réserver systématiquement ~3 lignes, quelle que soit
+// la longueur réelle du texte.
 // Changelog v1.1 : ajout de la carte "Ajouter un doudou" (entre animal et lieu) + grille passée à 5 colonnes en desktop
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -104,7 +108,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
           const cardContent = (
             <Card 
               className={`
-                relative overflow-hidden transition-all duration-300 cursor-pointer
+                relative overflow-hidden transition-all duration-300 cursor-pointer h-full
                 ${action.disabled 
                   ? 'bg-gray-50/50 border-gray-200 opacity-60 cursor-not-allowed' 
                   : 'bg-white border-[#B3D4F5] hover:border-[#4A90E2] hover:shadow-lg hover:scale-[1.02]'
@@ -112,7 +116,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
               `}
               onClick={action.disabled ? undefined : action.onClick}
             >
-              <div className="p-8 flex flex-col items-center text-center space-y-5">
+              <div className="p-8 h-full flex flex-col items-center text-center space-y-5">
                 {/* Icône dans un cercle */}
                 <div className={`
                   w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300
@@ -132,9 +136,10 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
                   {action.title}
                 </h3>
                 
-                {/* Description */}
+                {/* Description — hauteur réservée fixe (~3 lignes) pour que toutes les cartes
+                    aient la même taille, quelle que soit la longueur réelle du texte */}
                 <p className={`
-                  text-sm leading-relaxed
+                  text-sm leading-relaxed min-h-[3.75rem] flex items-center justify-center
                   ${action.disabled ? 'text-gray-400' : 'text-[#555555]'}
                 `}>
                   {action.description}
@@ -147,7 +152,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
             return (
               <Tooltip key={action.id}>
                 <TooltipTrigger asChild>
-                  {cardContent}
+                  <div className="h-full">{cardContent}</div>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p>{action.disabledMessage}</p>
@@ -156,7 +161,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
             );
           }
 
-          return <div key={action.id}>{cardContent}</div>;
+          return <div key={action.id} className="h-full">{cardContent}</div>;
         })}
       </div>
     </TooltipProvider>
