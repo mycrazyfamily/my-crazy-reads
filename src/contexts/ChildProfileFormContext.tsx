@@ -1,8 +1,8 @@
-// ChildProfileFormContext v1.1
-// Changelog v1.1 : étape Jouets (4) totalement retirée de la navigation en mode édition
-// (handleNextStep/handlePreviousStep) — elle ne doit plus s'afficher qu'en création.
-// Point de vigilance non vérifié dans ce lot : si FinalSummary.tsx propose un lien "modifier
-// Jouets" en mode édition (handleGoToStep(4)), il faudra aussi le retirer là-bas.
+// ChildProfileFormContext v1.2
+// Changelog v1.2 : 4ᵉ endroit trouvé pour la fuite "Koh Tao" (destination_libre) — c'est
+// précisément CE fallback que FinalSummary.tsx utilise (places.length > 0 ? ... : formData.places)
+// quand son propre fetch filtré ressort vide pour un enfant donné. D'où la persistance du bug
+// même après le fix dans FinalSummary.tsx seul. Même règle appliquée : exclu.
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from "sonner";
@@ -254,7 +254,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
           if (childPlaces && childPlaces.length > 0) {
             childPlaces.forEach(link => {
               const place = (link as any).places;
-              if (place) {
+              // Exclure les lieux "destination_libre" (créés à la volée pour une seule
+              // histoire via le wizard) — même règle que useFamilyData.ts/PlacesForm.tsx/
+              // FinalSummary.tsx. C'est CE fallback que FinalSummary utilisait quand son
+              // propre fetch filtré ressortait vide, d'où la fuite persistante de "Koh Tao".
+              if (place && place.type !== 'destination_libre') {
                 placesData.push({
                   id: place.id,
                   label: place.label || '',
