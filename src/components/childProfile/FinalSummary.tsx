@@ -1,4 +1,7 @@
-// FinalSummary v1.3
+// FinalSummary v1.4
+// Changelog v1.4 : 3ᵉ endroit trouvé où les lieux "destination_libre" (Koh Tao, créés à la volée
+// pour une seule histoire via le wizard) fuitaient — le résumé en mode ÉDITION d'un enfant les
+// chargeait sans filtre. Même règle que useFamilyData.ts et PlacesForm.tsx : exclus.
 // Changelog v1.3 : fix clignotement visuel (ex: 2 animaux qui semblent s'inverser plusieurs fois
 // avant de se stabiliser) — cause réelle : .in('id', [...]) ne garantit aucun ordre de retour
 // côté Postgres pour les 3 fetches d'enrichissement (proches/animaux/lieux existants). Résultats
@@ -123,7 +126,9 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           .select('place_id, label, places(*)')
           .eq('child_id', editChildId);
 
-        const places = childPlacesLinks?.map((link: any) => ({
+        const places = childPlacesLinks
+          ?.filter((link: any) => link.places?.type !== 'destination_libre')
+          .map((link: any) => ({
           id: link.place_id,
           label: link.label || link.places.label,
           type: link.places.type,
