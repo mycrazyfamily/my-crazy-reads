@@ -1,10 +1,10 @@
-// ModifierDoudou v1.0
-// Nouveau fichier — calqué sur ModifierAnimal.tsx pour la parité CRUD.
-// Point important repris dès le départ : requête par comforter_id à l'échelle FAMILLE (pas
-// child_id), même correctif que celui déjà appliqué à ModifierAnimal (bug "Animal non trouvé"
-// quand l'entité n'a pas de jonction avec l'enfant du contexte courant).
-// Pas de ResetAvatarButton ni d'avatar_url ici : Avatar Factory ne génère pas encore d'avatar
-// pour les doudous (chantier à venir) — ajouté quand cette phase sera prête.
+// ModifierDoudou v2.0
+// Changelog v2.0 : (a) simplification architecturale — requête directe sur comforters par id
+// (child_id direct, plus de jonction child_comforters, plus de logique "famille vs enfant
+// courant") ; (b) ChildrenSelector retiré — un doudou appartient à un seul enfant, affiché en
+// lecture seule ; (c) bouton "Enregistrer" déplacé en bas de page (après Statut), même pattern
+// que ModifierAnimal/ModifierProche — corrige la confusion UX où le bouton semblait "ne rien
+// faire" quand on cliquait Perdu après coup.
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ import { splitCamelCase } from '@/utils/nameFormatter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToyForm from '@/components/childProfile/toys/ToyForm';
-import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
 
 type ToyStatus = 'active' | 'lost';
@@ -41,81 +40,56 @@ const ModifierDoudou: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [toyData, setToyData] = useState<ToyData | null>(null);
-  const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
-  const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
+  const [currentToyData, setCurrentToyData] = useState<ToyData | null>(null);
+  const [childName, setChildName] = useState<string>('');
   const [toyStatus, setToyStatus] = useState<ToyStatus>('active');
 
   useEffect(() => {
     loadToyData();
-  }, [childId, comforterId]);
+  }, [comforterId]);
 
   const loadToyData = async () => {
-    if (!childId || !comforterId) return;
+    if (!comforterId) return;
 
     try {
       setLoading(true);
 
-      // Charger le doudou par comforter_id (échelle FAMILLE, pas enfant) — même logique que
-      // ModifierAnimal : un doudou peut être lié à d'AUTRES enfants que celui du contexte
-      // courant. On récupère toutes les jonctions child_comforters, puis on privilégie la ligne
-      // de l'enfant courant si elle existe, sinon la première disponible.
-      const { data: toyRows, error } = await supabase
-        .from('child_comforters')
-        .select(`
-          *,
-          comforters (
-            id,
-            label,
-            emoji,
-            family_id,
-            is_active
-          )
-        `)
-        .eq('comforter_id', comforterId);
+      // 1 doudou = 1 enfant : requête directe sur comforters, plus de jonction à démêler.
+      const { data, error } = await supabase
+        .from('comforters')
+        .select('id, label, emoji, is_active, child_id, appearance, roles, relation_label')
+        .eq('id', comforterId)
+        .maybeSingle();
 
       if (error) throw error;
 
-      const data =
-        (toyRows || []).find(r => r.child_id === childId) ||
-        (toyRows || [])[0] ||
-        null;
-
-      if (data && data.comforters) {
+      if (data) {
         const predefinedTypes = ['plush', 'blanket', 'doll', 'miniCar', 'figurine', 'other'];
         const storedType = data.relation_label;
         const isCustomType = !!storedType && !predefinedTypes.includes(storedType);
 
         const toy: ToyData = {
-          id: data.comforters.id,
-          name: data.name || data.comforters.label,
+          id: data.id,
+          name: data.label || '',
           type: isCustomType ? 'other' : ((storedType as ToyType) || 'plush'),
           otherType: isCustomType ? storedType : undefined,
           appearance: data.appearance || '',
           roles: (data.roles ? String(data.roles).split(',').filter(Boolean) : []) as ToyRole[],
-          isActive: data.comforters.is_active !== false,
-          comforterId: data.comforters.id
+          isActive: data.is_active !== false,
+          comforterId: data.id
         };
         setToyData(toy);
-        setToyStatus(data.comforters.is_active === false ? 'lost' : 'active');
+        setToyStatus(data.is_active === false ? 'lost' : 'active');
 
-        // Charger tous les enfants de la famille
-        const { data: childrenData, error: childrenError } = await supabase
-          .from('child_profiles')
-          .select('id, first_name')
-          .eq('family_id', data.comforters.family_id)
-          .order('first_name');
-
-        if (childrenError) throw childrenError;
-        setExistingChildren(childrenData || []);
-
-        // Charger les enfants liés à ce doudou
-        const { data: linkedChildren, error: linkedError } = await supabase
-          .from('child_comforters')
-          .select('child_id')
-          .eq('comforter_id', comforterId);
-
-        if (linkedError) throw linkedError;
-        setSelectedChildrenIds(linkedChildren?.map(c => c.child_id) || []);
+        // Nom de l'enfant propriétaire (affichage seul, plus de sélection multi-enfant)
+        if (data.child_id) {
+          const { data: childRow } = await supabase
+            .from('child_profiles')
+            .select('first_name')
+            .eq('id', data.child_id)
+            .maybeSingle();
+          setChildName(childRow?.first_name || '');
+        }
       } else {
         toast.error("Doudou non trouvé");
         navigate('/espace-famille');
@@ -128,27 +102,32 @@ const ModifierDoudou: React.FC = () => {
     }
   };
 
-  const handleToggleChild = (childIdToToggle: string) => {
-    setSelectedChildrenIds(prev =>
-      prev.includes(childIdToToggle)
-        ? prev.filter(id => id !== childIdToToggle)
-        : [...prev, childIdToToggle]
-    );
-  };
-
   const handleCancel = () => {
     navigate('/espace-famille');
   };
 
-  const handleSave = async (updatedToy: ToyData) => {
-    if (!comforterId) return;
+  const handleDataChange = (updated: ToyData) => {
+    setCurrentToyData(updated);
+  };
 
-    // Garde-fou : au moins un enfant associé (ToyForm ne le vérifie pas lui-même,
-    // c'est géré ici car ChildrenSelector est en dehors de ToyForm).
-    if (selectedChildrenIds.length === 0) {
-      toast.error("Veuillez associer au moins un enfant à ce doudou");
+  const handleSubmitClick = () => {
+    if (!currentToyData) {
+      toast.error("Aucune donnée à enregistrer");
       return;
     }
+    if (!currentToyData.name?.trim()) {
+      toast.error("Veuillez renseigner le prénom du doudou");
+      return;
+    }
+    if (currentToyData.type === 'other' && !currentToyData.otherType?.trim()) {
+      toast.error("Veuillez préciser le type d'objet");
+      return;
+    }
+    handleSave(currentToyData);
+  };
+
+  const handleSave = async (updatedToy: ToyData) => {
+    if (!comforterId) return;
 
     try {
       const finalType = updatedToy.type === 'other' && updatedToy.otherType
@@ -156,69 +135,20 @@ const ModifierDoudou: React.FC = () => {
         : updatedToy.type;
       const emoji = emojiForToyType(updatedToy.type);
 
-      const { error: updateComforterError } = await supabase
+      const { error: updateError } = await supabase
         .from('comforters')
         .update({
           label: splitCamelCase(updatedToy.name),
           emoji,
+          appearance: updatedToy.appearance?.trim() || '',
+          roles: Array.isArray(updatedToy.roles) ? updatedToy.roles.join(',') : (updatedToy.roles as any) || '',
+          relation_label: finalType,
           is_active: toyStatus !== 'lost',
           updated_at: new Date().toISOString()
         })
         .eq('id', comforterId);
 
-      if (updateComforterError) throw updateComforterError;
-
-      // Charger les relations existantes pour ce doudou
-      const { data: existingRelations, error: fetchError } = await supabase
-        .from('child_comforters')
-        .select('id, child_id')
-        .eq('comforter_id', comforterId);
-
-      if (fetchError) throw fetchError;
-
-      const existingChildIds = existingRelations?.map(r => r.child_id) || [];
-      const childComforterUpdates = {
-        name: splitCamelCase(updatedToy.name),
-        appearance: updatedToy.appearance?.trim() || '',
-        roles: Array.isArray(updatedToy.roles) ? updatedToy.roles.join(',') : (updatedToy.roles as any) || '',
-        relation_label: finalType
-      };
-
-      const childIdsToRemove = existingChildIds.filter(id => !selectedChildrenIds.includes(id));
-      const childIdsToUpdate = selectedChildrenIds.filter(id => existingChildIds.includes(id));
-      const childIdsToCreate = selectedChildrenIds.filter(id => !existingChildIds.includes(id));
-
-      if (childIdsToRemove.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('child_comforters')
-          .delete()
-          .eq('comforter_id', comforterId)
-          .in('child_id', childIdsToRemove);
-        if (deleteError) throw deleteError;
-      }
-
-      if (childIdsToUpdate.length > 0) {
-        for (const cid of childIdsToUpdate) {
-          const { error: updateError } = await supabase
-            .from('child_comforters')
-            .update(childComforterUpdates)
-            .eq('comforter_id', comforterId)
-            .eq('child_id', cid);
-          if (updateError) throw updateError;
-        }
-      }
-
-      if (childIdsToCreate.length > 0) {
-        const childComfortersData = childIdsToCreate.map(cid => ({
-          child_id: cid,
-          comforter_id: comforterId,
-          ...childComforterUpdates
-        }));
-        const { error: insertError } = await supabase
-          .from('child_comforters')
-          .insert(childComfortersData);
-        if (insertError) throw insertError;
-      }
+      if (updateError) throw updateError;
 
       invalidateFamilyData();
       toast.success('Doudou modifié avec succès !');
@@ -266,20 +196,19 @@ const ModifierDoudou: React.FC = () => {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
+          {childName && (
+            <p className="text-sm text-muted-foreground">
+              Doudou de <span className="font-medium text-mcf-primary">{childName}</span>
+            </p>
+          )}
+
           <ToyForm
             toy={toyData}
             onSave={handleSave}
             onCancel={handleCancel}
+            showButtons={false}
+            onDataChange={handleDataChange}
           />
-
-          {existingChildren.length > 0 && (
-            <ChildrenSelector
-              children={existingChildren}
-              selectedChildrenIds={selectedChildrenIds}
-              onToggleChild={handleToggleChild}
-              label="Enfants associés à ce doudou"
-            />
-          )}
 
           {/* Statut du doudou */}
           <div className="space-y-3 pt-4 border-t border-mcf-mint/40">
@@ -303,6 +232,24 @@ const ModifierDoudou: React.FC = () => {
                 {toyData?.name} n'apparaîtra plus dans les histoires. Vous pourrez revenir en arrière à tout moment.
               </p>
             )}
+          </div>
+
+          {/* Bouton unique, en bas, après tout — même pattern que ModifierAnimal/ModifierProche */}
+          <div className="flex justify-between pt-4">
+            <Button
+              type="button"
+              onClick={handleCancel}
+              variant="outline"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmitClick}
+              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+            >
+              Enregistrer les modifications
+            </Button>
           </div>
         </div>
       </main>
