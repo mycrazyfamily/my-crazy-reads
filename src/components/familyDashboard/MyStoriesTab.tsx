@@ -1,3 +1,13 @@
+// MyStoriesTab v1.1
+// Changelog v1.1 : doudous ajoutés au wizard de sélection de personnages (choix "Qui accompagne
+// [enfant] dans [livre] ?"). Nouveau type 'comforter' sur WizardCharacter, plafond dédié
+// MAX_TOYS=2 (même mécanique que MAX_PETS), construit depuis activeChild.toys (désormais
+// correctement filtré par enfant grâce au fix useFamilyData v2.0). Statut "Perdu" grisé comme
+// pour les animaux "N'est plus avec nous". Note : la partie n8n (Book Factory) doit reconnaître
+// type:"comforter" dans selected_characters pour que la sélection ait un effet visuel/narratif
+// complet — à confirmer/aligner à la Phase 3. La "règle random" quand les parents ne
+// personnalisent pas vit côté n8n (ex: shuffledPets dans 4A_Build_Context_Client) — pas
+// modifiable depuis ce fichier, à traiter aussi en Phase 3.
 import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -398,7 +408,7 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
 type FlowType = 'monthly' | 'special' | 'custom';
 
 interface WizardCharacter {
-  type: 'child' | 'family_member' | 'pet';
+  type: 'child' | 'family_member' | 'pet' | 'comforter';
   id: string;
   name: string;
   emoji: string;
@@ -450,9 +460,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   // Selection caps based on child's age
   const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
   const MAX_PETS = 2;
+  const MAX_TOYS = 2;
   const selectedPetsCount = characters.filter((c) => c.type === 'pet' && selected.includes(c.id)).length;
+  const selectedToysCount = characters.filter((c) => c.type === 'comforter' && selected.includes(c.id)).length;
   const totalCapReached = selected.length >= MAX_TOTAL;
   const petsCapReached = selectedPetsCount >= MAX_PETS;
+  const toysCapReached = selectedToysCount >= MAX_TOYS;
 
   // When the wizard opens, initialize all values; on close, leave state as-is to avoid flash
   React.useEffect(() => {
@@ -513,6 +526,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
       if (prev.includes(id)) return prev.filter((x) => x !== id);
       if (prev.length >= MAX_TOTAL) return prev;
       if (target?.type === 'pet' && selectedPetsCount >= MAX_PETS) return prev;
+      if (target?.type === 'comforter' && selectedToysCount >= MAX_TOYS) return prev;
       return [...prev, id];
     });
   };
@@ -634,7 +648,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
-              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
+              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached) || (c.type === 'comforter' && toysCapReached));
               const isInactive = !!c.inactive;
               const isDisabled = c.locked || disabledByCap || isInactive;
               return (
@@ -676,6 +690,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             ) : petsCapReached ? (
               <p className="text-xs text-muted-foreground mt-1">
                 Nombre maximum d'animaux atteint
+              </p>
+            ) : toysCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum de doudous atteint
               </p>
             ) : null}
           </div>
@@ -723,7 +741,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
-              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached));
+              const disabledByCap = !isSel && (totalCapReached || (c.type === 'pet' && petsCapReached) || (c.type === 'comforter' && toysCapReached));
               const isInactive = !!c.inactive;
               const isDisabled = c.locked || disabledByCap || isInactive;
               return (
@@ -765,6 +783,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             ) : petsCapReached ? (
               <p className="text-xs text-muted-foreground mt-1">
                 Nombre maximum d'animaux atteint
+              </p>
+            ) : toysCapReached ? (
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre maximum de doudous atteint
               </p>
             ) : null}
           </div>
@@ -2128,6 +2150,18 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         inactiveLabel: isDeceased ? 'En mémoire' : isGone ? "N'est plus avec nous" : undefined,
       };
     });
+    const toys: WizardCharacter[] = (activeChild.toys ?? []).map((t: any) => {
+      const isLost = t.is_active === false;
+      return {
+        type: 'comforter',
+        id: t.id,
+        name: t.name || 'Doudou',
+        emoji: t.emoji || '🧸',
+        avatarUrl: t.avatar_url || undefined,
+        inactive: isLost,
+        inactiveLabel: isLost ? 'Perdu' : undefined,
+      };
+    });
     const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => {
       const isDeceased = s.is_deceased === true;
       return {
@@ -2141,7 +2175,7 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         inactiveLabel: isDeceased ? 'En mémoire' : undefined,
       };
     });
-    return [child, ...siblings, ...members, ...pets];
+    return [child, ...siblings, ...members, ...pets, ...toys];
   }, [activeChild]);
 
   const dedicatedName = (() => {
