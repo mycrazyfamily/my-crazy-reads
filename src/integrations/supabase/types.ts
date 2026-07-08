@@ -848,33 +848,66 @@ export type Database = {
       }
       comforters: {
         Row: {
+          appearance: string | null
+          avatar_url: string | null
+          child_id: string | null
           created_at: string | null
           created_by: string | null
           emoji: string | null
+          family_id: string | null
           id: string
           is_active: boolean | null
           label: string | null
+          relation_label: string | null
+          roles: string | null
           updated_at: string | null
         }
         Insert: {
+          appearance?: string | null
+          avatar_url?: string | null
+          child_id?: string | null
           created_at?: string | null
           created_by?: string | null
           emoji?: string | null
+          family_id?: string | null
           id?: string
           is_active?: boolean | null
           label?: string | null
+          relation_label?: string | null
+          roles?: string | null
           updated_at?: string | null
         }
         Update: {
+          appearance?: string | null
+          avatar_url?: string | null
+          child_id?: string | null
           created_at?: string | null
           created_by?: string | null
           emoji?: string | null
+          family_id?: string | null
           id?: string
           is_active?: boolean | null
           label?: string | null
+          relation_label?: string | null
+          roles?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "comforters_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comforters_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       discoveries: {
         Row: {
@@ -1413,6 +1446,7 @@ export type Database = {
           deceased_year: number | null
           emoji: string | null
           family_id: string | null
+          gender: string | null
           id: string
           inactive_at: string | null
           inactive_reason: string | null
@@ -1431,6 +1465,7 @@ export type Database = {
           deceased_year?: number | null
           emoji?: string | null
           family_id?: string | null
+          gender?: string | null
           id?: string
           inactive_at?: string | null
           inactive_reason?: string | null
@@ -1449,6 +1484,7 @@ export type Database = {
           deceased_year?: number | null
           emoji?: string | null
           family_id?: string | null
+          gender?: string | null
           id?: string
           inactive_at?: string | null
           inactive_reason?: string | null
