@@ -1,4 +1,9 @@
-// PlacesForm v1.1
+// PlacesForm v1.2
+// Changelog v1.2 : les lieux de type "destination_libre" (créés à la volée depuis le wizard
+// d'histoire pour UNE aventure ponctuelle, ex: "Koh Tao") sont désormais exclus de "Lieux déjà
+// créés" — ils ne doivent jamais apparaître comme un lieu de vie réutilisable, conformément à la
+// règle déjà appliquée côté dashboard (useFamilyData.ts). Les 2 branches (family_id direct +
+// fallback via families.created_by) corrigées identiquement.
 // Changelog v1.1 : même garde-fou que AjouterLieu.tsx — au moins une maison principale requise
 // (parmi les lieux nouvellement ajoutés + ceux sélectionnés comme existants) avant de continuer.
 import React, { useState, useEffect } from 'react';
@@ -124,7 +129,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
           const { data: places, error: placesError } = await supabase
             .from('places')
             .select('id, label, type, emoji, city, country, family_id')
-            .eq('family_id', profile.family_id);
+            .eq('family_id', profile.family_id)
+            .neq('type', 'destination_libre');
 
           if (placesError) {
             console.error('Error loading places:', placesError);
@@ -169,7 +175,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
             const { data: places, error: placesError } = await supabase
               .from('places')
               .select('id, label, type, emoji, city, country, family_id')
-              .eq('family_id', familyId);
+              .eq('family_id', familyId)
+              .neq('type', 'destination_libre');
 
             if (placesError) {
               console.error('Error loading places:', placesError);
