@@ -1,4 +1,8 @@
-
+// ToyForm v1.1
+// Changelog v1.1 : (a) emojis retirés des 4 libellés de question (prénom/type/apparence/rôle) —
+// les emojis des OPTIONS elles-mêmes (types, rôles) restent, ils servent de repère visuel comme
+// pour PET_TYPE_OPTIONS ; (b) ajout showButtons/isDisabled/onDataChange (même pattern que
+// PetForm.tsx) pour permettre à ModifierDoudou de piloter son propre bouton en bas de page.
 import React, { useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -14,9 +18,12 @@ type ToyFormProps = {
   toy?: ToyData;
   onSave: (toy: ToyData) => void;
   onCancel: () => void;
+  showButtons?: boolean;
+  isDisabled?: boolean;
+  onDataChange?: (toy: ToyData) => void;
 };
 
-const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
+const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = true, isDisabled = false, onDataChange }) => {
   const form = useFormContext();
   const [toyName, setToyName] = useState(toy?.name || '');
   const [toyType, setToyType] = useState<ToyType>(toy?.type || 'plush');
@@ -59,30 +66,37 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
     });
   }, []);
 
+  const getToyData = (): ToyData => ({
+    id: toy?.id || uuidv4(),
+    name: toyName.trim(),
+    type: toyType,
+    otherType: toyType === 'other' ? otherType.trim() : undefined,
+    appearance: appearance.trim(),
+    roles: selectedRoles,
+    customRoles: {
+      ...(selectedRoles.includes('otherRole1') ? { otherRole1: customRole1.trim() } : {}),
+      ...(selectedRoles.includes('otherRole2') ? { otherRole2: customRole2.trim() } : {})
+    },
+    // Préserver le lien BD et le statut lors d'une édition
+    comforterId: toy?.comforterId,
+    isActive: toy?.isActive !== false
+  });
+
   const handleSubmit = () => {
-    
     if (!toyName.trim()) {
       return;
     }
-
-    const newToy: ToyData = {
-      id: toy?.id || uuidv4(),
-      name: toyName.trim(),
-      type: toyType,
-      otherType: toyType === 'other' ? otherType.trim() : undefined,
-      appearance: appearance.trim(),
-      roles: selectedRoles,
-      customRoles: {
-        ...(selectedRoles.includes('otherRole1') ? { otherRole1: customRole1.trim() } : {}),
-        ...(selectedRoles.includes('otherRole2') ? { otherRole2: customRole2.trim() } : {})
-      },
-      // Préserver le lien BD et le statut lors d'une édition
-      comforterId: toy?.comforterId,
-      isActive: toy?.isActive !== false
-    };
-
-    onSave(newToy);
+    onSave(getToyData());
   };
+
+  // Notifier le parent des changements (utilisé par ModifierDoudou pour piloter Statut + save
+  // depuis un bouton externe, comme ModifierAnimal/ModifierProche)
+  React.useEffect(() => {
+    if (onDataChange) {
+      onDataChange(getToyData());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toyName, toyType, otherType, appearance, selectedRoles, customRole1, customRole2]);
 
   // Vérifie si un rôle a déjà été sélectionné
   const isRoleSelected = (role: ToyRole) => selectedRoles.includes(role);
@@ -111,7 +125,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="toy-name" className="text-base font-medium">
-              Quel est son prénom ? 📛
+              Quel est son prénom ?
             </Label>
             <Input
               id="toy-name"
@@ -126,7 +140,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
           {/* Type d'objet */}
           <div className="space-y-3">
             <Label className="text-base font-medium">
-              Quel type d'objet est-ce ? 🧸
+              Quel type d'objet est-ce ?
             </Label>
             
             <RadioGroup
@@ -173,7 +187,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
           {/* Apparence */}
           <div className="space-y-2">
             <Label htmlFor="appearance" className="text-base font-medium">
-              À quoi ressemble-t-il ? 👀
+              À quoi ressemble-t-il ?
             </Label>
             <Textarea
               id="appearance"
@@ -187,7 +201,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
           {/* Rôle dans l'imaginaire - RESTRUCTURATION POUR ÉVITER LES BOUCLES INFINIES */}
           <div className="space-y-3">
             <Label className="text-base font-medium">
-              Quel rôle a-t-il dans son imaginaire ? 🪄 <span className="text-sm text-gray-500 font-normal">(2 max)</span>
+              Quel rôle a-t-il dans son imaginaire ? <span className="text-sm text-gray-500 font-normal">(2 max)</span>
             </Label>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -266,26 +280,29 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel }) => {
         </div>
       </div>
 
-      <div className="flex justify-between pt-2">
-        <Button 
-          type="button" 
-          onClick={onCancel}
-          variant="outline"
-          className="font-semibold"
-        >
-          Annuler
-        </Button>
-        <Button 
-          type="button"
-          onClick={handleSubmit}
-          className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold"
-          disabled={!toyName.trim() || (toyType === 'other' && !otherType.trim()) || 
-            (selectedRoles.includes('otherRole1') && !customRole1.trim()) || 
-            (selectedRoles.includes('otherRole2') && !customRole2.trim())}
-        >
-          {isEditing ? "Enregistrer les modifications" : "Ajouter le doudou"}
-        </Button>
-      </div>
+      {showButtons && (
+        <div className="flex justify-between pt-2">
+          <Button 
+            type="button" 
+            onClick={onCancel}
+            variant="outline"
+            className="font-semibold"
+            disabled={isDisabled}
+          >
+            Annuler
+          </Button>
+          <Button 
+            type="button"
+            onClick={handleSubmit}
+            disabled={isDisabled || !toyName.trim() || (toyType === 'other' && !otherType.trim()) || 
+              (selectedRoles.includes('otherRole1') && !customRole1.trim()) || 
+              (selectedRoles.includes('otherRole2') && !customRole2.trim())}
+            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold"
+          >
+            {isDisabled ? 'Enregistrement...' : (isEditing ? "Enregistrer les modifications" : "Ajouter le doudou")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
