@@ -23,7 +23,7 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
-import type { ChildProfileFormData } from '@/types/childProfile';
+import type { ChildProfileFormData, RelativeData, PetData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
 import FamilySummary from '@/components/childProfile/summary/FamilySummary';
