@@ -138,7 +138,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
             Garde les mêmes caractéristiques physiques.
           </p>
           <p className="text-[11px] leading-snug text-muted-foreground/70 text-center mt-2 pt-2 border-t border-mcf-mint/40">
-            ⚠️ Attention : pour changer l'apparence (couleur, coiffure, tenue…), modifiez les champs du formulaire ci-dessous et enregistrez.
+            ⚠️ Attention : pour changer l'apparence ({appearanceExamples}), modifiez les champs du formulaire ci-dessous et enregistrez.
           </p>
         </div>
       )}

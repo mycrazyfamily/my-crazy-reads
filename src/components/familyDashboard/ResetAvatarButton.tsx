@@ -171,8 +171,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
             )}
             <br />
             <br />
-            ⚠️ Attention : pour changer l'apparence (couleur, coiffure, tenue…), annulez puis modifiez
-            les champs du formulaire et enregistrez.
+            ⚠️ Attention : pour changer l'apparence ({appearanceExamples}), annulez puis modifiez les champs du formulaire et enregistrez.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
