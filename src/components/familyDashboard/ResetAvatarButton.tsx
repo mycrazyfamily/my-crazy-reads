@@ -1,4 +1,6 @@
-// ResetAvatarButton v2.5
+// ResetAvatarButton v2.6
+// Changelog v2.6 : la phrase d'orientation (« ⚠️ Attention : pour changer l'apparence, annulez… »)
+// s'affiche désormais dans LES DEUX cas de la fenêtre (standard ET avertissement renforcé enfant).
 // Changelog v2.5 : la fenêtre de confirmation oriente vers l'autre voie — pour changer l'apparence,
 // annuler puis modifier les champs du formulaire et enregistrer.
 // Changelog v2.4 : libellés « visage » → « avatar » dans la fenêtre de confirmation (on régénère
@@ -159,12 +161,12 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
               <>
                 Une nouvelle proposition d'avatar sera générée à partir des mêmes caractéristiques.
                 L'avatar actuel sera remplacé (l'ancien reste conservé dans l'historique).
-                <br />
-                <br />
-                Pour changer l'apparence (couleur, coiffure, tenue…), annulez puis modifiez les champs
-                du formulaire et enregistrez.
               </>
             )}
+            <br />
+            <br />
+            ⚠️ Attention : pour changer l'apparence (couleur, coiffure, tenue…), annulez puis modifiez
+            les champs du formulaire et enregistrez.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
