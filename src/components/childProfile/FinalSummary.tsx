@@ -241,6 +241,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           id: p.id,
           name: p.name,
           type: p.type,
+          gender: p.gender,
           breed: p.breed,
           physicalDetails: p.physical_details || [],
           traits: [],
