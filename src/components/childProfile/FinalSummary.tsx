@@ -265,7 +265,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           ...formData,
           family: {
             ...formData.family,
-            relatives: [...(formData.family?.relatives || []), ...existingRelativesFull]
+            relatives: [...(formData.family?.relatives || []), ...(existingRelativesFull as RelativeData[])]
           },
           pets: {
             hasPets: formData.pets?.hasPets || existingPetsFull.length > 0,
