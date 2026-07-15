@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
-import { clearAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
+import { clearAvatarRegenerating, isAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
 import { FAMILY_DATA_KEY } from '@/hooks/useFamilyData';
 
 let instanceCounter = 0;
@@ -60,7 +60,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
   useEffect(() => {
     if (!id) return;
 
-    if (consumeAvatarRegeneration(id)) {
+    if (consumeAvatarRegeneration(id) || isAvatarRegenerating(id)) {
       // Signal found → show shimmer (full if no URL, overlay if URL exists)
       setIsRegenerating(true);
     } else {
@@ -80,10 +80,14 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (incoming) {
       setHasError(false);
 
-      const avatarActuallyChanged = incoming !== previousKnownUrl;
+      // Ne considérer comme « nouvel avatar arrivé » qu'une transition d'une URL EXISTANTE vers une
+      // autre. La transition initiale null→URL (chargement de la référence, ex. fetch async de
+      // EditAvatarHeader) ne doit PAS couper le shimmer.
+      const avatarActuallyChanged = !!previousKnownUrl && incoming !== previousKnownUrl;
       if (avatarActuallyChanged) {
         setIsRegenerating(false);
-        clearAvatarRegeneration(id);
+        clearAvatarRegeneration(id);   // signal éphémère (sessionStorage)
+        clearAvatarRegenerating(id);   // flag persistant (localStorage)
       }
     }
   }, [initialAvatarUrl, id]);
