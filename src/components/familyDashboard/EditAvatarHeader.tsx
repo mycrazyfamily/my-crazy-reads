@@ -1,4 +1,8 @@
-// EditAvatarHeader v1.7
+// EditAvatarHeader v1.8
+// Changelog v1.8 : retrait de « L'avatar ne lui ressemble pas ? » ; bouton + aides regroupés dans
+// un encart (fond léger + bordure) pour être remarqués. « Garde les mêmes caractéristiques
+// physiques » collé au bouton (même intention) ; « Pour changer l'apparence… » séparé plus bas pour
+// marquer la différence des deux voies.
 // Changelog v1.7 : micro-copie d'aide sous le bouton pour lever l'ambiguïté régénérer vs modifier
 // (2 lignes courtes, scannables) : « Générer une autre proposition » garde les caractéristiques ;
 // modifier les champs + enregistrer change l'apparence. Masquée pendant une génération en cours.
@@ -100,24 +104,36 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
         size="h-24 w-24"
       />
 
-      <p className="text-xs text-muted-foreground text-center">
-        {busy ? 'Nouvel avatar en cours de création…' : "L'avatar ne lui ressemble pas ?"}
-      </p>
-
-      <ResetAvatarButton
-        profileId={profileId}
-        profileType={profileType}
-        profileName={profileName}
-        familyId={familyId}
-        disabled={busy}
-      />
-
-      {!busy && (
-        <p className="text-[11px] leading-snug text-muted-foreground/80 text-center max-w-xs">
-          Garde les mêmes caractéristiques physiques.
-          <br />
-          Pour changer l'apparence, modifiez les champs ci-dessous puis enregistrez.
+      {busy && (
+        <p className="text-xs text-muted-foreground text-center">
+          Nouvel avatar en cours de création…
         </p>
+      )}
+
+      {busy ? (
+        <ResetAvatarButton
+          profileId={profileId}
+          profileType={profileType}
+          profileName={profileName}
+          familyId={familyId}
+          disabled={busy}
+        />
+      ) : (
+        <div className="w-full max-w-sm rounded-xl border border-mcf-mint bg-mcf-mint/5 px-4 py-3 flex flex-col items-center gap-1">
+          <ResetAvatarButton
+            profileId={profileId}
+            profileType={profileType}
+            profileName={profileName}
+            familyId={familyId}
+            disabled={busy}
+          />
+          <p className="text-[11px] leading-snug text-muted-foreground/80 text-center">
+            Garde les mêmes caractéristiques physiques.
+          </p>
+          <p className="text-[11px] leading-snug text-muted-foreground/70 text-center mt-2 pt-2 border-t border-mcf-mint/40">
+            Pour changer l'apparence, modifiez les champs ci-dessous puis enregistrez.
+          </p>
+        </div>
       )}
     </div>
   );
