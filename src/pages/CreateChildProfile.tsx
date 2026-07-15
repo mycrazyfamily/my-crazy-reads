@@ -1,4 +1,6 @@
-// CreateChildProfile v1.1
+// CreateChildProfile v1.2
+// Changelog v1.2 : EditAvatarHeader monté en tête du formulaire en mode édition (avatar + bouton
+// « Générer une autre proposition »), au-dessus du stepper → visible sur les 4 étapes.
 // Changelog v1.1 : fix family_id manquant à la création d'un nouveau comforter en mode édition
 // (CAS 2) — récupéré une fois via child_profiles avant la boucle, injecté dans l'insert comforters.
 import React from 'react';
@@ -25,6 +27,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Heart, Loader2 } from 'lucide-react';
+import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
 
 // --- Signature d'apparence avatar (gate de régénération) ---------------------
 function normalizePhysList(raw: any): string[] {
@@ -728,6 +731,12 @@ const CreateChildProfile = ({
           >
             Gérer le statut du profil
           </button>
+        </div>
+      )}
+
+      {editMode && editChildId && (
+        <div className="mb-6">
+          <EditAvatarHeader profileId={editChildId} profileType="child" profileName={childFirstName} />
         </div>
       )}
 
