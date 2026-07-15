@@ -1,4 +1,7 @@
-// useChildProfileSubmit v1.1
+// useChildProfileSubmit v1.2
+// Changelog v1.2 : signale la régénération d'avatar à la création pour l'enfant ET chaque
+// proche/animal/doudou réellement créé dans le grand formulaire (pas les entités existantes juste
+// reliées) → shimmer « en création » cohérent sur les cartes du dashboard.
 // Changelog v1.1 : 3 fixes sur la création de doudou (section 16, cas nouveau doudou) —
 // (a) family_id manquant sur l'insert comforters, (b) appearance stockait toy.type au lieu du
 // texte libre de l'utilisateur (vraie perte de données), (c) relation_label ignorait otherType
@@ -17,6 +20,7 @@ import {
 } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import { splitCamelCase } from '@/utils/nameFormatter';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
@@ -207,6 +211,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 tempId: data.family!.relatives[index].id // L'ID temporaire du formulaire
               }))
             );
+            // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création » sur chaque carte.
+            createdMembers.forEach((m) => signalAvatarRegeneration(m.id));
           }
         }
         // 3. Créer le profil enfant dans child_profiles
@@ -256,6 +262,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         }
 
         const childId = childProfile.id;
+
+        // Avatar de l'enfant généré côté n8n (trigger à l'INSERT) → shimmer « en création ».
+        // NB : la création via ce grand formulaire redirige ensuite vers l'abonnement, donc le
+        // shimmer enfant ne sera visible que si l'utilisateur revient à l'espace famille sous 5 min
+        // (TTL du flag) ; posé quand même pour la cohérence des 4 types.
+        signalAvatarRegeneration(childId);
         
         // 4. Ajouter les superpowers (max 3)
         if (data.superpowers && data.superpowers.length > 0) {
@@ -524,6 +536,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             toast.warning("Profil créé mais erreur lors de l'enregistrement des animaux");
           } else if (createdPets) {
             createdPetIds.push(...createdPets.map(p => p.id));
+            // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création » sur chaque carte.
+            createdPets.forEach((p) => signalAvatarRegeneration(p.id));
           }
         }
 
@@ -651,6 +665,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               }
 
               if (createdComforter) {
+                // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création ».
+                signalAvatarRegeneration(createdComforter.id);
                 // Lier le doudou à l'enfant dans child_comforters
                 const { error: linkError } = await supabase
                   .from('child_comforters')
