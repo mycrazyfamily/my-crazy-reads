@@ -1,4 +1,6 @@
-// ResetAvatarButton v2.3
+// ResetAvatarButton v2.4
+// Changelog v2.4 : libellés « visage » → « avatar » dans la fenêtre de confirmation (on régénère
+// tout l'avatar, pas seulement le visage).
 // Changelog v2.3 : le flag persistant est désormais posé par signalAvatarRegeneration lui-même
 // (centralisé) → on retire l'appel markAvatarRegenerating redondant + son import.
 // Changelog v2.2 : pose un flag PERSISTANT (markAvatarRegenerating, localStorage) au clic pour que
@@ -98,11 +100,11 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
 
       // Même flux qu'une modification : on signale la régénération (pose signal éphémère + flag
       // persistant, centralisé dans signalAvatarRegeneration), puis on renvoie le parent vers
-      // l'espace famille où le nouveau visage apparaîtra sur la carte (shimmer + polling/realtime).
+      // l'espace famille où le nouvel avatar apparaîtra sur la carte (shimmer + polling/realtime).
       signalAvatarRegeneration(profileId);
 
       toast.success('Nouvelle proposition en cours de création…', {
-        description: "Retour à l'espace famille — le nouveau visage y apparaîtra dans quelques instants.",
+        description: "Retour à l'espace famille — le nouvel avatar y apparaîtra dans quelques instants.",
         duration: 5000,
       });
       setTimeout(() => navigate('/espace-famille'), 500);
@@ -148,12 +150,12 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
             {reinforced ? (
               <>
                 Un ou plusieurs livres ont déjà été créés pour {profileName || 'cet enfant'}. Ils
-                garderont l'ancien visage : la ressemblance ne sera plus continue d'un livre à l'autre.
+                garderont l'ancien avatar : la ressemblance ne sera plus continue d'un livre à l'autre.
                 La nouvelle proposition ne s'appliquera qu'aux futurs livres.
               </>
             ) : (
               <>
-                Une nouvelle proposition de visage sera générée à partir des mêmes caractéristiques.
+                Une nouvelle proposition d'avatar sera générée à partir des mêmes caractéristiques.
                 L'avatar actuel sera remplacé (l'ancien reste conservé dans l'historique).
               </>
             )}
