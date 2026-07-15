@@ -1,4 +1,6 @@
-// ModifierProche v1.1
+// ModifierProche v1.2
+// Changelog v1.2 : EditAvatarHeader monté en tête (avatar + « Générer une autre proposition ») ;
+//                  ancien ResetAvatarButton du pied de page retiré (désormais porté par le header).
 // Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSave (jamais vérifiée jusqu'ici)
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +24,7 @@ import RelativeAppearanceSection from '@/components/childProfile/relatives/Relat
 import RelativeTraitsSection from '@/components/childProfile/relatives/RelativeTraitsSection';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
-import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
+import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
 
 // Statut « entité inactive » du proche : seul le décès est un fait global d'entité.
 // La brouille (« plus en contact ») est gérée PAR ENFANT via la junction child_family_members.
@@ -720,6 +722,8 @@ const ModifierProche: React.FC = () => {
         </div>
 
         <Card className="p-6 space-y-6 border-mcf-mint">
+          <EditAvatarHeader profileId={relativeId!} profileType="relative" profileName={firstName} />
+
           <RelativeBasicInfoSection
             type={type}
             setType={setType}
@@ -838,13 +842,6 @@ const ModifierProche: React.FC = () => {
             >
               {saving ? 'Sauvegarde...' : 'Enregistrer les modifications'}
             </Button>
-          </div>
-          <div className="flex justify-center">
-            <ResetAvatarButton
-              profileId={relativeId!}
-              profileType="relative"
-              profileName={firstName}
-            />
           </div>
         </div>
 
