@@ -1,4 +1,7 @@
-// ResetAvatarButton v2.1
+// ResetAvatarButton v2.2
+// Changelog v2.2 : pose un flag PERSISTANT (markAvatarRegenerating, localStorage) au clic pour que
+// l'écran de modif affiche « en création » + verrouille le bouton même après navigation ; nouvelle
+// prop `disabled` (le header la passe = isRegenerating) → pas de relance à l'aveugle pendant une régé.
 // Changelog v2.1 : après un reset réussi, on NAVIGUE vers /espace-famille (même flux qu'une
 // modification/création). Le nouveau visage apparaît sur la carte du dashboard via le signal
 // signalAvatarRegeneration + useRealtimeAvatar (shimmer + polling). Retrait du shimmer in-place :
@@ -29,6 +32,7 @@ import { RefreshCw, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { markAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
 
 type ProfileType = 'child' | 'relative' | 'pet' | 'comforter';
 
@@ -43,6 +47,7 @@ interface ResetAvatarButtonProps {
   profileType: ProfileType;
   profileName?: string;
   familyId?: string | null;
+  disabled?: boolean;
 }
 
 const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
@@ -50,6 +55,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
   profileType,
   profileName,
   familyId = null,
+  disabled = false,
 }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -91,7 +97,8 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
 
       // Même flux qu'une modification : on signale la régénération, puis on renvoie le parent vers
       // l'espace famille où le nouveau visage apparaîtra sur la carte (shimmer + polling/realtime).
-      signalAvatarRegeneration(profileId);
+      markAvatarRegenerating(profileId); // flag persistant → l'écran de modif montre « en création »
+      signalAvatarRegeneration(profileId); // signal à usage unique → shimmer des cartes dashboard
 
       toast.success('Nouvelle proposition en cours de création…', {
         description: "Retour à l'espace famille — le nouveau visage y apparaîtra dans quelques instants.",
@@ -105,7 +112,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
     }
   };
 
-  const busy = loading;
+  const busy = loading || disabled;
   const reinforced = profileType === 'child' && hasProducedBook;
 
   return (
