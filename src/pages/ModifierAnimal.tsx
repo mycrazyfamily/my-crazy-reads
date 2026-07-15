@@ -1,4 +1,6 @@
-// ModifierAnimal v2.9
+// ModifierAnimal v3.0
+// Changelog v3.0 : EditAvatarHeader monté en tête (avatar + « Générer une autre proposition ») ;
+//                  ancien ResetAvatarButton du pied de page retiré (désormais porté par le header).
 // Changelog v2.9 : ajout gender (select pets, chargement, sauvegarde, validation obligatoire)
 //                  + fix validation manquante birthMonthYear dans handleSubmitClick (existait déjà
 //                  côté PetForm/AjouterAnimal mais pas ici, showButtons=false contourne PetForm.validatePetData)
@@ -20,7 +22,7 @@ import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetGender, PetTrait } from '@/types/childProfile';
-import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
+import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
 
 // Statut « entité inactive » de l'animal (mutuellement exclusif)
 type PetStatus = 'active' | 'deceased' | 'gone';
@@ -502,6 +504,8 @@ const ModifierAnimal: React.FC = () => {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
+          <EditAvatarHeader profileId={petId!} profileType="pet" profileName={petData?.name} />
+
           <PetForm 
             pet={petData}
             onSave={handleSave}
@@ -570,13 +574,6 @@ const ModifierAnimal: React.FC = () => {
               >
                 Enregistrer les modifications
               </Button>
-            </div>
-            <div className="flex justify-center">
-              <ResetAvatarButton
-                profileId={petId!}
-                profileType="pet"
-                profileName={petData?.name}
-              />
             </div>
           </div>
         </div>
