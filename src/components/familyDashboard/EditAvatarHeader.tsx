@@ -1,4 +1,5 @@
-// EditAvatarHeader v1.8
+// EditAvatarHeader v1.9
+// Changelog v1.9 : préfixe « ⚠️ Attention : » sur la ligne « Pour changer l'apparence… » de l'encart.
 // Changelog v1.8 : retrait de « L'avatar ne lui ressemble pas ? » ; bouton + aides regroupés dans
 // un encart (fond léger + bordure) pour être remarqués. « Garde les mêmes caractéristiques
 // physiques » collé au bouton (même intention) ; « Pour changer l'apparence… » séparé plus bas pour
@@ -131,7 +132,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
             Garde les mêmes caractéristiques physiques.
           </p>
           <p className="text-[11px] leading-snug text-muted-foreground/70 text-center mt-2 pt-2 border-t border-mcf-mint/40">
-            Pour changer l'apparence, modifiez les champs ci-dessous puis enregistrez.
+            ⚠️ Attention : pour changer l'apparence, modifiez les champs ci-dessous puis enregistrez.
           </p>
         </div>
       )}
