@@ -1,4 +1,8 @@
-// useChildProfileSubmit v1.4
+// useChildProfileSubmit v1.5
+// Changelog v1.5 : section 16, branche « doudou existant » (toy.comforterId) — on (re)pose child_id
+// + appearance/roles/relation_label à la mise à jour. Le doudou du grand formulaire est pré-créé
+// dans le wizard SANS child_id (d'où son avatar déjà généré) puis passait ici en simple update qui
+// ne rattachait pas l'enfant → invisible dans useFamilyData (lecture par comforters.child_id).
 // Changelog v1.4 : section 16 (nouveau doudou) — création avec child_id DIRECT sur comforters
 // (+ appearance/roles/relation_label), au lieu de l'ancienne jonction child_comforters qui rendait
 // le doudou invisible dans useFamilyData (qui lit par comforters.child_id). Aligné sur AjouterDoudou.
@@ -628,13 +632,20 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           for (const toy of data.toys.toys) {
             // Si le doudou a déjà un comforterId, c'est un doudou existant à mettre à jour
             if (toy.comforterId) {
-              // Mettre à jour le statut is_active du comforter existant
+              // Mise à jour d'un doudou existant (souvent pré-créé dans le wizard, sans child_id).
+              // On (re)pose child_id + appearance/roles/relation_label pour le rattacher au bon enfant
+              // (nouveau schéma), sinon il reste invisible dans useFamilyData (lecture par child_id).
+              const finalToyType = toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type;
               const { error: updateError } = await supabase
                 .from('comforters')
                 .update({
                   is_active: toy.isActive !== false, // Par défaut actif si non spécifié
                   label: toy.name,
-                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨'
+                  emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨',
+                  child_id: childId,
+                  appearance: toy.appearance?.trim() || '',
+                  roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
+                  relation_label: finalToyType
                 })
                 .eq('id', toy.comforterId);
 
