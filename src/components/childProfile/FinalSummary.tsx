@@ -112,6 +112,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           id: link.pet_id,
           name: link.pets.name,
           type: link.pets.type,
+          gender: link.pets.gender,
           breed: link.pets.breed,
           physicalDetails: link.pets.physical_details || [],
           traits: [], // Champ requis par le type PetData
