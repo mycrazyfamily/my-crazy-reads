@@ -1,4 +1,6 @@
-// ResetAvatarButton v2.2
+// ResetAvatarButton v2.3
+// Changelog v2.3 : le flag persistant est désormais posé par signalAvatarRegeneration lui-même
+// (centralisé) → on retire l'appel markAvatarRegenerating redondant + son import.
 // Changelog v2.2 : pose un flag PERSISTANT (markAvatarRegenerating, localStorage) au clic pour que
 // l'écran de modif affiche « en création » + verrouille le bouton même après navigation ; nouvelle
 // prop `disabled` (le header la passe = isRegenerating) → pas de relance à l'aveugle pendant une régé.
@@ -32,7 +34,6 @@ import { RefreshCw, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
-import { markAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
 
 type ProfileType = 'child' | 'relative' | 'pet' | 'comforter';
 
@@ -95,10 +96,10 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      // Même flux qu'une modification : on signale la régénération, puis on renvoie le parent vers
+      // Même flux qu'une modification : on signale la régénération (pose signal éphémère + flag
+      // persistant, centralisé dans signalAvatarRegeneration), puis on renvoie le parent vers
       // l'espace famille où le nouveau visage apparaîtra sur la carte (shimmer + polling/realtime).
-      markAvatarRegenerating(profileId); // flag persistant → l'écran de modif montre « en création »
-      signalAvatarRegeneration(profileId); // signal à usage unique → shimmer des cartes dashboard
+      signalAvatarRegeneration(profileId);
 
       toast.success('Nouvelle proposition en cours de création…', {
         description: "Retour à l'espace famille — le nouveau visage y apparaîtra dans quelques instants.",
