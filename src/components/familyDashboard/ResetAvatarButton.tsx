@@ -64,6 +64,12 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
   familyId = null,
   disabled = false,
 }) => {
+  const appearanceExamples =
+    profileType === 'pet'
+      ? 'couleur, pelage, taille'
+      : profileType === 'comforter'
+        ? 'couleur, matière, accessoires'
+        : 'couleur, coiffure, tenue';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [hasProducedBook, setHasProducedBook] = useState(false);
@@ -165,8 +171,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
             )}
             <br />
             <br />
-            ⚠️ Attention : pour changer l'apparence (couleur, coiffure, tenue…), annulez puis modifiez
-            les champs du formulaire et enregistrez.
+            ⚠️ Attention : pour changer l'apparence ({appearanceExamples}), annulez puis modifiez les champs du formulaire et enregistrez.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
