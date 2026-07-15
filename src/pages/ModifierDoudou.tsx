@@ -1,4 +1,5 @@
-// ModifierDoudou v2.1
+// ModifierDoudou v2.2
+// Changelog v2.2 : EditAvatarHeader monté en tête (avatar + bouton « Générer une autre proposition »).
 // Changelog v2.1 : régénération automatique de l'avatar à la sauvegarde si l'apparence a changé
 // — même mécanisme que ModifierAnimal (comforterAvatarSignature avant/après, appel fire-and-forget
 // à edit-avatar-mcf, signalAvatarRegeneration). Pas de ResetAvatarButton ajouté pour l'instant
@@ -23,6 +24,7 @@ import { splitCamelCase } from '@/utils/nameFormatter';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToyForm from '@/components/childProfile/toys/ToyForm';
+import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
 
 type ToyStatus = 'active' | 'lost';
@@ -248,6 +250,8 @@ const ModifierDoudou: React.FC = () => {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
+          <EditAvatarHeader profileId={comforterId!} profileType="comforter" profileName={toyData?.name} />
+
           {childName && (
             <p className="text-sm text-muted-foreground">
               Doudou de <span className="font-medium text-mcf-primary">{childName}</span>
