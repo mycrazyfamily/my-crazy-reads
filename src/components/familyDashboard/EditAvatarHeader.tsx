@@ -1,4 +1,7 @@
-// EditAvatarHeader v1.6
+// EditAvatarHeader v1.7
+// Changelog v1.7 : micro-copie d'aide sous le bouton pour lever l'ambiguïté régénérer vs modifier
+// (2 lignes courtes, scannables) : « Générer une autre proposition » garde les caractéristiques ;
+// modifier les champs + enregistrer change l'apparence. Masquée pendant une génération en cours.
 // Changelog v1.6 : le bouton et le libellé suivent l'affichage réel de l'avatar via
 // busy = isRegenerating || !avatarUrl. Corrige le cas « proche créé » où le shimmer s'affichait
 // (pas encore d'avatar) mais le bouton restait actif car le flag avait déjà été levé. Libellés
@@ -108,6 +111,14 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
         familyId={familyId}
         disabled={busy}
       />
+
+      {!busy && (
+        <p className="text-[11px] leading-snug text-muted-foreground/80 text-center max-w-xs">
+          Garde les mêmes caractéristiques physiques.
+          <br />
+          Pour changer l'apparence, modifiez les champs ci-dessous puis enregistrez.
+        </p>
+      )}
     </div>
   );
 };
