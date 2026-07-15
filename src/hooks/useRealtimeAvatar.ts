@@ -4,7 +4,9 @@ import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegener
 
 let instanceCounter = 0;
 
-type AvatarTable = 'child_profiles' | 'family_members' | 'pets';
+// v+comforters : ajout de 'comforters' pour l'avatar des doudous (EditAvatarHeader).
+// Realtime n'est pas actif sur cette table → le polling (RULE 3) prend le relais.
+type AvatarTable = 'child_profiles' | 'family_members' | 'pets' | 'comforters';
 
 interface UseRealtimeAvatarOptions {
   table: AvatarTable;
