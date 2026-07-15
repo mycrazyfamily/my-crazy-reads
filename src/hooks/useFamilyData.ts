@@ -1,4 +1,9 @@
-// useFamilyData v2.0
+// useFamilyData v2.1
+// Changelog v2.1 : (a) refetchOnMount 'always' → l'enfant/entités fraîchement créés apparaissent
+// sans F5 au retour sur l'espace famille ; (b) refetchInterval conditionnel → tant qu'au moins un
+// avatar est manquant (profil venant d'être créé, image générée avec un délai côté n8n),
+// la query se rafraîchit toutes les 8 s, puis s'arrête d'elle-même quand tous les avatars sont là.
+// Remplace le polling par-carte (peu fiable). N'tourne que si l'espace famille est monté.
 // Changelog v2.0 : BUG CORRIGÉ — relatives/pets/toys étaient chargés family-wide et assignés
 // IDENTIQUES à chaque enfant (au lieu d'être filtrés par les vraies jonctions), contrairement à
 // places qui était déjà correct. Chaque enfant n'affiche désormais que SES proches/animaux/
@@ -202,6 +207,18 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
   return children;
 }
 
+// Un avatar est « attendu » tant qu'une entité VISIBLE (active) n'a pas d'avatar_url. On ignore les
+// entités inactives (décédées / perdues / brouillées) pour ne pas boucler sur des cas légitimes.
+function hasMissingAvatar(children: FamilyChild[] | undefined): boolean {
+  if (!children || children.length === 0) return false;
+  return children.some((child) =>
+    (!child.isDeceased && !child.avatar) ||
+    (child.relatives || []).some((r: any) => r?.is_deceased !== true && !r?.avatar_url) ||
+    (child.pets || []).some((p: any) => p?.is_deceased !== true && p?.is_active !== false && !p?.avatar_url) ||
+    (child.toys || []).some((t: any) => t?.is_active !== false && !t?.avatar_url)
+  );
+}
+
 export function useFamilyData() {
   const { supabaseSession } = useAuth();
   const userId = supabaseSession?.user?.id;
@@ -212,6 +229,14 @@ export function useFamilyData() {
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    // Rafraîchit à chaque arrivée sur l'espace famille (retour depuis l'abonnement après création,
+    // etc.) → l'enfant et les entités fraîchement créés apparaissent sans F5.
+    refetchOnMount: 'always',
+    // Tant qu'un avatar manque (image générée avec un délai côté n8n), on refetch toutes les 8 s ;
+    // dès que tous les avatars visibles sont là, on s'arrête. Ne tourne que si l'espace famille est
+    // monté (pas de refetch en arrière-plan).
+    refetchInterval: (query) => (hasMissingAvatar(query.state.data as FamilyChild[] | undefined) ? 8000 : false),
+    refetchIntervalInBackground: false,
   });
 }
 
