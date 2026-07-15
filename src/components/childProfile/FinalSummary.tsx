@@ -1,4 +1,6 @@
-// FinalSummary v1.4
+// FinalSummary v1.5
+// Changelog v1.5 : retrait du ResetAvatarButton caché en pied de résumé — la régénération d'avatar
+// enfant passe désormais par EditAvatarHeader monté en tête de CreateChildProfile (mode édition).
 // Changelog v1.4 : 3ᵉ endroit trouvé où les lieux "destination_libre" (Koh Tao, créés à la volée
 // pour une seule histoire via le wizard) fuitaient — le résumé en mode ÉDITION d'un enfant les
 // chargeait sans filtre. Même règle que useFamilyData.ts et PlacesForm.tsx : exclus.
@@ -21,7 +23,6 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
-import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 import type { ChildProfileFormData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -418,14 +419,6 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         >
           ← Revenir à l'étape précédente
         </Button>
-
-        {editMode && editChildId && (
-          <ResetAvatarButton
-            profileId={editChildId}
-            profileType="child"
-            profileName={completeData.firstName}
-          />
-        )}
       </div>
     </div>
   );
