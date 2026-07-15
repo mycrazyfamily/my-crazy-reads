@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { clearAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
 
 let instanceCounter = 0;
 
@@ -96,7 +97,10 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       setIsNew(true);
       // ─── New avatar arrived → end regeneration ───
       setIsRegenerating(false);
-      if (id) clearAvatarRegeneration(id);
+      if (id) {
+        clearAvatarRegeneration(id);   // signal sessionStorage (cartes dashboard)
+        clearAvatarRegenerating(id);   // flag persistant localStorage (écran de modif)
+      }
     }
   }, [id]);
 
