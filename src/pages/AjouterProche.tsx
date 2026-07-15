@@ -10,6 +10,7 @@ import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import RelativeForm from '@/components/childProfile/RelativeForm';
 import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
@@ -255,7 +256,12 @@ export default function AjouterProche() {
         .insert(childFamilyMemberRecords);
 
       if (linkError) throw linkError;
-      
+
+      // L'avatar est généré côté n8n (trigger à l'INSERT). On signale la régénération pour que la
+      // carte du dashboard affiche « en création » jusqu'à l'arrivée du nouvel avatar. Le flag est
+      // persistant (localStorage) → il survit au window.location.href ci-dessous.
+      signalAvatarRegeneration(familyMember.id);
+
       toast.success('Proche ajouté avec succès !');
       invalidateFamilyData();
       queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
