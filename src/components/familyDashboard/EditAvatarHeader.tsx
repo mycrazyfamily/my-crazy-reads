@@ -1,4 +1,8 @@
-// EditAvatarHeader v1.5
+// EditAvatarHeader v1.6
+// Changelog v1.6 : le bouton et le libellé suivent l'affichage réel de l'avatar via
+// busy = isRegenerating || !avatarUrl. Corrige le cas « proche créé » où le shimmer s'affichait
+// (pas encore d'avatar) mais le bouton restait actif car le flag avait déjà été levé. Libellés
+// « visage » → « avatar » (on régénère tout l'avatar, pas seulement le visage).
 // Changelog v1.5 : simplifié. L'amorçage du shimmer est désormais géré par useRealtimeAvatar
 // lui-même (il lit le flag persistant au montage) et le sync effect du hook n'interprète plus la
 // transition null→URL comme une fin de régénération. Plus besoin de refLoaded/startRegeneration ici.
@@ -72,6 +76,11 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
     </span>
   );
 
+  // « Occupé » = régénération en cours OU aucun avatar affichable (création/génération non terminée).
+  // Le bouton et le libellé suivent cet état, en cohérence avec le shimmer d'AvatarDisplay
+  // (qui s'affiche dès qu'il n'y a pas d'avatar). Évite un bouton actif sous un avatar en shimmer.
+  const busy = isRegenerating || !avatarUrl;
+
   return (
     <div className="flex flex-col items-center gap-3 pb-2">
       <AvatarDisplay
@@ -89,7 +98,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
       />
 
       <p className="text-xs text-muted-foreground text-center">
-        {isRegenerating ? 'Nouveau visage en cours de création…' : 'Ce visage ne lui ressemble pas ?'}
+        {busy ? 'Nouvel avatar en cours de création…' : "L'avatar ne lui ressemble pas ?"}
       </p>
 
       <ResetAvatarButton
@@ -97,7 +106,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
         profileType={profileType}
         profileName={profileName}
         familyId={familyId}
-        disabled={isRegenerating}
+        disabled={busy}
       />
     </div>
   );
