@@ -41,6 +41,12 @@ interface EditAvatarHeaderProps {
 
 const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileType, profileName }) => {
   const table = TABLE_MAP[profileType];
+  const appearanceExamples =
+    profileType === 'pet'
+      ? 'couleur, pelage, taille'
+      : profileType === 'comforter'
+        ? 'couleur, matière, accessoires'
+        : 'couleur, coiffure, tenue';
   const [initialAvatarUrl, setInitialAvatarUrl] = useState<string | null>(null);
   const [familyId, setFamilyId] = useState<string | null>(null);
 

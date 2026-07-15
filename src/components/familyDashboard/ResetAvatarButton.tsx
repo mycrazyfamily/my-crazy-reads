@@ -64,6 +64,12 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
   familyId = null,
   disabled = false,
 }) => {
+  const appearanceExamples =
+    profileType === 'pet'
+      ? 'couleur, pelage, taille'
+      : profileType === 'comforter'
+        ? 'couleur, matière, accessoires'
+        : 'couleur, coiffure, tenue';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [hasProducedBook, setHasProducedBook] = useState(false);
