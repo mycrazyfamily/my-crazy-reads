@@ -1,22 +1,13 @@
-// EditAvatarHeader v1.4
-// Changelog v1.4 : n'amorce le shimmer qu'APRÈS le chargement de l'URL de référence (refLoaded).
-// Avant, le fetch async faisait passer initialAvatarUrl de null→URL, que useRealtimeAvatar lisait
-// comme « nouvel avatar arrivé » → il coupait isRegenerating aussitôt (shimmer <1 s + bouton
-// dé-verrouillé). En attendant refLoaded, le hook connaît déjà l'ancienne URL comme référence :
-// la prochaine transition est ancienne→nouvelle (vrai nouvel avatar), qui coupe le shimmer au bon moment.
-// Changelog v1.3 : l'avatar est rendu via AvatarDisplay (le même composant que les cartes du
-// dashboard) → clic-pour-agrandir identique + shimmer géré nativement par isRegenerating. On
-// retire l'<img> et l'overlay maison de la v1.2.
-// Changelog v1.2 : état « en régénération » persistant et partagé (localStorage via
-// avatarRegeneratingFlag). Au montage, si un reset est en cours pour ce profil, on amorce
-// useRealtimeAvatar (shimmer + polling) même si le dashboard a déjà consommé le signal
-// sessionStorage → l'écran de modif affiche « en création », verrouille le bouton (pas de relance
-// à l'aveugle), et bascule sur le nouveau visage dès qu'il arrive (le hook lève alors le flag).
-import React, { useEffect, useRef, useState } from 'react';
+// EditAvatarHeader v1.5
+// Changelog v1.5 : simplifié. L'amorçage du shimmer est désormais géré par useRealtimeAvatar
+// lui-même (il lit le flag persistant au montage) et le sync effect du hook n'interprète plus la
+// transition null→URL comme une fin de régénération. Plus besoin de refLoaded/startRegeneration ici.
+// Le header ne fait que : charger l'avatar de référence + family_id, afficher via AvatarDisplay
+// (clic-pour-agrandir + shimmer natifs), et rendre le bouton (verrouillé pendant la régé).
+import React, { useEffect, useState } from 'react';
 import { UserRound } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
-import { isAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
 
@@ -40,7 +31,6 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
   const table = TABLE_MAP[profileType];
   const [initialAvatarUrl, setInitialAvatarUrl] = useState<string | null>(null);
   const [familyId, setFamilyId] = useState<string | null>(null);
-  const [refLoaded, setRefLoaded] = useState(false);
 
   // Lecture unique de l'avatar + family_id. family_id sert de « ceinture » dans le payload de reset
   // (le workflow n8n a de toute façon un fallback qui le relit en base). Dégrade proprement :
@@ -60,10 +50,6 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
         }
       } catch {
         /* placeholder + family_id null */
-      } finally {
-        // Référence chargée (succès ou échec) : on peut amorcer le shimmer sans que la transition
-        // null→URL du fetch ne le coupe immédiatement.
-        if (!cancelled) setRefLoaded(true);
       }
     })();
     return () => { cancelled = true; };
@@ -78,19 +64,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
     isRegenerating,
     onImageLoad,
     onImageError,
-    startRegeneration,
   } = useRealtimeAvatar({ table, id: profileId, initialAvatarUrl });
-
-  // Amorçage : si un reset est déjà en cours (flag persistant), lancer l'état régénération une fois
-  // (shimmer + polling) même si le signal sessionStorage a été consommé ailleurs. Le hook lèvera le
-  // flag et repassera isRegenerating à false dès l'arrivée du nouvel avatar.
-  const primed = useRef(false);
-  useEffect(() => {
-    if (refLoaded && !primed.current && isAvatarRegenerating(profileId)) {
-      primed.current = true;
-      startRegeneration();
-    }
-  }, [refLoaded, profileId, startRegeneration]);
 
   const fallback = (
     <span className="flex items-center justify-center h-full w-full text-mcf-primary/40">
