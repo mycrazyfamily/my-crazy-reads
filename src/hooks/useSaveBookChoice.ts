@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface CharacterChoice {
-  type: 'child' | 'family_member' | 'pet';
+  type: 'child' | 'family_member' | 'pet' | 'comforter';
   id: string;
   name: string;
   dedicated?: boolean;

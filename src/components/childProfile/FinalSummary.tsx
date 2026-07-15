@@ -23,7 +23,7 @@ import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
-import type { ChildProfileFormData } from '@/types/childProfile';
+import type { ChildProfileFormData, RelativeData, PetData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
 import FamilySummary from '@/components/childProfile/summary/FamilySummary';
@@ -112,6 +112,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           id: link.pet_id,
           name: link.pets.name,
           type: link.pets.type,
+          gender: link.pets.gender,
           breed: link.pets.breed,
           physicalDetails: link.pets.physical_details || [],
           traits: [], // Champ requis par le type PetData
@@ -228,8 +229,17 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           return {
             id: fm.id,
             type: fm.role,
+            gender: fm.details?.gender || 'neutral',
             firstName: fm.name,
             nickname: nicknameObj,
+            age: fm.details?.age || '',
+            job: fm.details?.job || '',
+            skinColor: fm.details?.skinColor || { type: 'medium' },
+            eyeColor: fm.details?.eyeColor || undefined,
+            hairColor: fm.details?.hairColor || { type: 'brown' },
+            hairType: fm.details?.hairType || 'straight',
+            hairLength: fm.details?.hairLength || undefined,
+            glasses: fm.details?.glasses ?? false,
             traits: fm.details?.traits || [],
             otherTypeName: fm.details?.otherTypeName || '',
             is_deceased: fm.is_deceased ?? false,
@@ -240,6 +250,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           id: p.id,
           name: p.name,
           type: p.type,
+          gender: p.gender,
           breed: p.breed,
           physicalDetails: p.physical_details || [],
           traits: [],
@@ -263,7 +274,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           ...formData,
           family: {
             ...formData.family,
-            relatives: [...(formData.family?.relatives || []), ...existingRelativesFull]
+            relatives: [...(formData.family?.relatives || []), ...(existingRelativesFull as RelativeData[])]
           },
           pets: {
             hasPets: formData.pets?.hasPets || existingPetsFull.length > 0,
