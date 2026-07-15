@@ -1,4 +1,7 @@
-// useChildProfileSubmit v1.3
+// useChildProfileSubmit v1.4
+// Changelog v1.4 : section 16 (nouveau doudou) — création avec child_id DIRECT sur comforters
+// (+ appearance/roles/relation_label), au lieu de l'ancienne jonction child_comforters qui rendait
+// le doudou invisible dans useFamilyData (qui lit par comforters.child_id). Aligné sur AjouterDoudou.
 // Changelog v1.3 : (a) RETRAIT des signalAvatarRegeneration ajoutés en v1.2 — ce grand formulaire
 // redirige vers l'abonnement, l'avatar se génère pendant ce détour et est déjà prêt au retour, donc
 // poser un flag « en création » le laissait collé (shimmer infini). (b) invalidateFamilyData() après
@@ -620,7 +623,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           }
         }
 
-        // 16. Sauvegarder les doudous dans comforters et child_comforters
+        // 16. Sauvegarder les doudous dans comforters (child_id direct, 1 doudou = 1 enfant)
         if (data.toys?.hasToys && data.toys?.toys && data.toys.toys.length > 0) {
           for (const toy of data.toys.toys) {
             // Si le doudou a déjà un comforterId, c'est un doudou existant à mettre à jour
@@ -639,40 +642,28 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 console.error('Error updating comforter:', updateError);
               }
             } else {
-              // Créer un nouveau doudou dans comforters
-              const { data: createdComforter, error: comforterError } = await supabase
+              // Créer un nouveau doudou directement dans comforters, lié à l'enfant (1 doudou = 1
+              // enfant). child_id + appearance/roles/relation_label sur comforters (nouveau schéma),
+              // au lieu de l'ancienne jonction child_comforters qui rendait le doudou invisible dans
+              // useFamilyData (lecture par comforters.child_id).
+              const finalToyType = toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type;
+              const { error: comforterError } = await supabase
                 .from('comforters')
                 .insert([{
                   label: toy.name,
                   emoji: toy.type === 'plush' ? '🧸' : toy.type === 'blanket' ? '🧣' : toy.type === 'doll' ? '🧍' : toy.type === 'miniCar' ? '🚗' : toy.type === 'figurine' ? '🦸' : '✨',
                   family_id: familyId,
+                  child_id: childId,
+                  appearance: toy.appearance?.trim() || '',
+                  roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
+                  relation_label: finalToyType,
                   created_by: userId,
                   is_active: toy.isActive !== false // Par défaut actif si non spécifié
-                }])
-                .select()
-                .maybeSingle();
+                }]);
 
               if (comforterError) {
                 console.error('Error creating comforter:', comforterError);
                 continue;
-              }
-
-              if (createdComforter) {
-                // Lier le doudou à l'enfant dans child_comforters
-                const { error: linkError } = await supabase
-                  .from('child_comforters')
-                  .insert([{
-                    child_id: childId,
-                    comforter_id: createdComforter.id,
-                    name: toy.name,
-                    appearance: toy.appearance?.trim() || '',
-                    roles: Array.isArray(toy.roles) ? toy.roles.join(',') : (toy.roles as any) || '',
-                    relation_label: toy.type === 'other' ? (toy.otherType?.trim() || 'other') : toy.type
-                  }]);
-
-                if (linkError) {
-                  console.error('Error linking comforter to child:', linkError);
-                }
               }
             }
           }
