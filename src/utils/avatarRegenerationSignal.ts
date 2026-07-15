@@ -1,6 +1,15 @@
+import { markAvatarRegenerating } from './avatarRegeneratingFlag';
+
 const STORAGE_KEY = 'avatar_regenerating';
 
-/** Mark a profile as regenerating (persists across navigation) */
+/**
+ * Marque un profil comme « en régénération ». Point d'entrée UNIQUE : pose deux marqueurs.
+ *  - Signal éphémère (sessionStorage) : consommé une fois par les cartes du dashboard au montage.
+ *  - Flag PERSISTANT (localStorage, via markAvatarRegenerating) : survit à la navigation et est
+ *    relu par l'écran de modif ET par les cartes tant que le nouvel avatar n'est pas arrivé.
+ * Centralisé ici pour que TOUT déclencheur de régénération (reset OU modification OU création)
+ * active automatiquement le shimmer partout, sans avoir à y penser dans chaque écran.
+ */
 export function signalAvatarRegeneration(id: string): void {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -10,9 +19,10 @@ export function signalAvatarRegeneration(id: string): void {
   } catch {
     // ignore
   }
+  markAvatarRegenerating(id); // flag persistant (localStorage) — gère sa propre erreur en interne
 }
 
-/** Check if a profile was marked as regenerating (within last 5 min) */
+/** Check if a profile was marked as regenerating (within last 5 min). Consommation à usage unique. */
 export function consumeAvatarRegeneration(id: string): boolean {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -32,7 +42,7 @@ export function consumeAvatarRegeneration(id: string): boolean {
   }
 }
 
-/** Clear regeneration signal for a profile */
+/** Clear regeneration signal for a profile (signal éphémère uniquement). */
 export function clearAvatarRegeneration(id: string): void {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
