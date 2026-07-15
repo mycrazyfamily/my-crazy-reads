@@ -9,6 +9,7 @@ import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -226,7 +227,11 @@ export default function AjouterAnimal() {
         .insert(childPetRecords);
 
       if (linkError) throw linkError;
-      
+
+      // L'avatar est généré côté n8n (trigger à l'INSERT). On signale la régénération pour que la
+      // carte du dashboard affiche « en création » jusqu'à l'arrivée du nouvel avatar.
+      signalAvatarRegeneration(pet.id);
+
       toast.success('Animal ajouté avec succès !');
       invalidateFamilyData();
       navigate('/espace-famille');
