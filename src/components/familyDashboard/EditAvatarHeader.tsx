@@ -1,4 +1,9 @@
-// EditAvatarHeader v1.3
+// EditAvatarHeader v1.4
+// Changelog v1.4 : n'amorce le shimmer qu'APRÈS le chargement de l'URL de référence (refLoaded).
+// Avant, le fetch async faisait passer initialAvatarUrl de null→URL, que useRealtimeAvatar lisait
+// comme « nouvel avatar arrivé » → il coupait isRegenerating aussitôt (shimmer <1 s + bouton
+// dé-verrouillé). En attendant refLoaded, le hook connaît déjà l'ancienne URL comme référence :
+// la prochaine transition est ancienne→nouvelle (vrai nouvel avatar), qui coupe le shimmer au bon moment.
 // Changelog v1.3 : l'avatar est rendu via AvatarDisplay (le même composant que les cartes du
 // dashboard) → clic-pour-agrandir identique + shimmer géré nativement par isRegenerating. On
 // retire l'<img> et l'overlay maison de la v1.2.
@@ -35,6 +40,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
   const table = TABLE_MAP[profileType];
   const [initialAvatarUrl, setInitialAvatarUrl] = useState<string | null>(null);
   const [familyId, setFamilyId] = useState<string | null>(null);
+  const [refLoaded, setRefLoaded] = useState(false);
 
   // Lecture unique de l'avatar + family_id. family_id sert de « ceinture » dans le payload de reset
   // (le workflow n8n a de toute façon un fallback qui le relit en base). Dégrade proprement :
@@ -54,6 +60,10 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
         }
       } catch {
         /* placeholder + family_id null */
+      } finally {
+        // Référence chargée (succès ou échec) : on peut amorcer le shimmer sans que la transition
+        // null→URL du fetch ne le coupe immédiatement.
+        if (!cancelled) setRefLoaded(true);
       }
     })();
     return () => { cancelled = true; };
@@ -76,11 +86,11 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
   // flag et repassera isRegenerating à false dès l'arrivée du nouvel avatar.
   const primed = useRef(false);
   useEffect(() => {
-    if (!primed.current && isAvatarRegenerating(profileId)) {
+    if (refLoaded && !primed.current && isAvatarRegenerating(profileId)) {
       primed.current = true;
       startRegeneration();
     }
-  }, [profileId, startRegeneration]);
+  }, [refLoaded, profileId, startRegeneration]);
 
   const fallback = (
     <span className="flex items-center justify-center h-full w-full text-mcf-primary/40">
