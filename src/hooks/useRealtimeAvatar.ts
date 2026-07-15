@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { clearAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
+import { FAMILY_DATA_KEY } from '@/hooks/useFamilyData';
 
 let instanceCounter = 0;
 
@@ -33,12 +35,12 @@ const normalizeAvatarUrl = (url?: string | null): string | null => {
 };
 
 export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAvatarOptions): UseRealtimeAvatarResult {
+  const queryClient = useQueryClient();
   const normalizedInitial = normalizeAvatarUrl(initialAvatarUrl);
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(normalizedInitial);
   const [isNew, setIsNew] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [cacheBustVersion, setCacheBustVersion] = useState(() => Date.now());
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Unique instance ID for channel naming — stable for the lifetime of this hook
@@ -92,7 +94,6 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     if (normalized && normalized !== knownUrlRef.current) {
       knownUrlRef.current = normalized;
       setAvatarUrl(normalized);
-      setCacheBustVersion(Date.now());
       setHasError(false);
       setIsNew(true);
       // ─── New avatar arrived → end regeneration ───
@@ -101,8 +102,12 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
         clearAvatarRegeneration(id);   // signal sessionStorage (cartes dashboard)
         clearAvatarRegenerating(id);   // flag persistant localStorage (écran de modif)
       }
+      // Réaligne le cache React Query. Sans ça, useFamilyData resterait sur l'ancienne image / âge /
+      // caractéristiques (staleTime 5 min) → on reverrait l'ancien avatar au retour sur la page tant
+      // qu'on n'a pas fait de F5. L'invalidation force un refetch de la ligne complète (avatar + âge).
+      queryClient.invalidateQueries({ queryKey: [FAMILY_DATA_KEY] });
     }
-  }, [id]);
+  }, [id, queryClient]);
 
   // ─── RULE 2: startRegeneration — spinner stays indefinitely ───
   const startRegeneration = useCallback(() => {
@@ -206,9 +211,10 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
     /* no-op — we don't gate display on image load */
   }, []);
 
-  const imgSrc = avatarUrl
-    ? `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${cacheBustVersion}`
-    : null;
+  // Pas de cache-bust : les URLs sont déjà uniques par génération (timestamp dans le nom de fichier).
+  // On sert l'URL telle quelle → le navigateur peut mettre l'image en cache, et une nouvelle
+  // génération (nouvelle URL) déclenche naturellement le rechargement.
+  const imgSrc = avatarUrl;
 
   const isLoading = !avatarUrl;
 
