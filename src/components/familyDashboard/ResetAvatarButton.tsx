@@ -1,4 +1,8 @@
-// ResetAvatarButton v2.0
+// ResetAvatarButton v2.1
+// Changelog v2.1 : après un reset réussi, on NAVIGUE vers /espace-famille (même flux qu'une
+// modification/création). Le nouveau visage apparaît sur la carte du dashboard via le signal
+// signalAvatarRegeneration + useRealtimeAvatar (shimmer + polling). Retrait du shimmer in-place :
+// plus de props isRegenerating/onRegenerate. On conserve familyId (payload) + l'avertissement enfant.
 // Changelog v2.0 : (a) support du type 'comforter' ; (b) payload corrigé pour le circuit de CRÉATION
 // via Webhook_Reset (path factory-avatar-mcf) : { profile_id, type, family_id } — on n'envoie PLUS
 // current_avatar_url (n8n force previous_avatar_url:null + is_age_progression:false → nouveau tirage) ;
@@ -8,6 +12,7 @@
 // ne sera plus continue. Props isRegenerating/onRegenerate/familyId OPTIONNELLES (compat ascendante :
 // si le bouton est monté hors EditAvatarHeader, il retombe sur signalAvatarRegeneration).
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -38,8 +43,6 @@ interface ResetAvatarButtonProps {
   profileType: ProfileType;
   profileName?: string;
   familyId?: string | null;
-  isRegenerating?: boolean;
-  onRegenerate?: () => void;
 }
 
 const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
@@ -47,9 +50,8 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
   profileType,
   profileName,
   familyId = null,
-  isRegenerating = false,
-  onRegenerate,
 }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [hasProducedBook, setHasProducedBook] = useState(false);
 
@@ -87,23 +89,23 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      // Déclenche l'état « régénération en cours » (shimmer + désactivation) porté par le parent.
-      if (onRegenerate) onRegenerate();
-      else signalAvatarRegeneration(profileId); // compat ascendante hors EditAvatarHeader
+      // Même flux qu'une modification : on signale la régénération, puis on renvoie le parent vers
+      // l'espace famille où le nouveau visage apparaîtra sur la carte (shimmer + polling/realtime).
+      signalAvatarRegeneration(profileId);
 
       toast.success('Nouvelle proposition en cours de création…', {
-        description: 'Le nouvel avatar apparaîtra dans quelques instants.',
+        description: "Retour à l'espace famille — le nouveau visage y apparaîtra dans quelques instants.",
         duration: 5000,
       });
+      setTimeout(() => navigate('/espace-famille'), 500);
     } catch (err) {
       console.error('Reset avatar webhook error:', err);
       toast.error("La demande n'a pas pu être envoyée. Réessayez dans un instant.");
-    } finally {
       setLoading(false);
     }
   };
 
-  const busy = loading || isRegenerating;
+  const busy = loading;
   const reinforced = profileType === 'child' && hasProducedBook;
 
   return (
