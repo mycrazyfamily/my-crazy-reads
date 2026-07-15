@@ -1,4 +1,6 @@
-// AjouterDoudou v2.0
+// AjouterDoudou v2.1
+// Changelog v2.1 : signale la régénération d'avatar à la création (récupère l'id du comforter via
+// .select('id').single()) → shimmer « en création » sur la carte du dashboard jusqu'à l'arrivée.
 // Changelog v2.0 : simplification architecturale — 1 doudou = 1 enfant (plus de multi-sélection,
 // plus d'insert dans child_comforters). Sélection d'un SEUL enfant, insert direct dans
 // comforters avec child_id + appearance + roles + relation_label.
@@ -13,6 +15,7 @@ import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
+import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import ToyForm from '@/components/childProfile/toys/ToyForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -193,7 +196,7 @@ export default function AjouterDoudou() {
         : toyData.type;
       const emoji = emojiForToyType(toyData.type);
 
-      const { error: comforterError } = await supabase
+      const { data: createdComforter, error: comforterError } = await supabase
         .from('comforters')
         .insert({
           label: splitCamelCase(toyData.name),
@@ -205,9 +208,16 @@ export default function AjouterDoudou() {
           relation_label: finalType,
           created_by: supabaseSession!.user.id,
           is_active: toyData.isActive !== false
-        });
+        })
+        .select('id')
+        .single();
 
       if (comforterError) throw comforterError;
+
+      // L'avatar est généré côté n8n (trigger à l'INSERT). On signale la régénération pour que la
+      // carte du dashboard affiche « en création » jusqu'à l'arrivée du nouvel avatar (polling,
+      // realtime étant désactivé sur comforters).
+      if (createdComforter?.id) signalAvatarRegeneration(createdComforter.id);
 
       toast.success('Doudou ajouté avec succès !');
       invalidateFamilyData();
