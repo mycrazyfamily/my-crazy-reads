@@ -159,7 +159,14 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
       pollingIntervalRef.current = null;
     }
 
-    if (!id || !table || !isRegenerating) return;
+    // On poll tant qu'un avatar est attendu :
+    //  - régénération explicite (isRegenerating), OU
+    //  - aucun avatar affichable (!avatarUrl) : cas d'un profil fraîchement créé dont l'image est
+    //    générée avec un délai côté n8n, où le realtime peut rater l'événement (carte montée trop
+    //    tard, ou cache useFamilyData resservi avec avatar_url null). Le polling relit avatar_url en
+    //    direct dans Supabase et s'arrête dès qu'une URL arrive → pas de flag, pas de shimmer bloqué.
+    const shouldPoll = isRegenerating || !avatarUrl;
+    if (!id || !table || !shouldPoll) return;
 
     let attempts = 0;
     const MAX_ATTEMPTS = 15;
@@ -201,7 +208,7 @@ export function useRealtimeAvatar({ table, id, initialAvatarUrl }: UseRealtimeAv
         pollingIntervalRef.current = null;
       }
     };
-  }, [table, id, isRegenerating, applyNewUrl]);
+  }, [table, id, isRegenerating, avatarUrl, applyNewUrl]);
 
   // Clear "new" badge after 10 seconds
   useEffect(() => {
