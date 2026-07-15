@@ -1,7 +1,9 @@
-// useChildProfileSubmit v1.2
-// Changelog v1.2 : signale la régénération d'avatar à la création pour l'enfant ET chaque
-// proche/animal/doudou réellement créé dans le grand formulaire (pas les entités existantes juste
-// reliées) → shimmer « en création » cohérent sur les cartes du dashboard.
+// useChildProfileSubmit v1.3
+// Changelog v1.3 : (a) RETRAIT des signalAvatarRegeneration ajoutés en v1.2 — ce grand formulaire
+// redirige vers l'abonnement, l'avatar se génère pendant ce détour et est déjà prêt au retour, donc
+// poser un flag « en création » le laissait collé (shimmer infini). (b) invalidateFamilyData() après
+// création → l'enfant et les entités créées apparaissent sans F5, avatar déjà présent.
+// Changelog v1.2 : signale la régénération d'avatar à la création (retiré en v1.3, cf. ci-dessus).
 // Changelog v1.1 : 3 fixes sur la création de doudou (section 16, cas nouveau doudou) —
 // (a) family_id manquant sur l'insert comforters, (b) appearance stockait toy.type au lieu du
 // texte libre de l'utilisateur (vraie perte de données), (c) relation_label ignorait otherType
@@ -20,7 +22,7 @@ import {
 } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import { splitCamelCase } from '@/utils/nameFormatter';
-import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
+import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
@@ -30,6 +32,7 @@ type UseChildProfileSubmitProps = {
 export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChildProfileSubmitProps) => {
   const navigate = useNavigate();
   const { supabaseSession } = useAuth();
+  const invalidateFamilyData = useInvalidateFamilyData();
   const FORM_STORAGE_KEY = 'child-profile-form-state';
   
   // Protection contre les soumissions multiples
@@ -211,8 +214,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 tempId: data.family!.relatives[index].id // L'ID temporaire du formulaire
               }))
             );
-            // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création » sur chaque carte.
-            createdMembers.forEach((m) => signalAvatarRegeneration(m.id));
           }
         }
         // 3. Créer le profil enfant dans child_profiles
@@ -262,12 +263,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         }
 
         const childId = childProfile.id;
-
-        // Avatar de l'enfant généré côté n8n (trigger à l'INSERT) → shimmer « en création ».
-        // NB : la création via ce grand formulaire redirige ensuite vers l'abonnement, donc le
-        // shimmer enfant ne sera visible que si l'utilisateur revient à l'espace famille sous 5 min
-        // (TTL du flag) ; posé quand même pour la cohérence des 4 types.
-        signalAvatarRegeneration(childId);
         
         // 4. Ajouter les superpowers (max 3)
         if (data.superpowers && data.superpowers.length > 0) {
@@ -536,8 +531,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             toast.warning("Profil créé mais erreur lors de l'enregistrement des animaux");
           } else if (createdPets) {
             createdPetIds.push(...createdPets.map(p => p.id));
-            // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création » sur chaque carte.
-            createdPets.forEach((p) => signalAvatarRegeneration(p.id));
           }
         }
 
@@ -665,8 +658,6 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               }
 
               if (createdComforter) {
-                // Avatar généré côté n8n (trigger à l'INSERT) → shimmer « en création ».
-                signalAvatarRegeneration(createdComforter.id);
                 // Lier le doudou à l'enfant dans child_comforters
                 const { error: linkError } = await supabase
                   .from('child_comforters')
@@ -786,6 +777,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         
         // Clear stored form data only after a successful save
         localStorage.removeItem(FORM_STORAGE_KEY);
+
+        // Rafraîchir le cache useFamilyData : sans ça, le retour à l'espace famille (après le
+        // détour abonnement) resservirait le cache sans le nouvel enfant ni les entités créées,
+        // obligeant à un F5. L'invalidation force un refetch au prochain montage de l'espace famille.
+        invalidateFamilyData();
       } catch (error: any) {
         console.error('❌ [SUBMIT] Error in handleSubmit:', error);
         console.error('❌ [SUBMIT] Error message:', error?.message);
