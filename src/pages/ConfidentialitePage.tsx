@@ -1,4 +1,5 @@
-// ConfidentialitePage.tsx v1.1
+// ConfidentialitePage.tsx v1.2
+// v1.2: alignement à gauche du contenu (text-left) — neutralise le centrage global hérité
 // v1.1: retrait de la mention "traitement IA dans l'UE" (endpoint Vertex encore global) ; transferts hors UE formulés honnêtement ; hébergeur n8n France-Paris + stockage GCS France précisés
 // v1.0: politique de confidentialité (RGPD) rédigée d'après les infos validées ; gabarit aligné sur APropos.tsx
 import React from 'react';
@@ -191,7 +192,7 @@ const ConfidentialitePage: React.FC = () => {
       <Navbar />
 
       <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-3xl text-left">
           {/* Header */}
           <div className="mb-10">
             <Link
