@@ -1,3 +1,12 @@
+// CreateChildProfile v1.5
+// Changelog v1.5 (AFFICHAGE UNIQUEMENT — remplace l'approche v1.4 jugée fragile) :
+//   Le haut (statut + avatar) est révélé via un flag LOCAL topReady : on précharge l'image de
+//   l'avatar et on ne l'affiche que lorsqu'elle est réellement prête (ou pas d'avatar, ou timeout
+//   3 s de sécurité → jamais bloqué). Le formulaire attend aussi topReady (FormSteps forceLoading),
+//   donc l'avatar est TOUJOURS présent quand les champs apparaissent (fini le « form avant avatar »).
+//   Suppression du couplage fragile v1.4 (callback onEditDataLoadingChange / formDataLoading /
+//   editReady). Aucune logique métier modifiée. L'effet de chargement est durci (try/finally) pour
+//   que topReady se résolve même en cas d'erreur réseau.
 // CreateChildProfile v1.4
 // Changelog v1.4 (AFFICHAGE UNIQUEMENT) : révélation SYNCHRONISÉE en mode édition — le haut de page
 // (lien statut + avatar) et le formulaire ne s'affichent qu'une fois LES DEUX chargés (avatar chargé
@@ -138,20 +147,22 @@ const CreateChildProfile = ({
   const [initialIsDeceased, setInitialIsDeceased] = React.useState<boolean>(false);
   const [savingStatus, setSavingStatus] = React.useState(false);
   const [statusOpen, setStatusOpen] = React.useState(false);
-  // v1.3 : avatar + family_id chargés à l'ouverture → props EditAvatarHeader ; avatarLoaded garde le
-  // header masqué (placeholder neutre) tant que le fetch n'est pas terminé → pas de flash « Création… ».
+  // v1.5 : avatar + family_id chargés à l'ouverture → props EditAvatarHeader.
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
   const [familyId, setFamilyId] = React.useState<string | null>(null);
-  const [avatarLoaded, setAvatarLoaded] = React.useState<boolean>(false);
-  // v1.4 : chargement des données du formulaire, remonté par le provider (onEditDataLoadingChange).
-  // Sert à révéler avatar (haut) ET formulaire en même temps, une fois les deux prêts.
-  const [formDataLoading, setFormDataLoading] = React.useState<boolean>(Boolean(editMode && editChildId));
+  // avatarUrlResolved : true dès que le fetch de l'avatar est terminé (avatarUrl connu, éventuellement null).
+  const [avatarUrlResolved, setAvatarUrlResolved] = React.useState<boolean>(false);
+  // topReady : true quand le HAUT (avatar) est prêt — image réellement préchargée, ou pas d'avatar,
+  // ou timeout de sécurité. Pilote aussi l'attente du formulaire (forceLoading) → l'avatar est
+  // toujours présent quand les champs apparaissent. 100 % local, aucun callback inter-fichiers.
+  const [topReady, setTopReady] = React.useState<boolean>(!(editMode && editChildId));
   const queryClient = useQueryClient();
 
   // Charger birth_date + apparence + statut une seule fois à l'ouverture en mode édition
   React.useEffect(() => {
     if (editMode && editChildId) {
       (async () => {
+        try {
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
@@ -177,9 +188,37 @@ const CreateChildProfile = ({
         setInitialIsDeceased(!!data?.is_deceased);
         setAvatarUrl((data as any)?.avatar_url ?? null);
         setFamilyId((data as any)?.family_id ?? null);
-        setAvatarLoaded(true);
+        } catch (e) {
+          console.error('Erreur chargement avatar/méta enfant:', e);
+        } finally {
+          setAvatarUrlResolved(true);
+        }
       })();
     }
+  }, [editMode, editChildId]);
+
+  // v1.5 : précharge l'image de l'avatar puis marque le haut prêt (topReady). Une fois en cache
+  // navigateur, EditAvatarHeader la révèle instantanément (pas de disque→image, pas de « Création… »).
+  React.useEffect(() => {
+    if (!(editMode && editChildId)) { setTopReady(true); return; }
+    if (!avatarUrlResolved) return;                 // on attend la fin du fetch
+    if (!avatarUrl) { setTopReady(true); return; }  // pas d'avatar → rien à précharger
+    let cancelled = false;
+    const img = new Image();
+    const done = () => { if (!cancelled) setTopReady(true); };
+    img.onload = done;
+    img.onerror = done;                             // on révèle quand même
+    img.src = avatarUrl;
+    if (img.complete) done();
+    return () => { cancelled = true; };
+  }, [editMode, editChildId, avatarUrlResolved, avatarUrl]);
+
+  // v1.5 : filet de sécurité — le haut se révèle au plus tard après 3 s, quoi qu'il arrive
+  // (réseau lent, image indisponible…) → l'UI ne peut JAMAIS rester bloquée sur le skeleton.
+  React.useEffect(() => {
+    if (!(editMode && editChildId)) return;
+    const t = setTimeout(() => setTopReady(true), 3000);
+    return () => clearTimeout(t);
   }, [editMode, editChildId]);
 
   // Écrit is_deceased ; le trigger DB renseigne deceased_recorded_at automatiquement.
@@ -728,10 +767,6 @@ const CreateChildProfile = ({
   
   // Use either the prop or the location state
   const effectiveInitialStep = initialStep !== undefined ? initialStep : locationState?.targetStep;
-
-  // v1.4 : on ne révèle le haut (statut + avatar) ET le formulaire qu'une fois LES DEUX chargés.
-  // En création, rien à attendre → toujours prêt.
-  const editReady = !editMode ? true : (avatarLoaded && !formDataLoading);
   
   console.log("CreateChildProfile - effectiveInitialStep:", effectiveInitialStep);
 
@@ -749,10 +784,10 @@ const CreateChildProfile = ({
         }
       </p>
 
-      {/* v1.4 : haut de page (statut + avatar) révélé SEULEMENT quand avatar ET form sont prêts.
-          Le skeleton des champs (FormSteps, plus bas) disparaît au même instant → révélation d'un bloc. */}
+      {/* v1.5 : haut de page (statut + avatar) révélé quand l'avatar (image comprise) est prêt.
+          Le formulaire attend aussi topReady (forceLoading) → l'avatar est toujours présent quand les champs apparaissent. */}
       {editMode && editChildId && (
-        editReady ? (
+        topReady ? (
           <>
             {/* Lien discret (sous le sous-titre) : ouvre la modale de statut. Visible mais non anxiogène. */}
             <div className="text-center mb-6">
@@ -791,7 +826,6 @@ const CreateChildProfile = ({
           editMode={editMode}
           editChildId={editChildId}
           useSavedDraft={useSavedDraft}
-          onEditDataLoadingChange={setFormDataLoading}
         >
           <FormSteps 
             isGiftMode={isGiftMode} 
@@ -800,7 +834,7 @@ const CreateChildProfile = ({
             editMode={editMode}
             editChildId={editChildId}
             isSubmitting={isSubmitting}
-            forceLoading={editMode && !editReady}
+            forceLoading={editMode && !topReady}
           />
         </ChildProfileFormProvider>
       </div>
