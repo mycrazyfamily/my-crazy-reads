@@ -1,4 +1,8 @@
-// EditAvatarHeader v1.9
+// EditAvatarHeader v2.0
+// Changelog v2.0 : accepte initialAvatarUrl + familyId en PROPS. Quand le parent les fournit
+// (chargés avec le reste du profil, pendant le skeleton), on évite un 2ᵉ fetch et le reflow
+// « l'avatar arrive après coup » (busy true→false qui décalait la mise en page). Compat ascendante :
+// si le parent ne fournit pas ces props, on les charge ici comme avant.
 // Changelog v1.9 : préfixe « ⚠️ Attention : » sur la ligne « Pour changer l'apparence… » de l'encart.
 // Changelog v1.8 : retrait de « L'avatar ne lui ressemble pas ? » ; bouton + aides regroupés dans
 // un encart (fond léger + bordure) pour être remarqués. « Garde les mêmes caractéristiques
@@ -37,9 +41,18 @@ interface EditAvatarHeaderProps {
   profileId: string;
   profileType: ProfileType;
   profileName?: string;
+  /** Fournis par le parent (chargés avec le profil) → évite un 2ᵉ fetch et le reflow de l'avatar. */
+  initialAvatarUrl?: string | null;
+  familyId?: string | null;
 }
 
-const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileType, profileName }) => {
+const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
+  profileId,
+  profileType,
+  profileName,
+  initialAvatarUrl: avatarUrlProp,
+  familyId: familyIdProp,
+}) => {
   const table = TABLE_MAP[profileType];
   const appearanceExamples =
     profileType === 'pet'
@@ -50,10 +63,13 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
   const [initialAvatarUrl, setInitialAvatarUrl] = useState<string | null>(null);
   const [familyId, setFamilyId] = useState<string | null>(null);
 
-  // Lecture unique de l'avatar + family_id. family_id sert de « ceinture » dans le payload de reset
-  // (le workflow n8n a de toute façon un fallback qui le relit en base). Dégrade proprement :
-  // toute erreur → placeholder + family_id null (le reset reste fonctionnel via le fallback n8n).
+  // Le parent fournit-il déjà l'avatar ? (prop définie, même à null) → pas de fetch interne, pas de reflow.
+  const hasParentData = avatarUrlProp !== undefined;
+
+  // Lecture unique de l'avatar + family_id (fallback si le parent ne les passe pas). family_id sert
+  // de « ceinture » dans le payload de reset (n8n a de toute façon un fallback). Dégrade proprement.
   useEffect(() => {
+    if (hasParentData) return;
     let cancelled = false;
     (async () => {
       try {
@@ -71,7 +87,10 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
       }
     })();
     return () => { cancelled = true; };
-  }, [table, profileId]);
+  }, [table, profileId, hasParentData]);
+
+  const resolvedAvatarUrl = hasParentData ? (avatarUrlProp ?? null) : initialAvatarUrl;
+  const resolvedFamilyId = familyIdProp !== undefined ? (familyIdProp ?? null) : familyId;
 
   const {
     imgSrc,
@@ -82,7 +101,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
     isRegenerating,
     onImageLoad,
     onImageError,
-  } = useRealtimeAvatar({ table, id: profileId, initialAvatarUrl });
+  } = useRealtimeAvatar({ table, id: profileId, initialAvatarUrl: resolvedAvatarUrl });
 
   const fallback = (
     <span className="flex items-center justify-center h-full w-full text-mcf-primary/40">
@@ -122,7 +141,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
           profileId={profileId}
           profileType={profileType}
           profileName={profileName}
-          familyId={familyId}
+          familyId={resolvedFamilyId}
           disabled={busy}
         />
       ) : (
@@ -131,7 +150,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({ profileId, profileT
             profileId={profileId}
             profileType={profileType}
             profileName={profileName}
-            familyId={familyId}
+            familyId={resolvedFamilyId}
             disabled={busy}
           />
           <p className="text-[11px] leading-snug text-muted-foreground/80 text-center">
