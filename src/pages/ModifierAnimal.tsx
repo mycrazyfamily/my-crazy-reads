@@ -1,4 +1,6 @@
-// ModifierAnimal v3.1
+// ModifierAnimal v3.2
+// Changelog v3.2 : charge avatar_url + family_id avec le profil et les passe en props à
+// EditAvatarHeader → l'avatar est présent dès l'affichage (fin du skeleton), plus de reflow.
 // Changelog v3.1 : squelette de chargement (EditProfileSkeleton) au lieu du texte « Chargement... »
 // — la carte s'affiche remplie d'un coup, plus d'effet « champs vides qui se peuplent ».
 // Changelog v3.0 : EditAvatarHeader monté en tête (avatar + « Générer une autre proposition ») ;
@@ -112,6 +114,10 @@ const ModifierAnimal: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [petStatus, setPetStatus] = useState<PetStatus>('active');
   const [pendingDeceased, setPendingDeceased] = useState(false);
+  // Avatar + family_id chargés ici (avec le profil) → passés en props à EditAvatarHeader
+  // pour éviter un 2ᵉ fetch et le reflow « l'avatar arrive après coup ».
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [familyId, setFamilyId] = useState<string | null>(null);
 
   useEffect(() => {
     loadPetData();
@@ -141,6 +147,7 @@ const ModifierAnimal: React.FC = () => {
             gender,
             emoji,
             family_id,
+            avatar_url,
             breed,
             physical_details,
             clothing_style,
@@ -190,6 +197,8 @@ const ModifierAnimal: React.FC = () => {
           customTraits: cleanedCustomTraits
         };
         setPetData(pet);
+        setAvatarUrl((data.pets as any).avatar_url ?? null);
+        setFamilyId(data.pets.family_id ?? null);
         setOriginalBirthMonthYear(data.birth_month_year || null);
 
         // Initialiser le statut « entité inactive » depuis la table pets
@@ -520,7 +529,7 @@ const ModifierAnimal: React.FC = () => {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
-          <EditAvatarHeader profileId={petId!} profileType="pet" profileName={petData?.name} />
+          <EditAvatarHeader profileId={petId!} profileType="pet" profileName={petData?.name} initialAvatarUrl={avatarUrl} familyId={familyId} />
 
           <PetForm 
             pet={petData}
