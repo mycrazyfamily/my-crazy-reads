@@ -1,3 +1,8 @@
+// PlacesForm v1.3
+// Changelog v1.3 (AFFICHAGE + garde-fou) : (a) charge is_active des lieux existants (2 branches) et
+// le transmet à ExistingPlacesList → les lieux inactifs s'affichent grisés + non cliquables ;
+// (b) le garde-fou « maison principale requise » exige désormais une maison_principale ACTIVE
+// (un lieu principal inactif — on n'y vit plus — ne compte plus). Aucune écriture DB modifiée.
 // PlacesForm v1.2
 // Changelog v1.2 : les lieux de type "destination_libre" (créés à la volée depuis le wizard
 // d'histoire pour UNE aventure ponctuelle, ex: "Koh Tao") sont désormais exclus de "Lieux déjà
@@ -34,6 +39,7 @@ type ExistingPlace = {
   city?: string;
   country?: string;
   family_id: string;
+  is_active?: boolean;
 };
 
 export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
@@ -128,7 +134,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
 
           const { data: places, error: placesError } = await supabase
             .from('places')
-            .select('id, label, type, emoji, city, country, family_id')
+            .select('id, label, type, emoji, city, country, family_id, is_active')
             .eq('family_id', profile.family_id)
             .neq('type', 'destination_libre');
 
@@ -142,7 +148,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               emoji: place.emoji || '🏠',
               city: place.city,
               country: place.country,
-              family_id: place.family_id || ''
+              family_id: place.family_id || '',
+              is_active: place.is_active !== false
             }));
             console.log('Loaded places:', placesFromTable);
           }
@@ -174,7 +181,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
             // Charger les lieux de cette famille
             const { data: places, error: placesError } = await supabase
               .from('places')
-              .select('id, label, type, emoji, city, country, family_id')
+              .select('id, label, type, emoji, city, country, family_id, is_active')
               .eq('family_id', familyId)
               .neq('type', 'destination_libre');
 
@@ -188,7 +195,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
                 emoji: place.emoji || '🏠',
                 city: place.city,
                 country: place.country,
-                family_id: place.family_id || ''
+                family_id: place.family_id || '',
+                is_active: place.is_active !== false
               }));
               console.log('Loaded places from fallback:', placesFromTable);
             }
@@ -381,12 +389,13 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       return;
     }
 
-    // Garde-fou : au moins une maison principale parmi les lieux (nouveaux + existants
-    // sélectionnés). Même règle que sur AjouterLieu.tsx (page standalone).
-    const hasPrincipal = places.some(p => p.type === 'maison_principale')
-      || selectedPlacesData.some(p => p.type === 'maison_principale');
+    // Garde-fou : au moins une maison principale ACTIVE parmi les lieux (nouveaux + existants
+    // sélectionnés). Les nouveaux lieux du wizard sont actifs par nature ; un maison_principale
+    // existant INACTIF (on n'y vit plus) ne compte pas. Même règle que sur AjouterLieu.tsx.
+    const hasActivePrincipal = places.some(p => p.type === 'maison_principale')
+      || selectedPlacesData.some(p => p.type === 'maison_principale' && p.is_active !== false);
 
-    if (!hasPrincipal) {
+    if (!hasActivePrincipal) {
       toast.error("Ajoutez (ou sélectionnez) une maison principale avant de continuer — c'est le lieu de référence de l'enfant");
       return;
     }
