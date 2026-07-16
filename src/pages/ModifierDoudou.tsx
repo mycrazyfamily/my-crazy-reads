@@ -1,4 +1,12 @@
-// ModifierDoudou v2.2
+// ModifierDoudou v2.3
+// Changelog v2.3 (AFFICHAGE UNIQUEMENT — alignement sur le patron ModifierAnimal) :
+//   • Avatar passé en PROPS à EditAvatarHeader : loadToyData charge désormais avatar_url + family_id
+//     (ajoutés au select comforters) et les transmet (initialAvatarUrl + familyId) → plus de 2ᵉ fetch
+//     interne dans EditAvatarHeader, donc plus de flash « 🎨 Création… » à l'ouverture (le preload
+//     v2.1 du header s'active immédiatement, image déjà en cache → révélation instantanée).
+//   • Écran de chargement : EditProfileSkeleton (carte fantôme) au lieu du texte « Chargement… »,
+//     dans le même habillage que ModifierAnimal (Navbar + main + back + titre + skeleton) → supprime
+//     l'effet « champs vides qui se remplissent ». Aucune donnée ni logique métier modifiée.
 // Changelog v2.2 : EditAvatarHeader monté en tête (avatar + bouton « Générer une autre proposition »).
 // Changelog v2.1 : régénération automatique de l'avatar à la sauvegarde si l'apparence a changé
 // — même mécanisme que ModifierAnimal (comforterAvatarSignature avant/après, appel fire-and-forget
@@ -25,6 +33,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ToyForm from '@/components/childProfile/toys/ToyForm';
 import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
+import EditProfileSkeleton from '@/components/familyDashboard/EditProfileSkeleton';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
 
 type ToyStatus = 'active' | 'lost';
@@ -66,6 +75,10 @@ const ModifierDoudou: React.FC = () => {
   const [currentToyData, setCurrentToyData] = useState<ToyData | null>(null);
   const [childName, setChildName] = useState<string>('');
   const [toyStatus, setToyStatus] = useState<ToyStatus>('active');
+  // v2.3 : avatar + family_id chargés avec le profil → passés en props à EditAvatarHeader
+  // (supprime le 2ᵉ fetch interne + le flash « Création… »).
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [familyId, setFamilyId] = useState<string | null>(null);
 
   useEffect(() => {
     loadToyData();
@@ -78,9 +91,10 @@ const ModifierDoudou: React.FC = () => {
       setLoading(true);
 
       // 1 doudou = 1 enfant : requête directe sur comforters, plus de jonction à démêler.
+      // v2.3 : avatar_url + family_id ajoutés au select pour alimenter EditAvatarHeader en props.
       const { data, error } = await supabase
         .from('comforters')
-        .select('id, label, emoji, is_active, child_id, appearance, roles, relation_label')
+        .select('id, label, emoji, is_active, child_id, appearance, roles, relation_label, avatar_url, family_id')
         .eq('id', comforterId)
         .maybeSingle();
 
@@ -103,6 +117,8 @@ const ModifierDoudou: React.FC = () => {
         };
         setToyData(toy);
         setToyStatus(data.is_active === false ? 'lost' : 'active');
+        setAvatarUrl(data.avatar_url ?? null);
+        setFamilyId(data.family_id ?? null);
 
         // Nom de l'enfant propriétaire (affichage seul, plus de sélection multi-enfant)
         if (data.child_id) {
@@ -219,9 +235,22 @@ const ModifierDoudou: React.FC = () => {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="container mx-auto px-4 py-20">
-          <p className="text-center">Chargement...</p>
-        </div>
+        <main className="container mx-auto px-4 py-20 max-w-3xl">
+          <Button
+            variant="ghost"
+            onClick={handleCancel}
+            className="flex items-center gap-2 text-muted-foreground hover:text-mcf-primary hover:bg-mcf-mint/10 mb-6"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour à l'espace famille
+          </Button>
+
+          <h1 className="text-3xl font-bold text-mcf-orange-dark mb-6">
+            Modifier le doudou
+          </h1>
+
+          <EditProfileSkeleton />
+        </main>
         <Footer />
       </div>
     );
@@ -250,7 +279,7 @@ const ModifierDoudou: React.FC = () => {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint space-y-6">
-          <EditAvatarHeader profileId={comforterId!} profileType="comforter" profileName={toyData?.name} />
+          <EditAvatarHeader profileId={comforterId!} profileType="comforter" profileName={toyData?.name} initialAvatarUrl={avatarUrl} familyId={familyId} />
 
           {childName && (
             <p className="text-sm text-muted-foreground">
