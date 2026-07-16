@@ -1,3 +1,8 @@
+// ChildProfileFormContext v1.4
+// Changelog v1.4 (AFFICHAGE UNIQUEMENT) : nouvelle prop optionnelle onEditDataLoadingChange —
+// remonte l'état de chargement des données d'édition au parent (CreateChildProfile), pour qu'il
+// puisse révéler l'avatar (chargé de son côté) ET le formulaire EN MÊME TEMPS, une fois les deux
+// prêts. Comportement interne inchangé.
 // ChildProfileFormContext v1.3
 // Changelog v1.3 (AFFICHAGE UNIQUEMENT) : expose `isEditDataLoading` dans le contexte. Vrai en mode
 // édition tant que loadEditData n'a pas fini (form.reset) → FormSteps affiche un skeleton au lieu de
@@ -47,6 +52,8 @@ export type ChildProfileFormProviderProps = {
   editMode?: boolean;
   editChildId?: string;
   useSavedDraft?: boolean; // contrôle l'utilisation du localStorage pour pré-remplir
+  /** Remonte au parent l'état de chargement des données d'édition (pour révéler avatar + form ensemble). */
+  onEditDataLoadingChange?: (loading: boolean) => void;
 };
 
 export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> = ({ 
@@ -57,6 +64,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   editMode = false,
   editChildId,
   useSavedDraft = true,
+  onEditDataLoadingChange,
 }) => {
   const location = useLocation();
   const locationState = location.state as { targetStep?: number } | null;
@@ -78,6 +86,11 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   // v1.3 : chargement des données d'édition. Vrai au montage en mode édition, remis à false à la fin
   // de loadEditData (succès OU erreur) → FormSteps montre un skeleton pendant ce temps.
   const [isEditDataLoading, setIsEditDataLoading] = useState<boolean>(Boolean(editMode && editChildId));
+
+  // v1.4 : remonte l'état de chargement au parent → il révèle avatar + formulaire en même temps.
+  useEffect(() => {
+    onEditDataLoadingChange?.(isEditDataLoading);
+  }, [isEditDataLoading, onEditDataLoadingChange]);
   
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
