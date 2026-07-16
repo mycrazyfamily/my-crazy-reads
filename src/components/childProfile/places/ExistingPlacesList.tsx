@@ -1,6 +1,12 @@
+// ExistingPlacesList v1.1
+// Changelog v1.1 (AFFICHAGE UNIQUEMENT) : les lieux INACTIFS (is_active === false, ex. « on n'y vit
+// plus ») sont désormais grisés + NON cliquables (case désactivée, aucun onTogglePlace), avec
+// l'indication « Nous n'y vivons plus » (même formulation que le dashboard). On ne peut donc plus
+// les sélectionner pour un enfant. Les lieux actifs sont inchangés.
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
+import { MapPinOff } from 'lucide-react';
 
 type ExistingPlace = {
   id: string;
@@ -10,6 +16,7 @@ type ExistingPlace = {
   city?: string;
   country?: string;
   family_id: string;
+  is_active?: boolean;
 };
 
 type ExistingPlacesListProps = {
@@ -61,23 +68,29 @@ const ExistingPlacesList: React.FC<ExistingPlacesListProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {existingPlaces.map((place) => {
-          const isSelected = selectedPlaceIds.includes(place.id);
-          
+          // Lieu inactif (on n'y vit plus) → grisé + non sélectionnable.
+          const isInactive = place.is_active === false;
+          const isSelected = !isInactive && selectedPlaceIds.includes(place.id);
+
           return (
             <Card
               key={place.id}
-              className={`cursor-pointer transition-all ${
-                isSelected
-                  ? 'border-mcf-orange bg-mcf-amber/10'
-                  : 'border-gray-200 hover:border-mcf-orange/50'
+              className={`transition-all ${
+                isInactive
+                  ? 'cursor-not-allowed opacity-60 bg-gray-50 border-gray-200'
+                  : isSelected
+                    ? 'cursor-pointer border-mcf-orange bg-mcf-amber/10'
+                    : 'cursor-pointer border-gray-200 hover:border-mcf-orange/50'
               }`}
-              onClick={() => onTogglePlace(place.id)}
+              onClick={() => { if (!isInactive) onTogglePlace(place.id); }}
+              aria-disabled={isInactive}
             >
               <div className="p-4 flex items-center gap-3">
                 <div onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     checked={isSelected}
-                    onCheckedChange={() => onTogglePlace(place.id)}
+                    disabled={isInactive}
+                    onCheckedChange={() => { if (!isInactive) onTogglePlace(place.id); }}
                     className="h-5 w-5 rounded-md border-2 border-mcf-primary bg-white transition-all duration-200 data-[state=checked]:bg-mcf-primary data-[state=checked]:border-mcf-primary data-[state=checked]:text-white hover:border-mcf-primary-dark"
                     aria-label={`Sélectionner ${place.label}`}
                   />
@@ -92,6 +105,12 @@ const ExistingPlacesList: React.FC<ExistingPlacesListProps> = ({
                     <p className="text-xs text-gray-500">
                       {place.city}{place.city && place.country ? ', ' : ''}{place.country}
                     </p>
+                  )}
+                  {isInactive && (
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                      <MapPinOff className="h-3 w-3" />
+                      Nous n'y vivons plus
+                    </span>
                   )}
                 </div>
               </div>
