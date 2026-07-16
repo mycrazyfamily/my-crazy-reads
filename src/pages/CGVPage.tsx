@@ -1,4 +1,5 @@
-// CGVPage.tsx v1.0
+// CGVPage.tsx v1.1
+// v1.1: alignement à gauche du contenu (text-left) — neutralise le centrage global hérité
 // v1.0: page Conditions générales de vente (contenu fidèle au document MCF), gabarit aligné sur APropos.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -227,7 +228,7 @@ const CGVPage: React.FC = () => {
       <Navbar />
 
       <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-3xl text-left">
           {/* Header */}
           <div className="mb-10">
             <Link
