@@ -1,3 +1,7 @@
+// ChildProfileFormContext v1.3
+// Changelog v1.3 (AFFICHAGE UNIQUEMENT) : expose `isEditDataLoading` dans le contexte. Vrai en mode
+// édition tant que loadEditData n'a pas fini (form.reset) → FormSteps affiche un skeleton au lieu de
+// montrer les valeurs par défaut puis « sauter » aux vraies valeurs. Aucune logique métier modifiée.
 // ChildProfileFormContext v1.2
 // Changelog v1.2 : 4ᵉ endroit trouvé pour la fuite "Koh Tao" (destination_libre) — c'est
 // précisément CE fallback que FinalSummary.tsx utilise (places.length > 0 ? ... : formData.places)
@@ -30,6 +34,7 @@ type ChildProfileFormContextType = {
   handleGoToStep: (step: number) => void;
   handleSubmitForm: () => void;
   editMode: boolean;
+  isEditDataLoading: boolean;
 };
 
 const ChildProfileFormContext = createContext<ChildProfileFormContextType | undefined>(undefined);
@@ -70,6 +75,9 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   const [selectedSkinColor, setSelectedSkinColor] = useState<string>("");
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>("");
   const [selectedHairColor, setSelectedHairColor] = useState<string>("");
+  // v1.3 : chargement des données d'édition. Vrai au montage en mode édition, remis à false à la fin
+  // de loadEditData (succès OU erreur) → FormSteps montre un skeleton pendant ce temps.
+  const [isEditDataLoading, setIsEditDataLoading] = useState<boolean>(Boolean(editMode && editChildId));
   
   const form = useForm<ChildProfileFormData>({
     defaultValues: {
@@ -384,6 +392,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
         } catch (error) {
           console.error('Error loading child data for editing:', error);
           toast.error("Erreur lors du chargement des données");
+        } finally {
+          setIsEditDataLoading(false);
         }
       }
     };
@@ -526,7 +536,8 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     handlePreviousStep, 
     handleGoToStep,
     handleSubmitForm,
-    editMode
+    editMode,
+    isEditDataLoading,
   };
 
   return (
