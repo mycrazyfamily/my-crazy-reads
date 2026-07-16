@@ -1,3 +1,9 @@
+// MyStoriesTab v1.4
+// Changelog v1.4 (AFFICHAGE UNIQUEMENT) : dans le wizard « Où se passe l'histoire ? », les lieux
+// INACTIFS (is_active === false, « on n'y vit plus ») sont désormais AFFICHÉS grisés + non
+// cliquables (badge « Nous n'y vivons plus »), au lieu d'être masqués. Cohérent avec le wizard de
+// création d'enfant. Requête familyPlaces : ne filtre plus les inactifs (garde l'exclusion
+// destination_libre), tri actifs d'abord. Aucune écriture DB modifiée.
 // MyStoriesTab v1.3
 // Changelog v1.3 : vrai fix du message de plafond — gère maintenant les 4 combinaisons (aucun /
 // animaux / doudous / les deux) À LA FOIS pour le plafond partiel ET le plafond total. Avant,
@@ -445,7 +451,7 @@ interface WizardProps {
   autoSelectedIds?: string[];
   dedicatedName?: string | null;
   initialCustomStory?: string;
-  familyPlaces?: Array<{ id: string; label: string; type: string; city?: string }>;
+  familyPlaces?: Array<{ id: string; label: string; type: string; city?: string; is_active?: boolean }>;
   locationPresets?: Array<{ id: string; label: string; details: any }>;
   onLocationSelect?: (locationId: string | null, locationLabel: string | null) => void;
   childId?: string | null;
@@ -849,12 +855,16 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               <p className="text-sm font-semibold text-foreground mb-2">Vos lieux</p>
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {familyPlaces.map((place) => {
-                  const isSel = !customDestSelected && selectedLocationId === place.id;
+                  const isInactive = (place as any).is_active === false;
+                  const isSel = !isInactive && !customDestSelected && selectedLocationId === place.id;
                   return (
                     <button
                       key={place.id}
                       type="button"
+                      disabled={isInactive}
+                      aria-disabled={isInactive}
                       onClick={() => {
+                        if (isInactive) return;
                         setCustomDestSelected(false);
                         setCustomDestText('');
                         setDestError(null);
@@ -865,6 +875,8 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                       style={{
                         borderColor: isSel ? PRIMARY_VIOLET : '#E5E7EB',
                         backgroundColor: isSel ? `${PRIMARY_VIOLET}10` : 'white',
+                        opacity: isInactive ? 0.45 : 1,
+                        cursor: isInactive ? 'not-allowed' : 'pointer',
                       }}
                     >
                       <span
@@ -875,6 +887,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                       </span>
                       {place.city && (
                         <span className="text-xs text-muted-foreground">{place.city}</span>
+                      )}
+                      {isInactive && (
+                        <span className="text-[10px] font-medium text-muted-foreground leading-tight">
+                          Nous n'y vivons plus
+                        </span>
                       )}
                     </button>
                   );
@@ -2097,7 +2114,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         .eq('child_id', activeChild.id);
       return (data ?? [])
         .map((r: any) => r.places)
-        .filter((p: any) => p && p.type !== 'destination_libre' && p.is_active !== false);
+        .filter((p: any) => p && p.type !== 'destination_libre')
+        .sort((a: any, b: any) => (a?.is_active === false ? 1 : 0) - (b?.is_active === false ? 1 : 0));
     },
     enabled: !!activeChild?.id,
   });
