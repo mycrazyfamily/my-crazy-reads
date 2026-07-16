@@ -1,3 +1,6 @@
+// WorldsForm v1.2
+// Changelog v1.2 : validation des customs other1/other2 (univers + découvertes) avec .trim() —
+// avant, un champ rempli uniquement d'espaces passait la validation (donnée vide en génération).
 // WorldsForm v1.1
 // Changelog v1.1 : wording bouton corrigé — "Voir le récapitulatif →" était trompeur (l'étape
 // suivante est Lieux, pas Résumé) → "Continuer l'aventure →"
@@ -97,16 +100,16 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
     }
 
     // Validation des champs personnalisés si nécessaire
-    if (favoriteWorlds.includes("other1" as FavoriteWorldType) && !customWorlds?.other1) {
+    if (favoriteWorlds.includes("other1" as FavoriteWorldType) && !customWorlds?.other1?.trim()) {
       errors.push("l'univers personnalisé 1");
     }
-    if (favoriteWorlds.includes("other2" as FavoriteWorldType) && !customWorlds?.other2) {
+    if (favoriteWorlds.includes("other2" as FavoriteWorldType) && !customWorlds?.other2?.trim()) {
       errors.push("l'univers personnalisé 2");
     }
-    if (discoveries.includes("other1" as DiscoveryType) && !customDiscoveries?.other1) {
+    if (discoveries.includes("other1" as DiscoveryType) && !customDiscoveries?.other1?.trim()) {
       errors.push("la découverte personnalisée 1");
     }
-    if (discoveries.includes("other2" as DiscoveryType) && !customDiscoveries?.other2) {
+    if (discoveries.includes("other2" as DiscoveryType) && !customDiscoveries?.other2?.trim()) {
       errors.push("la découverte personnalisée 2");
     }
 
