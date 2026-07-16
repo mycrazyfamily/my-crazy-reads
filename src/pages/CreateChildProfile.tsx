@@ -1,3 +1,10 @@
+// CreateChildProfile v1.3
+// Changelog v1.3 (AFFICHAGE UNIQUEMENT) : (a) avatar passé en PROPS à EditAvatarHeader — l'effet
+// d'édition charge désormais avatar_url + family_id et un drapeau avatarLoaded ; (b) le header n'est
+// monté qu'une fois avatarLoaded=true (placeholder neutre avant) car ici EditAvatarHeader se monte
+// AVANT la fin du fetch → sans ce garde-fou il afficherait le shimmer « 🎨 Création… » au montage.
+// Combiné au skeleton des champs (FormSteps v1.2 + contexte v1.3), plus de flash ni de « champs qui
+// se remplissent » à l'ouverture. Aucune logique métier modifiée.
 // CreateChildProfile v1.2
 // Changelog v1.2 : EditAvatarHeader monté en tête du formulaire en mode édition (avatar + bouton
 // « Générer une autre proposition »), au-dessus du stepper → visible sur les 4 étapes.
@@ -125,6 +132,11 @@ const CreateChildProfile = ({
   const [initialIsDeceased, setInitialIsDeceased] = React.useState<boolean>(false);
   const [savingStatus, setSavingStatus] = React.useState(false);
   const [statusOpen, setStatusOpen] = React.useState(false);
+  // v1.3 : avatar + family_id chargés à l'ouverture → props EditAvatarHeader ; avatarLoaded garde le
+  // header masqué (placeholder neutre) tant que le fetch n'est pas terminé → pas de flash « Création… ».
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const [familyId, setFamilyId] = React.useState<string | null>(null);
+  const [avatarLoaded, setAvatarLoaded] = React.useState<boolean>(false);
   const queryClient = useQueryClient();
 
   // Charger birth_date + apparence + statut une seule fois à l'ouverture en mode édition
@@ -134,7 +146,7 @@ const CreateChildProfile = ({
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
-          .select('birth_date, appearance, physical_details, clothing_style, first_name, is_deceased')
+          .select('birth_date, appearance, physical_details, clothing_style, first_name, is_deceased, avatar_url, family_id')
           .eq('id', editChildId)
           .maybeSingle();
         setOriginalBirthDate(data?.birth_date || null);
@@ -154,6 +166,9 @@ const CreateChildProfile = ({
         setChildFirstName(data?.first_name || '');
         setIsDeceased(!!data?.is_deceased);
         setInitialIsDeceased(!!data?.is_deceased);
+        setAvatarUrl((data as any)?.avatar_url ?? null);
+        setFamilyId((data as any)?.family_id ?? null);
+        setAvatarLoaded(true);
       })();
     }
   }, [editMode, editChildId]);
@@ -736,7 +751,22 @@ const CreateChildProfile = ({
 
       {editMode && editChildId && (
         <div className="mb-6">
-          <EditAvatarHeader profileId={editChildId} profileType="child" profileName={childFirstName} />
+          {avatarLoaded ? (
+            <EditAvatarHeader
+              profileId={editChildId}
+              profileType="child"
+              profileName={childFirstName}
+              initialAvatarUrl={avatarUrl}
+              familyId={familyId}
+            />
+          ) : (
+            // Placeholder neutre pendant le fetch de l'avatar : ici le header se monterait AVANT la
+            // fin du chargement, ce qui déclencherait le shimmer « Création… ». On le garde masqué
+            // (disque calme, même taille/emplacement) jusqu'à ce que l'URL soit connue.
+            <div className="flex flex-col items-center gap-3 pb-2">
+              <div className="h-24 w-24 rounded-full bg-mcf-mint/15" aria-hidden />
+            </div>
+          )}
         </div>
       )}
 
