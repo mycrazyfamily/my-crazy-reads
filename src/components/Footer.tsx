@@ -1,3 +1,6 @@
+// Footer.tsx v1.2
+// v1.2: colonne « Légal » — liens CGV (/cgv), CGU (/cgu), Politique de confidentialité ; retrait du lien Livraison
+// v1.1: retrait du bloc « Section équipe » (Violaine Lallour + Robin du Fayet) sous le copyright
 import React from 'react';
 
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -178,9 +181,19 @@ const Footer: React.FC = () => {
 
               <li>
 
-                <Link to="/conditions-generales" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+                <Link to="/cgv" className="text-muted-foreground hover:text-mcf-primary transition-colors">
 
-                  Conditions générales
+                  CGV
+
+                </Link>
+
+              </li>
+
+              <li>
+
+                <Link to="/cgu" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+
+                  CGU
 
                 </Link>
 
@@ -191,16 +204,6 @@ const Footer: React.FC = () => {
                 <Link to="/confidentialite" className="text-muted-foreground hover:text-mcf-primary transition-colors">
 
                   Politique de confidentialité
-
-                </Link>
-
-              </li>
-
-              <li>
-
-                <Link to="/livraison" className="text-muted-foreground hover:text-mcf-primary transition-colors">
-
-                  Livraison
 
                 </Link>
 
@@ -223,7 +226,6 @@ const Footer: React.FC = () => {
           </p>
 
         </div>
-
 
       </div>
 
