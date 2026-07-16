@@ -1,3 +1,7 @@
+// AjouterLieu v1.2
+// Changelog v1.2 : le garde-fou « maison principale requise » exige désormais une maison_principale
+// ACTIVE (is_active !== false). Un principal INACTIF (on n'y vit plus) ne compte plus → cohérent
+// avec PlacesForm (wizard de création). On peut toujours ajouter une nouvelle maison principale.
 // AjouterLieu v1.1
 // Changelog v1.1 : garde-fou — impossible d'ajouter un lieu non-principal si l'enfant n'a pas
 // déjà une maison principale (vérifiée via child_places + places.type, pour chaque enfant
@@ -146,7 +150,7 @@ export default function AjouterLieu() {
       if (currentPlaceData.type !== 'maison_principale') {
         const { data: childPlacesLinks, error: checkError } = await supabase
           .from('child_places')
-          .select('child_id, places(type)')
+          .select('child_id, places(type, is_active)')
           .in('child_id', selectedChildIds);
 
         if (checkError) {
@@ -154,7 +158,7 @@ export default function AjouterLieu() {
         } else {
           const childrenWithPrincipal = new Set(
             (childPlacesLinks || [])
-              .filter((l: any) => l.places?.type === 'maison_principale')
+              .filter((l: any) => l.places?.type === 'maison_principale' && l.places?.is_active !== false)
               .map((l: any) => l.child_id)
           );
           const missing = selectedChildIds.filter(id => !childrenWithPrincipal.has(id));
