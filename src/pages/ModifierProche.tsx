@@ -1,4 +1,13 @@
-// ModifierProche v1.2
+// ModifierProche v1.3
+// Changelog v1.3 (AFFICHAGE UNIQUEMENT — alignement sur le patron ModifierAnimal) :
+//   • Avatar passé en PROPS à EditAvatarHeader : loadRelativeData charge avatar_url + family_id
+//     (avatar_url ajouté aux deux select ; family_id déjà présent) et les transmet (initialAvatarUrl
+//     + familyId) → plus de 2ᵉ fetch interne, donc plus de flash « 🎨 Création… » à l'ouverture. NB :
+//     la colonne d'affichage vivante est `avatar_url` (utilisée par le pipeline + le realtime) ; la
+//     colonne `avatar` déjà présente au select restait un doublon legacy jamais lu.
+//   • Écran de chargement : EditProfileSkeleton (carte fantôme) au lieu du spinner « Chargement… »,
+//     dans le même habillage que ModifierAnimal (Navbar + main + back + titre + skeleton).
+//   Aucune donnée ni logique métier modifiée.
 // Changelog v1.2 : EditAvatarHeader monté en tête (avatar + « Générer une autre proposition ») ;
 //                  ancien ResetAvatarButton du pied de page retiré (désormais porté par le header).
 // Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSave (jamais vérifiée jusqu'ici)
@@ -25,6 +34,7 @@ import RelativeTraitsSection from '@/components/childProfile/relatives/RelativeT
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { RelativeType, RelativeGender } from '@/types/childProfile';
 import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
+import EditProfileSkeleton from '@/components/familyDashboard/EditProfileSkeleton';
 
 // Statut « entité inactive » du proche : seul le décès est un fait global d'entité.
 // La brouille (« plus en contact ») est gérée PAR ENFANT via la junction child_family_members.
@@ -102,6 +112,10 @@ const ModifierProche: React.FC = () => {
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   // Enfants avec lesquels ce proche est « plus en contact » (brouille) — sous-ensemble de selectedChildrenIds
   const [estrangedChildIds, setEstrangedChildIds] = useState<string[]>([]);
+  // v1.3 : avatar + family_id chargés avec le profil → passés en props à EditAvatarHeader
+  // (supprime le 2ᵉ fetch interne + le flash « Création… »).
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [familyId, setFamilyId] = useState<string | null>(null);
   
   // État pour toutes les informations du proche
   const [type, setType] = useState<RelativeType>('father');
@@ -163,6 +177,7 @@ const ModifierProche: React.FC = () => {
               name,
               role,
               avatar,
+              avatar_url,
               family_id,
               details,
               physical_details,
@@ -181,7 +196,7 @@ const ModifierProche: React.FC = () => {
       if (!relative) {
         const { data: relativeDirect, error: relErr } = await supabase
           .from('family_members')
-          .select('id, name, role, avatar, family_id, details, physical_details, clothing_style, is_deceased')
+          .select('id, name, role, avatar, avatar_url, family_id, details, physical_details, clothing_style, is_deceased')
           .eq('id', relativeId)
           .maybeSingle();
         if (relErr) throw relErr;
@@ -189,6 +204,9 @@ const ModifierProche: React.FC = () => {
       }
 
       if (relative) {
+        // v1.3 : colonne vivante avatar_url (pas `avatar`) + family_id → props EditAvatarHeader
+        setAvatarUrl((relative as any).avatar_url ?? null);
+        setFamilyId((relative as any).family_id ?? null);
         // Récupérer toutes les infos depuis family_members.details si présent
         setType((relative.role as RelativeType) || 'father');
         setFirstName(relative.name || '');
@@ -689,11 +707,32 @@ const ModifierProche: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcf-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </div>
+      <div className="min-h-screen bg-white">
+        <Navbar />
+
+        <main className="container mx-auto px-4 py-20 max-w-3xl">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/espace-famille')}
+            className="mb-6 text-mcf-orange-dark hover:bg-mcf-amber/10"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour à l'espace famille
+          </Button>
+
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-mcf-orange-dark mb-2">
+              Modifier {firstName || 'le proche'}
+            </h1>
+            <p className="text-gray-600">
+              Mettez à jour les informations de ce proche
+            </p>
+          </div>
+
+          <EditProfileSkeleton />
+        </main>
+
+        <Footer />
       </div>
     );
   }
@@ -722,7 +761,7 @@ const ModifierProche: React.FC = () => {
         </div>
 
         <Card className="p-6 space-y-6 border-mcf-mint">
-          <EditAvatarHeader profileId={relativeId!} profileType="relative" profileName={firstName} />
+          <EditAvatarHeader profileId={relativeId!} profileType="relative" profileName={firstName} initialAvatarUrl={avatarUrl} familyId={familyId} />
 
           <RelativeBasicInfoSection
             type={type}
