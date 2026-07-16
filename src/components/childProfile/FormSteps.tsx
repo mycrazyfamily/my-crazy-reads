@@ -1,3 +1,6 @@
+// FormSteps v1.3
+// Changelog v1.3 (AFFICHAGE UNIQUEMENT) : prop forceLoading — permet au parent de garder le skeleton
+// affiché tant que l'avatar du haut n'est pas prêt, pour révéler avatar + champs EN MÊME TEMPS.
 // FormSteps v1.2
 // Changelog v1.2 (AFFICHAGE UNIQUEMENT) : en mode édition, affiche un skeleton de champs tant que
 // le contexte charge les données (isEditDataLoading) → supprime l'effet « valeurs par défaut qui
@@ -27,6 +30,8 @@ type FormStepsProps = {
   editMode?: boolean;
   editChildId?: string;
   isSubmitting?: boolean;
+  /** Force le skeleton même si les données du form sont prêtes (ex. attente de l'avatar en haut). */
+  forceLoading?: boolean;
 };
 
 const FormSteps: React.FC<FormStepsProps> = ({ 
@@ -35,7 +40,8 @@ const FormSteps: React.FC<FormStepsProps> = ({
   onFormSubmit, 
   editMode = false, 
   editChildId,
-  isSubmitting = false 
+  isSubmitting = false,
+  forceLoading = false
 }) => {
   const { 
     formStep, 
@@ -103,7 +109,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
   // v1.2 : pendant le chargement des données d'édition, on montre un skeleton de champs au lieu des
   // valeurs par défaut (qui « sauteraient » ensuite aux vraies valeurs). La barre de progression est
   // conservée à l'identique → pas de décalage au moment où les vrais champs apparaissent.
-  if (isEditDataLoading) {
+  if (isEditDataLoading || forceLoading) {
     return (
       <>
         <FormProgressIndicator
