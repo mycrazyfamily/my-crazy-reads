@@ -1,3 +1,7 @@
+// FormSteps v1.2
+// Changelog v1.2 (AFFICHAGE UNIQUEMENT) : en mode édition, affiche un skeleton de champs tant que
+// le contexte charge les données (isEditDataLoading) → supprime l'effet « valeurs par défaut qui
+// se remplissent » à l'ouverture. La barre de progression reste affichée (stable). Rien d'autre changé.
 // FormSteps v1.1
 // Changelog v1.1 : étape Jouets retirée du mode édition (garde !editMode ajoutée, cohérent avec
 // Famille/Animaux/Lieux) + stepLabels/totalSteps/stepMap mis à jour en conséquence (4 étapes
@@ -46,7 +50,8 @@ const FormSteps: React.FC<FormStepsProps> = ({
     setSelectedEyeColor,
     selectedHairColor,
     setSelectedHairColor,
-    handleSubmitForm
+    handleSubmitForm,
+    isEditDataLoading
   } = useChildProfileForm();
 
   const goNext = React.useCallback(() => {
@@ -94,6 +99,43 @@ const FormSteps: React.FC<FormStepsProps> = ({
   };
   
   const adjustedStep = getAdjustedStep();
+
+  // v1.2 : pendant le chargement des données d'édition, on montre un skeleton de champs au lieu des
+  // valeurs par défaut (qui « sauteraient » ensuite aux vraies valeurs). La barre de progression est
+  // conservée à l'identique → pas de décalage au moment où les vrais champs apparaissent.
+  if (isEditDataLoading) {
+    return (
+      <>
+        <FormProgressIndicator
+          currentStep={adjustedStep}
+          totalSteps={totalSteps}
+          stepLabels={stepLabels}
+        />
+        <div className="space-y-6 animate-pulse mt-6" aria-hidden="true">
+          <div className="space-y-2">
+            <div className="h-4 w-24 bg-gray-200 rounded" />
+            <div className="h-10 w-full bg-gray-200 rounded" />
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-32 bg-gray-200 rounded" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="h-16 bg-gray-200 rounded" />
+              <div className="h-16 bg-gray-200 rounded" />
+              <div className="h-16 bg-gray-200 rounded" />
+              <div className="h-16 bg-gray-200 rounded" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-28 bg-gray-200 rounded" />
+            <div className="h-10 w-full bg-gray-200 rounded" />
+          </div>
+          <div className="flex justify-end pt-4">
+            <div className="h-10 w-40 bg-gray-200 rounded" />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
