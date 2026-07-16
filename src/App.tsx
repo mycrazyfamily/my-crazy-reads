@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 import { Toaster } from "sonner"
@@ -52,6 +52,9 @@ import ModifierLieu from './pages/ModifierLieu'
 import AjouterDoudou from './pages/AjouterDoudou'
 import ModifierDoudou from './pages/ModifierDoudou'
 import NosHistoires from './pages/NosHistoires'
+import CGVPage from './pages/CGVPage'
+import CGUPage from './pages/CGUPage'
+import ConfidentialitePage from './pages/ConfidentialitePage'
 
 function App() {
   const isDev = false; // Protection activée en production
@@ -222,9 +225,14 @@ function App() {
               <Route path="/faq" element={<ComingSoon />} />
               <Route path="/contact" element={<ComingSoon />} />
               <Route path="/blog" element={<ComingSoon />} />
-              <Route path="/conditions-generales" element={<ComingSoon />} />
-              <Route path="/confidentialite" element={<ComingSoon />} />
-              <Route path="/livraison" element={<ComingSoon />} />
+
+              {/* Pages légales */}
+              <Route path="/cgv" element={<CGVPage />} />
+              <Route path="/cgu" element={<CGUPage />} />
+              <Route path="/confidentialite" element={<ConfidentialitePage />} />
+              {/* Redirections des anciennes routes légales (liens/SEO existants) */}
+              <Route path="/conditions-generales" element={<Navigate to="/cgv" replace />} />
+              <Route path="/livraison" element={<Navigate to="/cgv" replace />} />
 
               <Route path="*" element={<ComingSoon />} />
             </Routes>
