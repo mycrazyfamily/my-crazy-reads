@@ -1,4 +1,6 @@
-// ModifierAnimal v3.0
+// ModifierAnimal v3.1
+// Changelog v3.1 : squelette de chargement (EditProfileSkeleton) au lieu du texte « Chargement... »
+// — la carte s'affiche remplie d'un coup, plus d'effet « champs vides qui se peuplent ».
 // Changelog v3.0 : EditAvatarHeader monté en tête (avatar + « Générer une autre proposition ») ;
 //                  ancien ResetAvatarButton du pied de page retiré (désormais porté par le header).
 // Changelog v2.9 : ajout gender (select pets, chargement, sauvegarde, validation obligatoire)
@@ -23,6 +25,7 @@ import PetForm from '@/components/childProfile/pets/PetForm';
 import ChildrenSelector from '@/components/childProfile/ChildrenSelector';
 import type { PetData, PetType, PetGender, PetTrait } from '@/types/childProfile';
 import EditAvatarHeader from '@/components/familyDashboard/EditAvatarHeader';
+import EditProfileSkeleton from '@/components/familyDashboard/EditProfileSkeleton';
 
 // Statut « entité inactive » de l'animal (mutuellement exclusif)
 type PetStatus = 'active' | 'deceased' | 'gone';
@@ -473,9 +476,22 @@ const ModifierAnimal: React.FC = () => {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="container mx-auto px-4 py-20">
-          <p className="text-center">Chargement...</p>
-        </div>
+        <main className="container mx-auto px-4 py-20 max-w-3xl">
+          <Button
+            variant="ghost"
+            onClick={handleCancel}
+            className="flex items-center gap-2 text-muted-foreground hover:text-mcf-primary hover:bg-mcf-mint/10 mb-6"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour à l'espace famille
+          </Button>
+
+          <h1 className="text-3xl font-bold text-mcf-orange-dark mb-6">
+            Modifier l'animal
+          </h1>
+
+          <EditProfileSkeleton />
+        </main>
         <Footer />
       </div>
     );
