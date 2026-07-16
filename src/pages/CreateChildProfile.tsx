@@ -1,3 +1,9 @@
+// CreateChildProfile v1.4
+// Changelog v1.4 (AFFICHAGE UNIQUEMENT) : révélation SYNCHRONISÉE en mode édition — le haut de page
+// (lien statut + avatar) et le formulaire ne s'affichent qu'une fois LES DEUX chargés (avatar chargé
+// ici + données du form remontées par le provider via onEditDataLoadingChange). Avant : un skeleton
+// unifié (disque avatar en haut + skeleton champs via FormSteps forceLoading). Supprime le cas où le
+// form arrivait avant la section avatar. Aucune logique métier modifiée.
 // CreateChildProfile v1.3
 // Changelog v1.3 (AFFICHAGE UNIQUEMENT) : (a) avatar passé en PROPS à EditAvatarHeader — l'effet
 // d'édition charge désormais avatar_url + family_id et un drapeau avatarLoaded ; (b) le header n'est
@@ -137,6 +143,9 @@ const CreateChildProfile = ({
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
   const [familyId, setFamilyId] = React.useState<string | null>(null);
   const [avatarLoaded, setAvatarLoaded] = React.useState<boolean>(false);
+  // v1.4 : chargement des données du formulaire, remonté par le provider (onEditDataLoadingChange).
+  // Sert à révéler avatar (haut) ET formulaire en même temps, une fois les deux prêts.
+  const [formDataLoading, setFormDataLoading] = React.useState<boolean>(Boolean(editMode && editChildId));
   const queryClient = useQueryClient();
 
   // Charger birth_date + apparence + statut une seule fois à l'ouverture en mode édition
@@ -719,6 +728,10 @@ const CreateChildProfile = ({
   
   // Use either the prop or the location state
   const effectiveInitialStep = initialStep !== undefined ? initialStep : locationState?.targetStep;
+
+  // v1.4 : on ne révèle le haut (statut + avatar) ET le formulaire qu'une fois LES DEUX chargés.
+  // En création, rien à attendre → toujours prêt.
+  const editReady = !editMode ? true : (avatarLoaded && !formDataLoading);
   
   console.log("CreateChildProfile - effectiveInitialStep:", effectiveInitialStep);
 
@@ -736,38 +749,38 @@ const CreateChildProfile = ({
         }
       </p>
 
-      {/* Lien discret (sous le sous-titre) : ouvre la modale de statut. Visible mais non anxiogène. */}
+      {/* v1.4 : haut de page (statut + avatar) révélé SEULEMENT quand avatar ET form sont prêts.
+          Le skeleton des champs (FormSteps, plus bas) disparaît au même instant → révélation d'un bloc. */}
       {editMode && editChildId && (
-        <div className="text-center mb-6">
-          <button
-            type="button"
-            onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(true); }}
-            className="text-sm text-gray-500 hover:text-mcf-primary underline underline-offset-2 transition-colors"
-          >
-            Gérer le statut du profil
-          </button>
-        </div>
-      )}
-
-      {editMode && editChildId && (
-        <div className="mb-6">
-          {avatarLoaded ? (
-            <EditAvatarHeader
-              profileId={editChildId}
-              profileType="child"
-              profileName={childFirstName}
-              initialAvatarUrl={avatarUrl}
-              familyId={familyId}
-            />
-          ) : (
-            // Placeholder neutre pendant le fetch de l'avatar : ici le header se monterait AVANT la
-            // fin du chargement, ce qui déclencherait le shimmer « Création… ». On le garde masqué
-            // (disque calme, même taille/emplacement) jusqu'à ce que l'URL soit connue.
-            <div className="flex flex-col items-center gap-3 pb-2">
-              <div className="h-24 w-24 rounded-full bg-mcf-mint/15" aria-hidden />
+        editReady ? (
+          <>
+            {/* Lien discret (sous le sous-titre) : ouvre la modale de statut. Visible mais non anxiogène. */}
+            <div className="text-center mb-6">
+              <button
+                type="button"
+                onClick={() => { setIsDeceased(initialIsDeceased); setStatusOpen(true); }}
+                className="text-sm text-gray-500 hover:text-mcf-primary underline underline-offset-2 transition-colors"
+              >
+                Gérer le statut du profil
+              </button>
             </div>
-          )}
-        </div>
+
+            <div className="mb-6">
+              <EditAvatarHeader
+                profileId={editChildId}
+                profileType="child"
+                profileName={childFirstName}
+                initialAvatarUrl={avatarUrl}
+                familyId={familyId}
+              />
+            </div>
+          </>
+        ) : (
+          // Skeleton du haut : disque avatar calme. Le skeleton des champs est géré par FormSteps.
+          <div className="mb-6 flex flex-col items-center gap-3 pb-2" aria-hidden="true">
+            <div className="h-24 w-24 rounded-full bg-mcf-mint/15 animate-pulse" />
+          </div>
+        )
       )}
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-mcf-mint">
@@ -778,6 +791,7 @@ const CreateChildProfile = ({
           editMode={editMode}
           editChildId={editChildId}
           useSavedDraft={useSavedDraft}
+          onEditDataLoadingChange={setFormDataLoading}
         >
           <FormSteps 
             isGiftMode={isGiftMode} 
@@ -786,6 +800,7 @@ const CreateChildProfile = ({
             editMode={editMode}
             editChildId={editChildId}
             isSubmitting={isSubmitting}
+            forceLoading={editMode && !editReady}
           />
         </ChildProfileFormProvider>
       </div>
