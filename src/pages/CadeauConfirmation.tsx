@@ -1,4 +1,5 @@
-// CadeauConfirmation.tsx v1.2
+// CadeauConfirmation.tsx v1.3
+// v1.3: nuages non tronqués (boîte fixe, positions sûres) — rendu proche du mockup
 // v1.2: mention email rétablie (workflow n8n cadeau désormais en place)
 // v1.1: carte cadeau enrichie (dégradé + nuages) ; retrait de la mention email (workflow pas encore créé)
 // v1.0: confirmation d'achat cadeau ; interroge get-gift-by-session (webhook asynchrone) puis affiche la carte cadeau réelle
@@ -21,13 +22,13 @@ const POLL_INTERVAL_MS = 2000;
 
 const Cloud: React.FC<{ style: React.CSSProperties; scale?: number }> = ({ style, scale = 1 }) => {
   const w = (n: number) => n * scale;
-  const blob: React.CSSProperties = { position: 'absolute', borderRadius: '50%', background: 'rgba(255,255,255,0.9)' };
+  const blob: React.CSSProperties = { position: 'absolute', borderRadius: '50%', background: 'rgba(255,255,255,0.92)' };
   return (
-    <div aria-hidden style={{ position: 'absolute', pointerEvents: 'none', ...style }}>
-      <div style={{ ...blob, width: w(42), height: w(42), left: w(0), top: w(4) }} />
-      <div style={{ ...blob, width: w(30), height: w(30), left: w(30), top: w(12) }} />
-      <div style={{ ...blob, width: w(30), height: w(30), left: w(-20), top: w(14) }} />
-      <div style={{ position: 'absolute', background: 'rgba(255,255,255,0.9)', borderRadius: w(12), width: w(76), height: w(18), left: w(-16), top: w(26) }} />
+    <div aria-hidden style={{ position: 'absolute', width: w(96), height: w(48), pointerEvents: 'none', ...style }}>
+      <div style={{ ...blob, width: w(42), height: w(42), left: w(27), top: w(4) }} />
+      <div style={{ ...blob, width: w(28), height: w(28), left: w(56), top: w(14) }} />
+      <div style={{ ...blob, width: w(28), height: w(28), left: w(10), top: w(16) }} />
+      <div style={{ position: 'absolute', background: 'rgba(255,255,255,0.92)', borderRadius: w(14), width: w(84), height: w(18), left: w(6), top: w(28) }} />
     </div>
   );
 };
@@ -48,10 +49,10 @@ const GiftCard: React.FC<{ gift: Gift }> = ({ gift }) => {
         boxShadow: '0 18px 40px rgba(74,144,226,0.35)',
       }}
     >
-      <Cloud style={{ top: 14, left: 34, opacity: 0.9 }} scale={1} />
-      <Cloud style={{ top: 10, right: 30, opacity: 0.85 }} scale={0.8} />
-      <Cloud style={{ bottom: 18, left: 26, opacity: 0.7 }} scale={0.75} />
-      <Cloud style={{ bottom: 14, right: 34, opacity: 0.75 }} scale={0.9} />
+      <Cloud style={{ top: 16, left: 28, opacity: 0.9 }} scale={1} />
+      <Cloud style={{ top: 12, right: 24, opacity: 0.85 }} scale={0.85} />
+      <Cloud style={{ bottom: 16, left: 22, opacity: 0.8 }} scale={0.8} />
+      <Cloud style={{ bottom: 12, right: 28, opacity: 0.82 }} scale={0.95} />
 
       <div
         style={{
