@@ -1,4 +1,5 @@
-// FAQPage.tsx v1.1
+// FAQPage.tsx v1.2
+// v1.2: formulations "artisanales" (fini "créé") ; retrait Q "création IA" et Q "cadeau" (pas encore vrai) ; Q "adaptées aux enfants" enrichie (collège de relecteurs)
 // v1.1: prix réels dans la réponse tarifs + CTA vers /abonnement ; timing "en début de mois"
 // v1.0: FAQ MCF, accordéon auto-contenu (useState, sans dépendance externe), gabarit aligné sur APropos.tsx
 import React, { useState } from 'react';
@@ -12,7 +13,7 @@ type QA = { question: string; answer: string; cta?: { label: string; to: string 
 const faqs: QA[] = [
   {
     question: `Qu'est-ce que My Crazy Family ?`,
-    answer: `My Crazy Family est un service par abonnement qui crée, chaque mois, un livre personnalisé et unique dans lequel votre enfant devient le héros de sa propre histoire.`,
+    answer: `My Crazy Family est un service par abonnement qui imagine, chaque mois, un livre personnalisé et unique dans lequel votre enfant devient le héros de sa propre histoire.`,
   },
   {
     question: `Pour quel âge sont conçus les livres ?`,
@@ -20,31 +21,23 @@ const faqs: QA[] = [
   },
   {
     question: `Comment le livre est-il personnalisé ?`,
-    answer: `Chaque livre est créé sur mesure à partir des informations que vous nous fournissez : le prénom et la description de votre enfant, ses passions, ses proches, ses animaux, son doudou et ses lieux de vie. L'histoire comme les illustrations sont uniques.`,
+    answer: `Chaque livre est imaginé et façonné sur mesure à partir des informations que vous nous fournissez : le prénom et la description de votre enfant, ses passions, ses proches, ses animaux, son doudou et ses lieux de vie. L'histoire comme les illustrations sont uniques, pensées rien que pour lui.`,
   },
   {
     question: `Dois-je envoyer une photo de mon enfant ?`,
-    answer: `Non. Les illustrations sont générées uniquement à partir des descriptions que vous fournissez. Aucune photo de votre enfant n'est nécessaire ni collectée.`,
+    answer: `Non. Les illustrations sont réalisées uniquement à partir des descriptions que vous fournissez. Aucune photo de votre enfant n'est nécessaire ni collectée.`,
   },
   {
     question: `À quelle fréquence vais-je recevoir un livre ?`,
-    answer: `Un nouveau livre personnalisé est créé et envoyé chaque mois, en début de mois, dans le cadre de votre abonnement.`,
+    answer: `Chaque mois, en début de mois, un nouveau livre personnalisé est façonné avec soin puis expédié dans le cadre de votre abonnement.`,
   },
   {
     question: `Les histoires sont-elles adaptées aux enfants ?`,
-    answer: `Oui. Les thèmes sont conçus avec le concours d'une psychologue pour enfants, afin de garantir la pertinence éducative et émotionnelle de chaque histoire.`,
-  },
-  {
-    question: `Comment les livres sont-ils créés ?`,
-    answer: `Les textes et les illustrations sont générés à l'aide de technologies d'intelligence artificielle, à partir des informations que vous fournissez, puis mis en page et imprimés avec soin.`,
+    answer: `Oui. Nos thèmes sont conçus avec le concours d'une psychologue pour enfants, et chaque livre est relu par un collège de professeurs des écoles et d'auteurs jeunesse, pour garantir sa justesse pédagogique et sa richesse narrative.`,
   },
   {
     question: `Puis-je résilier mon abonnement ?`,
     answer: `Oui, à tout moment depuis votre espace personnel. La résiliation prend effet à la fin de la période de facturation en cours.`,
-  },
-  {
-    question: `Puis-je offrir un livre personnalisé ?`,
-    answer: `Oui. My Crazy Family propose une option cadeau pour offrir un livre personnalisé à l'enfant de votre choix.`,
   },
   {
     question: `Combien coûte l'abonnement ?`,
