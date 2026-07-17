@@ -55,6 +55,8 @@ import NosHistoires from './pages/NosHistoires'
 import CGVPage from './pages/CGVPage'
 import CGUPage from './pages/CGUPage'
 import ConfidentialitePage from './pages/ConfidentialitePage'
+import ContactPage from './pages/ContactPage'
+import FAQPage from './pages/FAQPage'
 
 function App() {
   const isDev = false; // Protection activée en production
@@ -220,10 +222,9 @@ function App() {
               } />
               
               {/* Pages à venir */}
-              <Route path="/fonctionnement" element={<ComingSoon />} />
               <Route path="/a-propos" element={<APropos />} />
-              <Route path="/faq" element={<ComingSoon />} />
-              <Route path="/contact" element={<ComingSoon />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/blog" element={<ComingSoon />} />
 
               {/* Pages légales */}
