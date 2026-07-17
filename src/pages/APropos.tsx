@@ -1,3 +1,5 @@
+// APropos.tsx v1.1
+// v1.1: ajout d'une phrase (section Notre équipe) sur le collège de relecteurs (professeurs des écoles + auteurs jeunesse)
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -101,6 +103,11 @@ const APropos: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <p className="text-muted-foreground mt-6">
+              Au-delà de notre équipe, chaque livre est relu par un collège de professeurs des écoles
+              et d'auteurs jeunesse, gage de sa justesse pédagogique et de sa richesse narrative.
+            </p>
           </section>
 
           {/* Valeurs */}
