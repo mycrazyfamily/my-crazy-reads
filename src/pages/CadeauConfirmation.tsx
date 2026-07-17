@@ -1,4 +1,6 @@
-// CadeauConfirmation.tsx v1.0
+// CadeauConfirmation.tsx v1.2
+// v1.2: mention email rétablie (workflow n8n cadeau désormais en place)
+// v1.1: carte cadeau enrichie (dégradé + nuages) ; retrait de la mention email (workflow pas encore créé)
 // v1.0: confirmation d'achat cadeau ; interroge get-gift-by-session (webhook asynchrone) puis affiche la carte cadeau réelle
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
@@ -17,6 +19,19 @@ type Gift = {
 const MAX_ATTEMPTS = 12;
 const POLL_INTERVAL_MS = 2000;
 
+const Cloud: React.FC<{ style: React.CSSProperties; scale?: number }> = ({ style, scale = 1 }) => {
+  const w = (n: number) => n * scale;
+  const blob: React.CSSProperties = { position: 'absolute', borderRadius: '50%', background: 'rgba(255,255,255,0.9)' };
+  return (
+    <div aria-hidden style={{ position: 'absolute', pointerEvents: 'none', ...style }}>
+      <div style={{ ...blob, width: w(42), height: w(42), left: w(0), top: w(4) }} />
+      <div style={{ ...blob, width: w(30), height: w(30), left: w(30), top: w(12) }} />
+      <div style={{ ...blob, width: w(30), height: w(30), left: w(-20), top: w(14) }} />
+      <div style={{ position: 'absolute', background: 'rgba(255,255,255,0.9)', borderRadius: w(12), width: w(76), height: w(18), left: w(-16), top: w(26) }} />
+    </div>
+  );
+};
+
 const GiftCard: React.FC<{ gift: Gift }> = ({ gift }) => {
   return (
     <div
@@ -24,15 +39,20 @@ const GiftCard: React.FC<{ gift: Gift }> = ({ gift }) => {
         position: 'relative',
         maxWidth: 520,
         margin: '0 auto',
-        background: '#4A90E2',
+        background: 'linear-gradient(160deg, #5AA0EA 0%, #4A90E2 55%, #3B82D6 100%)',
         borderRadius: 24,
         padding: '36px 28px',
         color: '#FFFFFF',
         textAlign: 'center',
         overflow: 'hidden',
-        boxShadow: '0 10px 30px rgba(74,144,226,0.25)',
+        boxShadow: '0 18px 40px rgba(74,144,226,0.35)',
       }}
     >
+      <Cloud style={{ top: 14, left: 34, opacity: 0.9 }} scale={1} />
+      <Cloud style={{ top: 10, right: 30, opacity: 0.85 }} scale={0.8} />
+      <Cloud style={{ bottom: 18, left: 26, opacity: 0.7 }} scale={0.75} />
+      <Cloud style={{ bottom: 14, right: 34, opacity: 0.75 }} scale={0.9} />
+
       <div
         style={{
           position: 'absolute',
@@ -42,36 +62,39 @@ const GiftCard: React.FC<{ gift: Gift }> = ({ gift }) => {
           pointerEvents: 'none',
         }}
       />
-      <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 24, fontWeight: 700, margin: 0 }}>
-        My Crazy Family
-      </p>
-      <p style={{ fontSize: 13, letterSpacing: 3, color: '#DCEBFB', margin: '6px 0 22px' }}>Carte cadeau</p>
 
-      <p style={{ fontSize: 40, fontWeight: 500, margin: '0 0 20px' }}>{gift.durationMonths} mois offerts</p>
-
-      <p style={{ fontSize: 12, letterSpacing: 1.5, color: '#DCEBFB', margin: '0 0 8px' }}>Code cadeau</p>
-      <div style={{ background: '#FFFFFF', borderRadius: 12, padding: '14px 12px', margin: '0 auto 22px', maxWidth: 320 }}>
-        <span
-          style={{
-            fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
-            fontSize: 24,
-            fontWeight: 700,
-            letterSpacing: 2,
-            color: '#185FA5',
-          }}
-        >
-          {gift.code}
-        </span>
-      </div>
-
-      {gift.purchaserName && (
-        <p style={{ fontSize: 15, margin: '0 0 6px' }}>Un cadeau de la part de {gift.purchaserName}</p>
-      )}
-      {gift.giftMessage && (
-        <p style={{ fontSize: 14, color: '#E6F1FB', fontStyle: 'italic', margin: '0 auto', maxWidth: 380, lineHeight: 1.5 }}>
-          « {gift.giftMessage} »
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 24, fontWeight: 700, margin: 0 }}>
+          My Crazy Family
         </p>
-      )}
+        <p style={{ fontSize: 13, letterSpacing: 3, color: '#DCEBFB', margin: '6px 0 22px' }}>Carte cadeau</p>
+
+        <p style={{ fontSize: 40, fontWeight: 500, margin: '0 0 20px' }}>{gift.durationMonths} mois offerts</p>
+
+        <p style={{ fontSize: 12, letterSpacing: 1.5, color: '#DCEBFB', margin: '0 0 8px' }}>Code cadeau</p>
+        <div style={{ background: '#FFFFFF', borderRadius: 12, padding: '14px 12px', margin: '0 auto 22px', maxWidth: 320 }}>
+          <span
+            style={{
+              fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+              fontSize: 24,
+              fontWeight: 700,
+              letterSpacing: 2,
+              color: '#185FA5',
+            }}
+          >
+            {gift.code}
+          </span>
+        </div>
+
+        {gift.purchaserName && (
+          <p style={{ fontSize: 15, margin: '0 0 6px' }}>Un cadeau de la part de {gift.purchaserName}</p>
+        )}
+        {gift.giftMessage && (
+          <p style={{ fontSize: 14, color: '#E6F1FB', fontStyle: 'italic', margin: '0 auto', maxWidth: 380, lineHeight: 1.5 }}>
+            « {gift.giftMessage} »
+          </p>
+        )}
+      </div>
     </div>
   );
 };
