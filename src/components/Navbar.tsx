@@ -1,3 +1,5 @@
+// Navbar.tsx v1.1
+// v1.1: ajout du lien « Cadeau » (/cadeau) à côté d'Abonnement, en desktop et mobile
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, User, Bell, LogOut } from 'lucide-react';
@@ -87,6 +89,9 @@ const Navbar: React.FC = () => {
             <Link to="/abonnement" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
               Abonnement
             </Link>
+            <Link to="/cadeau" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
+              Cadeau
+            </Link>
             
             
             {isAuthenticated ? (
@@ -151,6 +156,13 @@ const Navbar: React.FC = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Abonnement
+            </Link>
+            <Link 
+              to="/cadeau" 
+              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Cadeau
             </Link>
             
             
