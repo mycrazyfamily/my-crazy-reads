@@ -1,20 +1,71 @@
-// ContactPage.tsx v1.0
-// v1.0: page Contact (lien e-mail direct vers robin@mycrazyfamily.com), gabarit aligné sur APropos.tsx
-import React from 'react';
+// FAQPage.tsx v1.1
+// v1.1: prix réels dans la réponse tarifs + CTA vers /abonnement ; timing "en début de mois"
+// v1.0: FAQ MCF, accordéon auto-contenu (useState, sans dépendance externe), gabarit aligné sur APropos.tsx
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 
-const CONTACT_EMAIL = 'robin@mycrazyfamily.com';
+type QA = { question: string; answer: string; cta?: { label: string; to: string } };
 
-const ContactPage: React.FC = () => {
+const faqs: QA[] = [
+  {
+    question: `Qu'est-ce que My Crazy Family ?`,
+    answer: `My Crazy Family est un service par abonnement qui crée, chaque mois, un livre personnalisé et unique dans lequel votre enfant devient le héros de sa propre histoire.`,
+  },
+  {
+    question: `Pour quel âge sont conçus les livres ?`,
+    answer: `Nos livres sont pensés pour les enfants de 0 à 10 ans. Le format et la longueur des histoires s'adaptent à l'âge de l'enfant : des histoires courtes et très illustrées pour les tout-petits, des récits plus longs et porteurs d'une morale pour les plus grands.`,
+  },
+  {
+    question: `Comment le livre est-il personnalisé ?`,
+    answer: `Chaque livre est créé sur mesure à partir des informations que vous nous fournissez : le prénom et la description de votre enfant, ses passions, ses proches, ses animaux, son doudou et ses lieux de vie. L'histoire comme les illustrations sont uniques.`,
+  },
+  {
+    question: `Dois-je envoyer une photo de mon enfant ?`,
+    answer: `Non. Les illustrations sont générées uniquement à partir des descriptions que vous fournissez. Aucune photo de votre enfant n'est nécessaire ni collectée.`,
+  },
+  {
+    question: `À quelle fréquence vais-je recevoir un livre ?`,
+    answer: `Un nouveau livre personnalisé est créé et envoyé chaque mois, en début de mois, dans le cadre de votre abonnement.`,
+  },
+  {
+    question: `Les histoires sont-elles adaptées aux enfants ?`,
+    answer: `Oui. Les thèmes sont conçus avec le concours d'une psychologue pour enfants, afin de garantir la pertinence éducative et émotionnelle de chaque histoire.`,
+  },
+  {
+    question: `Comment les livres sont-ils créés ?`,
+    answer: `Les textes et les illustrations sont générés à l'aide de technologies d'intelligence artificielle, à partir des informations que vous fournissez, puis mis en page et imprimés avec soin.`,
+  },
+  {
+    question: `Puis-je résilier mon abonnement ?`,
+    answer: `Oui, à tout moment depuis votre espace personnel. La résiliation prend effet à la fin de la période de facturation en cours.`,
+  },
+  {
+    question: `Puis-je offrir un livre personnalisé ?`,
+    answer: `Oui. My Crazy Family propose une option cadeau pour offrir un livre personnalisé à l'enfant de votre choix.`,
+  },
+  {
+    question: `Combien coûte l'abonnement ?`,
+    answer: `Deux formules sont disponibles : l'abonnement mensuel à 29,99 €/mois, et l'abonnement annuel à 299,99 €/an, soit 24,99 €/mois.`,
+    cta: { label: `Voir les formules`, to: `/abonnement` },
+  },
+];
+
+const FAQPage: React.FC = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const toggle = (index: number) => {
+    setOpenIndex((current) => (current === index ? null : index));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6 max-w-2xl text-left">
+        <div className="container mx-auto px-4 md:px-6 max-w-3xl text-left">
           {/* Header */}
           <div className="mb-10">
             <Link
@@ -25,36 +76,54 @@ const ContactPage: React.FC = () => {
               Retour à l'accueil
             </Link>
             <h1 className="text-4xl md:text-5xl font-bold text-mcf-primary mb-4">
-              Contact
+              Foire aux questions
             </h1>
             <p className="text-lg text-muted-foreground">
-              Une question, une demande ou un souci avec votre abonnement ? Écrivez-nous,
-              nous vous répondons dans les meilleurs délais.
+              Tout ce qu'il faut savoir sur le fonctionnement de My Crazy Family.
             </p>
           </div>
 
-          {/* Carte contact */}
-          <div className="bg-card rounded-2xl p-8 card-shadow border border-border">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-mcf-primary/10 flex items-center justify-center shrink-0">
-                <Mail className="w-6 h-6 text-mcf-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-foreground mb-1">
-                  Par e-mail
-                </h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  C'est le moyen le plus rapide de nous joindre.
-                </p>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-mcf-primary text-white rounded-full font-medium hover:bg-mcf-primary/90 transition-colors"
+          {/* Accordéon */}
+          <div className="space-y-3">
+            {faqs.map((faq, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <div
+                  key={index}
+                  className="bg-card rounded-2xl border border-border overflow-hidden"
                 >
-                  <Mail className="w-4 h-4" />
-                  {CONTACT_EMAIL}
-                </a>
-              </div>
-            </div>
+                  <button
+                    type="button"
+                    onClick={() => toggle(index)}
+                    aria-expanded={isOpen}
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+                  >
+                    <span className="font-semibold text-foreground">
+                      {faq.question}
+                    </span>
+                    <ChevronDown
+                      className={`w-5 h-5 shrink-0 text-mcf-primary transition-transform ${
+                        isOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 -mt-1 text-muted-foreground leading-relaxed">
+                      <p>{faq.answer}</p>
+                      {faq.cta && (
+                        <Link
+                          to={faq.cta.to}
+                          className="inline-flex items-center gap-1 mt-3 text-mcf-primary font-medium hover:underline"
+                        >
+                          {faq.cta.label}
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>
@@ -64,4 +133,4 @@ const ContactPage: React.FC = () => {
   );
 };
 
-export default ContactPage;
+export default FAQPage;
