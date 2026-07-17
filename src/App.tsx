@@ -57,6 +57,8 @@ import CGUPage from './pages/CGUPage'
 import ConfidentialitePage from './pages/ConfidentialitePage'
 import ContactPage from './pages/ContactPage'
 import FAQPage from './pages/FAQPage'
+import Cadeau from './pages/Cadeau'
+import CadeauConfirmation from './pages/CadeauConfirmation'
 
 function App() {
   const isDev = false; // Protection activée en production
@@ -195,7 +197,10 @@ function App() {
               {/* Debug route for testing Supabase */}
 
               {/* Gift book flow routes */}
-              <Route path="/offrir-livre" element={<OffrirLivre />} />
+              {/* Cadeau (abonnement offert) — remplace l'ancien flux /offrir-livre */}
+              <Route path="/cadeau" element={<Cadeau />} />
+              <Route path="/cadeau/confirmation" element={<CadeauConfirmation />} />
+              <Route path="/offrir-livre" element={<Navigate to="/cadeau" replace />} />
               <Route path="/offrir/profil-enfant" element={
                 <RouteGuard bypassProtection={isDev}>
                   <OffrirProfilEnfant />
