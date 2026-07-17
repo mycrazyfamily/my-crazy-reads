@@ -1,4 +1,5 @@
-// Footer.tsx v1.2
+// Footer.tsx v1.3
+// v1.3: libellé « Foire aux questions » → « FAQ » (lien déjà vers /faq)
 // v1.2: colonne « Légal » — liens CGV (/cgv), CGU (/cgu), Politique de confidentialité ; retrait du lien Livraison
 // v1.1: retrait du bloc « Section équipe » (Violaine Lallour + Robin du Fayet) sous le copyright
 import React from 'react';
@@ -141,7 +142,7 @@ const Footer: React.FC = () => {
 
                 <Link to="/faq" className="text-muted-foreground hover:text-mcf-primary transition-colors">
 
-                  Foire aux questions
+                  FAQ
 
                 </Link>
 
