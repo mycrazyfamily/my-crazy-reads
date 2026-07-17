@@ -1,4 +1,5 @@
-// Footer.tsx v1.3
+// Footer.tsx v1.4
+// v1.4: lien « Offrir un abonnement » (/cadeau) ajouté dans la colonne Navigation
 // v1.3: libellé « Foire aux questions » → « FAQ » (lien déjà vers /faq)
 // v1.2: colonne « Légal » — liens CGV (/cgv), CGU (/cgu), Politique de confidentialité ; retrait du lien Livraison
 // v1.1: retrait du bloc « Section équipe » (Violaine Lallour + Robin du Fayet) sous le copyright
@@ -111,6 +112,16 @@ const Footer: React.FC = () => {
                 <Link to="/abonnement" className="text-muted-foreground hover:text-mcf-primary transition-colors">
 
                   Abonnement
+
+                </Link>
+
+              </li>
+
+              <li>
+
+                <Link to="/cadeau" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+
+                  Offrir un abonnement
 
                 </Link>
 
