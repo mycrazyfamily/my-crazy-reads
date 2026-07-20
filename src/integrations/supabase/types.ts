@@ -1112,6 +1112,84 @@ export type Database = {
           },
         ]
       }
+      gift_codes: {
+        Row: {
+          amount_paid: number | null
+          code: string
+          created_at: string
+          duration_months: number
+          gift_message: string | null
+          id: string
+          purchaser_email: string | null
+          purchaser_name: string | null
+          purchaser_user_id: string | null
+          redeemed_at: string | null
+          redeemed_by_user_id: string | null
+          redeemed_child_id: string | null
+          redeemed_subscription_id: string | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_coupon_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_promotion_code_id: string | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          code: string
+          created_at?: string
+          duration_months: number
+          gift_message?: string | null
+          id?: string
+          purchaser_email?: string | null
+          purchaser_name?: string | null
+          purchaser_user_id?: string | null
+          redeemed_at?: string | null
+          redeemed_by_user_id?: string | null
+          redeemed_child_id?: string | null
+          redeemed_subscription_id?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_coupon_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_promotion_code_id?: string | null
+        }
+        Update: {
+          amount_paid?: number | null
+          code?: string
+          created_at?: string
+          duration_months?: number
+          gift_message?: string | null
+          id?: string
+          purchaser_email?: string | null
+          purchaser_name?: string | null
+          purchaser_user_id?: string | null
+          redeemed_at?: string | null
+          redeemed_by_user_id?: string | null
+          redeemed_child_id?: string | null
+          redeemed_subscription_id?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_coupon_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_promotion_code_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_codes_redeemed_child_id_fkey"
+            columns: ["redeemed_child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_codes_redeemed_subscription_id_fkey"
+            columns: ["redeemed_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gift_orders: {
         Row: {
           activated_at: string | null
