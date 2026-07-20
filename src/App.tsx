@@ -36,13 +36,6 @@ import APropos from './pages/APropos'
 import CheckEmail from './pages/CheckEmail'
 import ResetPassword from './pages/ResetPassword'
 
-// Gift Flow Pages
-import OffrirLivre from './pages/OffrirLivre'
-import OffrirProfilEnfant from './pages/OffrirProfilEnfant'
-import OffrirTheme from './pages/OffrirTheme'
-import OffrirMessage from './pages/OffrirMessage'
-import OffrirLivraison from './pages/OffrirLivraison'
-import OffrirConfirmation from './pages/OffrirConfirmation'
 import ModifierProche from './pages/ModifierProche'
 import ModifierAnimal from './pages/ModifierAnimal'
 import AjouterAnimal from './pages/AjouterAnimal'
@@ -200,24 +193,13 @@ function App() {
               {/* Cadeau (abonnement offert) — remplace l'ancien flux /offrir-livre */}
               <Route path="/cadeau" element={<Cadeau />} />
               <Route path="/cadeau/confirmation" element={<CadeauConfirmation />} />
+              {/* Anciennes routes du flux cadeau single-book — redirigées vers /cadeau */}
               <Route path="/offrir-livre" element={<Navigate to="/cadeau" replace />} />
-              <Route path="/offrir/profil-enfant" element={
-                <RouteGuard bypassProtection={isDev}>
-                  <OffrirProfilEnfant />
-                </RouteGuard>
-              } />
-              <Route path="/offrir/theme" element={<OffrirTheme />} />
-              <Route path="/offrir/message" element={<OffrirMessage />} />
-              <Route path="/offrir/livraison" element={
-                <AuthGuard>
-                  <OffrirLivraison />
-                </AuthGuard>
-              } />
-              <Route path="/offrir/confirmation" element={
-                <AuthGuard>
-                  <OffrirConfirmation />
-                </AuthGuard>
-              } />
+              <Route path="/offrir/profil-enfant" element={<Navigate to="/cadeau" replace />} />
+              <Route path="/offrir/theme" element={<Navigate to="/cadeau" replace />} />
+              <Route path="/offrir/message" element={<Navigate to="/cadeau" replace />} />
+              <Route path="/offrir/livraison" element={<Navigate to="/cadeau" replace />} />
+              <Route path="/offrir/confirmation" element={<Navigate to="/cadeau" replace />} />
               
               {/* Routes nécessitant un abonnement actif */}
               <Route path="/mon-abonnement" element={
