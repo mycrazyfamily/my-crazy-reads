@@ -1,4 +1,5 @@
-// Navbar.tsx v1.1
+// Navbar.tsx v1.2
+// v1.2: libellé « Cadeau » → « Offrir un abonnement » (desktop + mobile), cohérence avec le footer
 // v1.1: ajout du lien « Cadeau » (/cadeau) à côté d'Abonnement, en desktop et mobile
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -90,7 +91,7 @@ const Navbar: React.FC = () => {
               Abonnement
             </Link>
             <Link to="/cadeau" className="font-medium hover:text-mcf-primary transition-colors px-3 py-2">
-              Cadeau
+              Offrir un abonnement
             </Link>
             
             
@@ -162,7 +163,7 @@ const Navbar: React.FC = () => {
               className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Cadeau
+              Offrir un abonnement
             </Link>
             
             
