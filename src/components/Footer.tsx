@@ -1,4 +1,6 @@
-// Footer.tsx v1.4
+// Footer.tsx v1.6
+// v1.6: libellé « Cadeau » → « Offrir un abonnement » (cohérence avec le header, plus parlant)
+// v1.5: libellé « Offrir un abonnement » → « Cadeau » (cohérence avec le header)
 // v1.4: lien « Offrir un abonnement » (/cadeau) ajouté dans la colonne Navigation
 // v1.3: libellé « Foire aux questions » → « FAQ » (lien déjà vers /faq)
 // v1.2: colonne « Légal » — liens CGV (/cgv), CGU (/cgu), Politique de confidentialité ; retrait du lien Livraison
