@@ -1,4 +1,5 @@
-// FAQPage.tsx v1.2
+// FAQPage.tsx v1.3
+// v1.3: ré-ajout de la question « Puis-je offrir un abonnement ? » (feature cadeau en ligne) + CTA vers /cadeau
 // v1.2: formulations "artisanales" (fini "créé") ; retrait Q "création IA" et Q "cadeau" (pas encore vrai) ; Q "adaptées aux enfants" enrichie (collège de relecteurs)
 // v1.1: prix réels dans la réponse tarifs + CTA vers /abonnement ; timing "en début de mois"
 // v1.0: FAQ MCF, accordéon auto-contenu (useState, sans dépendance externe), gabarit aligné sur APropos.tsx
@@ -38,6 +39,11 @@ const faqs: QA[] = [
   {
     question: `Puis-je résilier mon abonnement ?`,
     answer: `Oui, à tout moment depuis votre espace personnel. La résiliation prend effet à la fin de la période de facturation en cours.`,
+  },
+  {
+    question: `Puis-je offrir un abonnement ?`,
+    answer: `Oui. Vous pouvez offrir un abonnement de 3, 6 ou 12 mois. Après votre achat, vous recevez un code unique à transmettre à la personne de votre choix : elle l'utilise au moment de s'abonner à la formule mensuelle, et ses premiers mois sont offerts.`,
+    cta: { label: `Offrir un abonnement`, to: `/cadeau` },
   },
   {
     question: `Combien coûte l'abonnement ?`,
