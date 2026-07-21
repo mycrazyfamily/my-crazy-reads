@@ -1,25 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-
 const NewHero: React.FC = () => {
-  const { user } = useAuth();
-
+  const { user, isLoading } = useAuth();
   // Détermine la destination selon l'état de connexion
   const getDestinationPath = () => {
     return user ? '/espace-famille' : '/creer-profil-enfant';
   };
-
   // Détermine le texte du bouton selon l'état de connexion
   const getButtonText = () => {
     return user ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
   };
-
   // Scroll local vers la section des exemples de livres (présente sur l'accueil)
   const scrollToStories = () => {
     document.getElementById('nos-histoires')?.scrollIntoView({ behavior: 'smooth' });
   };
-
   return (
     <section className="bg-white">
       {/* Image hero avec texte superposé */}
@@ -51,12 +47,22 @@ const NewHero: React.FC = () => {
                 
                 {/* CTAs */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in animation-delay-300">
-                  <Link 
-                    to={getDestinationPath()} 
-                    className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-base shadow-lg"
-                  >
-                    {getButtonText()}
-                  </Link>
+                  {/* Anti-flash A3 : tant que l'auth n'est pas résolue, placeholder non-cliquable
+                      au lieu de « Commencer l'aventure » (qui, cliqué pendant ce court instant par
+                      un utilisateur connecté, le renvoyait au login via le RouteGuard). */}
+                  {isLoading ? (
+                    <span className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold py-3 px-8 rounded-full text-base shadow-lg opacity-70 cursor-default">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Chargement…
+                    </span>
+                  ) : (
+                    <Link 
+                      to={getDestinationPath()} 
+                      className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-base shadow-lg"
+                    >
+                      {getButtonText()}
+                    </Link>
+                  )}
                   
                   <button 
                     type="button"
@@ -74,5 +80,4 @@ const NewHero: React.FC = () => {
     </section>
   );
 };
-
 export default NewHero;
