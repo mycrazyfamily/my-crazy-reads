@@ -1,3 +1,7 @@
+// PetForm v1.2
+// Changelog v1.2 (MOBILE) : (a) placeholders d'exemple raccourcis (B4) ; (b) [déjà présent] traits
+//   en 2 colonnes sur mobile + chips qui ne débordent plus (min-w-0/break-words) + nav du
+//   sous-formulaire qui s'empile sur mobile.
 // PetForm v1.1
 // Changelog v1.1 : ajout du champ Sexe (Mâle/Femelle), obligatoire — state + UI + getPetData + validatePetData
 import React, { useState, useEffect } from 'react';
@@ -335,7 +339,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             </Label>
             <Input
               id="other-pet-type"
-              placeholder="Ex: Hamster, Tortue, etc."
+              placeholder="Ex : Hamster, Tortue…"
               value={otherType}
               onChange={(e) => setOtherType(e.target.value)}
             />
@@ -382,7 +386,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         </Label>
         <Input
           id="pet-breed"
-          placeholder="Ex: Labrador, Persan, Bélier, etc."
+          placeholder="Ex : Labrador, Persan…"
           value={breed}
           onChange={(e) => setBreed(e.target.value)}
           className="text-base"
