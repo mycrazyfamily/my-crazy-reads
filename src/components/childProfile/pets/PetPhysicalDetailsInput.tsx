@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+// PhysicalDetailsInput v1.1
+// Changelog v1.1 : (a) B4 — exemple (placeholder) raccourci ; (b) B5 — après l'ajout d'un détail
+//   personnalisé (le champ se vide alors que la chip apparaît plus haut dans « Détails
+//   sélectionnés »), on affiche un « ✓ ajouté » ~2,5 s sous le champ, pour que l'utilisateur voie
+//   que sa saisie a bien été prise en compte (notamment au « ✓ » du clavier iOS = onBlur).
+import React, { useState, useRef } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check } from "lucide-react";
 
 type PetPhysicalDetailsInputProps = {
   value: string[];
@@ -13,18 +18,16 @@ type PetPhysicalDetailsInputProps = {
 };
 
 const SUGGESTIONS = [
-  "Pelage noir",
-  "Pelage blanc",
-  "Pelage roux",
-  "Taches brunes",
-  "Taches blanches",
+  "Taches de rousseur",
+  "Grain de beauté",
+  "Fossettes",
+  "Cicatrice",
+  "Appareil dentaire",
+  "Boucles d'oreilles",
+  "Mèche colorée",
   "Grande taille",
   "Petite taille",
-  "Oreille coupée",
-  "Queue courte",
-  "Yeux bleus",
-  "Yeux verts",
-  "Collier",
+  "Tache de naissance",
 ];
 
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
@@ -36,6 +39,9 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   const MAX_DETAILS = 5;
   const [customInput, setCustomInput] = useState('');
   const [noDetails, setNoDetails] = useState(noDetailsValue);
+  // v1.1 (B5) : mémorise le dernier détail ajouté pour afficher un « ✓ ajouté » temporaire.
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+  const justAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const details = value.length > 0 ? value : [];
 
   const handleAddSuggestion = (suggestion: string) => {
@@ -56,6 +62,10 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
     if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
       onChange([...details, trimmed]);
       setCustomInput('');
+      // v1.1 (B5) : feedback visible que l'ajout a bien été pris en compte
+      setJustAdded(trimmed);
+      if (justAddedTimer.current) clearTimeout(justAddedTimer.current);
+      justAddedTimer.current = setTimeout(() => setJustAdded(null), 2500);
       // Décocher automatiquement "aucun détail" quand on ajoute un détail
       if (noDetails) {
         setNoDetails(false);
@@ -92,7 +102,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
           Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
-          Couleur du pelage, taches, grande taille, oreille coupée, etc.
+          Taches de rousseur, grain de beauté, fossettes, cicatrice, etc.
         </p>
       </div>
 
@@ -161,7 +171,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
               <Input
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="Ex : Cicatrice sur la patte avant droite..."
+                placeholder="Ex : petite cicatrice au menton…"
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -184,6 +194,12 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+            {justAdded && (
+              <p className="text-sm text-mcf-primary flex items-center gap-1 mt-2" aria-live="polite">
+                <Check className="h-4 w-4 flex-shrink-0" />
+                « {justAdded} » ajouté à la liste
+              </p>
+            )}
           </div>
         </>
       )}
