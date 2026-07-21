@@ -323,12 +323,12 @@ const FamilyForm: React.FC<FamilyFormProps> = ({
               </div>
             </div>
             
-            <div className="pt-4 flex justify-between items-center">
-              <Button type="button" onClick={handlePreviousStep} variant="outline" className="font-semibold">
+            <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+              <Button type="button" onClick={handlePreviousStep} variant="outline" className="font-semibold w-full sm:w-auto">
                 ← Retour
               </Button>
               
-              <Button type="button" onClick={handleFamilySectionContinue} className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <Button type="button" onClick={handleFamilySectionContinue} className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight">
                 {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches !" : "Continuer sans ajouter de proches →"}
               </Button>
             </div>
