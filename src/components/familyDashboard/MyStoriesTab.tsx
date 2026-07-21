@@ -1,3 +1,12 @@
+// MyStoriesTab v2.0
+// Changelog v2.0 (MOBILE UNIQUEMENT — desktop strictement inchangé) : nettoyage post-plein-écran.
+// En plein écran, iOS remonte NATIVEMENT le champ actif au-dessus du clavier (comme sur une page
+// normale) : tout le bricolage clavier de v1.7 était devenu inutile ET nuisible. Sur iOS,
+// window.innerHeight est instable (barre Safari) donc le padding = hauteur du clavier ne se
+// remettait pas toujours à 0 après fermeture du clavier → bande vide scrollable en bas des pages
+// courtes (note, histoire inédite). Retiré : le state keyboardInset, l'effet visualViewport, le
+// style paddingBottom du panneau, et les 2 onFocus scrollIntoView. Résultat : plus de scroll dans
+// le vide, comportement clavier laissé au natif. Aucun autre changement.
 // MyStoriesTab v1.9
 // Changelog v1.9 (MOBILE UNIQUEMENT — desktop strictement inchangé) : le wizard passe en PLEIN
 // ÉCRAN sur mobile au lieu du bottom drawer vaul. Motif : le drawer était structurellement mauvais
@@ -512,9 +521,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const [isPreparingDest, setIsPreparingDest] = useState(false);
   const [destError, setDestError] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
-  // v1.7 — hauteur du clavier iOS (0 si fermé), mesurée via visualViewport. Sert de padding-bottom
-  // au conteneur scrollable pour pouvoir remonter le champ actif au-dessus du clavier.
-  const [keyboardInset, setKeyboardInset] = useState(0);
 
   // Selection caps based on child's age
   const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
@@ -571,31 +577,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
       }
     }
   }, [open]);
-
-  // v1.7 — Clavier iOS dans le Drawer vaul (mobile uniquement).
-  // window.innerHeight ne change PAS quand le clavier s'ouvre, mais visualViewport.height rétrécit.
-  // On en déduit la hauteur du clavier, on l'applique en padding-bottom (via keyboardInset) au
-  // conteneur scrollable, puis on recentre le champ actif au-dessus du clavier.
-  React.useEffect(() => {
-    if (!isMobile || !open) return;
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const handler = () => {
-      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setKeyboardInset(inset);
-      if (inset > 0) {
-        const el = document.activeElement as HTMLElement | null;
-        if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) {
-          requestAnimationFrame(() => el.scrollIntoView({ block: 'center' }));
-        }
-      }
-    };
-    vv.addEventListener('resize', handler);
-    return () => {
-      vv.removeEventListener('resize', handler);
-      setKeyboardInset(0);
-    };
-  }, [isMobile, open]);
 
   const handleClose = (o: boolean) => {
     if (!o && isSaving) return;
@@ -676,11 +657,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <Textarea
               value={customStory}
               onChange={(e) => setCustomStory(e.target.value)}
-              onFocus={(e) => {
-                if (!isMobile) return;
-                const el = e.currentTarget;
-                setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
-              }}
               placeholder={`Ex : ${childName} part explorer une grotte sous-marine avec son grand-père, elle découvre un coffre rempli de photos de famille…`}
               className="min-h-40 text-base md:text-sm"
             />
@@ -1236,11 +1212,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            onFocus={(e) => {
-              if (!isMobile) return;
-              const el = e.currentTarget;
-              setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
-            }}
             placeholder={`Ex : ${childName} adore les montres en ce moment…`}
             className="min-h-32 mb-6 text-base md:text-sm"
           />
@@ -1293,10 +1264,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           </button>
         </div>
         {/* Zone scrollable */}
-        <div
-          className="flex-1 overflow-y-auto overscroll-contain min-h-0"
-          style={{ paddingBottom: keyboardInset }}
-        >
+        <div className="flex-1 overflow-y-auto overscroll-contain min-h-0">
           {Content}
         </div>
       </div>,
