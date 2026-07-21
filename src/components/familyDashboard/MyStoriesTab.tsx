@@ -1,3 +1,13 @@
+// MyStoriesTab v2.1
+// Changelog v2.1 (MOBILE UNIQUEMENT — desktop strictement inchangé) :
+//   1) VRAI fix du "scroll dans le vide" (v2.0 s'était trompé de cause). Sur une page courte, le
+//      contenu du panneau tient sans scroller → le doigt faisait défiler la PAGE DU DASHBOARD
+//      derrière le panneau opaque. Correctif : verrou de scroll du body pendant l'ouverture
+//      (position:fixed iOS-safe + restauration de la position), comme le font Radix/vaul.
+//   2) Le sélecteur de thème (ThemeSelectionSheet) passe aussi en PLEIN ÉCRAN.
+//   3) Factorisation : nouveau composant partagé MobileFullScreenSheet (panneau + croix + portal +
+//      verrou de scroll), utilisé par le Wizard ET le ThemeSelectionSheet. Import Drawer retiré
+//      (plus aucun bottom drawer sur mobile).
 // MyStoriesTab v2.0
 // Changelog v2.0 (MOBILE UNIQUEMENT — desktop strictement inchangé) : nettoyage post-plein-écran.
 // En plein écran, iOS remonte NATIVEMENT le champ actif au-dessus du clavier (comme sur une page
@@ -81,7 +91,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -467,6 +476,67 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     })(),
   };
 }
+
+// ---------- Mobile full-screen sheet (shared) ----------
+// Panneau plein écran mobile réutilisé par le Wizard et le ThemeSelectionSheet.
+// Remplace le bottom drawer vaul (mauvais sur mobile : clavier, fermetures accidentelles, scroll).
+// - Rendu via createPortal(document.body) → insensible à un ancêtre transformé.
+// - Fermeture UNIQUEMENT via la croix (✕) en haut à droite (convention : quitter = à droite).
+// - VERROU DE SCROLL DU BODY pendant l'ouverture (technique iOS-safe : position:fixed sur le body
+//   + restauration de la position au close). Sans ça, sur une page courte le contenu tient sans
+//   scroller et le doigt fait défiler la page du dashboard DERRIÈRE le panneau (scroll dans le vide).
+const MobileFullScreenSheet: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  closeDisabled?: boolean;
+  children: React.ReactNode;
+}> = ({ open, onClose, closeDisabled, children }) => {
+  React.useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = prev.overflow;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
+
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-50 bg-white flex flex-col">
+      {/* Barre supérieure : fermeture explicite */}
+      <div className="flex items-center justify-end h-12 px-3 flex-shrink-0 border-b border-border/60">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={closeDisabled}
+          aria-label="Fermer"
+          className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+      {/* Zone scrollable */}
+      <div className="flex-1 overflow-y-auto overscroll-contain min-h-0">
+        {children}
+      </div>
+    </div>,
+    document.body,
+  );
+};
 
 // ---------- Wizard ----------
 
@@ -1240,35 +1310,12 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
     </div>
   );
 
-  // v1.9 — Sur mobile, plein écran (plus de bottom drawer vaul).
-  // Le drawer vaul + clavier iOS était structurellement mauvais (drawer éjecté hors écran,
-  // fermetures accidentelles au drag/tap, scroll bloqué quand iOS zoomait). Un panneau plein écran
-  // ancré en haut règle tout ça : le contenu part du haut, le clavier ne recouvre que le bas, le
-  // scroll interne + le padding clavier (v1.7) gèrent la remontée du champ. Rendu via un portal dans
-  // document.body pour être insensible à un éventuel ancêtre transformé. Fermeture UNIQUEMENT via la
-  // croix (plus de fermeture accidentelle). Desktop (branche Dialog) strictement inchangé.
+  // Sur mobile : panneau plein écran partagé (voir MobileFullScreenSheet). Desktop : Dialog inchangé.
   if (isMobile) {
-    if (!open) return null;
-    return createPortal(
-      <div className="fixed inset-0 z-50 bg-white flex flex-col">
-        {/* Barre supérieure : fermeture explicite */}
-        <div className="flex items-center justify-end h-12 px-3 flex-shrink-0 border-b border-border/60">
-          <button
-            type="button"
-            onClick={() => handleClose(false)}
-            disabled={isSaving}
-            aria-label="Fermer"
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        {/* Zone scrollable */}
-        <div className="flex-1 overflow-y-auto overscroll-contain min-h-0">
-          {Content}
-        </div>
-      </div>,
-      document.body,
+    return (
+      <MobileFullScreenSheet open={open} onClose={() => handleClose(false)} closeDisabled={isSaving}>
+        {Content}
+      </MobileFullScreenSheet>
     );
   }
 
@@ -1883,9 +1930,9 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={handleClose}>
-        <DrawerContent className="bg-white max-h-[90vh] overflow-y-auto">{Content}</DrawerContent>
-      </Drawer>
+      <MobileFullScreenSheet open={open} onClose={() => handleClose(false)}>
+        {Content}
+      </MobileFullScreenSheet>
     );
   }
 
