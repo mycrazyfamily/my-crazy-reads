@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, MessageCircle, Sparkles, Brain, GraduationCap, BookOpen, Library, Globe, Gift } from 'lucide-react';
+import { Heart, MessageCircle, Sparkles, Brain, GraduationCap, BookOpen, Library, Globe, Gift, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Navbar from '../components/Navbar';
 import NewHero from '../components/NewHero';
@@ -11,7 +11,7 @@ import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 
 const NewIndex: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -353,10 +353,21 @@ const NewIndex: React.FC = () => {
                   Rejoignez les familles qui offrent à leurs enfants des histoires uniques,
                   créées rien que pour eux.
                 </p>
-                <Link to={getDestinationPath()} className="inline-flex items-center gap-3 bg-white text-mcf-primary font-bold text-lg md:text-xl px-12 py-5 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl">
-                  <Heart className="w-5 h-5" />
-                  {getButtonText()}
-                </Link>
+                {/* Anti-flash A3 : tant que l'auth n'est pas résolue (isLoading), on affiche un
+                    placeholder non-cliquable au lieu du bouton — sinon « Commencer l'aventure »
+                    flashe pour un utilisateur connecté et un clic pendant ce court instant le
+                    renvoie vers le login (via le RouteGuard de /creer-profil-enfant). */}
+                {isLoading ? (
+                  <span className="inline-flex items-center gap-3 bg-white text-mcf-primary font-bold text-lg md:text-xl px-12 py-5 rounded-full shadow-2xl opacity-70 cursor-default">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Chargement…
+                  </span>
+                ) : (
+                  <Link to={getDestinationPath()} className="inline-flex items-center gap-3 bg-white text-mcf-primary font-bold text-lg md:text-xl px-12 py-5 rounded-full hover:bg-mcf-mint hover:text-white transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl">
+                    <Heart className="w-5 h-5" />
+                    {getButtonText()}
+                  </Link>
+                )}
               </div>
             </div>
           </div>
