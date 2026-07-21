@@ -1,9 +1,14 @@
-// Navbar.tsx v1.3
+// Navbar.tsx v1.4
+// v1.4 (A4 — menu burger mobile) : le menu ne se fermait pas au clic sur « Continuer/Commencer
+//   l'aventure » (getActionButton) — seul lien du menu mobile sans onClick de fermeture. Fix :
+//   (1) getActionButton accepte un onClick optionnel, appelé uniquement en mobile pour fermer le
+//   menu ; (2) ceinture-bretelles — useEffect qui ferme le menu à CHAQUE changement de route
+//   (couvre ce bouton + tout futur lien oublié). Desktop inchangé.
 // v1.3: header raccourci en « Offrir » (garde « Abonnement » en avant ; footer reste « Offrir un abonnement »)
 // v1.2: libellé « Cadeau » → « Offrir un abonnement » (desktop + mobile), cohérence avec le footer
 // v1.1: ajout du lien « Cadeau » (/cadeau) à côté d'Abonnement, en desktop et mobile
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +27,13 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, hasActiveSubscription, user, logout } = useAuth();
+  const location = useLocation();
+
+  // v1.4 (ceinture-bretelles) : ferme le menu mobile à chaque changement de route, quel que soit
+  // le lien cliqué — couvre le bouton d'action et tout futur lien qu'on oublierait de câbler.
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,12 +63,13 @@ const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getActionButton = () => {
+  const getActionButton = (onClick?: () => void) => {
     const destinationPath = isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
     const buttonText = isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
     return (
       <Link 
         to={destinationPath} 
+        onClick={onClick}
         className="bg-mcf-primary text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-lg"
       >
         {buttonText}
@@ -204,7 +217,7 @@ const Navbar: React.FC = () => {
             )}
             
             <div className="pt-2">
-              {getActionButton()}
+              {getActionButton(() => setIsMenuOpen(false))}
             </div>
           </div>
         </div>
