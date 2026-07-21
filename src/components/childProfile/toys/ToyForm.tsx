@@ -1,3 +1,5 @@
+// ToyForm v1.3
+// Changelog v1.3 (B4) : placeholders raccourcis + « … » retirés (règle : exemple court, sans « … »).
 // ToyForm v1.2
 // Changelog v1.2 (MOBILE) : (a) cartes de type en 1 COLONNE sur mobile (grid-cols-1 sm:grid-cols-2
 //   md:grid-cols-3) → fini le texte sur 2 lignes (« Véhicule miniature » etc.) ; (b) placeholders
@@ -136,7 +138,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
               id="toy-name"
               value={toyName}
               onChange={e => setToyName(e.target.value)}
-              placeholder="Ex : Doudou, Lapinou…"
+              placeholder="Ex : Doudou, Lapinou"
               required
               className="bg-white"
             />
@@ -181,7 +183,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
                   id="other-type"
                   value={otherType}
                   onChange={e => setOtherType(e.target.value)}
-                  placeholder="Ex: Mouchoir, Capuche, etc."
+                  placeholder="Ex : Mouchoir, capuche"
                   className="mt-1 bg-white"
                   required={toyType === 'other'}
                 />
@@ -198,7 +200,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
               id="appearance"
               value={appearance}
               onChange={e => setAppearance(e.target.value)}
-              placeholder="Ex : bleu, usé, un œil en moins…"
+              placeholder="Ex : bleu, usé, un œil en moins"
               className="h-20 bg-white"
             />
           </div>
@@ -253,7 +255,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
                   id="custom-role-1"
                   value={customRole1}
                   onChange={e => setCustomRole1(e.target.value)}
-                  placeholder="Ex : Confident, Compagnon…"
+                  placeholder="Ex : Confident, ami"
                   className="mt-1 bg-white"
                   required={selectedRoles.includes('otherRole1')}
                 />
@@ -269,7 +271,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
                   id="custom-role-2"
                   value={customRole2}
                   onChange={e => setCustomRole2(e.target.value)}
-                  placeholder="Ex : Gardien des secrets…"
+                  placeholder="Ex : Gardien, protecteur"
                   className="mt-1 bg-white"
                   required={selectedRoles.includes('otherRole2')}
                 />
