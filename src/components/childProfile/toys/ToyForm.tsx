@@ -1,3 +1,8 @@
+// ToyForm v1.2
+// Changelog v1.2 (MOBILE) : (a) cartes de type en 1 COLONNE sur mobile (grid-cols-1 sm:grid-cols-2
+//   md:grid-cols-3) → fini le texte sur 2 lignes (« Véhicule miniature » etc.) ; (b) placeholders
+//   d'exemple raccourcis pour ne plus être coupés (B4) ; (c) [déjà présent] nav du sous-formulaire
+//   qui s'empile sur mobile + chips qui ne débordent plus (min-w-0 / break-words).
 // ToyForm v1.1
 // Changelog v1.1 : (a) emojis retirés des 4 libellés de question (prénom/type/apparence/rôle) —
 // les emojis des OPTIONS elles-mêmes (types, rôles) restent, ils servent de repère visuel comme
@@ -131,7 +136,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
               id="toy-name"
               value={toyName}
               onChange={e => setToyName(e.target.value)}
-              placeholder="Exemple: Doudou, Lapinou, Câlin..."
+              placeholder="Ex : Doudou, Lapinou…"
               required
               className="bg-white"
             />
@@ -146,7 +151,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
             <RadioGroup
               value={toyType}
               onValueChange={(value) => handleTypeChange(value as ToyType)}
-              className="grid grid-cols-2 md:grid-cols-3 gap-3"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
             >
               {toyTypeOptions.map(option => (
                 <div 
@@ -193,7 +198,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
               id="appearance"
               value={appearance}
               onChange={e => setAppearance(e.target.value)}
-              placeholder="Ex: bleu, usé, très doux, un œil en moins, rayé..."
+              placeholder="Ex : bleu, usé, un œil en moins…"
               className="h-20 bg-white"
             />
           </div>
@@ -248,7 +253,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
                   id="custom-role-1"
                   value={customRole1}
                   onChange={e => setCustomRole1(e.target.value)}
-                  placeholder="Ex: Confident, Compagnon de voyage..."
+                  placeholder="Ex : Confident, Compagnon…"
                   className="mt-1 bg-white"
                   required={selectedRoles.includes('otherRole1')}
                 />
@@ -264,7 +269,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
                   id="custom-role-2"
                   value={customRole2}
                   onChange={e => setCustomRole2(e.target.value)}
-                  placeholder="Ex: Gardien des secrets, Source de courage..."
+                  placeholder="Ex : Gardien des secrets…"
                   className="mt-1 bg-white"
                   required={selectedRoles.includes('otherRole2')}
                 />
