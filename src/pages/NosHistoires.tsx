@@ -4,12 +4,13 @@ import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HowItWorks from '@/components/HowItWorks';
-import { Sparkles, Users, MessageCircle, Award, Globe, Zap, Wand2, Palette } from 'lucide-react';
+import { Sparkles, Users, MessageCircle, Award, Globe, Zap, Wand2, Palette, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const NosHistoires: React.FC = () => {
   const {
-    isAuthenticated
+    isAuthenticated,
+    isLoading
   } = useAuth();
   const getDestinationPath = () => {
     return isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
@@ -37,10 +38,18 @@ const NosHistoires: React.FC = () => {
               Chez My Crazy Family, chaque livre est plus qu'un récit : c'est une expérience personnalisée, 
               conçue pour nourrir l'imaginaire, la confiance en soi et l'expression des enfants de 0 à 10 ans.
             </p>
-            <Link to={getDestinationPath()} className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
-              <Sparkles className="w-5 h-5" />
-              {getButtonText()}
-            </Link>
+            {/* Anti-flash A3 : placeholder tant que l'auth n'est pas résolue (voir NewHero/Index). */}
+            {isLoading ? (
+              <span className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full shadow-xl opacity-70 cursor-default">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Chargement…
+              </span>
+            ) : (
+              <Link to={getDestinationPath()} className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
+                <Sparkles className="w-5 h-5" />
+                {getButtonText()}
+              </Link>
+            )}
           </div>
         </section>
 
@@ -261,12 +270,19 @@ const NosHistoires: React.FC = () => {
               </p>
 
               <div className="flex justify-center">
-                <Link
-                  to={getDestinationPath()}
-                  className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
-                >
-                  {getButtonText()}
-                </Link>
+                {isLoading ? (
+                  <span className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg opacity-70 cursor-default">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Chargement…
+                  </span>
+                ) : (
+                  <Link
+                    to={getDestinationPath()}
+                    className="bg-mcf-primary hover:bg-mcf-secondary text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg shadow-lg"
+                  >
+                    {getButtonText()}
+                  </Link>
+                )}
               </div>
 
               {/* Éléments décoratifs */}
