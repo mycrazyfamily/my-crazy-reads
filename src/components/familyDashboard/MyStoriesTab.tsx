@@ -1,4 +1,11 @@
-// MyStoriesTab v1.6
+// MyStoriesTab v1.7
+// Changelog v1.7 (MOBILE UNIQUEMENT) : vrai fix du clavier iOS dans le wizard (le v1.6 visait la
+// mauvaise couche). Le problème n'était pas le scroll interne mais le drawer vaul (position:fixed)
+// que le clavier iOS pousse hors écran par le haut. Correctif : on écoute window.visualViewport
+// (qui rétrécit à l'ouverture du clavier) → on ajoute au conteneur scrollable un padding-bottom
+// égal à la hauteur du clavier (donne la place de remonter le champ au-dessus du clavier), puis on
+// recentre le champ actif. Gated isMobile + open. Les onFocus scrollIntoView (récit + note) sont
+// conservés comme premier nudge. Desktop inchangé (branche Dialog).
 // Changelog v1.6 (MOBILE UNIQUEMENT) : fix clavier iOS sur les champs texte du wizard. Au focus,
 // iOS sur-scrollait le champ au-dessus de la zone visible (on voyait le bouton mais plus ce qu'on
 // tapait). Correctif : onFocus → scrollIntoView({ block: 'center' }) après ~300ms (temps que le
@@ -482,6 +489,9 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const [isPreparingDest, setIsPreparingDest] = useState(false);
   const [destError, setDestError] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
+  // v1.7 — hauteur du clavier iOS (0 si fermé), mesurée via visualViewport. Sert de padding-bottom
+  // au conteneur scrollable pour pouvoir remonter le champ actif au-dessus du clavier.
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   // Selection caps based on child's age
   const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
@@ -538,6 +548,31 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
       }
     }
   }, [open]);
+
+  // v1.7 — Clavier iOS dans le Drawer vaul (mobile uniquement).
+  // window.innerHeight ne change PAS quand le clavier s'ouvre, mais visualViewport.height rétrécit.
+  // On en déduit la hauteur du clavier, on l'applique en padding-bottom (via keyboardInset) au
+  // conteneur scrollable, puis on recentre le champ actif au-dessus du clavier.
+  React.useEffect(() => {
+    if (!isMobile || !open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardInset(inset);
+      if (inset > 0) {
+        const el = document.activeElement as HTMLElement | null;
+        if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) {
+          requestAnimationFrame(() => el.scrollIntoView({ block: 'center' }));
+        }
+      }
+    };
+    vv.addEventListener('resize', handler);
+    return () => {
+      vv.removeEventListener('resize', handler);
+      setKeyboardInset(0);
+    };
+  }, [isMobile, open]);
 
   const handleClose = (o: boolean) => {
     if (!o && isSaving) return;
@@ -1214,7 +1249,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
     return (
       <Drawer open={open} onOpenChange={handleClose}>
         <DrawerContent className="bg-white max-h-[90vh] flex flex-col">
-          <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
+          <div
+            className="overflow-y-auto overscroll-contain flex-1 min-h-0"
+            style={{ paddingBottom: keyboardInset }}
+          >
             {Content}
           </div>
         </DrawerContent>
