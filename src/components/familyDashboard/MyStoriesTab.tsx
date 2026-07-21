@@ -1,4 +1,10 @@
-// MyStoriesTab v1.4
+// MyStoriesTab v1.5
+// Changelog v1.5 (MOBILE UNIQUEMENT) : fix scroll bloqué dans le wizard « Ajouter votre touche »
+// sur mobile (Drawer vaul). Le scroll était porté par le DrawerContent lui-même (élément draggable
+// de vaul) → le geste de drag interceptait le scroll tactile iOS, impossible d'atteindre les
+// personnages du bas ni « Suivant ». Correctif : contenu enveloppé dans un conteneur scrollable
+// interne (flex-1 min-h-0 overflow-y-auto + overscroll-contain), DrawerContent en flex flex-col.
+// Desktop inchangé (branche Dialog). Même pattern que ThemeSelectionSheet qui scrollait déjà.
 // Changelog v1.4 (AFFICHAGE UNIQUEMENT) : dans le wizard « Où se passe l'histoire ? », les lieux
 // INACTIFS (is_active === false, « on n'y vit plus ») sont désormais AFFICHÉS grisés + non
 // cliquables (badge « Nous n'y vivons plus »), au lieu d'être masqués. Cohérent avec le wizard de
@@ -1192,8 +1198,10 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={handleClose}>
-        <DrawerContent className="bg-white max-h-[90vh] overflow-y-auto">
-          {Content}
+        <DrawerContent className="bg-white max-h-[90vh] flex flex-col">
+          <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
+            {Content}
+          </div>
         </DrawerContent>
       </Drawer>
     );
