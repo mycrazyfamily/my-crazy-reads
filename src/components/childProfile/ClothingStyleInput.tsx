@@ -1,3 +1,5 @@
+// ClothingStyleInput v1.1
+// Changelog v1.1 (B4) : exemple (placeholder) du style vestimentaire raccourci pour ne plus être coupé.
 import React, { useState, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -75,7 +77,7 @@ const ClothingStyleInput: React.FC<ClothingStyleInputProps> = ({
           </Label>
           <Input
             id="custom-clothing"
-            placeholder="Ex : sweat bleu, pantalon beige et baskets noires"
+            placeholder="Ex : sweat bleu, baskets noires…"
             value={customText}
             onChange={handleCustomTextChange}
             className="w-full"
