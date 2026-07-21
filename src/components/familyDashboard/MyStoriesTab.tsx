@@ -1,3 +1,12 @@
+// MyStoriesTab v1.8
+// Changelog v1.8 (MOBILE UNIQUEMENT) : le clavier iOS "propulsait" le drawer vaul hors écran par
+// le haut (bug vaul connu et OUVERT — tickets #503/#514/#619). Cause : vaul repositionne lui-même
+// le drawer à l'ouverture du clavier, et sur un drawer haut (90vh) il le pousse trop loin. Notre
+// code visualViewport v1.7 se battait avec ce repositionnement. Correctif : repositionInputs={false}
+// sur le <Drawer> mobile → vaul cesse de repositionner, et le mécanisme v1.7 (padding = hauteur du
+// clavier + recentrage du champ actif) reprend la main. Concerne les 3 champs texte du wizard
+// (récit, note, lieu précis). Desktop inchangé. Si insuffisant : bascule mobile en Dialog plein
+// écran ancré en haut (voie 2).
 // MyStoriesTab v1.7
 // Changelog v1.7 (MOBILE UNIQUEMENT) : vrai fix du clavier iOS dans le wizard (le v1.6 visait la
 // mauvaise couche). Le problème n'était pas le scroll interne mais le drawer vaul (position:fixed)
@@ -1247,7 +1256,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={handleClose}>
+      <Drawer open={open} onOpenChange={handleClose} repositionInputs={false}>
         <DrawerContent className="bg-white max-h-[90vh] flex flex-col">
           <div
             className="overflow-y-auto overscroll-contain flex-1 min-h-0"
