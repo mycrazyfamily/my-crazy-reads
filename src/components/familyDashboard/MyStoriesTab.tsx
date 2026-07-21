@@ -1,3 +1,8 @@
+// MyStoriesTab v2.2
+// Changelog v2.2 (MOBILE — B6) : ajout de .pb-safe (padding-bottom safe-area, défini dans index.css)
+//   sur la zone scrollable du wizard plein écran → le dernier bouton ne se colle plus à la barre
+//   Safari du bas / au home indicator (l'overlay fixed inset-0 n'est pas atteint par la marge
+//   globale du body). Desktop inchangé.
 // MyStoriesTab v2.1
 // Changelog v2.1 (MOBILE UNIQUEMENT — desktop strictement inchangé) :
 //   1) VRAI fix du "scroll dans le vide" (v2.0 s'était trompé de cause). Sur une page courte, le
@@ -530,7 +535,7 @@ const MobileFullScreenSheet: React.FC<{
         </button>
       </div>
       {/* Zone scrollable */}
-      <div className="flex-1 overflow-y-auto overscroll-contain min-h-0">
+      <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 pb-safe">
         {children}
       </div>
     </div>,
