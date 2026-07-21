@@ -1,4 +1,9 @@
-// MyStoriesTab v1.5
+// MyStoriesTab v1.6
+// Changelog v1.6 (MOBILE UNIQUEMENT) : fix clavier iOS sur les champs texte du wizard. Au focus,
+// iOS sur-scrollait le champ au-dessus de la zone visible (on voyait le bouton mais plus ce qu'on
+// tapait). Correctif : onFocus → scrollIntoView({ block: 'center' }) après ~300ms (temps que le
+// clavier monte), gated sur isMobile. Appliqué au champ récit (Histoire inédite) et au champ note.
+// Champ destination libre laissé tel quel (fonctionne déjà). Desktop inchangé.
 // Changelog v1.5 (MOBILE UNIQUEMENT) : fix scroll bloqué dans le wizard « Ajouter votre touche »
 // sur mobile (Drawer vaul). Le scroll était porté par le DrawerContent lui-même (élément draggable
 // de vaul) → le geste de drag interceptait le scroll tactile iOS, impossible d'atteindre les
@@ -613,6 +618,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <Textarea
               value={customStory}
               onChange={(e) => setCustomStory(e.target.value)}
+              onFocus={(e) => {
+                if (!isMobile) return;
+                const el = e.currentTarget;
+                setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+              }}
               placeholder={`Ex : ${childName} part explorer une grotte sous-marine avec son grand-père, elle découvre un coffre rempli de photos de famille…`}
               className="min-h-40"
             />
@@ -1167,6 +1177,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            onFocus={(e) => {
+              if (!isMobile) return;
+              const el = e.currentTarget;
+              setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+            }}
             placeholder={`Ex : ${childName} adore les montres en ce moment…`}
             className="min-h-32 mb-6"
           />
