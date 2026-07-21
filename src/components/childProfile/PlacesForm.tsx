@@ -1,3 +1,5 @@
+// PlacesForm v1.5
+// Changelog v1.5 (B4) : placeholder du surnom raccourci + « … » retiré.
 // PlacesForm v1.4
 // Changelog v1.4 (B4) : exemple (placeholder) du surnom de lieu raccourci pour ne plus être coupé.
 // PlacesForm v1.3
@@ -466,7 +468,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               id="child-label"
               value={childLabel}
               onChange={(e) => setChildLabel(e.target.value)}
-              placeholder="Ex : Chez Papa, Maison de Mamie…"
+              placeholder="Ex : Chez Papa, chez Mamie"
             />
             <p className="text-xs text-muted-foreground mt-1">
               Ce nom sera utilisé dans les histoires pour que l'enfant reconnaisse le lieu
