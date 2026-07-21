@@ -1,3 +1,16 @@
+// MyStoriesTab v1.9
+// Changelog v1.9 (MOBILE UNIQUEMENT — desktop strictement inchangé) : le wizard passe en PLEIN
+// ÉCRAN sur mobile au lieu du bottom drawer vaul. Motif : le drawer était structurellement mauvais
+// sur mobile (clavier iOS qui l'éjectait hors écran, fermetures accidentelles au drag/tap, scroll
+// bloqué quand iOS zoomait au focus). Changements :
+//   1) Branche mobile du Wizard : <Drawer> vaul → panneau fixed inset-0 plein écran, rendu via
+//      createPortal(document.body). Fermeture UNIQUEMENT via la croix (✕) en haut à droite (plus de
+//      glisser/tap-extérieur pour fermer → fini les pertes de saisie accidentelles).
+//   2) Zoom iOS au focus supprimé : les 3 champs texte (récit, note, lieu précis) forcés à 16px sur
+//      mobile via "text-base md:text-sm" (iOS zoome dès que la police < 16px). 14px conservé desktop.
+//   3) On garde le padding = hauteur du clavier (v1.7) sur la zone scrollable comme filet de
+//      sécurité pour les champs du bas. Le repositionInputs de v1.8 disparaît avec le drawer.
+// ThemeSelectionSheet (aucun champ texte) laissé en drawer volontairement. Import X + createPortal.
 // MyStoriesTab v1.8
 // Changelog v1.8 (MOBILE UNIQUEMENT) : le clavier iOS "propulsait" le drawer vaul hors écran par
 // le haut (bug vaul connu et OUVERT — tickets #503/#514/#619). Cause : vaul repositionne lui-même
@@ -51,6 +64,7 @@
 // confirmer/aligner à la Phase 3. La "règle random" quand les parents ne personnalisent pas vit
 // côté n8n (ex: shuffledPets dans 4A_Build_Context_Client) — pas modifiable depuis ce fichier.
 import React, { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,7 +76,7 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User } from 'lucide-react';
+import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
@@ -668,7 +682,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
               }}
               placeholder={`Ex : ${childName} part explorer une grotte sous-marine avec son grand-père, elle découvre un coffre rempli de photos de famille…`}
-              className="min-h-40"
+              className="min-h-40 text-base md:text-sm"
             />
             <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
               {customStory.length < 30
@@ -1027,6 +1041,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 }}
                 placeholder='Ex: "Koh Tao", "la jungle amazonienne", "New York"'
                 disabled={isPreparingDest}
+                className="text-base md:text-sm"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Indique une seule ville ou un seul décor, par exemple "Koh Tao", "la jungle amazonienne", "New York"
@@ -1227,7 +1242,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               setTimeout(() => el?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
             }}
             placeholder={`Ex : ${childName} adore les montres en ce moment…`}
-            className="min-h-32 mb-6"
+            className="min-h-32 mb-6 text-base md:text-sm"
           />
 
           <div className="flex gap-3">
@@ -1254,18 +1269,38 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
     </div>
   );
 
+  // v1.9 — Sur mobile, plein écran (plus de bottom drawer vaul).
+  // Le drawer vaul + clavier iOS était structurellement mauvais (drawer éjecté hors écran,
+  // fermetures accidentelles au drag/tap, scroll bloqué quand iOS zoomait). Un panneau plein écran
+  // ancré en haut règle tout ça : le contenu part du haut, le clavier ne recouvre que le bas, le
+  // scroll interne + le padding clavier (v1.7) gèrent la remontée du champ. Rendu via un portal dans
+  // document.body pour être insensible à un éventuel ancêtre transformé. Fermeture UNIQUEMENT via la
+  // croix (plus de fermeture accidentelle). Desktop (branche Dialog) strictement inchangé.
   if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={handleClose} repositionInputs={false}>
-        <DrawerContent className="bg-white max-h-[90vh] flex flex-col">
-          <div
-            className="overflow-y-auto overscroll-contain flex-1 min-h-0"
-            style={{ paddingBottom: keyboardInset }}
+    if (!open) return null;
+    return createPortal(
+      <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        {/* Barre supérieure : fermeture explicite */}
+        <div className="flex items-center justify-end h-12 px-3 flex-shrink-0 border-b border-border/60">
+          <button
+            type="button"
+            onClick={() => handleClose(false)}
+            disabled={isSaving}
+            aria-label="Fermer"
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
           >
-            {Content}
-          </div>
-        </DrawerContent>
-      </Drawer>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        {/* Zone scrollable */}
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain min-h-0"
+          style={{ paddingBottom: keyboardInset }}
+        >
+          {Content}
+        </div>
+      </div>,
+      document.body,
     );
   }
 
