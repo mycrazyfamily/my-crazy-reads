@@ -1,3 +1,8 @@
+// FormProgressIndicator v1.1
+// Changelog v1.1 (MOBILE) : les libellés sous chaque cercle (Infos, Personnalité, Famille…)
+//   débordaient / se chevauchaient sur mobile (8 étapes). On les masque sur mobile (hidden sm:block)
+//   et on affiche le nom de l'étape COURANTE dans le compteur (« Étape X sur N · Libellé »).
+//   Les cercles 1→N restent visibles. Desktop strictement inchangé (libellés sous chaque cercle).
 import React from 'react';
 import { Check } from 'lucide-react';
 
@@ -58,7 +63,7 @@ const FormProgressIndicator: React.FC<FormProgressIndicatorProps> = ({
                 {stepLabels[index] && (
                   <span 
                     className={`
-                      mt-2 text-xs font-medium text-center max-w-[80px]
+                      mt-2 text-xs font-medium text-center max-w-[80px] hidden sm:block
                       ${isCurrent ? 'text-mcf-primary' : 'text-gray-500'}
                     `}
                   >
@@ -75,6 +80,12 @@ const FormProgressIndicator: React.FC<FormProgressIndicatorProps> = ({
       <div className="text-center mt-6">
         <p className="text-sm font-medium text-gray-600">
           Étape <span className="text-mcf-primary font-bold">{currentStep + 1}</span> sur {totalSteps}
+          {stepLabels[currentStep] && (
+            <span className="sm:hidden">
+              {' · '}
+              <span className="text-mcf-primary font-semibold">{stepLabels[currentStep]}</span>
+            </span>
+          )}
         </p>
       </div>
     </div>
