@@ -403,7 +403,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
           type="submit"
           onClick={handleStartAdventure}
           disabled={isSubmitting}
-          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full md:w-auto md:min-w-64 text-lg flex items-center justify-center gap-2 h-auto whitespace-normal md:whitespace-nowrap leading-tight text-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {isSubmitting ? (
             <>
