@@ -1,3 +1,5 @@
+// PhysicalDetailsInput v1.2
+// Changelog v1.2 (B4) : placeholder raccourci + « … » retiré (ne débordait plus mais restait long).
 // PhysicalDetailsInput v1.1
 // Changelog v1.1 : (a) B4 — exemple (placeholder) raccourci ; (b) B5 — après l'ajout d'un détail
 //   personnalisé (le champ se vide alors que la chip apparaît plus haut dans « Détails
@@ -171,7 +173,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
               <Input
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="Ex : petite cicatrice au menton…"
+                placeholder="Ex : cicatrice au menton"
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
