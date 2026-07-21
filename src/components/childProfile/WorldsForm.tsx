@@ -1,3 +1,6 @@
+// WorldsForm v1.3
+// Changelog v1.3 (MOBILE) : nav « Retour / Continuer l'aventure » empilée sur mobile (flex-col) +
+//   bouton qui peut revenir à la ligne — fini le chevauchement. Desktop strictement inchangé.
 // WorldsForm v1.2
 // Changelog v1.2 : validation des customs other1/other2 (univers + découvertes) avec .trim() —
 // avant, un champ rempli uniquement d'espaces passait la validation (donnée vide en génération).
@@ -284,12 +287,12 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
         </div>
         
         {/* Boutons de navigation */}
-        <div className="pt-6 flex justify-between">
+        <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
           <Button 
             type="button" 
             onClick={handlePreviousStep}
             variant="outline"
-            className="font-semibold"
+            className="font-semibold w-full sm:w-auto"
           >
             ← Retour
           </Button>
@@ -297,7 +300,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           <Button 
             type="button" 
             onClick={handleSubmit}
-            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight"
           >
             Continuer l'aventure →
           </Button>
