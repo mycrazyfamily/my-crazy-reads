@@ -1,3 +1,5 @@
+// PlacesForm v1.4
+// Changelog v1.4 (B4) : exemple (placeholder) du surnom de lieu raccourci pour ne plus être coupé.
 // PlacesForm v1.3
 // Changelog v1.3 (AFFICHAGE + garde-fou) : (a) charge is_active des lieux existants (2 branches) et
 // le transmet à ExistingPlacesList → les lieux inactifs s'affichent grisés + non cliquables ;
@@ -464,7 +466,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
               id="child-label"
               value={childLabel}
               onChange={(e) => setChildLabel(e.target.value)}
-              placeholder="Ex: Chez Papa, Maison de Mamie, Le camping..."
+              placeholder="Ex : Chez Papa, Maison de Mamie…"
             />
             <p className="text-xs text-muted-foreground mt-1">
               Ce nom sera utilisé dans les histoires pour que l'enfant reconnaisse le lieu
