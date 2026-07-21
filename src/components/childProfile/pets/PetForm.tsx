@@ -1,3 +1,5 @@
+// PetForm v1.3
+// Changelog v1.3 (B4) : placeholders raccourcis + « … » retirés.
 // PetForm v1.2
 // Changelog v1.2 (MOBILE) : (a) placeholders d'exemple raccourcis (B4) ; (b) [déjà présent] traits
 //   en 2 colonnes sur mobile + chips qui ne débordent plus (min-w-0/break-words) + nav du
@@ -339,7 +341,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             </Label>
             <Input
               id="other-pet-type"
-              placeholder="Ex : Hamster, Tortue…"
+              placeholder="Ex : Hamster, tortue"
               value={otherType}
               onChange={(e) => setOtherType(e.target.value)}
             />
@@ -386,7 +388,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         </Label>
         <Input
           id="pet-breed"
-          placeholder="Ex : Labrador, Persan…"
+          placeholder="Ex : Labrador, persan"
           value={breed}
           onChange={(e) => setBreed(e.target.value)}
           className="text-base"
