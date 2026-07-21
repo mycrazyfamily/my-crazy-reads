@@ -151,17 +151,17 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
               {toyTypeOptions.map(option => (
                 <div 
                   key={option.value}
-                  className={`flex items-center justify-start space-x-2 p-3 rounded-md border border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer ${
+                  className={`flex items-center justify-start space-x-2 p-3 rounded-md border border-mcf-amber/30 hover:bg-mcf-amber/5 cursor-pointer min-w-0 ${
                     toyType === option.value ? 'bg-mcf-amber/20 border-mcf-amber' : 'bg-white'
                   }`}
                 >
-                  <RadioGroupItem value={option.value} id={`toy-type-${option.value}`} />
+                  <RadioGroupItem value={option.value} id={`toy-type-${option.value}`} className="shrink-0" />
                   <Label 
                     htmlFor={`toy-type-${option.value}`} 
-                    className="flex items-center gap-2 cursor-pointer"
+                    className="flex items-center gap-2 cursor-pointer min-w-0"
                   >
-                    <span className="text-xl">{option.emoji}</span>
-                    <span>{option.label}</span>
+                    <span className="text-xl shrink-0">{option.emoji}</span>
+                    <span className="min-w-0 break-words leading-tight">{option.label}</span>
                   </Label>
                 </div>
               ))}
@@ -281,12 +281,12 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
       </div>
 
       {showButtons && (
-        <div className="flex justify-between pt-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-2">
           <Button 
             type="button" 
             onClick={onCancel}
             variant="outline"
-            className="font-semibold"
+            className="font-semibold w-full sm:w-auto"
             disabled={isDisabled}
           >
             Annuler
@@ -297,7 +297,7 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
             disabled={isDisabled || !toyName.trim() || (toyType === 'other' && !otherType.trim()) || 
               (selectedRoles.includes('otherRole1') && !customRole1.trim()) || 
               (selectedRoles.includes('otherRole2') && !customRole2.trim())}
-            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold"
+            className="bg-mcf-orange hover:bg-mcf-orange-dark text-white font-bold w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight"
           >
             {isDisabled ? 'Enregistrement...' : (isEditing ? "Enregistrer les modifications" : "Ajouter le doudou")}
           </Button>
