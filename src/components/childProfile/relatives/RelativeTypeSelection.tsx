@@ -35,15 +35,15 @@ const RelativeTypeSelection: React.FC<RelativeTypeSelectionProps> = ({
                       onAddRelative(option.value as RelativeType);
                     }}
                   >
-                    <div className="flex items-start gap-2">
-                      <div className="mt-1">
+                    <div className="flex items-start gap-2 min-w-0">
+                      <div className="mt-1 shrink-0">
                         <div className="h-4 w-4 border border-primary rounded-sm flex items-center justify-center">
                           {selectedRelatives.includes(option.value as RelativeType) && <Check className="h-3 w-3 text-white" />}
                         </div>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="text-xl mb-1">{option.icon}</div>
-                        <div>{option.label}</div>
+                        <div className="break-words leading-tight">{option.label}</div>
                       </div>
                     </div>
                   </div>
