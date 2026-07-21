@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
@@ -17,12 +16,12 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   isSubmitButton = false
 }) => {
   return (
-    <div className="pt-6 flex justify-between">
+    <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
       <Button 
         type="button" 
         onClick={handlePreviousStep}
         variant="outline"
-        className="font-semibold flex items-center gap-2"
+        className="font-semibold flex items-center gap-2 w-full sm:w-auto"
       >
         <ArrowLeft className="h-4 w-4" /> Retour
       </Button>
@@ -30,7 +29,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       <Button 
         type={isSubmitButton ? "submit" : "button"}
         onClick={handleContinue}
-        className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+        className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight"
       >
         {continueButtonText || "Continuer l'aventure →"}
       </Button>
