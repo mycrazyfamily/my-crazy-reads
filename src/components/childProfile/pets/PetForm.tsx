@@ -402,7 +402,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         <Label className="text-base font-medium block">
           Traits de caractère <span className="text-xs text-gray-500">({MAX_TRAITS} maximum)</span>
         </Label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {PET_TRAIT_OPTIONS.map((trait) => {
             const isTraitSelected = selectedTraits.includes(trait.value as PetTrait);
             const isDisabled = !isTraitSelected && hasReachedMaxTraits;
@@ -413,7 +413,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
                   type="button"
                   onClick={() => handleTraitToggle(trait.value as PetTrait)}
                   disabled={isDisabled}
-                  className={`flex items-center justify-start p-2 rounded-lg border gap-2 transition-all w-full
+                  className={`flex items-center justify-start p-2 rounded-lg border gap-2 transition-all w-full min-w-0
                     ${isTraitSelected 
                       ? 'bg-mcf-secondary-light/50 border-mcf-primary shadow-sm' 
                       : isDisabled
@@ -421,8 +421,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
                         : 'border-gray-200 hover:border-mcf-primary/50'
                     }`}
                 >
-                  <span className="text-xl">{trait.icon}</span>
-                  <span className="text-sm">{trait.label}</span>
+                  <span className="text-xl shrink-0">{trait.icon}</span>
+                  <span className="text-sm min-w-0 break-words leading-tight text-left">{trait.label}</span>
                 </button>
                 
                 {/* Champ pour préciser un trait personnalisé */}
@@ -452,11 +452,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
 
       {/* Boutons d'action */}
       {showButtons && (
-        <div className="flex justify-between pt-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-4">
           <Button 
             type="button" 
             onClick={onCancel}
             variant="outline"
+            className="w-full sm:w-auto"
           >
             Annuler
           </Button>
@@ -465,7 +466,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             type="button"
             onClick={handleSubmit}
             disabled={isDisabled}
-            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
+            className="bg-mcf-primary hover:bg-mcf-primary-dark text-white w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight"
           >
             {isDisabled ? 'Enregistrement...' : (pet ? 'Enregistrer les modifications' : 'Ajouter cet animal')}
           </Button>
