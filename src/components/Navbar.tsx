@@ -1,3 +1,12 @@
+// Navbar.tsx v1.5
+// Changelog v1.5 (MOBILE — D2 + D3) :
+//   D2 : la cloche de notifications sort du menu burger et remonte dans le header, à gauche du
+//        bouton burger. Elle porte une pastille de non-lus qui, enfouie dans le menu, n'était
+//        visible qu'après ouverture — les notifications n'alertaient donc personne sur mobile.
+//   D3 : le menu mobile sépare désormais la navigation du site et le bloc « Mon compte »
+//        (séparateur + intitulé + style neutre). Avant, « Espace famille » (bleu) et
+//        « Déconnexion » (rouge) ressemblaient à des boutons et concurrençaient le CTA du bas.
+//        Le seul élément coloré du menu est maintenant le CTA. Desktop strictement inchangé.
 // Navbar.tsx v1.4
 // v1.4 (A4 — menu burger mobile) : le menu ne se fermait pas au clic sur « Continuer/Commencer
 //   l'aventure » (getActionButton) — seul lien du menu mobile sans onClick de fermeture. Fix :
@@ -133,14 +142,22 @@ const Navbar: React.FC = () => {
             {getActionButton()}
           </div>
 
-          {/* Mobile Menu Button */}
-      <button 
-        className="md:hidden text-mcf-primary" 
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-      >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Zone droite mobile : cloche (D2) + bouton burger */}
+          <div className="flex items-center gap-1 md:hidden">
+            {/* D2 : la cloche sort du menu burger et vient ici. Elle porte une pastille rouge de
+                non-lus : enfouie dans le menu, cette pastille n'était visible qu'après ouverture,
+                donc les notifications n'alertaient personne sur mobile. NotificationsBell ne rend
+                rien si l'utilisateur n'est pas connecté → aucun impact pour un visiteur. */}
+            <NotificationsBell />
+
+            <button
+              className="text-mcf-primary"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -181,26 +198,36 @@ const Navbar: React.FC = () => {
             </Link>
             
             
+            {/* D3 — Bloc « Mon compte », séparé de la navigation du site.
+                Avant, les entrées de compte étaient colorées (bleu / rouge) et se mélangeaient aux
+                liens de navigation : elles ressemblaient à des boutons d'action et entraient en
+                concurrence visuelle avec le vrai CTA du bas. Désormais : un séparateur, un intitulé
+                de section, et le même style neutre que les liens de nav. Le seul élément coloré du
+                menu reste le CTA en bas → hiérarchie lisible. */}
+            <div className="pt-2 mt-1 border-t border-border" />
+            <p className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Mon compte
+            </p>
+
             {isAuthenticated ? (
               <>
-                <div className="px-2 py-2">
-                  <NotificationsBell />
-                </div>
                 <Link 
                   to="/espace-famille" 
-                  className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors flex items-center gap-2 px-2 py-2"
+                  className="font-medium hover:text-mcf-primary transition-colors flex items-center gap-2 px-2 py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User size={18} />
                   Espace famille
                 </Link>
                 
+                {/* Déconnexion : action rare et destructrice → volontairement discrète (le rouge
+                    n'apparaît qu'au survol/appui), pour ne pas attirer l'œil en premier. */}
                 <button
                   onClick={() => {
                     handleLogout();
                     setIsMenuOpen(false);
                   }}
-                  className="font-medium text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2 px-2 py-2"
+                  className="font-medium text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2 px-2 py-2 text-left"
                 >
                   <LogOut size={18} />
                   Déconnexion
@@ -209,9 +236,10 @@ const Navbar: React.FC = () => {
             ) : (
               <Link 
                 to="/authentification" 
-                className="font-medium text-mcf-primary hover:text-mcf-secondary transition-colors px-2 py-2"
+                className="font-medium hover:text-mcf-primary transition-colors flex items-center gap-2 px-2 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
+                <User size={18} />
                 Se connecter
               </Link>
             )}
