@@ -1,7 +1,17 @@
+// Index v1.1
+// Changelog v1.1 (C3, MOBILE) : la galerie des 6 exemples d'histoires s'empilait verticalement sur
+//   mobile — six cartes carrées à la suite, soit un défilement interminable qui décourageait
+//   d'atteindre la suite de la page. Elle devient un CARROUSEL sur mobile (carte suivante visible
+//   sur le bord + points indicateurs), et reste une GRILLE 3 colonnes sur desktop, à l'identique.
+//   Pour éviter de dupliquer 110 lignes de JSX entre les deux affichages, les 6 livres sont
+//   désormais décrits dans un tableau `BOOKS` et rendus par un composant `BookCard` unique : une
+//   seule source de vérité, et ajouter un livre revient à ajouter une entrée au tableau.
+//   Les visuels des livres passent en `loading="lazy"` (ils sont sous la ligne de flottaison).
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, MessageCircle, Sparkles, Brain, GraduationCap, BookOpen, Library, Globe, Gift, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Navbar from '../components/Navbar';
 import NewHero from '../components/NewHero';
 import ExpertQuote from '../components/ExpertQuote';
@@ -10,8 +20,113 @@ import Testimonials from '../components/Testimonials';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 
+type Book = {
+  id: number;
+  image: string;
+  title: string;
+  description: string;
+  tag: string;
+  /** Teinte de bordure : les 3 premiers livres sont en menthe, les 3 suivants en secondaire. */
+  accent: 'mint' | 'secondary';
+};
+
+const BOOKS: Book[] = [
+  {
+    id: 1,
+    image: '/lovable-uploads/book-ambre.png',
+    title: "Les super-parents d'Ambre",
+    description: 'Une histoire tendre pour valoriser le lien parent-enfant',
+    tag: 'Sécurité affective',
+    accent: 'mint',
+  },
+  {
+    id: 2,
+    image: '/lovable-uploads/book-gabriel.png',
+    title: 'Les aventures de Gabriel et Biscuit',
+    description: 'Un lien unique entre enfant et animal pour grandir ensemble',
+    tag: 'Lien enfant-animal',
+    accent: 'mint',
+  },
+  {
+    id: 3,
+    image: '/lovable-uploads/book-noel.png',
+    title: 'Le Noël des petits lutins',
+    description: 'Une magie de Noël où aider compte autant que recevoir',
+    tag: 'Entraide et participation',
+    accent: 'mint',
+  },
+  {
+    id: 4,
+    image: '/__l5e/assets-v1/284e3252-6987-46d3-89b0-23eb30d00174/book-jules-corrige.png',
+    title: 'Jules et les protecteurs de la planète bleue',
+    description: 'Une aventure écologique pour sauver la planète, ensemble',
+    tag: 'Éveil à la nature & responsabilité collective',
+    accent: 'secondary',
+  },
+  {
+    id: 5,
+    image: '/lovable-uploads/book-lena.png',
+    title: 'Léna et le mystère de la pyramide endormie',
+    description: "Une plongée dans l'Égypte ancienne pour les petits explorateurs",
+    tag: "Curiosité historique & esprit d'équipe",
+    accent: 'secondary',
+  },
+  {
+    id: 6,
+    image: '/lovable-uploads/book-foret.png',
+    title: 'Les secrets de la forêt endormie',
+    description: 'Réveiller la nature avec des rires et des histoires',
+    tag: 'Coopération joyeuse avec la nature',
+    accent: 'secondary',
+  },
+];
+
+/** Carte d'un exemple de livre — utilisée à l'identique par la grille desktop et le carrousel mobile. */
+const BookCard: React.FC<{ book: Book }> = ({ book }) => (
+  <Card
+    className={`border-2 ${
+      book.accent === 'mint'
+        ? 'border-mcf-mint/20 hover:border-mcf-mint'
+        : 'border-mcf-secondary/20 hover:border-mcf-secondary'
+    } transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden h-full`}
+  >
+    <div className="aspect-square overflow-hidden">
+      <img
+        src={book.image}
+        alt={book.title}
+        loading="lazy"
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    </div>
+    <CardContent className="pt-6 pb-8">
+      <h3 className="text-xl font-bold text-mcf-primary mb-3">{book.title}</h3>
+      <p className="text-mcf-text/80 mb-3 leading-relaxed">{book.description}</p>
+      <p className="text-sm text-mcf-secondary font-semibold">{book.tag}</p>
+    </CardContent>
+  </Card>
+);
+
 const NewIndex: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+
+  // C3 — suivi de position du carrousel mobile des exemples de livres.
+  // `any` volontaire : selon la version de components/ui/carousel.tsx, le type CarouselApi n'est
+  // pas toujours exporté, et un import de type manquant casserait le build. Si `setApi` n'était
+  // pas supporté, booksCount resterait à 0 et les points ne s'afficheraient simplement pas.
+  const [booksApi, setBooksApi] = React.useState<any>(null);
+  const [booksCurrent, setBooksCurrent] = React.useState(0);
+  const [booksCount, setBooksCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!booksApi) return;
+    setBooksCount(booksApi.scrollSnapList().length);
+    setBooksCurrent(booksApi.selectedScrollSnap());
+    const onSelect = () => setBooksCurrent(booksApi.selectedScrollSnap());
+    booksApi.on('select', onSelect);
+    return () => {
+      booksApi.off?.('select', onSelect);
+    };
+  }, [booksApi]);
   const location = useLocation();
 
   useEffect(() => {
@@ -101,115 +216,47 @@ const NewIndex: React.FC = () => {
               </p>
             </div>
 
-            {/* Galerie de livres */}
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              {/* Livre 1 - Les super-parents d'Ambre */}
-              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-ambre.png" alt="Les super-parents d'Ambre" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Les super-parents d'Ambre
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Une histoire tendre pour valoriser le lien parent-enfant
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Sécurité affective
-                  </p>
-                </CardContent>
-              </Card>
+            {/* Galerie de livres — DESKTOP : grille 3 colonnes, strictement identique à avant. */}
+            <div className="hidden md:grid md:grid-cols-3 gap-8 mb-16">
+              {BOOKS.map((book) => (
+                <BookCard key={book.id} book={book} />
+              ))}
+            </div>
 
-              {/* Livre 2 - Les aventures de Gabriel et Biscuit */}
-              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-gabriel.png" alt="Les aventures de Gabriel et Biscuit" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Les aventures de Gabriel et Biscuit
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Un lien unique entre enfant et animal pour grandir ensemble
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Lien enfant-animal
-                  </p>
-                </CardContent>
-              </Card>
+            {/* Galerie de livres — MOBILE (C3) : carrousel. La carte suivante dépasse volontairement
+                sur le bord droit (basis-[85%]) : c'est le signal le plus lisible qu'il y a du
+                contenu à faire défiler, complété par les points ci-dessous. */}
+            <div className="md:hidden mb-12">
+              <Carousel
+                setApi={setBooksApi}
+                opts={{ align: 'start', loop: true }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2">
+                  {BOOKS.map((book) => (
+                    <CarouselItem key={book.id} className="pl-2 basis-[85%]">
+                      <BookCard book={book} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
 
-              {/* Livre 3 - Le Noël des petits lutins */}
-              <Card className="border-2 border-mcf-mint/20 hover:border-mcf-mint transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-noel.png" alt="Le Noël des petits lutins" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              {booksCount > 1 && (
+                <div className="mt-5 flex items-center justify-center gap-2">
+                  {Array.from({ length: booksCount }).map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => booksApi?.scrollTo(index)}
+                      aria-label={`Aller à l'exemple ${index + 1}`}
+                      aria-current={index === booksCurrent}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        index === booksCurrent ? 'w-6 bg-mcf-primary' : 'w-2 bg-mcf-primary/30'
+                      }`}
+                    />
+                  ))}
                 </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Le Noël des petits lutins
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Une magie de Noël où aider compte autant que recevoir
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Entraide et participation
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Livre 4 - Jules et les protecteurs */}
-              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/__l5e/assets-v1/284e3252-6987-46d3-89b0-23eb30d00174/book-jules-corrige.png" alt="Jules et les protecteurs de la planète bleue" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Jules et les protecteurs de la planète bleue
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Une aventure écologique pour sauver la planète, ensemble
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Éveil à la nature &amp; responsabilité collective
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Livre 5 - Léna et le mystère */}
-              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-lena.png" alt="Léna et le mystère de la pyramide endormie" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Léna et le mystère de la pyramide endormie
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Une plongée dans l'Égypte ancienne pour les petits explorateurs
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Curiosité historique &amp; esprit d'équipe
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Livre 6 - Les secrets de la forêt */}
-              <Card className="border-2 border-mcf-secondary/20 hover:border-mcf-secondary transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
-                <div className="aspect-square overflow-hidden">
-                  <img src="/lovable-uploads/book-foret.png" alt="Les secrets de la forêt endormie" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <CardContent className="pt-6 pb-8">
-                  <h3 className="text-xl font-bold text-mcf-primary mb-3">
-                    Les secrets de la forêt endormie
-                  </h3>
-                  <p className="text-mcf-text/80 mb-3 leading-relaxed">
-                    Réveiller la nature avec des rires et des histoires
-                  </p>
-                  <p className="text-sm text-mcf-secondary font-semibold">
-                    Coopération joyeuse avec la nature
-                  </p>
-                </CardContent>
-              </Card>
+              )}
             </div>
           </div>
         </section>
