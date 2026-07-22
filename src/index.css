@@ -83,7 +83,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* B6 — safe-area iPhone : marge basse pour que le dernier bouton d'une page ne soit jamais
+       collé à la barre Safari du bas / au home indicator (zone réservée aux gestes Safari). */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+}
+
+/* B6 — utilitaire à appliquer sur un conteneur/bouton qui reste tout en bas d'un écran (ex. wizard
+   plein écran, rangée de nav fixée en bas) quand la marge globale sur body ne suffit pas. */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
 }
 
 /* ===== B1 — Fix autofill iOS Safari / Chrome =====
@@ -112,6 +121,32 @@ select:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px hsl(var(--background)) inset, 0 0 0 2px hsl(var(--ring)) !important;
   box-shadow: 0 0 0 1000px hsl(var(--background)) inset, 0 0 0 2px hsl(var(--ring)) !important;
   -webkit-text-fill-color: hsl(var(--foreground)) !important;
+}
+
+/* ===== D7 — Tiroir latéral du menu mobile (Navbar) =====
+   Le panneau glisse depuis la droite, le fond s'assombrit en fondu. Animations courtes et
+   désactivées si l'utilisateur a demandé moins d'animations (réglage système iOS/Android). */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slideInRight 0.25s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-overlay-in {
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-right,
+  .animate-overlay-in {
+    animation: none;
+  }
 }
 
 /* Animation définitions */
