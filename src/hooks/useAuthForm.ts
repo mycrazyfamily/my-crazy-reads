@@ -1,3 +1,12 @@
+// useAuthForm v1.2
+// Changelog v1.2 : le paramètre `redirectPath` était déclaré mais jamais lu — la destination
+//   post-connexion était écrite en dur. Un appel du type useAuthForm('/abonnement') aurait été
+//   ignoré EN SILENCE. Il est désormais utilisé par handleLogin et handleSkip (les deux chemins
+//   qui mènent l'utilisateur « après authentification »). Aucun changement de comportement
+//   aujourd'hui : l'unique appelant, Authentication.tsx, appelle useAuthForm() sans argument, donc
+//   la valeur par défaut '/espace-famille' s'applique — vérifié par recherche dans le repo.
+//   handleRegister garde '/check-email' en dur : c'est une étape de vérification d'e-mail, pas la
+//   destination finale de l'utilisateur.
 // useAuthForm v1.1
 // Changelog v1.1 (D4 — retour arrière après connexion) : les redirections post-authentification
 //   empilaient une entrée d'historique, donc « précédent » depuis l'espace famille ramenait sur
@@ -78,7 +87,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         });
         
         // D4 : replace → la page de connexion ne reste pas dans l'historique
-        navigate('/espace-famille', { replace: true });
+        // v1.2 : on respecte enfin le paramètre redirectPath du hook
+        navigate(redirectPath, { replace: true });
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -173,7 +183,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       isTemporary: true
     });
     // D4 : replace, même raison que pour la connexion
-    navigate('/espace-famille', { replace: true });
+    // v1.2 : idem, on respecte redirectPath
+    navigate(redirectPath, { replace: true });
   };
 
   return {
