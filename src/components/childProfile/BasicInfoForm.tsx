@@ -1,3 +1,7 @@
+// BasicInfoForm v1.1
+// Changelog v1.1 (B4) : placeholders des champs « personnalisé » raccourcis (règle : « Ex : » +
+//   exemple court, sans « … », ≤ ~28 caractères) — « Sa couleur des cheveux personnalisée » était
+//   coupé sur mobile. Le label au-dessus du champ dit déjà de quoi il s'agit.
 import React, { useState, useEffect } from 'react';
 
 import { useFormContext } from 'react-hook-form';
@@ -468,7 +472,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   Couleur de peau personnalisée
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Sa couleur de peau personnalisée" {...field} className="border-mcf-amber" />
+                  <Input placeholder="Ex : peau caramel" {...field} className="border-mcf-amber" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -523,7 +527,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   Couleur des yeux personnalisée
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Sa couleur des yeux personnalisée" {...field} className="border-mcf-amber" />
+                  <Input placeholder="Ex : yeux noisette" {...field} className="border-mcf-amber" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -580,7 +584,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   Couleur des cheveux personnalisée
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Sa couleur des cheveux personnalisée" {...field} className="border-mcf-amber" />
+                  <Input placeholder="Ex : blond vénitien" {...field} className="border-mcf-amber" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -637,7 +641,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                   Type de cheveux personnalisé
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Description personnalisée" {...field} className="border-mcf-amber" />
+                  <Input placeholder="Ex : cheveux afro" {...field} className="border-mcf-amber" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
