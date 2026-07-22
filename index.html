@@ -8,16 +8,23 @@
     <meta name="author" content="Lovable" />
     <link rel="icon" href="/favicon.png" type="image/png" />
 
+    <!-- Préchargement de l'image du hero de l'accueil.
+         Le navigateur la télécharge dès la lecture du <head>, sans attendre que React soit chargé,
+         monté et arrivé jusqu'au composant NewHero — ce qui supprime l'essentiel du délai avant le
+         premier affichage. Ce fichier index.html étant partagé par toutes les routes, l'image est
+         aussi préchargée sur les pages qui ne l'affichent pas : c'est acceptable parce qu'elle ne
+         pèse que 172 Ko (elle en faisait 2 182 en PNG, où ce préchargement aurait été néfaste).
+         Si le nom du fichier change, cette ligne doit être mise à jour en même temps que NewHero. -->
+    <link rel="preload" as="image" href="/lovable-uploads/hero-famille.webp" fetchpriority="high" />
+
     <meta property="og:title" content="My Crazy Family | Livres personnalisés pour enfants" />
     <meta property="og:description" content="Créez des livres personnalisés uniques et magiques où votre enfant et toute sa famille deviennent les véritables héros de l'histoire." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
-
   <body>
     <div id="root"></div>
     <div id="portal-root"></div>
