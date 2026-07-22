@@ -1,4 +1,13 @@
-
+// useAuthForm v1.1
+// Changelog v1.1 (D4 — retour arrière après connexion) : les redirections post-authentification
+//   empilaient une entrée d'historique, donc « précédent » depuis l'espace famille ramenait sur
+//   /authentification — formulaire vide, impression d'être déconnecté alors que la session est
+//   active. Elles utilisent désormais { replace: true } : la page de connexion sort de
+//   l'historique et « précédent » ramène là où l'utilisateur était avant de se connecter
+//   (convention standard). Appliqué à la connexion, à l'inscription et au mode temporaire.
+// NOTE (non corrigé volontairement) : le paramètre `redirectPath` de ce hook n'est utilisé nulle
+//   part — handleLogin écrit '/espace-famille' en dur. Le corriger changerait la destination pour
+//   tout appelant qui passerait une valeur ; à trancher séparément.
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -68,7 +77,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
           isAuthenticated: true,
         });
         
-        navigate('/espace-famille');
+        // D4 : replace → la page de connexion ne reste pas dans l'historique
+        navigate('/espace-famille', { replace: true });
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -109,7 +119,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
 
-      navigate('/check-email');
+      // D4 : replace → « précédent » ne revient pas sur le formulaire d'inscription
+      navigate('/check-email', { replace: true });
       
       setFormData({
         email: '',
@@ -161,7 +172,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       isAuthenticated: true,
       isTemporary: true
     });
-    navigate('/espace-famille');
+    // D4 : replace, même raison que pour la connexion
+    navigate('/espace-famille', { replace: true });
   };
 
   return {
