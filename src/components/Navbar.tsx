@@ -1,3 +1,19 @@
+// Navbar.tsx v1.6
+// Changelog v1.6 (MOBILE — D5 + D7 + D8) :
+//   D7 : le menu mobile devient un TIROIR LATÉRAL (panneau droit ~85% + fond assombri cliquable)
+//        au lieu d'un déroulant sous le header. Texte aligné à gauche, sections intitulées,
+//        séparateurs, cibles tactiles généreuses. Rendu via createPortal(document.body) : la nav
+//        prend la classe `glassmorphism` (backdrop-filter) au scroll, ce qui crée un bloc conteneur
+//        et casserait un enfant `position: fixed`. Verrou de scroll iOS-safe + fermeture par Échap,
+//        par tap sur le fond, par la croix, et au changement de route (v1.4).
+//   D7 : ordre conditionnel — connecté, l'accès à l'espace famille est en tête (c'est LA
+//        destination) ; visiteur, la navigation de vente reste en premier.
+//   D7 : suppression d'un doublon — pour un connecté, « Continuer l'aventure » ET « Espace famille »
+//        pointaient tous deux vers /espace-famille. Une seule entrée désormais, ce qui supprime
+//        aussi l'impression de « clic sans effet » quand on est déjà sur le dashboard.
+//   D5 : la cloche du header mobile est grisée et plus petite que le burger (elle captait trop
+//        l'attention face à un burger bien plus important). La pastille rouge reste inchangée.
+//   D8 : plus de mélange centré/aligné à gauche — tout le menu est aligné à gauche.
 // Navbar.tsx v1.5
 // Changelog v1.5 (MOBILE — D2 + D3) :
 //   D2 : la cloche de notifications sort du menu burger et remonte dans le header, à gauche du
@@ -17,6 +33,7 @@
 // v1.2: libellé « Cadeau » → « Offrir un abonnement » (desktop + mobile), cohérence avec le footer
 // v1.1: ajout du lien « Cadeau » (/cadeau) à côté d'Abonnement, en desktop et mobile
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,6 +60,41 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  // v1.6 (D7) : tant que le tiroir est ouvert, on verrouille le scroll de la page derrière.
+  // `overflow: hidden` seul ne suffit pas sur iOS Safari → on fige le body en position fixed et on
+  // restaure la position exacte à la fermeture. Échap ferme aussi le tiroir (accessibilité).
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.width = previous.width;
+      body.style.overflow = previous.overflow;
+      window.scrollTo(0, scrollY);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,16 +124,19 @@ const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // v1.6 : destination et libellé du CTA sortis de getActionButton pour être réutilisés tels quels
+  // dans le tiroir mobile (avec un habillage pleine largeur), sans dupliquer la logique.
+  const actionPath = isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
+  const actionText = isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
+
   const getActionButton = (onClick?: () => void) => {
-    const destinationPath = isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
-    const buttonText = isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
     return (
       <Link 
-        to={destinationPath} 
+        to={actionPath} 
         onClick={onClick}
         className="bg-mcf-primary text-white font-bold px-8 py-3 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-lg"
       >
-        {buttonText}
+        {actionText}
       </Link>
     );
   };
@@ -147,8 +202,14 @@ const Navbar: React.FC = () => {
             {/* D2 : la cloche sort du menu burger et vient ici. Elle porte une pastille rouge de
                 non-lus : enfouie dans le menu, cette pastille n'était visible qu'après ouverture,
                 donc les notifications n'alertaient personne sur mobile. NotificationsBell ne rend
-                rien si l'utilisateur n'est pas connecté → aucun impact pour un visiteur. */}
-            <NotificationsBell />
+                rien si l'utilisateur n'est pas connecté → aucun impact pour un visiteur.
+                D5 : ici seulement, l'icône est grisée et réduite à 18px pour rester en retrait
+                derrière le burger (24px, bleu), qui est de loin l'élément le plus important. On
+                habille depuis l'extérieur plutôt que de modifier NotificationsBell → le rendu
+                desktop reste strictement inchangé. La pastille rouge n'est pas touchée. */}
+            <div className="[&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:text-muted-foreground">
+              <NotificationsBell />
+            </div>
 
             <button
               className="text-mcf-primary"
@@ -161,94 +222,141 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden glassmorphism mt-3 py-4 px-4">
-          <div className="flex flex-col space-y-2">
-            <Link 
-              to="/" 
-              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
-              onClick={() => {
-                handleHomeClick();
-                setIsMenuOpen(false);
-              }}
-            >
-              Accueil
-            </Link>
-            <Link 
-              to="/histoires" 
-              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Comment ça marche
-            </Link>
-            <Link 
-              to="/abonnement" 
-              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Abonnement
-            </Link>
-            <Link 
-              to="/cadeau" 
-              className="font-medium hover:text-mcf-primary transition-colors px-2 py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Offrir
-            </Link>
-            
-            
-            {/* D3 — Bloc « Mon compte », séparé de la navigation du site.
-                Avant, les entrées de compte étaient colorées (bleu / rouge) et se mélangeaient aux
-                liens de navigation : elles ressemblaient à des boutons d'action et entraient en
-                concurrence visuelle avec le vrai CTA du bas. Désormais : un séparateur, un intitulé
-                de section, et le même style neutre que les liens de nav. Le seul élément coloré du
-                menu reste le CTA en bas → hiérarchie lisible. */}
-            <div className="pt-2 mt-1 border-t border-border" />
-            <p className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Mon compte
-            </p>
+      {/* ============================ TIROIR MOBILE (D7) ============================
+          Rendu via createPortal(document.body) : au scroll, la <nav> reçoit la classe
+          `glassmorphism` (backdrop-filter), qui crée un bloc conteneur — un enfant en
+          `position: fixed` se calerait alors sur la nav et non sur l'écran. Le portal évite ça.
+          Fermeture : croix, tap sur le fond, touche Échap, changement de route. */}
+      {isMenuOpen && createPortal(
+        <div className="md:hidden fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Menu">
+          {/* Fond assombri — garde la page visible derrière (repère rassurant) et sert de zone
+              de fermeture au tap, comportement attendu sur un tiroir. */}
+          <div
+            className="absolute inset-0 bg-black/40 animate-overlay-in"
+            onClick={() => setIsMenuOpen(false)}
+            aria-hidden="true"
+          />
 
-            {isAuthenticated ? (
-              <>
-                <Link 
-                  to="/espace-famille" 
-                  className="font-medium hover:text-mcf-primary transition-colors flex items-center gap-2 px-2 py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User size={18} />
-                  Espace famille
-                </Link>
-                
-                {/* Déconnexion : action rare et destructrice → volontairement discrète (le rouge
-                    n'apparaît qu'au survol/appui), pour ne pas attirer l'œil en premier. */}
+          {/* Panneau */}
+          <div className="absolute inset-y-0 right-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col animate-slide-in-right">
+            {/* En-tête du panneau */}
+            <div className="flex items-center justify-between px-5 py-4 border-t-0 border-b border-border flex-shrink-0">
+              <span className="text-lg font-display font-bold text-mcf-primary">
+                My Crazy Family
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(false)}
+                aria-label="Fermer le menu"
+                className="-mr-2 p-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Contenu — scrollable, avec marge basse safe-area (B6) */}
+            <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-safe">
+
+              {/* Connecté : l'accès à l'espace famille passe en TÊTE (c'est la destination
+                  principale d'un abonné) et c'est la SEULE entrée vers /espace-famille — avant,
+                  « Continuer l'aventure » et « Espace famille » y menaient tous les deux. */}
+              {isAuthenticated && (
+                <div className="mb-5">
+                  <Link
+                    to={actionPath}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full bg-mcf-primary text-white font-bold px-6 py-3.5 rounded-full shadow-lg hover:bg-mcf-secondary transition-colors text-center"
+                  >
+                    <User size={18} />
+                    {actionText}
+                  </Link>
+                </div>
+              )}
+
+              <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Navigation
+              </p>
+
+              <Link
+                to="/"
+                className="block px-3 py-3.5 rounded-lg text-base font-medium hover:bg-muted transition-colors"
+                onClick={() => {
+                  handleHomeClick();
+                  setIsMenuOpen(false);
+                }}
+              >
+                Accueil
+              </Link>
+              <Link
+                to="/histoires"
+                className="block px-3 py-3.5 rounded-lg text-base font-medium hover:bg-muted transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Comment ça marche
+              </Link>
+              <Link
+                to="/abonnement"
+                className="block px-3 py-3.5 rounded-lg text-base font-medium hover:bg-muted transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Abonnement
+              </Link>
+              <Link
+                to="/cadeau"
+                className="block px-3 py-3.5 rounded-lg text-base font-medium hover:bg-muted transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Offrir
+              </Link>
+
+              <div className="my-3 border-t border-border" />
+
+              <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Mon compte
+              </p>
+
+              {isAuthenticated ? (
+                /* Déconnexion : action rare et destructrice → volontairement discrète, le rouge
+                   n'apparaît qu'au survol/appui. */
                 <button
+                  type="button"
                   onClick={() => {
                     handleLogout();
                     setIsMenuOpen(false);
                   }}
-                  className="font-medium text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2 px-2 py-2 text-left"
+                  className="flex items-center gap-2 w-full text-left px-3 py-3.5 rounded-lg text-base font-medium text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
                 >
                   <LogOut size={18} />
                   Déconnexion
                 </button>
-              </>
-            ) : (
-              <Link 
-                to="/authentification" 
-                className="font-medium hover:text-mcf-primary transition-colors flex items-center gap-2 px-2 py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <User size={18} />
-                Se connecter
-              </Link>
-            )}
-            
-            <div className="pt-2">
-              {getActionButton(() => setIsMenuOpen(false))}
+              ) : (
+                <>
+                  <Link
+                    to="/authentification"
+                    className="flex items-center gap-2 px-3 py-3.5 rounded-lg text-base font-medium hover:bg-muted transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User size={18} />
+                    Se connecter
+                  </Link>
+
+                  {/* Visiteur : la navigation de vente reste en premier, le CTA d'acquisition
+                      conclut le menu. */}
+                  <div className="mt-5 px-3">
+                    <Link
+                      to={actionPath}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block w-full bg-mcf-primary text-white font-bold px-6 py-3.5 rounded-full shadow-lg hover:bg-mcf-secondary transition-colors text-center"
+                    >
+                      {actionText}
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </nav>
   );
