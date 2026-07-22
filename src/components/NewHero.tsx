@@ -1,3 +1,10 @@
+// NewHero v1.1
+// Changelog v1.1 (C-Home, MOBILE) : le titre passait derrière la navbar. Deux causes cumulées,
+//   toutes deux corrigées sur le conteneur de l'image : (a) il n'était pas `relative`, donc les
+//   overlays et le bloc de texte en `absolute inset-0` se calaient sur le parent (qui inclut les
+//   80px de pt-20 de la navbar) → texte centré trop haut ; (b) en 16/9 l'image est trop courte sur
+//   mobile (~219px) pour un contenu d'environ 350px → débordement vers le haut. Ratio 4/5 sur
+//   mobile, 16/9 dès sm:. Desktop strictement inchangé.
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -20,7 +27,16 @@ const NewHero: React.FC = () => {
     <section className="bg-white">
       {/* Image hero avec texte superposé */}
       <div className="relative w-full pt-20">
-        <div className="aspect-video w-full">
+        {/* C-Home — deux corrections liées :
+            1) `relative` : sans lui, ce conteneur n'était pas positionné, donc les trois `absolute
+               inset-0` (2 dégradés + le bloc de texte) se calaient sur le div PARENT, qui inclut
+               les 80px de `pt-20` réservés à la navbar. Le texte était donc centré sur
+               (navbar + image) et remontait ~40px trop haut, sous la navbar.
+            2) ratio mobile : en 16/9 sur un écran de 390px, l'image ne fait que ~219px de haut
+               alors que le contenu (titre 3 lignes + sous-titre 4 lignes + 2 CTA empilés) en
+               mesure ~350px → il débordait au-dessus, derrière la navbar. En 4/5 l'image fait
+               ~487px, le contenu tient largement. Desktop inchangé (sm: repasse en 16/9). */}
+        <div className="relative w-full aspect-[4/5] sm:aspect-video">
           <img 
             src="/lovable-uploads/4fb09cd5-3654-42ad-b9c8-4399702f5a15.png" 
             alt="Famille lisant ensemble un livre personnalisé My Crazy Family"
