@@ -1,3 +1,9 @@
+// NewHero v1.3
+// Changelog v1.3 (PERFORMANCE) : l'image du hero passe du PNG d'origine (2 182 Ko, en RGBA avec un
+//   canal alpha entièrement opaque donc inutile) à une version WebP de 172 Ko — 12,7 fois plus
+//   légère, pour un écart mesuré à 39,3 dB (imperceptible à l'œil sur une photographie).
+//   Le PNG restait le plus gros frein au premier affichage de l'accueil, en particulier en 4G.
+//   À combiner avec le <link rel="preload"> ajouté dans index.html.
 // NewHero v1.2
 // Changelog v1.2 (chargement de l'image) : l'image du hero est l'élément le plus lourd de la page
 //   d'accueil et le premier vu — son apparition tardive donne une mauvaise première impression.
@@ -46,7 +52,7 @@ const NewHero: React.FC = () => {
                ~487px, le contenu tient largement. Desktop inchangé (sm: repasse en 16/9). */}
         <div className="relative w-full aspect-[4/5] sm:aspect-video bg-gradient-to-br from-mcf-gradient-start to-mcf-gradient-end">
           <img 
-            src="/lovable-uploads/4fb09cd5-3654-42ad-b9c8-4399702f5a15.png" 
+            src="/lovable-uploads/hero-famille.webp" 
             alt="Famille lisant ensemble un livre personnalisé My Crazy Family"
             loading="eager"
             decoding="async"
