@@ -1,3 +1,7 @@
+// PetPhysicalDetailsInput v1.3
+// Changelog v1.3 : exemple adapté à l'ANIMAL (« Ex : cicatrice à la patte ») — ce composant est
+//   celui utilisé par PetForm ; l'exemple précédent (« cicatrice au menton ») venait du gabarit
+//   humain et n'avait pas de sens sur une fiche animal.
 // PhysicalDetailsInput v1.2
 // Changelog v1.2 (B4) : placeholder raccourci + « … » retiré (ne débordait plus mais restait long).
 // PhysicalDetailsInput v1.1
@@ -173,7 +177,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
               <Input
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="Ex : cicatrice au menton"
+                placeholder="Ex : cicatrice à la patte"
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
