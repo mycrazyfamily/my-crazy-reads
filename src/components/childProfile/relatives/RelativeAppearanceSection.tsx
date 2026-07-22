@@ -1,3 +1,7 @@
+// RelativeAppearanceSection v1.1
+// Changelog v1.1 (B4) : placeholders des champs « Autre » raccourcis (règle : « Ex : » + exemple
+//   court, sans « … », ≤ ~28 caractères) — les libellés « Description de la couleur… » étaient
+//   coupés sur mobile. Le label au-dessus du champ dit déjà de quoi il s'agit.
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -110,7 +114,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           <Input 
             value={skinColorCustomValue || ''} 
             onChange={(e) => setSkinColorCustomValue(e.target.value)}
-            placeholder="Description de la couleur de peau" 
+            placeholder="Ex : peau caramel" 
             className="border-mcf-primary/50"
           />
         </div>
@@ -152,7 +156,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           <Input
             value={eyeColorCustomValue || ''}
             onChange={(e) => setEyeColorCustomValue && setEyeColorCustomValue(e.target.value)}
-            placeholder="Description de la couleur des yeux"
+            placeholder="Ex : yeux noisette"
             className="border-mcf-primary/50"
           />
         </div>
@@ -197,7 +201,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           <Input 
             value={hairColorCustomValue || ''} 
             onChange={(e) => setHairColorCustomValue(e.target.value)}
-            placeholder="Description de la couleur des cheveux" 
+            placeholder="Ex : blond vénitien" 
             className="border-mcf-primary/50"
           />
         </div>
@@ -242,7 +246,7 @@ const RelativeAppearanceSection: React.FC<RelativeAppearanceSectionProps> = ({
           <Input 
             value={hairTypeCustom || ''} 
             onChange={(e) => setHairTypeCustom(e.target.value)}
-            placeholder="Description du type de cheveux" 
+            placeholder="Ex : cheveux afro" 
             className="border-mcf-primary/50"
           />
         </div>
