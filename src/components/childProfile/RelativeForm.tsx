@@ -1,3 +1,11 @@
+// RelativeForm v1.2
+// Changelog v1.2 (FIX « Erreur dans la fiche proche ») : les proches créés AVANT l'ajout de certains
+//   champs n'ont pas toujours les objets nickname / skinColor / hairColor (ni hairType / glasses /
+//   type) en base. Le formulaire lisait `relative.nickname.type` sans garde-fou → TypeError au
+//   montage → error boundary « Erreur dans la fiche proche », impossible d'éditer un ancien proche.
+//   Fix : optional chaining + valeurs de repli partout (même traitement que eyeColor/hairLength, qui
+//   étaient déjà protégés car ajoutés plus tard). Aucun changement de comportement pour les proches
+//   récents (tous leurs champs sont remplis).
 // RelativeForm v1.1
 // Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSaveClick (jamais vérifiée jusqu'ici)
 import React, { useState, useEffect } from 'react';
@@ -42,14 +50,14 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     gender: relative.gender || getRelativeGender(relative.type)
   });
 
-  const [typeUI, setTypeUI] = useState<string>(relative.id ? relative.type : '');
-  const [selectedNickname, setSelectedNickname] = useState<string>(relative.id ? relative.nickname.type : '');
-  const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.id ? relative.skinColor.type : '');
+  const [typeUI, setTypeUI] = useState<string>(relative.id ? (relative.type || '') : '');
+  const [selectedNickname, setSelectedNickname] = useState<string>(relative.id ? (relative.nickname?.type || '') : '');
+  const [selectedSkinColor, setSelectedSkinColor] = useState<string>(relative.id ? (relative.skinColor?.type || '') : '');
   const [selectedEyeColor, setSelectedEyeColor] = useState<string>(relative.id ? (relative.eyeColor?.type || '') : '');
-  const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.id ? relative.hairColor.type : '');
-  const [hairTypeUI, setHairTypeUI] = useState<string>(relative.id ? relative.hairType : '');
+  const [selectedHairColor, setSelectedHairColor] = useState<string>(relative.id ? (relative.hairColor?.type || '') : '');
+  const [hairTypeUI, setHairTypeUI] = useState<string>(relative.id ? (relative.hairType || '') : '');
   const [hairLengthUI, setHairLengthUI] = useState<string>(relative.id ? (relative.hairLength || '') : '');
-  const [glassesUI, setGlassesUI] = useState<boolean | null>(relative.id ? relative.glasses : null);
+  const [glassesUI, setGlassesUI] = useState<boolean | null>(relative.id ? (relative.glasses ?? null) : null);
   const [customTraits, setCustomTraits] = useState<Record<string, string>>(
     relative.customTraits || {}
   );
@@ -101,14 +109,14 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     });
 
     if (relative.id) {
-      setTypeUI(relative.type);
-      setSelectedNickname(relative.nickname.type);
-      setSelectedSkinColor(relative.skinColor.type);
+      setTypeUI(relative.type || '');
+      setSelectedNickname(relative.nickname?.type || '');
+      setSelectedSkinColor(relative.skinColor?.type || '');
       setSelectedEyeColor(relative.eyeColor?.type || '');
-      setSelectedHairColor(relative.hairColor.type);
-      setHairTypeUI(relative.hairType);
+      setSelectedHairColor(relative.hairColor?.type || '');
+      setHairTypeUI(relative.hairType || '');
       setHairLengthUI(relative.hairLength || '');
-      setGlassesUI(relative.glasses);
+      setGlassesUI(relative.glasses ?? null);
       setCustomTraits(relative.customTraits || {});
       // Réinitialiser les enfants liés lors de l'édition
       setSelectedChildrenIds(relative.linkedChildrenIds || []);
