@@ -1,3 +1,11 @@
+// NewHero v1.2
+// Changelog v1.2 (chargement de l'image) : l'image du hero est l'élément le plus lourd de la page
+//   d'accueil et le premier vu — son apparition tardive donne une mauvaise première impression.
+//   (a) `decoding="async"` + `loading="eager"` : priorité au chargement, décodage non bloquant ;
+//   (b) le conteneur reçoit un fond dégradé de la charte, visible pendant le chargement, pour
+//   éviter le rectangle blanc puis l'apparition brutale. NB : ces réglages améliorent le RESSENTI ;
+//   la vraie réduction du temps de chargement passe par le poids du fichier (voir note de session)
+//   et par la mise en cache HTTP, qui ne se pilotent pas depuis React.
 // NewHero v1.1
 // Changelog v1.1 (C-Home, MOBILE) : le titre passait derrière la navbar. Deux causes cumulées,
 //   toutes deux corrigées sur le conteneur de l'image : (a) il n'était pas `relative`, donc les
@@ -36,10 +44,12 @@ const NewHero: React.FC = () => {
                alors que le contenu (titre 3 lignes + sous-titre 4 lignes + 2 CTA empilés) en
                mesure ~350px → il débordait au-dessus, derrière la navbar. En 4/5 l'image fait
                ~487px, le contenu tient largement. Desktop inchangé (sm: repasse en 16/9). */}
-        <div className="relative w-full aspect-[4/5] sm:aspect-video">
+        <div className="relative w-full aspect-[4/5] sm:aspect-video bg-gradient-to-br from-mcf-gradient-start to-mcf-gradient-end">
           <img 
             src="/lovable-uploads/4fb09cd5-3654-42ad-b9c8-4399702f5a15.png" 
             alt="Famille lisant ensemble un livre personnalisé My Crazy Family"
+            loading="eager"
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
           
