@@ -1,9 +1,17 @@
-
+// Authentication v1.1
+// Changelog v1.1 (D4 — seconde couche) : rien n'empêchait un utilisateur DÉJÀ CONNECTÉ de voir
+//   cette page (route publique, sans RouteGuard dans App.tsx) — par retour arrière ou en tapant
+//   l'URL. Il tombait alors sur un formulaire de connexion vide et se croyait déconnecté.
+//   Désormais : s'il est authentifié, on le renvoie vers l'espace famille (en `replace`, pour ne
+//   pas créer d'aller-retour dans l'historique). Tant que la session n'est pas résolue
+//   (isLoading), on affiche un état de chargement plutôt que le formulaire — sinon celui-ci
+//   apparaîtrait brièvement au rechargement d'un utilisateur connecté, exactement l'effet qu'on
+//   cherche à supprimer. Un visiteur non connecté voit la page normalement.
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -11,6 +19,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm';
 import { Card } from "@/components/ui/card";
 
 import { useAuthForm } from '@/hooks/useAuthForm';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * TODO: Important - Authentication Flow
@@ -30,6 +39,9 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Authentication: React.FC = () => {
   const navigate = useNavigate();
+  // Alias : `isLoading` est déjà pris par useAuthForm (chargement du FORMULAIRE). Ici il s'agit de
+  // la résolution de la SESSION — deux notions distinctes, d'où le renommage.
+  const { isAuthenticated, isLoading: isSessionLoading } = useAuth();
   const {
     formData,
     isLoading,
@@ -42,6 +54,24 @@ const Authentication: React.FC = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  // D4 — on attend que la session soit résolue avant de décider quoi afficher.
+  if (isSessionLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-mcf-primary" aria-label="Chargement" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // D4 — un utilisateur déjà connecté n'a rien à faire sur la page de connexion.
+  if (isAuthenticated) {
+    return <Navigate to="/espace-famille" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
