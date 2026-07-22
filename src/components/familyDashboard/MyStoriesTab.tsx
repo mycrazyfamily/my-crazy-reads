@@ -1,3 +1,10 @@
+// MyStoriesTab v2.3
+// Changelog v2.3 (D1) : le badge de statut n'est plus affiché pour `to_plan` (« Bientôt
+//   disponible »). Raisons : (a) redondant — la ligne « Ajoutez votre touche avant le … ·
+//   Livraison … » sous la carte porte déjà l'info ; (b) sur iPhone il débordait, étant en
+//   whitespace-nowrap à côté du mois et du bouton dans un conteneur min-w-0. Tous les autres
+//   statuts (à personnaliser, configuré, en création, en impression, expédié, livré) sont
+//   inchangés. Appliqué aux deux cartes qui rendaient ce badge.
 // MyStoriesTab v2.2
 // Changelog v2.2 (MOBILE — B6) : ajout de .pb-safe (padding-bottom safe-area, défini dans index.css)
 //   sur la zone scrollable du wizard plein écran → le dernier bouton ne se colle plus à la barre
@@ -1397,12 +1404,15 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
 
             {/* Colonne droite — configuration */}
             <div className="lg:w-72 flex-shrink-0 space-y-4">
-              <div>
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${statusCfg.badgeClass}`}>
-                  {StatusIcon && <StatusIcon className="h-3 w-3" />}
-                  {statusCfg.label}
-                </span>
-              </div>
+              {/* D1 : idem — pas de badge « Bientôt disponible » pour to_plan. */}
+              {month.status !== 'to_plan' && (
+                <div>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${statusCfg.badgeClass}`}>
+                    {StatusIcon && <StatusIcon className="h-3 w-3" />}
+                    {statusCfg.label}
+                  </span>
+                </div>
+              )}
               {!isConfigured && !isLocked && (
               <p className="text-sm italic text-muted-foreground">
                   Votre histoire est déjà personnalisée, ce détail la rendra unique.
@@ -1543,10 +1553,16 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
             <span className="font-bold text-foreground text-base sm:text-lg whitespace-nowrap">
               {month.monthLabel}
             </span>
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
-              {StatusIcon && <StatusIcon className="h-3 w-3" />}
-              {cfg.label}
-            </span>
+            {/* D1 : pas de badge pour to_plan — « Bientôt disponible » n'apportait aucune info
+                (la ligne « Ajoutez votre touche avant le … · Livraison … » juste en dessous le dit
+                déjà) et, en whitespace-nowrap à côté du mois + du bouton, il débordait sur iPhone.
+                Un badge uniquement quand il y a quelque chose à dire. */}
+            {month.status !== 'to_plan' && (
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
+                {StatusIcon && <StatusIcon className="h-3 w-3" />}
+                {cfg.label}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
