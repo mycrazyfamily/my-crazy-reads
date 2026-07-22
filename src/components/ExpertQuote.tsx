@@ -1,3 +1,9 @@
+// ExpertQuote v1.3
+// Changelog v1.3 (C2, LISIBILITÉ) : la citation était centrée — sur ~8 lignes, chaque ligne
+//   commence à une abscisse différente et l'œil doit rechercher le début à chaque retour, ce qui
+//   fatigue la lecture d'un paragraphe long. Elle passe donc en aligné à gauche (bord gauche
+//   régulier), tandis que la photo et l'attribution (nom + fonction) restent centrées : c'est le
+//   schéma habituel d'un témoignage. Desktop inchangé (il était déjà aligné à gauche).
 // ExpertQuote v1.2
 // Changelog v1.2 (C2, MOBILE) : le bloc occupait ~700pt de haut sur iPhone — près de deux écrans —
 //   alors que sur desktop c'est une note d'appui compacte sous le hero. La hiérarchie était donc
@@ -34,7 +40,7 @@ const ExpertQuote: React.FC = () => {
                 </div>
                 
                 <blockquote className="relative pt-0 md:pt-4">
-                  <p className="text-base md:text-xl italic text-mcf-text/90 leading-relaxed mb-4 md:mb-6">Impliquer les proches dans la lecture est l'un des moyens les plus puissants pour détourner les enfants des écrans.
+                  <p className="text-base md:text-xl italic text-mcf-text/90 leading-relaxed mb-4 md:mb-6 text-left">Impliquer les proches dans la lecture est l'un des moyens les plus puissants pour détourner les enfants des écrans.
 Avec My Crazy Family, ils retrouvent leurs repères affectifs et s'identifient à des personnages familiers, ce qui stimule l'apprentissage et renforce la confiance en soi.</p>
                   
                   <footer className="text-base md:text-lg font-semibold text-mcf-text">
