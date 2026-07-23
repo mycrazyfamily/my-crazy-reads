@@ -1,3 +1,9 @@
+// ExpertQuote v1.4
+// Changelog v1.4 (PERFORMANCE) : la photo de Violaine passe du PNG (737x816, 905 Ko) au WebP
+//   (400x443, 47 Ko) — 95% de moins. Elle s'affiche dans un cercle de 128px (mobile) à 160px
+//   (desktop) : 400px sur le petit côté suffisent largement, même sur écran Retina. Le ratio
+//   d'origine est conservé, le recadrage circulaire restant assuré par object-cover comme avant,
+//   donc le cadrage visible est identique.
 // ExpertQuote v1.3
 // Changelog v1.3 (C2, LISIBILITÉ) : la citation était centrée — sur ~8 lignes, chaque ligne
 //   commence à une abscisse différente et l'œil doit rechercher le début à chaque retour, ce qui
@@ -18,7 +24,7 @@
 //   décoratif, accroché en absolute à gauche, est masqué sur mobile où il restait orphelin avec un
 //   texte centré (et son compensateur pt-4 avec lui). Desktop strictement inchangé.
 import React from 'react';
-import violainePhoto from '@/assets/violaine-lallour.png';
+import violainePhoto from '@/assets/violaine-lallour.webp';
 const ExpertQuote: React.FC = () => {
   return <section className="py-10 md:py-16 px-4 bg-mcf-gradient-start/20">
       <div className="container mx-auto">
