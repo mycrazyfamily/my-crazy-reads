@@ -1,3 +1,31 @@
+// Cadeau.tsx v1.2
+// Changelog v1.2 :
+//   • C11 ANNULÉ — la phrase du bas redevient une simple ligne de texte gris, à sa place d'origine.
+//     L'encart n'était pas justifié : l'introduction en haut de page annonce déjà « Vous recevez un
+//     code à transmettre à la personne de votre choix », donc cette phrase n'est qu'un rappel de
+//     détail avant le paiement, pas une information à mettre en avant. La souligner aurait donné du
+//     poids à une redite.
+//   • CHAMPS DE SAISIE — les bordures des champs « Votre prénom » et « Petit mot » passent de
+//     mcf-mint/40 (vert très clair, quasi invisible sur blanc) à mcf-secondary/50. Sur une page où
+//     l'on saisit des informations juste avant de payer, des champs mal délimités nuisent à la
+//     confiance. L'état focus reste mcf-secondary pleine opacité, donc le contraste au clic
+//     demeure net.
+// Cadeau.tsx v1.1
+// Changelog v1.1 (C10 + C11, MOBILE) :
+//   C10 — VISIBILITÉ DES OFFRES. Les cartes 3 et 12 mois utilisaient border-mcf-mint/30 : mcf-mint
+//     est un vert très clair (#D7F5E9), à 30% d'opacité la bordure disparaît, alors que l'offre
+//     6 mois utilise mcf-secondary (#7BC5AE), bien plus contrasté. Sur une page de paiement, les
+//     trois offres doivent exister visuellement. Même correction que sur Abonnement v1.1 :
+//     mcf-secondary/40 + ombre pour les deux offres standard, mcf-secondary pleine + ombre forte
+//     pour l'offre mise en avant. La hiérarchie est conservée.
+//   C11 — LA PHRASE EXPLICATIVE. Elle était en petit texte gris centré sous les boutons, donc
+//     invisible, alors qu'elle porte l'information clé (ce que le destinataire fait du code). Elle
+//     reste à sa place — après les offres, avant le paiement, ce qui est le bon moment — mais
+//     devient un encart lisible : icône, fond, bordure, texte aligné à gauche.
+//   ALIGNEMENT — comme ailleurs sur le site, le contenu héritait du `text-align: center` posé sur
+//     #root dans App.css : titres et prix centrés, listes à puces alignées à gauche. `text-left`
+//     est forcé sur les cartes d'offre et sur le bloc de personnalisation, pour le même rendu que
+//     la page Abonnement.
 // Cadeau.tsx v1.0
 // v1.0: page cadeau-abonnement (3/6/12 mois) + prénom de l'offreur + petit mot ; appelle create-gift-checkout (achat invité)
 import React, { useState } from 'react';
@@ -82,7 +110,7 @@ const Cadeau: React.FC = () => {
             </div>
 
             {/* Personnalisation */}
-            <div className="bg-card border-2 border-mcf-mint/30 rounded-2xl p-6 md:p-8 mb-10 card-shadow">
+            <div className="bg-card border-2 border-mcf-secondary/40 rounded-2xl p-6 md:p-8 mb-10 card-shadow text-left">
               <h2 className="text-xl font-bold text-mcf-primary mb-5 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-mcf-secondary" />
                 Personnalisez votre cadeau
@@ -99,7 +127,7 @@ const Cadeau: React.FC = () => {
                     value={purchaserName}
                     onChange={(e) => setPurchaserName(e.target.value)}
                     placeholder="Ex : Paul"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-mcf-mint/40 focus:border-mcf-secondary outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-mcf-secondary/50 focus:border-mcf-secondary outline-none transition-colors"
                   />
                   <p className="text-xs text-muted-foreground mt-1.5">Apparaîtra sur la carte cadeau.</p>
                 </div>
@@ -114,7 +142,7 @@ const Cadeau: React.FC = () => {
                     onChange={(e) => setGiftMessage(e.target.value)}
                     placeholder="Ex : Joyeux anniversaire ! Régale-toi avec tes histoires."
                     rows={2}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-mcf-mint/40 focus:border-mcf-secondary outline-none transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-mcf-secondary/50 focus:border-mcf-secondary outline-none transition-colors resize-none"
                   />
                   <p className="text-xs text-muted-foreground mt-1.5 text-right">
                     {giftMessage.length}/{MAX_MESSAGE}
@@ -128,8 +156,10 @@ const Cadeau: React.FC = () => {
               {OFFERS.map((offer) => (
                 <div
                   key={offer.months}
-                  className={`relative overflow-hidden rounded-2xl border-2 bg-card p-8 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-                    offer.highlight ? 'border-mcf-secondary' : 'border-mcf-mint/30'
+                  className={`relative overflow-hidden rounded-2xl border-2 bg-card p-8 flex flex-col text-left transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                    offer.highlight
+                      ? 'border-mcf-secondary shadow-xl'
+                      : 'border-mcf-secondary/40 shadow-lg'
                   }`}
                 >
                   {offer.highlight && (
