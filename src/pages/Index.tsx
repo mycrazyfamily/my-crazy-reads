@@ -1,3 +1,12 @@
+// Index v1.2
+// Changelog v1.2 (C4, MOBILE) : les 3 cartes « spécialistes » (Psychologues / Chercheurs /
+//   Enseignants) s'empilaient en pleine largeur sur mobile — environ 500px de haut pour une dizaine
+//   de mots au total, juste avant une autre série de cartes empilées. Elles passent sur 3 colonnes
+//   dès le mobile (~150px au lieu de 500) : leur contenu est minuscule, il tient largement. Icône,
+//   titre et sous-titre sont réduits en conséquence, et repassent aux tailles d'origine dès md:.
+//   Comme pour la galerie de livres, les 3 cartes sont décrites dans un tableau `SPECIALISTS` et
+//   rendues par un composant unique `SpecialistCard` — sinon les classes responsives auraient dû
+//   être triplées à l'identique. Desktop strictement inchangé.
 // Index v1.1
 // Changelog v1.1 (C3, MOBILE) : la galerie des 6 exemples d'histoires s'empilait verticalement sur
 //   mobile — six cartes carrées à la suite, soit un défilement interminable qui décourageait
@@ -80,6 +89,64 @@ const BOOKS: Book[] = [
     accent: 'secondary',
   },
 ];
+
+type Specialist = {
+  id: number;
+  Icon: React.ComponentType<{ className?: string }>;
+  /** Classes Tailwind écrites en entier (pas d'interpolation) : le compilateur ne génère que les
+      classes qu'il trouve littéralement dans le code source. */
+  circleClass: string;
+  iconClass: string;
+  title: string;
+  subtitle: string;
+};
+
+const SPECIALISTS: Specialist[] = [
+  {
+    id: 1,
+    Icon: Brain,
+    circleClass: 'bg-mcf-mint/20',
+    iconClass: 'text-mcf-primary',
+    title: 'Psychologues',
+    subtitle: "de l'enfance",
+  },
+  {
+    id: 2,
+    Icon: Sparkles,
+    circleClass: 'bg-mcf-secondary/20',
+    iconClass: 'text-mcf-secondary',
+    title: 'Chercheurs',
+    subtitle: 'en développement personnel',
+  },
+  {
+    id: 3,
+    Icon: GraduationCap,
+    circleClass: 'bg-mcf-primary/20',
+    iconClass: 'text-mcf-primary',
+    title: 'Enseignants',
+    subtitle: '& auteurs jeunesse',
+  },
+];
+
+/** Carte « spécialiste » — 3 par ligne dès le mobile, contenu compacté sous md:. */
+const SpecialistCard: React.FC<{ specialist: Specialist }> = ({ specialist }) => {
+  const { Icon } = specialist;
+  return (
+    <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg h-full">
+      <CardContent className="px-2 py-5 md:px-6 md:pt-8 md:pb-8 text-center">
+        <div className={`w-12 h-12 md:w-20 md:h-20 ${specialist.circleClass} rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md`}>
+          <Icon className={`w-6 h-6 md:w-10 md:h-10 ${specialist.iconClass}`} />
+        </div>
+        <h3 className="text-sm md:text-xl font-bold text-mcf-primary mb-1 md:mb-2 leading-tight break-words">
+          {specialist.title}
+        </h3>
+        <p className="text-xs md:text-base text-mcf-text/70 leading-tight break-words">
+          {specialist.subtitle}
+        </p>
+      </CardContent>
+    </Card>
+  );
+};
 
 /** Carte d'un exemple de livre — utilisée à l'identique par la grille desktop et le carrousel mobile. */
 const BookCard: React.FC<{ book: Book }> = ({ book }) => (
@@ -273,39 +340,12 @@ const NewIndex: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              {/* Psychologues */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
-                <CardContent className="pt-8 pb-8 text-center">
-                  <div className="w-20 h-20 bg-mcf-mint/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
-                    <Brain className="w-10 h-10 text-mcf-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold text-mcf-primary mb-2">Psychologues</h3>
-                  <p className="text-mcf-text/70">de l'enfance</p>
-                </CardContent>
-              </Card>
-
-              {/* Chercheurs */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
-                <CardContent className="pt-8 pb-8 text-center">
-                  <div className="w-20 h-20 bg-mcf-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
-                    <Sparkles className="w-10 h-10 text-mcf-secondary" />
-                  </div>
-                  <h3 className="text-xl font-bold text-mcf-primary mb-2">Chercheurs</h3>
-                  <p className="text-mcf-text/70">en développement personnel</p>
-                </CardContent>
-              </Card>
-
-              {/* Enseignants */}
-              <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg">
-                <CardContent className="pt-8 pb-8 text-center">
-                  <div className="w-20 h-20 bg-mcf-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
-                    <GraduationCap className="w-10 h-10 text-mcf-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold text-mcf-primary mb-2">Enseignants</h3>
-                  <p className="text-mcf-text/70">&amp; auteurs jeunesse</p>
-                </CardContent>
-              </Card>
+            {/* C4 : 3 colonnes dès le mobile — ces cartes ne contiennent que quelques mots,
+                les empiler en pleine largeur gaspillait ~500px de hauteur. */}
+            <div className="grid grid-cols-3 gap-2 md:gap-8 mb-12">
+              {SPECIALISTS.map((specialist) => (
+                <SpecialistCard key={specialist.id} specialist={specialist} />
+              ))}
             </div>
 
             <div className="max-w-4xl mx-auto space-y-8 text-center">
