@@ -1,3 +1,13 @@
+// NosHistoires v1.2
+// Changelog v1.2 (hero) : suppression du calque d'image posé sur le dégradé du hero. Il chargeait
+//   une photo Unsplash externe, affichée à 30% d'opacité en mix-blend-overlay : le résultat ne
+//   ressemblait ni à une image ni à un fond propre, mais à des formes fantômes qu'on prend pour un
+//   défaut d'affichage (constaté sur mobile ET desktop). Trois raisons de la retirer plutôt que de
+//   l'ajuster : (a) le visuel était un cliché de banque d'images sans rapport avec le produit ;
+//   (b) il créait une dépendance à un domaine tiers — si Unsplash modifie ou retire la photo, le
+//   fond casse sans prévenir ; (c) chaque visite transmettait l'IP du visiteur à Unsplash, ce qui
+//   n'est pas souhaitable au vu de la politique de confidentialité du site. Le dégradé de la
+//   charte est conservé tel quel.
 // NosHistoires v1.1
 // Changelog v1.1 (C6, section « Ce qui rend My Crazy Family unique ») :
 //   (a) ALIGNEMENT — le texte des deux listes héritait d'un centrage venant du composant Card
@@ -40,9 +50,7 @@ const NosHistoires: React.FC = () => {
         {/* SECTION 1 - Hero Section */}
         <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
           {/* Background Image with Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/20 via-mcf-mint/30 to-mcf-secondary/20">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1200')] bg-cover bg-center opacity-30 mix-blend-overlay" />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/20 via-mcf-mint/30 to-mcf-secondary/20" />
 
           {/* Hero Content */}
           <div className="relative z-10 container mx-auto px-4 md:px-6 text-center animate-fade-in">
