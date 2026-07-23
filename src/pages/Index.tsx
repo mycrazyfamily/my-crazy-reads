@@ -1,3 +1,20 @@
+// Index v1.3
+// Changelog v1.3 (C4 — hiérarchie de la section « spécialistes », MOBILE) : la v1.2 avait compacté
+//   les 3 cartes en les rétrécissant, ce qui a inversé la hiérarchie : « Psychologues / Chercheurs
+//   / Enseignants » (14px) — la preuve de crédibilité de la section — se retrouvaient dans la PLUS
+//   PETITE police, sous des paragraphes explicatifs à 18px et un « Notre objectif » à 24px. L'œil
+//   allait donc au texte d'accompagnement plutôt qu'à la preuve.
+//   Rééquilibrage, sans toucher au contenu rédactionnel :
+//     • les 3 cartes passent en LIGNES horizontales (icône à gauche, texte à droite), ce qui permet
+//       de remonter le titre à 18px gras et le sous-titre à 14px sans rallonger la section ;
+//     • sous-titre de section 20px → 18px (il était aussi le seul de la page à 20px : les autres
+//       sections sont déjà à 18px, donc c'est aussi une mise en cohérence) ;
+//     • paragraphes explicatifs 18px → 16px, « Notre objectif » 24px → 20px ;
+//     • marges intérieures des deux blocs blancs réduites sur mobile (elles ajoutaient à leur poids
+//       visuel) ;
+//     • titre de section INCHANGÉ à 30px : les 5 titres de section de la page sont à 30px, en
+//       modifier un seul créerait une incohérence au défilement.
+//   Desktop strictement inchangé : toutes les valeurs d'origine sont restaurées dès md:.
 // Index v1.2
 // Changelog v1.2 (C4, MOBILE) : les 3 cartes « spécialistes » (Psychologues / Chercheurs /
 //   Enseignants) s'empilaient en pleine largeur sur mobile — environ 500px de haut pour une dizaine
@@ -128,21 +145,29 @@ const SPECIALISTS: Specialist[] = [
   },
 ];
 
-/** Carte « spécialiste » — 3 par ligne dès le mobile, contenu compacté sous md:. */
+/** Carte « spécialiste ».
+    Mobile : une ligne horizontale pleine largeur (icône à gauche, texte à droite) — c'est ce qui
+    permet d'afficher le titre en 18px gras sans faire exploser la hauteur de la section, alors
+    qu'en 3 colonnes il fallait descendre à 14px pour que ça tienne.
+    Desktop : bloc centré, exactement comme à l'origine (md:block + md:contents). */
 const SpecialistCard: React.FC<{ specialist: Specialist }> = ({ specialist }) => {
   const { Icon } = specialist;
   return (
     <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg h-full">
-      <CardContent className="px-2 py-5 md:px-6 md:pt-8 md:pb-8 text-center">
-        <div className={`w-12 h-12 md:w-20 md:h-20 ${specialist.circleClass} rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md`}>
-          <Icon className={`w-6 h-6 md:w-10 md:h-10 ${specialist.iconClass}`} />
+      <CardContent className="px-5 py-4 md:px-6 md:pt-8 md:pb-8 flex flex-row items-center gap-4 md:block text-left md:text-center">
+        <div className={`w-14 h-14 md:w-20 md:h-20 ${specialist.circleClass} rounded-full flex items-center justify-center shrink-0 md:mx-auto mb-0 md:mb-4 shadow-md`}>
+          <Icon className={`w-7 h-7 md:w-10 md:h-10 ${specialist.iconClass}`} />
         </div>
-        <h3 className="text-sm md:text-xl font-bold text-mcf-primary mb-1 md:mb-2 leading-tight break-words">
-          {specialist.title}
-        </h3>
-        <p className="text-xs md:text-base text-mcf-text/70 leading-tight break-words">
-          {specialist.subtitle}
-        </p>
+        {/* md:contents → sur desktop ce conteneur ne produit aucune boîte : h3 et p redeviennent
+            enfants directs de CardContent, donc rendu identique à l'origine. */}
+        <div className="min-w-0 md:contents">
+          <h3 className="text-lg md:text-xl font-bold text-mcf-primary mb-0.5 md:mb-2 leading-tight">
+            {specialist.title}
+          </h3>
+          <p className="text-sm md:text-base text-mcf-text/70 leading-snug">
+            {specialist.subtitle}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -335,41 +360,41 @@ const NewIndex: React.FC = () => {
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">
                 Une collection pensée par des spécialistes de l'enfance
               </h2>
-              <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto font-light drop-shadow-md">
+              <p className="text-lg md:text-2xl text-white/95 max-w-2xl mx-auto font-light drop-shadow-md">
                 Des histoires élaborées avec rigueur et passion
               </p>
             </div>
 
-            {/* C4 : 3 colonnes dès le mobile — ces cartes ne contiennent que quelques mots,
-                les empiler en pleine largeur gaspillait ~500px de hauteur. */}
-            <div className="grid grid-cols-3 gap-2 md:gap-8 mb-12">
+            {/* C4 v1.3 : une ligne par spécialiste sur mobile (voir SpecialistCard), 3 colonnes
+                dès md: comme à l'origine. */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-8 mb-10 md:mb-12">
               {SPECIALISTS.map((specialist) => (
                 <SpecialistCard key={specialist.id} specialist={specialist} />
               ))}
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-8 text-center">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-10 md:p-12 space-y-6 shadow-lg border border-white/50">
-                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
+            <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 text-center">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-12 space-y-4 md:space-y-6 shadow-lg border border-white/50">
+                <p className="text-base md:text-xl text-mcf-text/90 leading-relaxed">
                   Chaque histoire suit un <strong className="text-mcf-primary font-semibold">tronc narratif structuré</strong>,
                   conçu avec des spécialistes de l'enfance et spécifiquement adapté à chaque tranche d'âge de 0 à 10 ans.
                 </p>
-                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
+                <p className="text-base md:text-xl text-mcf-text/90 leading-relaxed">
                   Elles sont relues et enrichies par des <strong className="text-mcf-primary font-semibold">auteurs jeunesse</strong> pour
                   assurer un ton et un rythme parfaitement adaptés.
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-10 shadow-xl border-2 border-mcf-primary/20">
+              <div className="bg-white rounded-2xl p-6 md:p-10 shadow-xl border-2 border-mcf-primary/20">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-mcf-mint/20 rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-7 h-7 text-mcf-primary" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-mcf-mint/20 rounded-xl flex items-center justify-center shrink-0">
+                    <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-mcf-primary" />
                   </div>
-                  <p className="text-2xl font-bold text-mcf-primary">
+                  <p className="text-xl md:text-2xl font-bold text-mcf-primary">
                     Notre objectif
                   </p>
                 </div>
-                <p className="text-lg md:text-xl text-mcf-text/90 leading-relaxed">
+                <p className="text-base md:text-xl text-mcf-text/90 leading-relaxed">
                   Renforcer la confiance, stimuler la curiosité, encourager l'expression de soi.
                 </p>
               </div>
