@@ -1,3 +1,12 @@
+// NosHistoires v1.3
+// Changelog v1.3 (hero) : hauteur fixe → hauteur MINIMALE. La section était en h-[70vh] md:h-[80vh]
+//   avec overflow-hidden : sur un viewport court, 70% de la hauteur ne suffit pas au contenu
+//   (titre sur 3 lignes + paragraphe sur 5 lignes + bouton), qui se retrouvait rogné en haut ET en
+//   bas. Constaté dans le cadre de prévisualisation Lovable, mais le défaut est réel : il se
+//   produit aussi sur un petit téléphone, en orientation paysage, ou si l'utilisateur a agrandi la
+//   taille de texte dans ses réglages d'accessibilité. Avec min-h-, la section conserve sa hauteur
+//   d'origine quand le contenu tient, et s'étend sinon. Ajout d'une marge basse pour que le bouton
+//   ne colle pas au bord dans ce cas.
 // NosHistoires v1.2
 // Changelog v1.2 (hero) : suppression du calque d'image posé sur le dégradé du hero. Il chargeait
 //   une photo Unsplash externe, affichée à 30% d'opacité en mix-blend-overlay : le résultat ne
@@ -48,7 +57,7 @@ const NosHistoires: React.FC = () => {
 
       <main className="relative">
         {/* SECTION 1 - Hero Section */}
-        <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24">
+        <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-20 md:pt-24 pb-12 md:pb-16">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-mcf-primary/20 via-mcf-mint/30 to-mcf-secondary/20" />
 
