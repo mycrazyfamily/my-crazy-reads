@@ -1,3 +1,17 @@
+// NosHistoires v1.5
+// Changelog v1.5 (section 3) : SUPPRESSION de la phrase de conclusion « Que vous ayez envie de
+//   simplicité ou de créer votre propre histoire, chaque mois devient une aventure personnalisée
+//   pour vous et votre enfant », allégée en v1.4 puis retirée ici. Motif : elle ne faisait que
+//   paraphraser les deux sous-titres situés juste au-dessus — « Pour ceux qui préfèrent la
+//   simplicité » (mode guidé) et « Pour ceux qui veulent façonner l'histoire » (mode créatif) —
+//   tandis que sa seconde moitié reprenait la promesse générale déjà énoncée dans le hero de la
+//   page et en section 6. Aucun mot n'y travaillait.
+//   Conséquence à ne pas manquer : la grille des deux cartes portait `mb-12`. Devenue le dernier
+//   enfant du conteneur, elle aurait laissé 48px de vide mort s'ajoutant aux 96px du `py-24` de
+//   la section, soit un trou de 144px avant la section suivante. `mb-12` est donc retiré : c'est
+//   le `py-24` de la section qui assure seul l'espacement bas, comme dans les sections 5 et 6.
+//   Cette version contient l'intégralité des changements de la v1.4 : elle peut être commitée
+//   directement, que la v1.4 ait été déployée ou non.
 // NosHistoires v1.4
 // Changelog v1.4 (allègement des sections 3-fin et 4) — MOBILE ET DESKTOP.
 //   Ces deux blocs pesaient plus lourd que le reste de la page et captaient l'œil au détriment
@@ -135,7 +149,7 @@ const NosHistoires: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {/* Option 1 - Guidé */}
               <div className="relative overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-2 group bg-white/95 rounded-lg">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
@@ -199,17 +213,6 @@ const NosHistoires: React.FC = () => {
                   </ul>
                 </div>
               </div>
-            </div>
-
-            {/* Phrase de conclusion de la section — volontairement SANS encadré (v1.4).
-                En carte blanche, elle formait un 3e bloc de même nature visuelle que les deux
-                cartes de mode au-dessus, et se lisait donc comme une 3e option. Posée à même le
-                dégradé, elle redevient la légende de la section. */}
-            <div className="text-center max-w-4xl mx-auto">
-              <p className="text-lg md:text-xl font-medium text-white/95 italic leading-relaxed drop-shadow-md">
-                Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
-                chaque mois devient une aventure personnalisée pour vous et votre enfant
-              </p>
             </div>
           </div>
         </section>
