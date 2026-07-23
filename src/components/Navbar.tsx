@@ -1,3 +1,12 @@
+// Navbar.tsx v1.7
+// Changelog v1.7 : libellé du bouton principal du TIROIR MOBILE corrigé pour un utilisateur
+//   connecté. La v1.6 avait supprimé le doublon vers /espace-famille sur mobile, mais avait gardé
+//   le libellé marketing « Continuer l'aventure » — une formule faite pour convaincre un visiteur,
+//   pas pour orienter quelqu'un qui navigue. Sur desktop le problème ne se pose pas : le menu
+//   contient à la fois « Espace famille » (navigation) et « Continuer l'aventure » (CTA). Sur
+//   mobile il ne restait que le second. Désormais : « Commencer l'aventure » pour un visiteur
+//   (acquisition, inchangé), « Mon espace famille » pour un connecté (navigation). Le libellé
+//   desktop n'est pas modifié.
 // Navbar.tsx v1.6
 // Changelog v1.6 (MOBILE — D5 + D7 + D8) :
 //   D7 : le menu mobile devient un TIROIR LATÉRAL (panneau droit ~85% + fond assombri cliquable)
@@ -128,6 +137,10 @@ const Navbar: React.FC = () => {
   // dans le tiroir mobile (avec un habillage pleine largeur), sans dupliquer la logique.
   const actionPath = isAuthenticated ? '/espace-famille' : '/creer-profil-enfant';
   const actionText = isAuthenticated ? 'Continuer l\'aventure' : 'Commencer l\'aventure';
+  // v1.7 : dans le tiroir mobile, un connecté navigue vers son espace — un libellé de destination
+  // est plus juste qu'une accroche marketing. Le desktop garde `actionText` (il dispose déjà d'un
+  // lien « Espace famille » distinct, donc le CTA peut rester une accroche).
+  const drawerActionText = isAuthenticated ? 'Mon espace famille' : actionText;
 
   const getActionButton = (onClick?: () => void) => {
     return (
@@ -268,7 +281,7 @@ const Navbar: React.FC = () => {
                     className="flex items-center justify-center gap-2 w-full bg-mcf-primary text-white font-bold px-6 py-3.5 rounded-full shadow-lg hover:bg-mcf-secondary transition-colors text-center"
                   >
                     <User size={18} />
-                    {actionText}
+                    {drawerActionText}
                   </Link>
                 </div>
               )}
@@ -348,7 +361,7 @@ const Navbar: React.FC = () => {
                       onClick={() => setIsMenuOpen(false)}
                       className="block w-full bg-mcf-primary text-white font-bold px-6 py-3.5 rounded-full shadow-lg hover:bg-mcf-secondary transition-colors text-center"
                     >
-                      {actionText}
+                      {drawerActionText}
                     </Link>
                   </div>
                 </>
