@@ -1,3 +1,24 @@
+// Abonnement v1.1
+// Changelog v1.1 (C8 + C9, MOBILE) :
+//   C8 — ALIGNEMENT. Le contenu des deux cartes héritait d'un centrage venant du composant Card
+//     (même cause qu'en C6 sur NosHistoires). L'effet est trompeur : un texte court tient sur une
+//     ligne et paraît aligné à gauche, un texte long passe à la ligne et se centre. D'où trois
+//     alignements différents dans la même carte — titre centré, prix centré, liste à puces alignée
+//     à gauche puis centrée sur les lignes suivantes. `text-left` est désormais forcé sur les deux
+//     CardContent. Correction locale, plutôt que de modifier le composant Card partagé.
+//     Le titre passe aussi en text-xl sur mobile (et l'icône à 56px) pour tenir sur UNE ligne à
+//     côté de l'icône, au lieu de se casser en deux.
+//     Les puces « • » en text-lg face à un texte en text-sm sont remplacées par de vraies
+//     pastilles rondes, alignées sur la première ligne.
+//   C9 — VISIBILITÉ DE LA CARTE MENSUELLE. Elle utilisait border-mcf-mint/30 : mcf-mint est un
+//     vert très clair (#D7F5E9), à 30% d'opacité sur fond blanc la bordure était quasi invisible,
+//     alors que la carte annuelle utilise mcf-secondary (#7BC5AE), nettement plus contrasté. Sur
+//     une page de paiement, les deux offres doivent être lisibles comme deux encarts distincts.
+//     Désormais : mensuel en mcf-secondary/40 + ombre marquée (clairement une carte), annuel en
+//     mcf-secondary pleine opacité + ombre plus forte + son badge (clairement l'offre mise en
+//     avant). La hiérarchie est conservée, mais les deux encarts existent visuellement.
+//   Desktop : alignement et tailles d'origine restaurés dès md: ; les bordures changent aussi sur
+//   desktop, c'est volontaire (le déséquilibre existait aussi, en moins gênant).
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -327,14 +348,14 @@ const Abonnement: React.FC = () => {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Formule mensuelle */}
-              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-100">
+              <Card className="relative overflow-hidden border-2 border-mcf-secondary/40 shadow-lg hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-100">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-mint/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <CardContent className="pt-10 pb-8 flex flex-col h-full relative z-10">
+                <CardContent className="pt-10 pb-8 flex flex-col h-full relative z-10 text-left">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-mcf-mint/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Zap className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+                    <div className="w-14 h-14 md:w-16 md:h-16 bg-mcf-mint/30 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <Zap className="w-7 h-7 md:w-8 md:h-8 text-mcf-secondary" strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement mensuel</h2>
+                    <h2 className="text-xl md:text-3xl font-bold text-mcf-primary leading-tight">Abonnement mensuel</h2>
                   </div>
                   <p className="text-4xl font-bold mb-6 text-mcf-secondary">
                     29,99€<span className="text-lg font-normal text-muted-foreground">/mois</span>
@@ -366,15 +387,15 @@ const Abonnement: React.FC = () => {
                     </h3>
                     <ul className="space-y-3 text-sm">
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
                       </li>
                     </ul>
@@ -396,18 +417,18 @@ const Abonnement: React.FC = () => {
               </Card>
               
               {/* Formule annuelle */}
-              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-200">
+              <Card className="relative overflow-hidden border-2 border-mcf-secondary shadow-xl hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group animate-fade-in animation-delay-200">
                 <div className="absolute top-0 left-0 bg-gradient-to-r from-mcf-mint to-mcf-secondary text-white font-bold py-2 px-6 rounded-br-xl shadow-lg flex items-center gap-2 z-20">
                   <Star className="w-4 h-4" strokeWidth={3} />
                   2 MOIS OFFERTS
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-mcf-secondary/20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                <CardContent className="pt-16 pb-8 flex flex-col h-full relative z-10">
+                <CardContent className="pt-16 pb-8 flex flex-col h-full relative z-10 text-left">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-mcf-secondary/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Gift className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+                    <div className="w-14 h-14 md:w-16 md:h-16 bg-mcf-secondary/30 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <Gift className="w-7 h-7 md:w-8 md:h-8 text-mcf-secondary" strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-mcf-primary">Abonnement annuel</h2>
+                    <h2 className="text-xl md:text-3xl font-bold text-mcf-primary leading-tight">Abonnement annuel</h2>
                   </div>
                   <div className="mb-6">
                     <p className="text-4xl font-bold text-mcf-secondary">
@@ -448,15 +469,15 @@ const Abonnement: React.FC = () => {
                     </h3>
                     <ul className="space-y-3 text-sm">
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 3 ans : un livre magique retraçant les 3 ans d'aventure de votre enfant offert</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 6 ans : un livre magique retraçant les 6 ans d'aventure de votre enfant offert</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <span className="text-mcf-secondary text-lg">•</span>
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                         <span>Au bout de 10 ans : une BD magique retraçant les 10 ans d'aventure de votre enfant offerte</span>
                       </li>
                     </ul>
