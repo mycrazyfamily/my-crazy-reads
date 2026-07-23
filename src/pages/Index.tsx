@@ -1,3 +1,11 @@
+// Index v1.4
+// Changelog v1.4 (C4, MOBILE) : les effets de survol des 3 cartes « spécialistes » (soulèvement
+//   -translate-y-2, ombre renforcée, bordure blanche) sont désormais réservés à md:. Sur mobile,
+//   un appui déclenche l'état :hover simulé par iOS/Android : la carte sautait puis redescendait à
+//   chaque tap, sans que cela apporte quoi que ce soit — ces cartes ne sont pas cliquables. Les
+//   effets restent identiques sur desktop, où le survol à la souris a du sens. Seules les cartes
+//   « spécialistes » sont concernées ; les cartes de livres et les autres composants gardent leur
+//   comportement actuel.
 // Index v1.3
 // Changelog v1.3 (C4 — hiérarchie de la section « spécialistes », MOBILE) : la v1.2 avait compacté
 //   les 3 cartes en les rétrécissant, ce qui a inversé la hiérarchie : « Psychologues / Chercheurs
@@ -153,7 +161,7 @@ const SPECIALISTS: Specialist[] = [
 const SpecialistCard: React.FC<{ specialist: Specialist }> = ({ specialist }) => {
   const { Icon } = specialist;
   return (
-    <Card className="border-2 border-white/50 hover:border-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg h-full">
+    <Card className="border-2 border-white/50 md:hover:border-white transition-all duration-300 md:hover:shadow-2xl md:hover:-translate-y-2 bg-white/95 backdrop-blur shadow-lg h-full">
       <CardContent className="px-5 py-4 md:px-6 md:pt-8 md:pb-8 flex flex-row items-center gap-4 md:block text-left md:text-center">
         <div className={`w-14 h-14 md:w-20 md:h-20 ${specialist.circleClass} rounded-full flex items-center justify-center shrink-0 md:mx-auto mb-0 md:mb-4 shadow-md`}>
           <Icon className={`w-7 h-7 md:w-10 md:h-10 ${specialist.iconClass}`} />
