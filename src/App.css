@@ -1,3 +1,20 @@
+/* App.css v1.1
+   Changelog v1.1 (nettoyage) : suppression des restes du modèle de départ Vite + React, qui
+   n'étaient utilisés nulle part dans le projet : .logo (et ses états :hover), l'animation
+   logo-spin et sa media query, .read-the-docs, et .card { padding: 2em } — cette dernière ne
+   s'appliquait à rien (le composant Card de shadcn génère « bg-card » et « text-card-foreground »,
+   jamais la classe « card » seule).
+
+   NON TOUCHÉ VOLONTAIREMENT, à traiter dans un chantier dédié :
+   • `text-align: center` sur #root (ci-dessous) : c'est la cause des désalignements corrigés un
+     par un dans les pages (C6, C8, D8). Le retirer bascule à gauche tout ce qui est centré par
+     héritage — environ 24 questions du wizard rien que dans BasicInfoForm — donc ça impose de
+     repasser sur chaque écran. À faire avant la mise en production, pas en cours de polish.
+   • Six classes sont définies ici ET dans index.css : hero-gradient, glassmorphism, animate-float,
+     animate-fade-in, card-shadow, animation-delay-*. App.css étant importé après, c'est lui qui
+     l'emporte. Les valeurs diffèrent (par ex. .hero-gradient est encore en orange ici, alors que
+     index.css la définit dans la palette bleu/vert). Supprimer les doublons changerait donc le
+     rendu : à faire en une passe, avec vérification visuelle. */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -13,42 +30,6 @@ body {
   background-color: hsl(var(--background)) !important;
   color: #333;
   font-family: 'Quicksand', sans-serif;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
 
 /* Styles de base pour les sections et les conteneurs */
