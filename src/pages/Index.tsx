@@ -1,3 +1,9 @@
+// Index v1.5
+// Changelog v1.5 (PERFORMANCE) : les 6 visuels de livres passent du PNG au WebP. Ils étaient tous
+//   en 1024x1024 pour un affichage dans des cartes de ~400px, et pesaient 9,60 Mo au total ; ils
+//   font désormais 458 Ko (800x800, WebP q90) — soit 95% de moins, pour un écart mesuré entre 39
+//   et 41 dB, imperceptible à l'œil. `book-jules` est au passage rapatrié depuis /__l5e/assets-v1/
+//   vers /lovable-uploads/, où se trouvent les cinq autres.
 // Index v1.4
 // Changelog v1.4 (C4, MOBILE) : les effets de survol des 3 cartes « spécialistes » (soulèvement
 //   -translate-y-2, ombre renforcée, bordure blanche) sont désormais réservés à md:. Sur mobile,
@@ -67,7 +73,7 @@ type Book = {
 const BOOKS: Book[] = [
   {
     id: 1,
-    image: '/lovable-uploads/book-ambre.png',
+    image: '/lovable-uploads/book-ambre.webp',
     title: "Les super-parents d'Ambre",
     description: 'Une histoire tendre pour valoriser le lien parent-enfant',
     tag: 'Sécurité affective',
@@ -75,7 +81,7 @@ const BOOKS: Book[] = [
   },
   {
     id: 2,
-    image: '/lovable-uploads/book-gabriel.png',
+    image: '/lovable-uploads/book-gabriel.webp',
     title: 'Les aventures de Gabriel et Biscuit',
     description: 'Un lien unique entre enfant et animal pour grandir ensemble',
     tag: 'Lien enfant-animal',
@@ -83,7 +89,7 @@ const BOOKS: Book[] = [
   },
   {
     id: 3,
-    image: '/lovable-uploads/book-noel.png',
+    image: '/lovable-uploads/book-noel.webp',
     title: 'Le Noël des petits lutins',
     description: 'Une magie de Noël où aider compte autant que recevoir',
     tag: 'Entraide et participation',
@@ -91,7 +97,7 @@ const BOOKS: Book[] = [
   },
   {
     id: 4,
-    image: '/__l5e/assets-v1/284e3252-6987-46d3-89b0-23eb30d00174/book-jules-corrige.png',
+    image: '/lovable-uploads/book-jules.webp',
     title: 'Jules et les protecteurs de la planète bleue',
     description: 'Une aventure écologique pour sauver la planète, ensemble',
     tag: 'Éveil à la nature & responsabilité collective',
@@ -99,7 +105,7 @@ const BOOKS: Book[] = [
   },
   {
     id: 5,
-    image: '/lovable-uploads/book-lena.png',
+    image: '/lovable-uploads/book-lena.webp',
     title: 'Léna et le mystère de la pyramide endormie',
     description: "Une plongée dans l'Égypte ancienne pour les petits explorateurs",
     tag: "Curiosité historique & esprit d'équipe",
@@ -107,7 +113,7 @@ const BOOKS: Book[] = [
   },
   {
     id: 6,
-    image: '/lovable-uploads/book-foret.png',
+    image: '/lovable-uploads/book-foret.webp',
     title: 'Les secrets de la forêt endormie',
     description: 'Réveiller la nature avec des rires et des histoires',
     tag: 'Coopération joyeuse avec la nature',
