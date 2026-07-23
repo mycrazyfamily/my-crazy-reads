@@ -1,3 +1,35 @@
+// NosHistoires v1.4
+// Changelog v1.4 (allègement des sections 3-fin et 4) — MOBILE ET DESKTOP.
+//   Ces deux blocs pesaient plus lourd que le reste de la page et captaient l'œil au détriment
+//   des sections voisines. Le problème n'était pas seulement leur taille :
+//   BLOC A — la phrase de conclusion « Que vous ayez envie de simplicité… » était posée dans une
+//     carte blanche arrondie à ombre XL, sur un fond de section où figurent déjà DEUX cartes
+//     blanches (les deux modes). Elle se lisait donc comme un 3e mode. La carte est supprimée :
+//     le texte passe en blanc à même le dégradé, avec le drop-shadow déjà utilisé par le h2 et le
+//     sous-titre de la section. p-10/shadow-xl/border-2 retirés, texte text-xl→text-lg (md: 2xl→xl),
+//     font-semibold→font-medium. Hauteur ~160px→~60px en desktop, ~240px→~110px en mobile.
+//   BLOC B (section 4) — reproduisait le patron d'en-tête des sections 3/5/6 (badge d'icône
+//     centré, puis titre centré) et se présentait donc comme une section majeure, alors que c'est
+//     un complément. L'icône passe EN LIGNE à gauche du titre. py-24→py-16, carte p-8/md:p-12→
+//     p-6/md:p-8, badge p-3+icône 28px→p-2+icône 20px, titre 2xl/md:3xl→xl/md:2xl,
+//     shadow-lg→shadow-sm, border-2→border, marges mb-6/mb-4→mb-4/mb-3.
+//     Corps de texte text-lg (18px) → text-base (16px) : c'est la taille employée partout
+//     ailleurs sur la page, le 18px était une exception. Hauteur ~460px→~270px en desktop.
+//   Corrections embarquées :
+//   (1) L'icône Sparkles du dernier paragraphe n'avait pas de `shrink-0` : elle était écrasée et
+//       tassée en bas à gauche dès que le texte passait à deux lignes (visible sur mobile).
+//       `shrink-0` + `mt-0.5`, et `items-center`→`items-start` pour l'aligner sur la 1re ligne.
+//   (2) `max-w-7xl` retiré du container de la section 4 : sans effet, l'enfant immédiat est en
+//       max-w-4xl.
+//   (3) Le titre de la section 4 était un <h3> alors que la section n'avait aucun <h2> —
+//       hiérarchie de titres cassée (SEO, lecteurs d'écran). Passé en <h2>. Sa taille visuelle
+//       reste volontairement inférieure à celle des autres h2 : le niveau sémantique n'impose pas
+//       la taille.
+//   (4) `text-left` ajouté sur la carte de la section 4. Conséquence directe de (3) : le titre
+//       étant désormais aligné à gauche, les paragraphes ne pouvaient plus rester centrés par
+//       héritage du `#root { text-align: center }` d'App.css. Même correctif que la v1.1 sur les
+//       CardContent de la section 5. À retirer lors du nettoyage d'App.css.
+//   Aucune autre section touchée. HowItWorks (section 2) n'est pas modifié.
 // NosHistoires v1.3
 // Changelog v1.3 (hero) : hauteur fixe → hauteur MINIMALE. La section était en h-[70vh] md:h-[80vh]
 //   avec overflow-hidden : sur un viewport court, 70% de la hauteur ne suffit pas au contenu
@@ -169,8 +201,12 @@ const NosHistoires: React.FC = () => {
               </div>
             </div>
 
-            <div className="text-center bg-white rounded-2xl p-10 max-w-4xl mx-auto shadow-xl border-2 border-mcf-primary/20">
-              <p className="text-xl md:text-2xl font-semibold text-mcf-primary italic leading-relaxed">
+            {/* Phrase de conclusion de la section — volontairement SANS encadré (v1.4).
+                En carte blanche, elle formait un 3e bloc de même nature visuelle que les deux
+                cartes de mode au-dessus, et se lisait donc comme une 3e option. Posée à même le
+                dégradé, elle redevient la légende de la section. */}
+            <div className="text-center max-w-4xl mx-auto">
+              <p className="text-lg md:text-xl font-medium text-white/95 italic leading-relaxed drop-shadow-md">
                 Que vous ayez envie de simplicité ou de créer votre propre histoire, <br className="hidden md:block" />
                 chaque mois devient une aventure personnalisée pour vous et votre enfant
               </p>
@@ -179,30 +215,36 @@ const NosHistoires: React.FC = () => {
         </section>
 
         {/* SECTION 4 - Chaque histoire commence par vous (callout, désormais autonome) */}
-        <section className="py-24 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5 animate-fade-in">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <section className="py-16 bg-gradient-to-br from-mcf-secondary/5 via-transparent to-mcf-mint/5 animate-fade-in">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/10 to-mcf-primary/10 rounded-2xl p-8 md:p-12 border-2 border-mcf-mint/30 shadow-lg">
-                <div className="flex justify-center mb-4">
-                  <span className="bg-mcf-primary/10 p-3 rounded-xl">
-                    <MessageCircle className="w-7 h-7 text-mcf-primary" />
+              {/* text-left : sans lui, les paragraphes héritent du `#root { text-align: center }`
+                  d'App.css et se centrent — même correctif que la v1.1 sur les CardContent
+                  de la section 5. À retirer le jour où App.css sera nettoyé. */}
+              <div className="bg-gradient-to-br from-mcf-mint/10 via-mcf-secondary/10 to-mcf-primary/10 rounded-2xl p-6 md:p-8 border border-mcf-mint/30 shadow-sm text-left">
+                {/* Icône EN LIGNE avec le titre, et non empilée au-dessus : empilée + centrée,
+                    elle reproduisait le patron d'en-tête des sections 3/5/6, ce qui donnait à ce
+                    complément le rang visuel d'une section majeure. */}
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-mcf-primary/10 p-2 rounded-xl shrink-0">
+                    <MessageCircle className="w-5 h-5 text-mcf-primary" />
                   </span>
+                  <h2 className="text-xl md:text-2xl font-bold text-mcf-primary">
+                    Chaque histoire commence par vous
+                  </h2>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary mb-6 text-center">
-                  Chaque histoire commence par vous
-                </h3>
-                <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
+                <p className="text-base text-mcf-text/80 mb-3 leading-relaxed">
                   Ces livres sont conçus comme des <strong className="text-mcf-primary">trames personnalisables</strong>, 
                   enrichies grâce à <strong className="text-mcf-primary">vos échanges avec My Crazy Family</strong>, 
                   et selon les éléments que <strong className="text-mcf-primary">vous choisissez de partager</strong> (âge, 
                   lien familial, souvenirs, traits de caractère…).
                 </p>
-                <p className="text-lg text-mcf-text/80 mb-4 leading-relaxed">
+                <p className="text-base text-mcf-text/80 mb-3 leading-relaxed">
                   Vous pouvez même sortir du cadre et demander un <strong className="text-mcf-primary">scénario 
                   100 % inédit</strong> imaginé pour votre famille.
                 </p>
-                <p className="text-lg text-mcf-text/80 leading-relaxed flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-mcf-secondary" />
+                <p className="text-base text-mcf-text/80 leading-relaxed flex items-start gap-2">
+                  <Sparkles className="w-5 h-5 text-mcf-secondary shrink-0 mt-0.5" />
                   <em>L'aventure MCF se construit dans la durée, avec vous.</em>
                 </p>
               </div>
