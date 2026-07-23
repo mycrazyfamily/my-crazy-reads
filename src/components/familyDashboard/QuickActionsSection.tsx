@@ -1,3 +1,17 @@
+// QuickActionsSection v1.3
+// Changelog v1.3 (C12, MOBILE) : les 5 cartes empilées occupaient ~1 460px, soit près de deux
+//   écrans avant d'atteindre « Mes enfants » — chaque carte faisait ~280px (padding 32px, cercle
+//   d'icône de 80px, hauteur de description réservée à 60px). Elles passent en disposition
+//   HORIZONTALE sous sm: (icône à gauche, titre et description à droite, alignés à gauche) :
+//   ~95px par carte, soit ~530px au total, une réduction de 64% SANS rien masquer.
+//   Choix assumé de ne pas faire de carrousel : quand la famille est vide, 4 des 5 cartes sont
+//   désactivées ; en liste compacte l'utilisateur voit immédiatement que « Ajouter un enfant » est
+//   la seule action disponible, alors qu'un carrousel lui ferait défiler 4 cartes inactives.
+//   Le point de rupture est sm: (et non md:) pour coïncider avec celui de la grille, qui passe à
+//   2 colonnes à 640px : au-delà, les cartes sont assez étroites pour la disposition verticale.
+//   Desktop et tablette strictement inchangés — toutes les valeurs d'origine sont restaurées
+//   dès sm:, y compris la hauteur réservée de la description (qui sert à égaliser les cartes
+//   d'une même ligne, ce qui n'a plus lieu d'être quand elles sont empilées).
 // QuickActionsSection v1.2
 // Changelog v1.2 : fix hauteur de carte non homogène — cause réelle = la description (2 vs 3
 // lignes selon le texte) ne réservait pas d'espace fixe. Ajout de h-full sur Card + wrappers, et
@@ -101,7 +115,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
         {actions.map((action) => {
           const Icon = action.icon;
           
@@ -116,34 +130,41 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
               `}
               onClick={action.disabled ? undefined : action.onClick}
             >
-              <div className="p-8 h-full flex flex-col items-center text-center space-y-5">
-                {/* Icône dans un cercle */}
+              {/* Mobile : rangée « icône | texte ». Dès sm: : colonne centrée, comme à l'origine. */}
+              <div className="p-4 sm:p-8 h-full flex flex-row sm:flex-col items-center gap-4 sm:gap-5 text-left sm:text-center">
+                {/* Icône dans un cercle — shrink-0 pour qu'elle ne soit pas écrasée par le texte */}
                 <div className={`
-                  w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300
+                  w-14 h-14 sm:w-20 sm:h-20 shrink-0 rounded-full flex items-center justify-center transition-all duration-300
                   ${action.disabled ? 'bg-gray-200' : action.iconBg}
                 `}>
                   <Icon 
-                    className={`h-10 w-10 ${action.disabled ? 'text-gray-400' : action.iconColor}`} 
+                    className={`h-7 w-7 sm:h-10 sm:w-10 ${action.disabled ? 'text-gray-400' : action.iconColor}`} 
                     strokeWidth={2}
                   />
                 </div>
-                
-                {/* Titre */}
-                <h3 className={`
-                  font-semibold text-lg
-                  ${action.disabled ? 'text-gray-500' : 'text-[#4A90E2]'}
-                `}>
-                  {action.title}
-                </h3>
-                
-                {/* Description — hauteur réservée fixe (~3 lignes) pour que toutes les cartes
-                    aient la même taille, quelle que soit la longueur réelle du texte */}
-                <p className={`
-                  text-sm leading-relaxed min-h-[3.75rem] flex items-center justify-center
-                  ${action.disabled ? 'text-gray-400' : 'text-[#555555]'}
-                `}>
-                  {action.description}
-                </p>
+
+                {/* sm:contents → au-delà de 640px ce conteneur ne produit aucune boîte : le titre et
+                    la description redeviennent enfants directs du flex ci-dessus, donc rendu
+                    identique à l'origine. */}
+                <div className="min-w-0 sm:contents">
+                  {/* Titre */}
+                  <h3 className={`
+                    font-semibold text-base sm:text-lg mb-1 sm:mb-0
+                    ${action.disabled ? 'text-gray-500' : 'text-[#4A90E2]'}
+                  `}>
+                    {action.title}
+                  </h3>
+
+                  {/* Description — la hauteur réservée (~3 lignes) sert à égaliser les cartes d'une
+                      même ligne ; elle n'a plus lieu d'être quand elles sont empilées, donc elle
+                      ne s'applique qu'à partir de sm: */}
+                  <p className={`
+                    text-sm leading-relaxed sm:min-h-[3.75rem] sm:flex sm:items-center sm:justify-center
+                    ${action.disabled ? 'text-gray-400' : 'text-[#555555]'}
+                  `}>
+                    {action.description}
+                  </p>
+                </div>
               </div>
             </Card>
           );
