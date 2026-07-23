@@ -1,3 +1,18 @@
+// NosHistoires v1.1
+// Changelog v1.1 (C6, section « Ce qui rend My Crazy Family unique ») :
+//   (a) ALIGNEMENT — le texte des deux listes héritait d'un centrage venant du composant Card
+//       (la section 3, qui utilise un <div> simple et non <CardContent>, ne souffrait pas du
+//       problème). Effet : sur une ligne courte rien ne se voyait, mais dès qu'un élément passait
+//       à la ligne, la puce restait à gauche et le texte se centrait — d'où la puce isolée suivie
+//       d'un grand vide. `text-left` est désormais forcé sur les deux CardContent : correction
+//       locale, plutôt que de modifier le composant Card partagé par tout le site.
+//   (b) PUCES — le caractère « • » en text-2xl (interligne 32px) face à un texte en text-base
+//       (interligne 24px) ne pouvait pas s'aligner proprement. Remplacé par une vraie pastille
+//       ronde de 6px, positionnée au centre de la première ligne de texte.
+//   (c) SURVOL — les effets de survol (soulèvement de carte, ombre, agrandissement d'icône,
+//       décalage des lignes) passent en md: uniquement : sur mobile un appui déclenchait le :hover
+//       simulé et faisait sauter la carte, sans utilité puisqu'elle n'est pas cliquable.
+//   Desktop strictement inchangé.
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -195,11 +210,11 @@ const NosHistoires: React.FC = () => {
 
             <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
               {/* Bloc 1 - Qualité premium */}
-              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 hover:border-mcf-mint transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group">
+              <Card className="relative overflow-hidden border-2 border-mcf-mint/30 md:hover:border-mcf-mint transition-all duration-300 md:hover:shadow-2xl md:hover:-translate-y-2 group">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-mcf-mint to-mcf-secondary" />
-                <CardContent className="pt-10 pb-8">
+                <CardContent className="pt-10 pb-8 text-left">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-mcf-mint/50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-mcf-mint/50 rounded-2xl flex items-center justify-center md:group-hover:scale-110 transition-transform">
                       <Sparkles className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
@@ -207,16 +222,16 @@ const NosHistoires: React.FC = () => {
                     </h3>
                   </div>
                   <ul className="space-y-4 text-mcf-text/80">
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-mint text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-mint shrink-0" aria-hidden="true" />
                       <span className="text-base">Livres <strong className="text-mcf-primary">imprimés en France</strong> 🇫🇷</span>
                     </li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-mint text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-mint shrink-0" aria-hidden="true" />
                       <span className="text-base"><strong className="text-mcf-primary">Bel objet</strong> pour les bibliothèques</span>
                     </li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-mint text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-mint shrink-0" aria-hidden="true" />
                       <span className="text-base">Papier épais, formats adaptés, finitions haut de gamme</span>
                     </li>
                   </ul>
@@ -224,11 +239,11 @@ const NosHistoires: React.FC = () => {
               </Card>
 
               {/* Bloc 2 - Contenus engagés */}
-              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 hover:border-mcf-secondary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group">
+              <Card className="relative overflow-hidden border-2 border-mcf-secondary/30 md:hover:border-mcf-secondary transition-all duration-300 md:hover:shadow-2xl md:hover:-translate-y-2 group">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-mcf-secondary to-mcf-primary" />
-                <CardContent className="pt-10 pb-8">
+                <CardContent className="pt-10 pb-8 text-left">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-mcf-secondary/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-mcf-secondary/20 rounded-2xl flex items-center justify-center md:group-hover:scale-110 transition-transform">
                       <Globe className="w-8 h-8 text-mcf-secondary" />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
@@ -236,16 +251,16 @@ const NosHistoires: React.FC = () => {
                     </h3>
                   </div>
                   <ul className="space-y-4 text-mcf-text/80">
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-secondary text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                       <span className="text-base">Thèmes responsables : <strong className="text-mcf-primary">écologie, diversité, civilisations, émotions…</strong></span>
                     </li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-secondary text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                       <span className="text-base">Outils de sensibilisation accessibles pour enfants et parents</span>
                     </li>
-                    <li className="flex items-start gap-3 hover:translate-x-1 transition-transform">
-                      <span className="text-mcf-secondary text-2xl">•</span>
+                    <li className="flex items-start gap-3 md:hover:translate-x-1 transition-transform">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-mcf-secondary shrink-0" aria-hidden="true" />
                       <span className="text-base"><strong className="text-mcf-primary">Morale et résumé pédagogique</strong> à la fin de chaque histoire</span>
                     </li>
                   </ul>
