@@ -1,3 +1,12 @@
+// PetForm v1.4
+// Changelog v1.4 : changer le TYPE d'animal (sélecteur de boutons) vide désormais le champ
+//   « race », sauf retour au type d'origine où la race d'origine est restaurée (Option B).
+//   Motif : une race incohérente avec le type (type=chien / race=chat siamois) faisait générer
+//   un avatar de la mauvaise espèce, car côté back l'espèce = (breed || type), breed prioritaire.
+//   Nouveau handler handleTypeChange branché sur le onClick du sélecteur (remplace setType direct).
+//   Le useEffect [pet] de restauration n'est pas touché (il ne réagit qu'au changement de prop pet,
+//   pas aux clics). Neutre en création (pet undefined → vidage simple à chaque changement).
+//   Va de pair avec 3_Build_Edit_Prompt v4.1 + ModifierAnimal v3.3 (override sur changement d'espèce).
 // PetForm v1.3
 // Changelog v1.3 (B4) : placeholders raccourcis + « … » retirés.
 // PetForm v1.2
@@ -132,6 +141,27 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       }
     }
   }, [pet]);
+
+  // v1.4 — Changement de type d'animal via le sélecteur : gère le champ « race » en même temps.
+  // Objectif : ne pas garder une race incohérente avec le type (ex. type=chien / race=chat siamois),
+  // ce qui, côté back, produisait un avatar de la mauvaise espèce (breed a la priorité sur type).
+  // Option B (retour au type d'origine = restauration) :
+  //   - si le nouveau type == le type d'origine du pet édité → on restaure la race d'origine
+  //     (évite de perdre « chat siamois » sur un aller-retour Chat→Chien→Chat) ;
+  //   - sinon (vrai changement d'espèce) → on vide la race.
+  // En création, pet est undefined → pet?.type vaut undefined, jamais égal à un type réel :
+  // la race se vide donc simplement à chaque changement, comportement neutre attendu.
+  // Volontairement limité au sélecteur de boutons : taper dans « Précisez le type » (other)
+  // ou dans le champ race ne doit rien réinitialiser.
+  const handleTypeChange = (newType: PetType) => {
+    if (newType === type) return; // pas de changement réel
+    setType(newType);
+    if (pet && newType === pet.type) {
+      setBreed(pet.breed || '');
+    } else {
+      setBreed('');
+    }
+  };
 
   const handleToggleChild = (childId: string) => {
     setSelectedChildrenIds(prev => {
@@ -321,7 +351,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             <button
               key={option.value}
               type="button"
-              onClick={() => setType(option.value as PetType)}
+              onClick={() => handleTypeChange(option.value as PetType)}
               className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${
                  type === option.value 
                   ? 'bg-mcf-secondary-light/50 border-mcf-primary shadow-sm' 
