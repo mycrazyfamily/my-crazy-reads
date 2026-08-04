@@ -1,3 +1,11 @@
+// ModifierAnimal v3.3
+// Changelog v3.3 : envoie previous_type + previous_breed au webhook edit-avatar-mcf (à côté du
+//   previous_birth_date déjà présent). Objectif : permettre au back (3_Build_Edit_Prompt v4.1)
+//   de détecter un changement d'espèce (lapin→chat) OU de race (chat siamois→chat bengal) et de
+//   forcer le rebuild du corps de l'avatar — sans ça, changer le type/la race laissait l'ancienne
+//   image inchangée. Les deux valeurs sont dérivées de petData (snapshot d'origine, jamais muté
+//   dans handleSave) ; 'other' est résolu en otherType comme finalType à l'enregistrement.
+//   Aucune autre logique modifiée.
 // ModifierAnimal v3.2
 // Changelog v3.2 : charge avatar_url + family_id avec le profil et les passe en props à
 // EditAvatarHeader → l'avatar est présent dès l'affichage (fin du skeleton), plus de reflow.
@@ -365,7 +373,15 @@ const ModifierAnimal: React.FC = () => {
               profile_id: petId,
               type: 'pet',
               current_avatar_url: petRow?.avatar_url || null,
-              previous_birth_date: originalBirthMonthYear
+              previous_birth_date: originalBirthMonthYear,
+              // v1.1 : espèce (type) et race d'AVANT l'édition, pour que le back détecte un
+              // changement (lapin→chat ou siamois→bengal) et force un rebuild du corps.
+              // petData est le snapshot d'origine (chargé une fois, jamais muté dans handleSave) ;
+              // on résout 'other' → otherType comme le fait finalType à l'enregistrement.
+              previous_type: petData?.type === 'other' && petData?.otherType
+                ? petData.otherType
+                : (petData?.type || null),
+              previous_breed: petData?.breed || null
             })
           });
         } catch (webhookErr) {
