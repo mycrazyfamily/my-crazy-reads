@@ -1,3 +1,36 @@
+// MyStoriesTab v2.5
+// Changelog v2.5 (RÉSUMÉ DES OPTIONS SPÉCIALES — nécessite le RPC v2) :
+//   Complète le fix v2.4. Le RPC get_child_book_timeline expose désormais
+//   `substitute_theme_resume` dans chaque objet de substitute_options (migration SQL
+//   rpc_get_child_book_timeline_v2.sql). La carte « Option spéciale MCF » affiche donc
+//   le vrai résumé narratif du thème, à parité avec la carte « Livre du mois ».
+//   1) MockMonth.substituteOptions : nouveau champ `substituteThemeResume`.
+//   2) mapTimelineRow : alimente ce champ via formatSummary(..., childName, gender) —
+//      formaté ici et pas dans la feuille, car `gender` n'est pas disponible dans
+//      ThemeSelectionSheet (même approche que standardSummary).
+//   3) ThemeSelectionSheet : la description devient le résumé du thème pour TOUTES les
+//      options spéciales. Si le résumé est absent (donnée en cache, RPC pas encore
+//      migré), repli sur l'ancienne phrase d'anniversaire quand elle a du sens —
+//      sinon aucune description.
+//   4) Le titre passe par formatTitle (remplacement global de [Prénom]) au lieu d'un
+//      .replace non global qui ne traitait que la première occurrence.
+//   ⚠️ DÉPENDANCE : déployer le SQL AVANT ce fichier. Sans le RPC v2, le comportement
+//   retombe exactement sur v2.4 (pas de régression, juste pas de résumé).
+// MyStoriesTab v2.4
+// Changelog v2.4 (FIX « null » dans le sélecteur de thème) : dans ThemeSelectionSheet, la
+//   description des cartes « Option spéciale MCF » était la phrase d'anniversaire
+//   (« Ce mois-ci, X fête son anniversaire… ») rendue INCONDITIONNELLEMENT pour toutes les
+//   options de substitution. Or substitute_person_name est légitimement null pour les thèmes
+//   de type milestone_* (ex. « Le premier "maman" ou "papa" de [Prénom] ») → le mot « null »
+//   s'affichait dans l'UI. Correctifs :
+//   1) La phrase d'anniversaire n'est produite que si l'option est bien de condition
+//      `birthday_*` ET que substitutePersonName est non vide. Sinon, aucune description
+//      n'est affichée (le titre du thème se suffit à lui-même) — pas de texte inventé.
+//   2) Garde défensive symétrique sur le TITRE : une option `birthday_*` sans prénom ne
+//      produit plus « Anniversaire de null » mais retombe sur substituteThemeTitre.
+//   3) OptionCard.description devient optionnelle et n'est plus rendue si vide — supprime
+//      aussi le <p> vide qui apparaissait quand standardSummary/bookSummary valaient ''.
+//   Aucun autre comportement modifié. Le mapping RPC, les flows et le wizard sont inchangés.
 // MyStoriesTab v2.3
 // Changelog v2.3 (D1) : le badge de statut n'est plus affiché pour `to_plan` (« Bientôt
 //   disponible »). Raisons : (a) redondant — la ligne « Ajoutez votre touche avant le … ·
@@ -163,6 +196,7 @@ interface MockMonth {
   substituteOptions?: Array<{
     substituteThemeId: string;
     substituteThemeTitre: string;
+    substituteThemeResume?: string;
     substituteCondition: string;
     substitutePersonName: string;
   }>;
@@ -431,6 +465,10 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     substituteOptions: (row.substitute_options || []).map((s: any) => ({
       substituteThemeId: s.substitute_theme_id,
       substituteThemeTitre: s.substitute_theme_titre,
+      // v2.5 : formaté ici (et pas dans la feuille) car `gender` n'y est pas disponible
+      substituteThemeResume: s.substitute_theme_resume
+        ? formatSummary(s.substitute_theme_resume, childName, gender)
+        : '',
       substituteCondition: s.substitute_condition,
       substitutePersonName: s.substitute_person_name,
     })),
@@ -1703,7 +1741,7 @@ const OptionCard: React.FC<{
   label: string;
   badge?: string;
   title?: string;
-  description: string;
+  description?: string;
   selected: FlowType;
   onSelect: (value: FlowType) => void;
 }> = ({ value, icon, label, badge, title, description, selected, onSelect }) => {
@@ -1733,7 +1771,9 @@ const OptionCard: React.FC<{
             )}
           </div>
           {title && <p className="text-sm font-bold text-foreground mb-0.5">{title}</p>}
-          <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+          {description && (
+            <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+          )}
         </div>
       </div>
     </button>
@@ -1903,18 +1943,30 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           const isBirthday =
             typeof opt.substituteCondition === 'string' &&
             opt.substituteCondition.startsWith('birthday_');
-          const title = isBirthday
-            ? `Anniversaire de ${opt.substitutePersonName}`
-            : (opt.substituteThemeTitre?.replace('[Prénom]', childName) ?? '');
+          // v2.4 : substitutePersonName est légitimement null hors thèmes birthday_*
+          const personName =
+            typeof opt.substitutePersonName === 'string' && opt.substitutePersonName.trim()
+              ? opt.substitutePersonName.trim()
+              : null;
+          const themeTitle = formatTitle(opt.substituteThemeTitre ?? null, childName);
+          const title =
+            isBirthday && personName ? `Anniversaire de ${personName}` : themeTitle;
+          // v2.5 : résumé du thème pour toutes les options spéciales (parité avec
+          // « Livre du mois »). Repli sur l'ancienne phrase si le RPC v2 n'est pas déployé.
+          const description =
+            opt.substituteThemeResume ||
+            (isBirthday && personName
+              ? `Ce mois-ci, ${personName} fête son anniversaire, on lui dédie ce livre !`
+              : undefined);
           return (
             <OptionCard
               key={idx}
               value={`special_${idx}` as FlowType}
               icon={<PartyPopper className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
               label="Option spéciale MCF"
-              badge={currentDedicatedName && opt.substitutePersonName === currentDedicatedName ? 'Choix actuel' : undefined}
+              badge={currentDedicatedName && personName === currentDedicatedName ? 'Choix actuel' : undefined}
               title={title}
-              description={`Ce mois-ci, ${opt.substitutePersonName} fête son anniversaire, on lui dédie ce livre !`}
+              description={description}
               selected={selected}
               onSelect={setSelected}
             />
