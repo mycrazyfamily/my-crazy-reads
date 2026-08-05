@@ -1,3 +1,17 @@
+// MyStoriesTab v2.6
+// Changelog v2.6 (FIX « Anniversaire null » sur les puces de la timeline) :
+//   Le fix v2.4/v2.5 ne couvrait que la modale de choix de thème. Les PUCES affichées
+//   sous chaque mois de la timeline avaient le même défaut, à deux endroits distincts
+//   (mapTimelineRow et alternativesByBookRequestId — deux implémentations dupliquées) :
+//   le libellé était `Anniversaire ${substitute_person_name}` pour toute condition
+//   commençant par `birthday_`. Or le RPC v3 expose `birthday_child`, dont le
+//   substitute_person_name vaut NULL → « Anniversaire null » (vu chez Shimer 9).
+//   1) Nouveau helper `buildAlternativeLabel` : prénom si présent, sinon titre du thème.
+//   2) Les deux blocs dupliqués l'utilisent — plus de divergence possible entre eux.
+//   3) TOUTES les conditions de substitution génèrent désormais une puce, pas seulement
+//      `birthday_*` et `milestone_*`. Noël (et plus tard halloween / pet / sibling)
+//      était invisible sur la timeline alors qu'il apparaissait dans la modale.
+//      Icône : PartyPopper pour les `birthday_*`, Sparkles pour le reste.
 // MyStoriesTab v2.5
 // Changelog v2.5 (RÉSUMÉ DES OPTIONS SPÉCIALES — nécessite le RPC v2) :
 //   Complète le fix v2.4. Le RPC get_child_book_timeline expose désormais
@@ -371,6 +385,19 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 // Helper: replace [Prénom] placeholder with real child name
 const formatTitle = (text: string | null, firstName: string) =>
   text?.replace(/\[Prénom\]/g, firstName) ?? '';
+// v2.6 — Libellé d'une puce d'alternative sur la timeline.
+// substitute_person_name n'est renseigné QUE pour les anniversaires de proches et de
+// la fratrie. Il est NULL pour birthday_child, christmas, halloween et milestone_* :
+// dans ce cas on affiche le titre du thème plutôt que « Anniversaire null ».
+const buildAlternativeLabel = (opt: any, firstName: string): string => {
+  const person =
+    typeof opt?.substitute_person_name === 'string' && opt.substitute_person_name.trim()
+      ? opt.substitute_person_name.trim()
+      : null;
+  if (person) return `Anniversaire ${person}`;
+  return formatTitle(opt?.substitute_theme_titre ?? null, firstName);
+};
+
 const formatSummary = (text: string | null, firstName: string, gender?: string) => {
   if (!text) return '';
   const isFemale = gender === 'girl' || gender === 'female';
@@ -503,21 +530,18 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
       const alts: NonNullable<MockMonth['alternatives']> = [];
       (row.substitute_options || []).forEach((o: any, idx: number) => {
         const cond = typeof o?.substitute_condition === 'string' ? o.substitute_condition : '';
-        if (cond.startsWith('birthday_')) {
-          alts.push({
-            type: 'birthday',
-            label: `Anniversaire ${o.substitute_person_name}`,
-            substituteIndex: idx,
-            substituteThemeId: o.substitute_theme_id,
-          });
-        } else if (cond.startsWith('milestone_')) {
-          alts.push({
-            type: 'milestone',
-            label: `${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
-            substituteIndex: idx,
-            substituteThemeId: o.substitute_theme_id,
-          });
-        }
+        if (!cond) return;
+        const label = buildAlternativeLabel(o, childName);
+        if (!label) return;
+        const altType: 'birthday' | 'milestone' = cond.startsWith('birthday_')
+          ? 'birthday'
+          : 'milestone';
+        alts.push({
+          type: altType,
+          label,
+          substituteIndex: idx,
+          substituteThemeId: o.substitute_theme_id,
+        });
       });
       if (row.show_custom_story) {
         alts.push({ type: 'custom', label: 'Histoire inédite' });
@@ -2199,21 +2223,18 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       const alts: NonNullable<MockMonth['alternatives']> = [];
       (row.substitute_options || []).forEach((o: any, idx: number) => {
         const cond = typeof o?.substitute_condition === 'string' ? o.substitute_condition : '';
-        if (cond.startsWith('birthday_')) {
-          alts.push({
-            type: 'birthday',
-            label: `Anniversaire ${o.substitute_person_name}`,
-            substituteIndex: idx,
-            substituteThemeId: o.substitute_theme_id,
-          });
-        } else if (cond.startsWith('milestone_')) {
-          alts.push({
-            type: 'milestone',
-            label: `${(o.substitute_theme_titre || '').replace(/\[Prénom\]/g, childName)}`,
-            substituteIndex: idx,
-            substituteThemeId: o.substitute_theme_id,
-          });
-        }
+        if (!cond) return;
+        const label = buildAlternativeLabel(o, childName);
+        if (!label) return;
+        const altType: 'birthday' | 'milestone' = cond.startsWith('birthday_')
+          ? 'birthday'
+          : 'milestone';
+        alts.push({
+          type: altType,
+          label,
+          substituteIndex: idx,
+          substituteThemeId: o.substitute_theme_id,
+        });
       });
       if (row.show_custom_story) {
         alts.push({ type: 'custom', label: 'Histoire inédite' });
