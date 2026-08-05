@@ -1,3 +1,13 @@
+// MyStoriesTab v2.9
+// Changelog v2.9 (ÉLISION des prénoms injectés) :
+//   « dans celles de [Fratrie] » affichait « dans celles de Emma ». En français il
+//   faut « d'Emma ». Le défaut touche tout prénom à initiale vocalique — donc aussi
+//   [Prénom] et [Animal] : « Les premiers pas de Alice », « la gamelle de Oscar ».
+//   Nouveau helper `injectName` : élide « de <jeton> » en « d'<prénom> » quand le
+//   prénom commence par une voyelle, puis remplace normalement. L'élision ne
+//   s'applique QUE devant le jeton, jamais au reste du texte.
+//   Le « h » est exclu volontairement : « d'Hugo » serait correct, « d'Hollande »
+//   non, et rien ne distingue h muet et h aspiré sur un prénom.
 // MyStoriesTab v2.8
 // Changelog v2.8 (FIX « Anniversaire » abusif sur les cartes fratrie et animal) :
 //   Le RPC v4 renseigne substitute_person_name pour substitute_pet et
@@ -417,7 +427,26 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 };
 
 // Helper: replace [Prénom] placeholder with real child name
-// v2.7 — `personName` = prénom de la personne (ou de l'animal) à qui le livre est dédié,
+// v2.9 — Injection d'un prénom AVEC ÉLISION.
+// « dans celles de [Fratrie] » donnait « dans celles de Emma ». En français il faut
+// « d'Emma ». Le cas touche tout prénom commençant par une voyelle (Emma, Alice,
+// Inès, Owen, Élise, Antoine…), et donc aussi [Prénom] : « Les premiers pas de
+// Alice ». L'élision est appliquée UNIQUEMENT devant le jeton, jamais sur le reste
+// du texte — pas de « d'après-midi » transformé par erreur.
+// Le « h » est volontairement exclu : « de Hugo » devrait donner « d'Hugo » mais
+// « de Hollande » non, et rien ne permet de distinguer un h muet d'un h aspiré sur
+// un prénom. Mieux vaut une élision manquante qu'une élision fautive.
+const VOWEL_START = /^[aeiouyàâäéèêëíîïóôöúùûü]/i;
+
+const injectName = (text: string, token: string, name: string) => {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const elided = VOWEL_START.test(name) ? `d'${name}` : `de ${name}`;
+  return text
+    .replace(new RegExp(`\\bde ${escaped}`, 'g'), elided)
+    .replace(new RegExp(escaped, 'g'), name);
+};
+
+// `personName` = prénom de la personne (ou de l'animal) à qui le livre est dédié,
 // c'est-à-dire substitute_person_name. Les jetons [Animal] et [Fratrie] désignent tous
 // deux ce même champ ; deux noms distincts sont conservés pour que les rédactrices de
 // thèmes sachent de quoi elles parlent en écrivant.
@@ -427,11 +456,11 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 const applyPersonTokens = (text: string, personName?: string | null) => {
   const name = typeof personName === 'string' && personName.trim() ? personName.trim() : null;
   if (!name) return text;
-  return text.replace(/\[Animal\]/g, name).replace(/\[Fratrie\]/g, name);
+  return injectName(injectName(text, '[Animal]', name), '[Fratrie]', name);
 };
 
 const formatTitle = (text: string | null, firstName: string, personName?: string | null) =>
-  text ? applyPersonTokens(text.replace(/\[Prénom\]/g, firstName), personName) : '';
+  text ? applyPersonTokens(injectName(text, '[Prénom]', firstName), personName) : '';
 // v2.6 — Libellé d'une puce d'alternative sur la timeline.
 // substitute_person_name n'est renseigné QUE pour les anniversaires de proches et de
 // la fratrie. Il est NULL pour birthday_child, christmas, halloween et milestone_* :
@@ -472,8 +501,7 @@ const formatSummary = (
   // Genre de la personne dédiée ; repli sur celui de l'enfant si non fourni.
   const other = personGender ?? gender;
   const otherIsFemale = other === 'girl' || other === 'female';
-  const out = text
-    .replace(/\[Prénom\]/g, firstName)
+  const out = injectName(text, '[Prénom]', firstName)
     // ── Jetons décrivant la PERSONNE DÉDIÉE ──────────────────────────────
     // Le possessif « son/sa » s'accorde avec le nom qui suit, donc avec le genre
     // de la personne dédiée — pas avec celui du héros.
