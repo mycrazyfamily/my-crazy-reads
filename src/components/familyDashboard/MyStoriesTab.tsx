@@ -1,3 +1,25 @@
+// MyStoriesTab v2.7
+// Changelog v2.7 (JETONS [Animal] / [Fratrie] + genre de la personne dédiée) :
+//   Prépare l'activation des branches substitute_pet / substitute_sibling du RPC.
+//   Aucun effet visible tant que ces branches n'existent pas : les nouveaux champs
+//   lus (substitute_person_gender) sont simplement absents et le code retombe sur
+//   le comportement v2.6. À déployer AVANT le RPC v4, jamais après.
+//   1) `applyPersonTokens` : [Animal] et [Fratrie] -> substitute_person_name.
+//      Si le prénom manque, le jeton est laissé TEL QUEL plutôt que remplacé par du
+//      vide : « Le nom de [Animal] » signale un défaut de câblage, « Le nom de »
+//      produirait une phrase cassée sans indice sur la cause.
+//   2) formatTitle accepte `personName` (3 sites d'appel mis à jour).
+//   3) formatSummary accepte `personName` ET `personGender` — DEUX genres au lieu
+//      d'un. Correction d'un bug de fond : tous les jetons s'accordaient sur le genre
+//      de l'ENFANT, y compris ceux qui décrivent quelqu'un d'autre. « [son/sa]
+//      cousin(e) » donnait « sa cousine » pour une fille dont le cousin est un
+//      garçon. Les jetons sont désormais répartis en deux familles explicites.
+//      Repli sur le genre de l'enfant si personGender est absent -> zéro régression.
+//   4) Ajout de [frère/sœur] (accordé sur la personne dédiée) et de [e] (suffixe
+//      d'accord du héros, « tout seul[e] ») — ce dernier existe au catalogue depuis
+//      toujours sans avoir jamais été implémenté.
+//   ⚠️ [e] reste à corriger EN BASE : le node 5A du Book Factory injecte
+//   resume_narratif brut dans le prompt Gemini, le jeton y partirait non résolu.
 // MyStoriesTab v2.6
 // Changelog v2.6 (FIX « Anniversaire null » sur les puces de la timeline) :
 //   Le fix v2.4/v2.5 ne couvrait que la modale de choix de thème. Les PUCES affichées
@@ -383,8 +405,21 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 };
 
 // Helper: replace [Prénom] placeholder with real child name
-const formatTitle = (text: string | null, firstName: string) =>
-  text?.replace(/\[Prénom\]/g, firstName) ?? '';
+// v2.7 — `personName` = prénom de la personne (ou de l'animal) à qui le livre est dédié,
+// c'est-à-dire substitute_person_name. Les jetons [Animal] et [Fratrie] désignent tous
+// deux ce même champ ; deux noms distincts sont conservés pour que les rédactrices de
+// thèmes sachent de quoi elles parlent en écrivant.
+// Si personName est absent, le jeton est laissé TEL QUEL et non remplacé par du vide :
+// « Le nom de [Animal] » signale un défaut de câblage, « Le nom de » produirait une
+// phrase cassée sans qu'on sache pourquoi.
+const applyPersonTokens = (text: string, personName?: string | null) => {
+  const name = typeof personName === 'string' && personName.trim() ? personName.trim() : null;
+  if (!name) return text;
+  return text.replace(/\[Animal\]/g, name).replace(/\[Fratrie\]/g, name);
+};
+
+const formatTitle = (text: string | null, firstName: string, personName?: string | null) =>
+  text ? applyPersonTokens(text.replace(/\[Prénom\]/g, firstName), personName) : '';
 // v2.6 — Libellé d'une puce d'alternative sur la timeline.
 // substitute_person_name n'est renseigné QUE pour les anniversaires de proches et de
 // la fratrie. Il est NULL pour birthday_child, christmas, halloween et milestone_* :
@@ -395,25 +430,54 @@ const buildAlternativeLabel = (opt: any, firstName: string): string => {
       ? opt.substitute_person_name.trim()
       : null;
   if (person) return `Anniversaire ${person}`;
-  return formatTitle(opt?.substitute_theme_titre ?? null, firstName);
+  return formatTitle(opt?.substitute_theme_titre ?? null, firstName, opt?.substitute_person_name);
 };
 
-const formatSummary = (text: string | null, firstName: string, gender?: string) => {
+// v2.7 — DEUX genres, pas un seul.
+//   `gender`       = genre de l'ENFANT héros.
+//   `personGender` = genre de la personne à qui le livre est dédié (le cousin, la
+//                    grand-mère, le frère, l'animal). Vient de substitute_person_gender.
+// Certains jetons décrivent le héros, d'autres la personne dédiée. Les accorder tous
+// sur l'enfant était un bug : « [son/sa] cousin(e) » donnait « sa cousine » pour une
+// fille dont le cousin est un garçon. Quand personGender est absent, on retombe sur le
+// genre de l'enfant — comportement d'avant, donc aucune régression.
+const formatSummary = (
+  text: string | null,
+  firstName: string,
+  gender?: string,
+  personName?: string | null,
+  personGender?: string,
+) => {
   if (!text) return '';
   const isFemale = gender === 'girl' || gender === 'female';
-  return text
+  // Genre de la personne dédiée ; repli sur celui de l'enfant si non fourni.
+  const other = personGender ?? gender;
+  const otherIsFemale = other === 'girl' || other === 'female';
+  const out = text
     .replace(/\[Prénom\]/g, firstName)
+    // ── Jetons décrivant la PERSONNE DÉDIÉE ──────────────────────────────
+    // Le possessif « son/sa » s'accorde avec le nom qui suit, donc avec le genre
+    // de la personne dédiée — pas avec celui du héros.
+    .replace(/\[son\/sa\] \[ami\/amie\]/g, otherIsFemale ? 'son amie' : 'son ami')
+    .replace(/\[son\/sa\] \[cousin\/cousine\]/g, otherIsFemale ? 'sa cousine' : 'son cousin')
+    .replace(/\[son\/sa\] cousin\(e\)/g, otherIsFemale ? 'sa cousine' : 'son cousin')
+    .replace(/\[ami\/amie\]/g, otherIsFemale ? 'amie' : 'ami')
+    .replace(/\[cousin\/cousine\]/g, otherIsFemale ? 'cousine' : 'cousin')
+    .replace(/\[cousine\/cousin\]/g, otherIsFemale ? 'cousine' : 'cousin')
+    .replace(/cousin\(e\)/g, otherIsFemale ? 'cousine' : 'cousin')
+    .replace(/\[frère\/sœur\]/g, otherIsFemale ? 'sœur' : 'frère')
+    .replace(/\[frère\/soeur\]/g, otherIsFemale ? 'sœur' : 'frère')
+    // ── Jetons décrivant l'ENFANT héros ──────────────────────────────────
     .replace(/\[le\/la\]/g, isFemale ? 'la' : 'le')
     .replace(/\[lui\/elle\]/g, isFemale ? 'elle' : 'lui')
     .replace(/\[il\/elle\]/g, isFemale ? 'elle' : 'il')
-    .replace(/\[son\/sa\] \[ami\/amie\]/g, isFemale ? 'son amie' : 'son ami')
     .replace(/\[son\/sa\]/g, isFemale ? 'sa' : 'son')
-    .replace(/\[ami\/amie\]/g, isFemale ? 'amie' : 'ami')
-    .replace(/\[cousin\/cousine\]/g, isFemale ? 'cousine' : 'cousin')
-    .replace(/\[cousine\/cousin\]/g, isFemale ? 'cousine' : 'cousin')
     .replace(/\[Curieux\/Curieuse\]/g, isFemale ? 'Curieuse' : 'Curieux')
-    .replace(/cousin\(e\)/g, isFemale ? 'cousine' : 'cousin')
-    .replace(/Curieux\/se/g, isFemale ? 'Curieuse' : 'Curieux');
+    .replace(/Curieux\/se/g, isFemale ? 'Curieuse' : 'Curieux')
+    // Suffixe d'accord : « tout seul[e] » -> « tout seul » / « toute seule ».
+    // Présent une fois au catalogue, jamais implémenté jusqu'ici.
+    .replace(/\[e\]/g, isFemale ? 'e' : '');
+  return applyPersonTokens(out, personName);
 };
 
 // ---------- Supabase row → MockMonth shape ----------
@@ -494,7 +558,13 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
       substituteThemeTitre: s.substitute_theme_titre,
       // v2.5 : formaté ici (et pas dans la feuille) car `gender` n'y est pas disponible
       substituteThemeResume: s.substitute_theme_resume
-        ? formatSummary(s.substitute_theme_resume, childName, gender)
+        ? formatSummary(
+            s.substitute_theme_resume,
+            childName,
+            gender,
+            s.substitute_person_name,
+            s.substitute_person_gender,
+          )
         : '',
       substituteCondition: s.substitute_condition,
       substitutePersonName: s.substitute_person_name,
@@ -1972,7 +2042,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
             typeof opt.substitutePersonName === 'string' && opt.substitutePersonName.trim()
               ? opt.substitutePersonName.trim()
               : null;
-          const themeTitle = formatTitle(opt.substituteThemeTitre ?? null, childName);
+          const themeTitle = formatTitle(opt.substituteThemeTitre ?? null, childName, personName);
           const title =
             isBirthday && personName ? `Anniversaire de ${personName}` : themeTitle;
           // v2.5 : résumé du thème pour toutes les options spéciales (parité avec
