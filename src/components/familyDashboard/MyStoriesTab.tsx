@@ -1,3 +1,15 @@
+// MyStoriesTab v2.8
+// Changelog v2.8 (FIX « Anniversaire » abusif sur les cartes fratrie et animal) :
+//   Le RPC v4 renseigne substitute_person_name pour substitute_pet et
+//   substitute_sibling, qui ne sont PAS des anniversaires. buildAlternativeLabel
+//   posait « Anniversaire {prénom} » dès qu'un prénom existait -> en prod,
+//   « Anniversaire Jules » s'affichait sur « Le jeu du hochet lancé », et le même
+//   prénom revenait sur deux mois pour deux raisons distinctes (sa fête en octobre,
+//   un livre fratrie en septembre). Le libellé « Anniversaire » est désormais
+//   conditionné à `substitute_condition` commençant par `birthday_`.
+//   Les autres cartes affichent le titre du thème, comme milestone et Noël.
+//   (La feuille de choix avait déjà le bon test `isBirthday` : commentaire ajouté
+//   pour que les deux endroits restent alignés.)
 // MyStoriesTab v2.7
 // Changelog v2.7 (JETONS [Animal] / [Fratrie] + genre de la personne dédiée) :
 //   Prépare l'activation des branches substitute_pet / substitute_sibling du RPC.
@@ -424,12 +436,19 @@ const formatTitle = (text: string | null, firstName: string, personName?: string
 // substitute_person_name n'est renseigné QUE pour les anniversaires de proches et de
 // la fratrie. Il est NULL pour birthday_child, christmas, halloween et milestone_* :
 // dans ce cas on affiche le titre du thème plutôt que « Anniversaire null ».
+// v2.8 — Le libellé « Anniversaire X » est réservé aux conditions `birthday_*`.
+// Le v2.7 le posait dès qu'un prénom était présent, or le RPC v4 renseigne aussi
+// substitute_person_name pour `substitute_pet` et `substitute_sibling`, qui ne sont
+// PAS des anniversaires. Résultat en prod : « Anniversaire Jules » affiché pour
+// « Le jeu du hochet lancé », un livre sur la fratrie sans rapport avec une fête —
+// et le même prénom apparaissant sur deux mois pour deux raisons différentes.
 const buildAlternativeLabel = (opt: any, firstName: string): string => {
+  const cond = typeof opt?.substitute_condition === 'string' ? opt.substitute_condition : '';
   const person =
     typeof opt?.substitute_person_name === 'string' && opt.substitute_person_name.trim()
       ? opt.substitute_person_name.trim()
       : null;
-  if (person) return `Anniversaire ${person}`;
+  if (person && cond.startsWith('birthday_')) return `Anniversaire ${person}`;
   return formatTitle(opt?.substitute_theme_titre ?? null, firstName, opt?.substitute_person_name);
 };
 
@@ -2043,6 +2062,9 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
               ? opt.substitutePersonName.trim()
               : null;
           const themeTitle = formatTitle(opt.substituteThemeTitre ?? null, childName, personName);
+          // v2.8 : idem buildAlternativeLabel — « Anniversaire de X » uniquement pour
+          // les conditions birthday_*. substitute_pet et substitute_sibling portent eux
+          // aussi un substitute_person_name sans être des anniversaires.
           const title =
             isBirthday && personName ? `Anniversaire de ${personName}` : themeTitle;
           // v2.5 : résumé du thème pour toutes les options spéciales (parité avec
