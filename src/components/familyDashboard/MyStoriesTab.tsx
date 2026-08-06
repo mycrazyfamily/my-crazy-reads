@@ -1,3 +1,31 @@
+// MyStoriesTab v3.1
+// Changelog v3.1 (le « y » ne déclenche plus l'élision) :
+//   La v2.9 avait mis le « y » dans VOWEL_START. Conséquence : « Anniversaire
+//   d'Yann », qui est fautif. Le y se comporte comme le « h » déjà exclu : voyelle
+//   dans Yves (d'Yves), consonne dans Yann / Yasmine / Yohan (de Yann). Indécidable
+//   sur un prénom, et la majorité penche vers « de ». Un caractère retiré de la
+//   classe. Seul `withDe` lit VOWEL_START, donc le périmètre est strictement celui
+//   de l'élision — aucun autre comportement touché.
+//   Décision produit associée : les puces de la timeline restent « Anniversaire
+//   Emma », sans « de » ni « d' ». Plus court, et aucune faute possible.
+//   Le « De » majuscule en début de phrase n'est volontairement PAS élidé
+//   (regex sensible à la casse) : « De Emma » est jugé acceptable, aucun thème du
+//   catalogue n'est concerné à ce jour.
+// MyStoriesTab v3.0
+// Changelog v3.0 (ÉLISION sur le titre en dur des cartes anniversaire) :
+//   En prod : « Anniversaire de Emma » sur la carte « Option spéciale MCF » de la
+//   feuille de choix. La v2.9 avait bien introduit l'élision, mais uniquement à
+//   l'intérieur de `injectName`, qui n'agit QUE devant un jeton du catalogue
+//   (« de [Fratrie] », « de [Prénom] »). Or ce titre-là est un template écrit en
+//   dur — `Anniversaire de ${personName}` — sans aucun jeton. Trou de couverture,
+//   pas régression.
+//   1) Nouveau helper `withDe(name)` : renvoie « d'Emma » ou « de Jules ». Extrait
+//      de `injectName`, qui l'appelle désormais — comportement inchangé, mêmes
+//      règles, même exclusion volontaire du « h ».
+//   2) Le titre de la carte anniversaire passe par `withDe`.
+//   Le libellé des puces de la timeline (`buildAlternativeLabel`) est délibérément
+//   laissé tel quel : il s'écrit « Anniversaire Emma », SANS « de », donc aucune
+//   élision n'a lieu d'être. Les deux formulations diffèrent depuis toujours.
 // MyStoriesTab v2.9
 // Changelog v2.9 (ÉLISION des prénoms injectés) :
 //   « dans celles de [Fratrie] » affichait « dans celles de Emma ». En français il
@@ -436,13 +464,23 @@ const WizardAvatar: React.FC<{ avatarUrl?: string; emoji: string; name: string }
 // Le « h » est volontairement exclu : « de Hugo » devrait donner « d'Hugo » mais
 // « de Hollande » non, et rien ne permet de distinguer un h muet d'un h aspiré sur
 // un prénom. Mieux vaut une élision manquante qu'une élision fautive.
-const VOWEL_START = /^[aeiouyàâäéèêëíîïóôöúùûü]/i;
+// v3.1 — Le « y » est exclu pour EXACTEMENT la même raison que le « h ».
+// « d'Yves » est correct, « de Yann », « de Yasmine », « de Yohan » le sont aussi.
+// Le y est tantôt voyelle, tantôt consonne (yod), et rien sur un prénom ne permet
+// de trancher. La majorité des prénoms en Y prend « de » -> on ne l'élide plus.
+const VOWEL_START = /^[aeiouàâäéèêëíîïóôöúùûü]/i;
+
+// v3.0 — L'élision devient réutilisable HORS du contexte des jetons.
+// Elle était enfermée dans injectName, qui n'agit que devant un jeton du catalogue
+// (« de [Fratrie] »). Les titres construits par template en dur — « Anniversaire de
+// {prénom} » — ne contiennent aucun jeton et échappaient donc totalement à la v2.9.
+// Ce n'était pas une régression mais un trou de couverture.
+const withDe = (name: string) => (VOWEL_START.test(name) ? `d'${name}` : `de ${name}`);
 
 const injectName = (text: string, token: string, name: string) => {
   const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const elided = VOWEL_START.test(name) ? `d'${name}` : `de ${name}`;
   return text
-    .replace(new RegExp(`\\bde ${escaped}`, 'g'), elided)
+    .replace(new RegExp(`\\bde ${escaped}`, 'g'), withDe(name))
     .replace(new RegExp(escaped, 'g'), name);
 };
 
@@ -2093,8 +2131,11 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
           // v2.8 : idem buildAlternativeLabel — « Anniversaire de X » uniquement pour
           // les conditions birthday_*. substitute_pet et substitute_sibling portent eux
           // aussi un substitute_person_name sans être des anniversaires.
+          // v3.0 : élision. « Anniversaire de Emma » -> « Anniversaire d'Emma ».
+          // Ce template est écrit en dur, sans jeton : injectName ne pouvait pas
+          // l'atteindre. On passe donc par withDe directement.
           const title =
-            isBirthday && personName ? `Anniversaire de ${personName}` : themeTitle;
+            isBirthday && personName ? `Anniversaire ${withDe(personName)}` : themeTitle;
           // v2.5 : résumé du thème pour toutes les options spéciales (parité avec
           // « Livre du mois »). Repli sur l'ancienne phrase si le RPC v2 n'est pas déployé.
           const description =
