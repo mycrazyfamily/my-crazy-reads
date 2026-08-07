@@ -1,5 +1,5 @@
 // ============================================================================
-// useSaveBookChoice v1.1 — 06/08/2026
+// useSaveBookChoice v1.2 — 07/08/2026
 //
 // Changelog v1.1 — ÉCHEC SILENCIEUX (bug 2)
 //   La v1.0 testait `error`, ce qui ne suffit pas sous RLS : quand aucune
@@ -15,6 +15,15 @@
 //     · deadline de personnalisation dépassée, ou livre verrouillé
 //       (`theme_locked`) — la policy RLS refuse l'écriture ;
 //     · le livre n'appartient pas à l'utilisateur connecté.
+//
+// Changelog v1.2 — CODE D'ERREUR au lieu d'un message reniflé
+//   Le handler d'erreur de MyStoriesTab détecte un refus de deadline en
+//   cherchant `locked` ou `deadline` DANS LE TEXTE du message. Celui de la
+//   v1.1 étant en français, aucun mot-clé ne correspondait : le parent voyait
+//   « Une erreur est survenue, réessaie. » au lieu de l'explication.
+//   L'erreur porte désormais `code = 'BOOK_NOT_EDITABLE'`, testé en priorité
+//   par MyStoriesTab v3.2. Le message reste lisible pour les logs et pour
+//   tout appelant qui l'afficherait tel quel.
 //
 //   Requiert la policy « Users can update their own book requests »
 //   (migration_bugs_config_v1.sql, section 2). Sans elle, TOUTE configuration
@@ -80,9 +89,12 @@ export function useSaveBookChoice(childId: string | null) {
         // d'autre. On ne peut pas distinguer les deux depuis le client — RLS
         // ne dit jamais POURQUOI il refuse — d'où un message qui couvre le cas
         // de loin le plus probable.
-        throw new Error(
+        const err = new Error(
           "Ce livre ne peut plus être modifié : la date limite de personnalisation est dépassée, ou sa fabrication a déjà commencé.",
         );
+        // v1.2 — code stable, indépendant de la langue du message.
+        (err as any).code = 'BOOK_NOT_EDITABLE';
+        throw err;
       }
     },
     onSuccess: () => {
