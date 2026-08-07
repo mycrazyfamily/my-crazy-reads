@@ -1,3 +1,16 @@
+// MyStoriesTab v3.4
+// Changelog v3.4 (compteur « N configurés » aligné sur les badges) :
+//   Régression introduite par la v3.2. Le compteur d'en-tête lisait le statut
+//   EN BASE (`timelineRows`), alors que la v3.2 fait basculer l'AFFICHAGE en
+//   « configuré » dès que la deadline est passée, sans toucher au statut en
+//   base qui reste `pending_choice`. Résultat visible sur bazzoka 1 :
+//   septembre portait le badge « Configuré » pendant que l'en-tête annonçait
+//   « 0 configuré ».
+//   Ce n'était pas anecdotique : chaque mois, tous les livres non configurés
+//   par les parents passent leur deadline et affichent « Configuré » — aucun
+//   n'aurait été compté.
+//   Le compteur lit désormais `months`, c'est-à-dire les statuts RÉELLEMENT
+//   affichés. Badge et compteur ne peuvent plus diverger, par construction.
 // MyStoriesTab v3.3
 // Changelog v3.3 (libellé du badge `to_personalize`) :
 //   « Votre livre est prêt » contredisait la ligne affichée juste en dessous
@@ -2489,9 +2502,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   };
 
   const totalPlanned = months.length;
-  const configuredCount = (timelineRows ?? []).filter(
-    (r) => r.status === 'configured' || r.status === 'locked'
-  ).length;
+  // v3.4 — compter les statuts AFFICHÉS et non ceux en base : depuis la v3.2,
+  // un mois dont la deadline est passée s'affiche « configuré » alors qu'il
+  // vaut encore `pending_choice` en base. `months` porte le statut calculé,
+  // celui-là même qui alimente les badges.
+  const configuredCount = months.filter((m) => m.status === 'configured').length;
 
   const { data: activeSubscription } = useQuery({
     queryKey: ['subscription', activeChildId],
