@@ -1,3 +1,25 @@
+// MyStoriesTab v3.2
+// Changelog v3.2 (DEADLINE : blocage en amont + message d'erreur utile) :
+//   [1] Le front ne décidait de l'éditabilité que sur `status`. Un livre dont
+//       la deadline était passée mais que `lock-overdue-books` n'avait pas
+//       encore basculé (le cron ne tourne qu'une fois par jour, et tournait
+//       auparavant une fois par MOIS) affichait encore « Ajouter votre
+//       touche ». Le parent allait au bout du parcours pour se faire refuser
+//       l'écriture par la policy RLS — frustrant et incompréhensible.
+//       Désormais la deadline fait foi côté affichage aussi : passée, le mois
+//       bascule en « en cours de préparation », comme s'il était verrouillé.
+//       La policy RLS reste la garantie dure ; ceci n'est que le confort.
+//       `daysLeft < 0` et non `<= 0` : le jour même de la deadline reste
+//       ouvert, exactement comme `lock-overdue-books` qui filtre sur
+//       `personalization_deadline < today`.
+//   [2] Le handler d'erreur reniflait le message pour détecter un refus de
+//       deadline (`msg.includes('locked')` / `'deadline'`). Le message de
+//       useSaveBookChoice v1.1 étant rédigé en français — « la date limite …
+//       est dépassée » — aucun des deux mots-clés n'y figurait : le parent
+//       recevait « Une erreur est survenue, réessaie. » sans rien comprendre.
+//       On teste désormais un CODE (`BOOK_NOT_EDITABLE`, posé par le hook
+//       v1.2), insensible à la langue. Le reniflage est conservé en repli
+//       pour les erreurs remontées directement par Postgres.
 // MyStoriesTab v3.1
 // Changelog v3.1 (le « y » ne déclenche plus l'élision) :
 //   La v2.9 avait mis le « y » dans VOWEL_START. Conséquence : « Anniversaire
@@ -580,9 +602,15 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
   const deadline = row.personalization_deadline ? parseISO(row.personalization_deadline) : null;
   const daysLeft = deadline ? differenceInCalendarDays(deadline, new Date()) : undefined;
 
+  // v3.2 [1] — La deadline fait foi, sans attendre le passage de
+  // lock-overdue-books. `< 0` : le jour même de la deadline reste ouvert.
+  const deadlinePassed = daysLeft !== undefined && daysLeft < 0;
+
   let status: MonthStatus = 'to_plan';
   if (row.status === 'pending_choice') {
-    status = daysLeft !== undefined && daysLeft <= 14 ? 'to_personalize' : 'to_plan';
+    status = deadlinePassed
+      ? 'configured'   // plus modifiable : partira avec le thème standard
+      : daysLeft !== undefined && daysLeft <= 14 ? 'to_personalize' : 'to_plan';
   } else if (row.status === 'configured' || row.status === 'locked') {
     status = row.production_status === 'printing' ? 'in_printing' : 'configured';
   } else if (row.status === 'generating' || row.production_status === 'generating') {
@@ -606,7 +634,11 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     deliveryDate,
     deliveryShort,
     status,
-    isPreparing: ['locked', 'generating', 'printing', 'shipped', 'delivered'].includes(row.status),
+    // v3.2 [1] — un mois dont la deadline est passée est « en préparation »
+    // même si son statut en base est resté à pending_choice.
+    isPreparing:
+      ['locked', 'generating', 'printing', 'shipped', 'delivered'].includes(row.status) ||
+      (row.status === 'pending_choice' && deadlinePassed),
     bookTitle: (() => {
       if (row.selected_theme_type === 'original')
         return 'Histoire inédite';
@@ -2647,8 +2679,11 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           }
         },
         onError: (err: any) => {
+          // v3.2 [2] — on teste d'abord un CODE, insensible à la langue du
+          // message. Le reniflage textuel reste en repli pour les erreurs
+          // remontées directement par Postgres.
           const msg = (err?.message || '').toLowerCase();
-          if (msg.includes('locked') || msg.includes('deadline')) {
+          if (err?.code === 'BOOK_NOT_EDITABLE' || msg.includes('locked') || msg.includes('deadline')) {
             toast.error('La deadline est dépassée, ce livre ne peut plus être modifié.');
           } else {
             toast.error('Une erreur est survenue, réessaie.');
