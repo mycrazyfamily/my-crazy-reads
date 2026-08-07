@@ -1,3 +1,15 @@
+// MyStoriesTab v3.3
+// Changelog v3.3 (libellé du badge `to_personalize`) :
+//   « Votre livre est prêt » contredisait la ligne affichée juste en dessous
+//   — « encore N jours pour ajouter votre touche ». Le badge annonçait un
+//   état terminé alors qu'il signale au contraire une fenêtre d'action encore
+//   ouverte : le thème du mois est arrêté, le livre partira ainsi si le parent
+//   ne fait rien, et il lui reste jusqu'à la deadline pour y ajouter sa touche.
+//   « Bientôt en fabrication » décrit cet état sans le contredire, et conserve
+//   l'accent visuel orange qui distingue « c'est maintenant » de « c'est pour
+//   plus tard » dans une liste de douze mois.
+//   Aucun autre changement : couleurs, icône, bordure et logique de statut
+//   sont inchangées.
 // MyStoriesTab v3.2
 // Changelog v3.2 (DEADLINE : blocage en amont + message d'erreur utile) :
 //   [1] Le front ne décidait de l'éditabilité que sur `status`. Un livre dont
@@ -408,7 +420,8 @@ const MOCK_CHARACTERS = [
 
 const STATUS_CONFIG: Record<MonthStatus, { label: string; Icon?: React.ElementType; badgeClass: string; borderClass: string; secondaryClass: string }> = {
   to_personalize: {
-    label: 'Votre livre est prêt',
+    // v3.3 — décrit la fenêtre d'action, pas un état terminé.
+    label: 'Bientôt en fabrication',
     Icon: Sparkles,
     badgeClass: 'bg-orange-100 text-orange-700 border-orange-200',
     borderClass: 'border-l-[3px] border-l-orange-400',
