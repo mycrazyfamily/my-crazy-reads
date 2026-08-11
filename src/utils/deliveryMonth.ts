@@ -1,4 +1,13 @@
-// src/utils/deliveryMonth.ts — v1.1 — 11/08/2026
+// src/utils/deliveryMonth.ts — v1.2 — 11/08/2026
+//
+// Changelog v1.2 :
+//   Ajout de getFirstPersonalizationDeadline(). « avant le 10 du mois » etait
+//   ambigu : lu le 11 aout, le lecteur pense au 10 aout, qui est deja passe.
+//   On annonce desormais le mois : « avant le 10 septembre ».
+//   La deadline du PREMIER livre tombe le 10 du mois qui PRECEDE sa livraison
+//   — c'est le mois de fabrication. Les deux fonctions partagent donc le meme
+//   calcul d'offset, extrait dans getFirstDeliveryOffset() pour qu'elles ne
+//   puissent pas diverger.
 //
 // Changelog v1.1 :
 //   [1] SEUIL 20 -> 10. Contrainte imprimeur : entre la cloture, la generation
@@ -35,13 +44,44 @@ export const PERSONALIZATION_DEADLINE_DAY = 10;
  * arrive en N+2.
  * Le jour du seuil lui-meme reste inclus : s'abonner LE 10 donne bien N+1.
  */
+/**
+ * Nombre de mois entre aujourd'hui et la livraison du premier livre : 1 ou 2.
+ * v1.2 — extrait pour que getFirstDeliveryMonth et
+ * getFirstPersonalizationDeadline ne puissent pas diverger.
+ */
+const getFirstDeliveryOffset = (today: Date): number =>
+  today.getDate() > PERSONALIZATION_DEADLINE_DAY ? 2 : 1;
+
 export const getFirstDeliveryMonth = (): string => {
   const today = new Date();
-  const offset = today.getDate() > PERSONALIZATION_DEADLINE_DAY ? 2 : 1;
 
   // v1.1 [2] — on vise le 1er du mois cible plutot que de decaler la date du
   // jour : le 1er existe dans tous les mois, donc aucun debordement possible.
-  const delivery = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+  const delivery = new Date(
+    today.getFullYear(),
+    today.getMonth() + getFirstDeliveryOffset(today),
+    1,
+  );
 
   return delivery.toLocaleDateString('fr-FR', { month: 'long' });
+};
+
+/**
+ * Date limite de personnalisation du PREMIER livre, en toutes lettres
+ * (« 10 septembre »).
+ *
+ * Elle tombe le 10 du mois de FABRICATION, c'est-a-dire le mois qui precede la
+ * livraison. Un abonne du 11 aout est livre debut octobre : sa deadline est
+ * donc le 10 septembre, et non le 10 aout deja passe.
+ */
+export const getFirstPersonalizationDeadline = (): string => {
+  const today = new Date();
+
+  const deadline = new Date(
+    today.getFullYear(),
+    today.getMonth() + getFirstDeliveryOffset(today) - 1,
+    PERSONALIZATION_DEADLINE_DAY,
+  );
+
+  return deadline.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 };
