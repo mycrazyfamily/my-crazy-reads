@@ -1,3 +1,13 @@
+// MyStoriesTab v3.5
+// Changelog v3.5 (LIVRAISON : « 1 septembre » -> « début septembre ») :
+//   La date exacte d'arrivée du colis ne se maîtrise pas — impression, poste,
+//   jour ouvré. Annoncer « Livraison prévue le 1 septembre » crée une attente
+//   au jour près que rien ne garantit. On annonce désormais une fenêtre.
+//   `delivery_month` reste le 1er du mois en base : seul l'AFFICHAGE change.
+//   Cinq endroits touchés, dont trois tournures : « prévue LE début septembre »
+//   n'est pas français, le « le » disparaît là où il précédait la date.
+//   L'en-tête de carte devient « Livraison en début de mois » : le mois est
+//   déjà donné juste avant par monthLabel, le répéter était redondant.
 // MyStoriesTab v3.4
 // Changelog v3.4 (compteur « N configurés » aligné sur les badges) :
 //   Régression introduite par la v3.2. Le compteur d'en-tête lisait le statut
@@ -650,8 +660,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
   }
 
   const monthLabel = format(delivery, 'LLLL yyyy', { locale: fr }).replace(/^./, (c) => c.toUpperCase());
-  const deliveryDate = format(delivery, "d MMMM yyyy", { locale: fr });
-  const deliveryShort = format(delivery, "d MMMM", { locale: fr });
+  // v3.5 — fenêtre de livraison plutôt que jour exact.
+  const deliveryDate = `début ${format(delivery, "MMMM yyyy", { locale: fr })}`;
+  const deliveryShort = `début ${format(delivery, "MMMM", { locale: fr })}`;
   const deadlineShort = deadline ? format(deadline, 'd MMMM', { locale: fr }) : '';
 
   return {
@@ -1658,7 +1669,8 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
             {/* Colonne gauche — infos livre */}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-muted-foreground mb-2">
-                {month.monthLabel} · Livraison {month.deliveryShort}
+                {/* v3.5 — monthLabel donne déjà le mois : on n'annonce que la fenêtre */}
+                {month.monthLabel} · Livraison en début de mois
               </p>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
                 {month.bookTitle}
@@ -1878,17 +1890,18 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
               </span>
             </>
           )}
+          {/* v3.5 — « prévue LE début septembre » n'est pas français */}
           {month.status === 'configured' && (
-            <span>Livre configuré · Livraison prévue le {month.deliveryShort}</span>
+            <span>Livre configuré · Livraison prévue {month.deliveryShort}</span>
           )}
           {month.status === 'in_creation' && <span>Livre en cours de génération</span>}
-          {month.status === 'in_printing' && <span>Livraison prévue le {month.deliveryShort}</span>}
+          {month.status === 'in_printing' && <span>Livraison prévue {month.deliveryShort}</span>}
           {month.status === 'shipped' && <span>Votre livre est en route</span>}
           {month.status === 'delivered' && <span>Votre livre est arrivé</span>}
           {month.status === 'to_plan' && (
             <>
               <Calendar className="h-3.5 w-3.5" />
-              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) · Livraison ${month.deliveryShort}` : `Livraison prévue le ${month.deliveryShort}`}</span>
+              <span>{month.deadline ? `Ajoutez votre touche avant le ${month.deadline} (optionnel) · Livraison ${month.deliveryShort}` : `Livraison prévue ${month.deliveryShort}`}</span>
             </>
           )}
         </div>
