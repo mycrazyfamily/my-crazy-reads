@@ -1,3 +1,11 @@
+// ConfirmationAbonnement.tsx v1.3
+// v1.3: [1] « avant le 10 du mois » etait ambigu : lu le 11 aout, le lecteur
+//       comprend le 10 aout, deja passe. On annonce le mois — « avant le
+//       10 septembre » — via getFirstPersonalizationDeadline().
+//       [2] Une ligne rassurante sous le mois de livraison. Un abonne du 11
+//       aout lit « debut octobre » et trouve ca lointain ; lui dire qu'il a
+//       jusqu'au 10 septembre pour composer l'histoire transforme l'attente en
+//       temps de preparation, au lieu d'un simple delai subi.
 // ConfirmationAbonnement.tsx v1.2
 // v1.2: deadline de personnalisation 20 -> 10. Contrainte imprimeur : entre la
 //       cloture, la generation des livres, la relecture, l'envoi a l'imprimeur,
@@ -15,13 +23,14 @@ import { CheckCircle, Mail, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getFirstDeliveryMonth, PERSONALIZATION_DEADLINE_DAY } from '@/utils/deliveryMonth';
+import { getFirstDeliveryMonth, getFirstPersonalizationDeadline } from '@/utils/deliveryMonth';
 
 const ConfirmationAbonnement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { refreshSubscription, user } = useAuth();
   const deliveryMonth = getFirstDeliveryMonth();
+  const personalizationDeadline = getFirstPersonalizationDeadline();
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -41,7 +50,7 @@ const ConfirmationAbonnement: React.FC = () => {
     },
     {
       icon: Sparkles,
-      text: `Préparez vos personnages ! Rendez-vous dans l'espace famille pour configurer vos héros avant le ${PERSONALIZATION_DEADLINE_DAY} du mois`,
+      text: `Préparez vos personnages ! Rendez-vous dans l'espace famille pour choisir ses héros et son histoire, jusqu'au ${personalizationDeadline}`,
     },
   ];
 
@@ -59,8 +68,14 @@ const ConfirmationAbonnement: React.FC = () => {
             Félicitations !
           </h1>
 
-          <p className="text-xl text-gray-700 mb-8">
+          <p className="text-xl text-gray-700 mb-2">
             Votre premier livre sera livré début {deliveryMonth}
+          </p>
+
+          {/* v1.3 [2] — l'attente devient un temps de préparation */}
+          <p className="text-base text-gray-600 mb-8">
+            Vous avez jusqu'au {personalizationDeadline} pour composer son histoire.
+            C'est ce temps-là qui rend le livre vraiment unique.
           </p>
 
           <div className="bg-mcf-mint/20 rounded-lg p-6 mb-8">
