@@ -1,3 +1,29 @@
+// MyStoriesTab v3.7
+// Changelog v3.7 (DATE DE RÉFÉRENCE de l'âge alignée sur n8n) :
+//   La v3.6 avait aligné la VALEUR du seuil (5 ans) mais pas la DATE à laquelle
+//   l'âge est évalué. Le front prenait `new Date()`, 4A_Build_Context_Client prend
+//   le DERNIER JOUR DU MOIS DE LIVRAISON du livre configuré.
+//   Cas concret : enfant né le 15 octobre 2021. En septembre 2026 il configure son
+//   livre d'octobre (deadline le 10 septembre). Le front comptait 4 ans → plafond 5.
+//   La fabrication compte 5 ans au 31 octobre → plafond 6. Le parent était privé
+//   d'un emplacement auquel il avait droit.
+//   `childAge` est désormais calculé sur `focusedMonth.deliveryMonthISO`, la date
+//   brute du mois de livraison remontée par la RPC. Repli sur la date du jour quand
+//   ce mois est inconnu (MOCK_MONTHS) — comportement historique préservé.
+//   Nouveau champ optionnel `deliveryMonthISO` sur MockMonth, alimenté par
+//   mapTimelineRow depuis `row.delivery_month`. Aucun affichage ne l'utilise.
+// MyStoriesTab v3.6
+// Changelog v3.6 (PLAFOND DE PERSONNAGES aligné sur le seuil de format) :
+//   Le seuil de format est passé de 4 à 5 ans le 11/08/2026 dans 5A, 5C2 et 6C, puis
+//   dans 4A_Build_Context_Client (budget de casting) le 12/08. Le front était resté à 4.
+//   Conséquence pour un enfant de 4 ans : le wizard affichait « 6 / 6 personnages » et
+//   acceptait six choix, que 4A ramenait ensuite à cinq au moment de la fabrication.
+//   Le parent ne voyait pas son sixième personnage dans le livre, sans explication.
+//   `MAX_TOTAL` passe donc à 6 à partir de 5 ans révolus, 5 en dessous.
+//   Second correctif dans la même ligne : le défaut quand la date de naissance est absente
+//   passe de 6 à 5. C'était le seul cas où le front autorisait PLUS que la fabrication
+//   (4A calcule `ageYears(...) ?? 0`, donc 5). Partout ailleurs le front est déjà plus
+//   restrictif ou égal — voir la réserve sur la date de référence dans la note de session.
 // MyStoriesTab v3.5
 // Changelog v3.5 (LIVRAISON : « 1 septembre » -> « début septembre ») :
 //   La date exacte d'arrivée du colis ne se maîtrise pas — impression, poste,
@@ -336,6 +362,11 @@ interface MockMonth {
   savedNote?: string;
   savedLocationId?: string | null;
   savedLocationLabel?: string | null;
+  // v3.7 — date ISO brute du mois de livraison (le 1er du mois, telle qu'en base).
+  // Sert exclusivement à calculer l'âge de l'enfant À LA MÊME DATE DE RÉFÉRENCE que
+  // 4A_Build_Context_Client côté n8n : le DERNIER JOUR du mois de livraison.
+  // Optionnel : les MOCK_MONTHS n'ont aucun livre en base.
+  deliveryMonthISO?: string;
   substituteOptions?: Array<{
     substituteThemeId: string;
     substituteThemeTitre: string;
@@ -670,6 +701,9 @@ function mapTimelineRow(row: BookTimelineRow, idx: number, childName: string, ch
     monthLabel,
     deliveryDate,
     deliveryShort,
+    // v3.7 — date brute conservée telle quelle, sans reformatage : elle sert de
+    // référence de calcul d'âge, pas d'affichage.
+    deliveryMonthISO: row.delivery_month,
     status,
     // v3.2 [1] — un mois dont la deadline est passée est « en préparation »
     // même si son statut en base est resté à pending_choice.
@@ -891,7 +925,18 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const isSubmittingRef = useRef<boolean>(false);
 
   // Selection caps based on child's age
-  const MAX_TOTAL = (typeof childAge === 'number' && childAge < 4) ? 5 : 6;
+  // v3.6 — SEUIL DE FORMAT. Ce 5 doit rester d'accord avec 4A_Build_Context_Client (n8n),
+  // qui applique le même plafond côté fabrication. Tant que le front autorisait 6 pour un
+  // enfant de 4 ans, le parent pouvait choisir 6 personnages et n'en retrouver que 5 dans
+  // le livre : le cap de 4A tranchait en silence, après coup.
+  // Le seuil vit aussi dans 5A_Prepare_Gemini_Payload, 5C2_Clean_Prop_Lock_Text et
+  // 6C_Select_Template. Toute modification doit toucher les cinq.
+  // Défaut sans date de naissance : 5, comme 4A (`ageYears(...) ?? 0`). L'ancien défaut était
+  // 6 côté front et 5 côté n8n — le seul cas où le parent était sur-autorisé.
+  // v3.7 — `childAge` est maintenant évalué au dernier jour du mois de livraison, comme 4A.
+  // Les deux plafonds concordent donc désormais exactement, y compris le mois anniversaire
+  // et pour les livres réservés à l'avance.
+  const MAX_TOTAL = (typeof childAge === 'number' && childAge >= 5) ? 6 : 5;
   const MAX_PETS = 2;
   const MAX_TOYS = 2;
   const selectedPetsCount = characters.filter((c) => c.type === 'pet' && selected.includes(c.id)).length;
@@ -2971,10 +3016,27 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
           if (!bd) return null;
           const d = new Date(bd);
           if (isNaN(d.getTime())) return null;
-          const now = new Date();
-          let age = now.getFullYear() - d.getFullYear();
-          const m = now.getMonth() - d.getMonth();
-          if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+
+          // v3.7 — DATE DE RÉFÉRENCE alignée sur 4A_Build_Context_Client (n8n) :
+          //   AGE_REF_TS = dernier jour du mois de LIVRAISON du livre configuré.
+          // Avant, le front prenait `new Date()`. Un enfant né le 15 octobre qui
+          // configure en septembre son livre d'octobre avait encore 4 ans pour le
+          // front (plafond 5) alors que la fabrication lui en comptait 5 (plafond 6) :
+          // le parent était privé d'un emplacement auquel il avait droit.
+          // Repli sur la date du jour si le mois de livraison est inconnu (MOCK_MONTHS,
+          // wizard ouvert hors d'un mois ciblé) — c'est le comportement historique.
+          const dm = focusedMonth?.deliveryMonthISO;
+          let ref = new Date();
+          if (dm) {
+            const dmDate = new Date(dm);
+            if (!isNaN(dmDate.getTime())) {
+              ref = new Date(dmDate.getFullYear(), dmDate.getMonth() + 1, 0);
+            }
+          }
+
+          let age = ref.getFullYear() - d.getFullYear();
+          const m = ref.getMonth() - d.getMonth();
+          if (m < 0 || (m === 0 && ref.getDate() < d.getDate())) age--;
           return age;
         })()}
         flow={activeFlow}
