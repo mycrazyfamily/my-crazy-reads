@@ -1,3 +1,19 @@
+// AvatarDisplay v2.1
+// Changelog v2.1 — trois corrections sur l'état d'échec :
+//   (a) PASTILLE CLIPÉE. Le badge était en absolute À L'INTÉRIEUR d'un conteneur
+//       overflow-hidden : le rond découpait tout ce qui dépassait. Il est désormais
+//       posé sur un conteneur PARENT, hors du rond — même structure que l'alerte
+//       d'âge, qui n'a jamais eu ce défaut.
+//   (b) EMOJI DE L'ESPÈCE REMPLACÉ. On réutilisait le fallback, qui affiche 🐱 pour
+//       un chat et 🐾 pour un animal rare. Il disait « voici ton animal » au moment
+//       précis où il faut dire « il manque son portrait ». Remplacé par ImageOff,
+//       la seule icône exacte dans les DEUX cas d'erreur : sur une panne technique,
+//       le parent n'a rien à corriger, une icône « crayon » l'enverrait chercher un
+//       bouton qui n'existe pas.
+//   (c) « ? » AU LIEU DE « ! » et avatar CLIQUABLE. Les infobulles ne s'ouvrent pas
+//       au toucher : sur mobile, le parent voyait une pastille sans aucun moyen de
+//       lire le message. Le clic mène désormais à l'écran de modification, où le
+//       message s'affiche en clair. Le « ? » invite à cette action.
 // AvatarDisplay v2.0
 // Changelog v2.0 — TROIS ÉTATS AU LIEU DE DEUX.
 //   Avant : `showShimmer = !hasAvatar || isRegenerating`. Autrement dit, TOUT
@@ -13,6 +29,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ImageOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buildAvatarErrorMessage, type AvatarStatus } from '@/utils/avatarStatus';
 
@@ -81,40 +98,51 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   // ─── État d'échec ───
   if (failed) {
     const msg = buildAvatarErrorMessage(avatarErrorCode, avatarErrorFields, profileName);
+    const clickable = typeof onErrorClick === 'function';
+
+    // La pastille est posée sur CE conteneur, pas sur le rond : le rond porte
+    // overflow-hidden et découperait tout ce qui dépasse.
+    const bloc = (
+      <div className="relative inline-block">
+        <div
+          role={clickable ? 'button' : undefined}
+          tabIndex={clickable ? 0 : undefined}
+          onClick={onErrorClick}
+          onKeyDown={(e) => {
+            if (clickable && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              onErrorClick!();
+            }
+          }}
+          className={cn(
+            'rounded-full overflow-hidden flex items-center justify-center',
+            'bg-destructive/10 ring-2 ring-destructive/50 ring-offset-2 ring-offset-background',
+            clickable && 'cursor-pointer hover:ring-destructive hover:bg-destructive/15 transition-all',
+            size,
+          )}
+          aria-label={msg.title}
+        >
+          <ImageOff className="h-1/2 w-1/2 text-destructive/70" strokeWidth={1.75} aria-hidden />
+        </div>
+        <span
+          className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-5 w-5 rounded-full bg-destructive border-2 border-background text-white text-[11px] font-bold shadow-md pointer-events-none"
+          aria-hidden
+        >
+          ?
+        </span>
+      </div>
+    );
+
     return (
       <TooltipProvider delayDuration={200}>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              role={onErrorClick ? 'button' : undefined}
-              tabIndex={onErrorClick ? 0 : undefined}
-              onClick={onErrorClick}
-              onKeyDown={(e) => {
-                if (onErrorClick && (e.key === 'Enter' || e.key === ' ')) {
-                  e.preventDefault();
-                  onErrorClick();
-                }
-              }}
-              className={cn(
-                'relative rounded-full overflow-hidden flex items-center justify-center bg-muted',
-                'ring-2 ring-destructive/60 ring-offset-2 ring-offset-background',
-                onErrorClick && 'cursor-pointer hover:ring-destructive transition-all',
-                size,
-              )}
-              aria-label={msg.title}
-            >
-              {fallback}
-              <span
-                className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-5 w-5 rounded-full bg-destructive border-2 border-background text-white text-[11px] font-bold shadow-md"
-                aria-hidden
-              >
-                !
-              </span>
-            </div>
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{bloc}</TooltipTrigger>
           <TooltipContent side="top" className="max-w-[260px] text-center text-xs">
             <p className="font-semibold mb-1">{msg.title}</p>
             <p className="leading-relaxed">{msg.body}</p>
+            {clickable && (
+              <p className="mt-1.5 font-medium opacity-80">Cliquez pour ouvrir sa fiche.</p>
+            )}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
