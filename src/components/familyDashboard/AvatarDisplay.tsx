@@ -1,7 +1,20 @@
+// AvatarDisplay v2.0
+// Changelog v2.0 — TROIS ÉTATS AU LIEU DE DEUX.
+//   Avant : `showShimmer = !hasAvatar || isRegenerating`. Autrement dit, TOUT
+//   profil sans avatar affichait « Création… » en permanence — même des mois
+//   après un échec, même si personne n'avait rien lancé. C'était la cause du
+//   « création indéfiniment » signalé en test.
+//   Désormais l'affichage suit avatar_status, écrit en base par le workflow :
+//     'pending'        → shimmer « Création… »   (une génération tourne vraiment)
+//     'failed'         → état d'erreur cliquable (anneau rouge + badge + infobulle)
+//     'ready' / absent → l'avatar, ou le fallback SILENCIEUX (emoji)
+//   Le dernier cas couvre les profils hérités d'avant le lot 1 : ils cessent de
+//   promettre une création qui n'arrivera jamais.
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { buildAvatarErrorMessage, type AvatarStatus } from '@/utils/avatarStatus';
 
 interface AvatarDisplayProps {
   imgSrc: string | null;
@@ -16,6 +29,14 @@ interface AvatarDisplayProps {
   alt: string;
   size?: string;
   ageAlert?: { hasAlert: boolean; message: string };
+  /** v2.0 — statut de génération. Absent = comportement hérité (pas de promesse de création). */
+  avatarStatus?: AvatarStatus;
+  avatarErrorCode?: string | null;
+  avatarErrorFields?: string | null;
+  /** Nom du personnage, pour personnaliser le message d'erreur. */
+  profileName?: string | null;
+  /** Appelé au clic sur un avatar en échec — la carte y branche « Voir le problème ». */
+  onErrorClick?: () => void;
 }
 
 const shimmerKeyframes = `
@@ -42,13 +63,63 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   alt,
   size = 'h-16 w-16',
   ageAlert,
+  avatarStatus,
+  avatarErrorCode,
+  avatarErrorFields,
+  profileName,
+  onErrorClick,
 }) => {
   const [open, setOpen] = useState(false);
   const hasAvatar = Boolean(avatarUrl?.trim());
   const canOpen = hasAvatar && !hasError;
 
-  // Show shimmer when no avatar OR when regenerating
-  const showShimmer = !hasAvatar || isRegenerating;
+  // v2.0 — la base fait autorité. Le shimmer ne s'affiche QUE si une génération
+  // tourne réellement : drapeau client (les premières secondes) ou statut 'pending'.
+  const failed = avatarStatus === 'failed';
+  const showShimmer = !failed && (isRegenerating || avatarStatus === 'pending');
+
+  // ─── État d'échec ───
+  if (failed) {
+    const msg = buildAvatarErrorMessage(avatarErrorCode, avatarErrorFields, profileName);
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              role={onErrorClick ? 'button' : undefined}
+              tabIndex={onErrorClick ? 0 : undefined}
+              onClick={onErrorClick}
+              onKeyDown={(e) => {
+                if (onErrorClick && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  onErrorClick();
+                }
+              }}
+              className={cn(
+                'relative rounded-full overflow-hidden flex items-center justify-center bg-muted',
+                'ring-2 ring-destructive/60 ring-offset-2 ring-offset-background',
+                onErrorClick && 'cursor-pointer hover:ring-destructive transition-all',
+                size,
+              )}
+              aria-label={msg.title}
+            >
+              {fallback}
+              <span
+                className="absolute -top-1 -right-1 z-10 flex items-center justify-center h-5 w-5 rounded-full bg-destructive border-2 border-background text-white text-[11px] font-bold shadow-md"
+                aria-hidden
+              >
+                !
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-[260px] text-center text-xs">
+            <p className="font-semibold mb-1">{msg.title}</p>
+            <p className="leading-relaxed">{msg.body}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 
   if (showShimmer) {
     return (
