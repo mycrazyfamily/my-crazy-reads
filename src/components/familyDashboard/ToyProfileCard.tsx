@@ -1,3 +1,9 @@
+// ToyProfileCard v2.0
+// Changelog v2.0 — transmet le statut de génération à AvatarDisplay.
+//   Les trois colonnes viennent de useFamilyData v3.0 : le hook n'a plus besoin
+//   de sa lecture individuelle au montage (une requête par carte en moins).
+//   La carte affiche l'état d'échec sans dépendre du realtime : le refetch de
+//   useFamilyData suffit.
 // ToyProfileCard v1.0
 // Nouveau fichier — calqué sur PetProfileCard.tsx pour la parité visuelle.
 // Note : labels des types/rôles devinés (pas d'accès à constants/toyOptions.ts) — à ajuster
@@ -21,11 +27,15 @@ interface ToyProfileCardProps {
 }
 
 const ToyProfileCard: React.FC<ToyProfileCardProps> = ({ toy, childrenNames, primaryChildId }) => {
-  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
+          avatarStatus, avatarErrorCode, avatarErrorFields } =
     useRealtimeAvatar({
       table: 'comforters',
       id: toy.comforterId || toy.id,
       initialAvatarUrl: (toy as any).avatar_url,
+      initialAvatarStatus: (toy as any)?.avatar_status ?? null,
+      initialAvatarErrorCode: (toy as any)?.avatar_error_code ?? null,
+      initialAvatarErrorFields: (toy as any)?.avatar_error_fields ?? null,
     });
 
   const getToyTypeEmoji = (type: string) => {
@@ -81,6 +91,10 @@ const ToyProfileCard: React.FC<ToyProfileCardProps> = ({ toy, childrenNames, pri
             isNew={isNew}
             hasError={hasError}
             isRegenerating={isRegenerating}
+          avatarStatus={avatarStatus}
+          avatarErrorCode={avatarErrorCode}
+          avatarErrorFields={avatarErrorFields}
+          profileName={toy.name}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}
