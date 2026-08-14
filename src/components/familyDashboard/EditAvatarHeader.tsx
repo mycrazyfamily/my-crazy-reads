@@ -1,3 +1,12 @@
+// EditAvatarHeader v3.1
+// Changelog v3.1 — LE ROND QUI TOURNAIT À TORT.
+//   Sur un refus de contenu, le bouton était rendu désactivé — mais
+//   ResetAvatarButton affiche alors son propre libellé « Création en cours… »
+//   avec un spinner animé. Le parent voyait donc une roue tourner sous un encart
+//   rouge disant que rien ne tourne : deux messages contradictoires.
+//   Le bouton n'est plus rendu du tout dans ce cas ; il est remplacé par une
+//   ligne statique, sans animation. Sur une panne technique, en revanche,
+//   relancer a du sens : le bouton reste, actif.
 // EditAvatarHeader v3.0
 // Changelog v3.0 — L'ÉCRAN DE MODIFICATION MONTRE ENFIN L'ÉCHEC.
 //   Cet écran connaissait l'avatar mais pas son statut : après un échec, il
@@ -46,7 +55,7 @@
 // Le header ne fait que : charger l'avatar de référence + family_id, afficher via AvatarDisplay
 // (clic-pour-agrandir + shimmer natifs), et rendre le bouton (verrouillé pendant la régé).
 import React, { useEffect, useState } from 'react';
-import { UserRound, AlertTriangle } from 'lucide-react';
+import { UserRound, AlertTriangle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
@@ -235,16 +244,27 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
 
       {/* Encart TOUJOURS rendu (structure stable) : seul le bouton se (dé)verrouille. */}
       <div className="w-full max-w-sm rounded-xl border border-mcf-mint bg-mcf-mint/5 px-4 py-3 flex flex-col items-center gap-1">
-        <ResetAvatarButton
-          profileId={profileId}
-          profileType={profileType}
-          profileName={profileName}
-          familyId={resolvedFamilyId}
-          disabled={busy || errorMessage?.canFix === true}
-        />
+        {errorMessage?.canFix ? (
+          /* v3.1 — bloc STATIQUE, sans spinner. Régénérer reprendrait exactement la
+             même description, donc le même mot refusé : le bouton n'a pas de sens
+             ici, et son libellé animé « Création en cours… » disait le contraire de
+             l'encart rouge juste au-dessus. */
+          <p className="text-sm font-medium text-muted-foreground/70 text-center flex items-center justify-center gap-2">
+            <RefreshCw className="h-4 w-4 opacity-50" aria-hidden />
+            Régénération indisponible
+          </p>
+        ) : (
+          <ResetAvatarButton
+            profileId={profileId}
+            profileType={profileType}
+            profileName={profileName}
+            familyId={resolvedFamilyId}
+            disabled={busy}
+          />
+        )}
         <p className="text-[11px] leading-snug text-muted-foreground/80 text-center">
           {errorMessage?.canFix
-            ? "Indisponible tant que la description n'est pas corrigée : régénérer reprendrait le même texte."
+            ? 'Corrigez la description ci-dessous puis enregistrez : la création repartira toute seule.'
             : 'Garde les mêmes caractéristiques physiques.'}
         </p>
         <p className="text-[11px] leading-snug text-muted-foreground/70 text-center mt-2 pt-2 border-t border-mcf-mint/40">
