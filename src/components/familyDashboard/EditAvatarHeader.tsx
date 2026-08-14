@@ -1,3 +1,17 @@
+// EditAvatarHeader v3.0
+// Changelog v3.0 — L'ÉCRAN DE MODIFICATION MONTRE ENFIN L'ÉCHEC.
+//   Cet écran connaissait l'avatar mais pas son statut : après un échec, il
+//   réaffichait tranquillement l'ANCIENNE image, comme si de rien n'était. Le
+//   parent arrivait ici depuis la carte en erreur et ne comprenait plus rien.
+//   Trois changements :
+//   (a) L'avatar passe en état d'échec, comme sur la carte (AvatarDisplay v2.1).
+//   (b) Un ENCART ROUGE affiche le message complet — c'est le seul endroit où le
+//       parent peut le lire sur mobile, les infobulles ne s'ouvrant pas au toucher.
+//       Il est juste au-dessus des champs à corriger.
+//   (c) « Générer une autre proposition » est DÉSACTIVÉ sur un refus de contenu :
+//       ce bouton régénère avec les mêmes caractéristiques, donc avec le même mot
+//       interdit. Il échouerait à coup sûr. Sur une panne technique, en revanche,
+//       relancer a du sens : le bouton reste actif.
 // EditAvatarHeader v2.1
 // Changelog v2.1 (AFFICHAGE UNIQUEMENT — aucun texte ni logique de contenu modifié) :
 //   • P1 (flash « 🎨 Création… » à l'ouverture) : on PRÉCHARGE l'avatar de référence existant
@@ -32,12 +46,13 @@
 // Le header ne fait que : charger l'avatar de référence + family_id, afficher via AvatarDisplay
 // (clic-pour-agrandir + shimmer natifs), et rendre le bouton (verrouillé pendant la régé).
 import React, { useEffect, useState } from 'react';
-import { UserRound } from 'lucide-react';
+import { UserRound, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import ResetAvatarButton from '@/components/familyDashboard/ResetAvatarButton';
+import { buildAvatarErrorMessage } from '@/utils/avatarStatus';
 
 type ProfileType = 'child' | 'relative' | 'pet' | 'comforter';
 type AvatarTable = 'child_profiles' | 'family_members' | 'pets' | 'comforters';
@@ -117,7 +132,16 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
     isRegenerating,
     onImageLoad,
     onImageError,
+    avatarStatus,
+    avatarErrorCode,
+    avatarErrorFields,
+    hasFailed,
   } = useRealtimeAvatar({ table, id: profileId, initialAvatarUrl: resolvedAvatarUrl });
+
+  // v3.0 — message d'échec, construit depuis la source unique partagée.
+  const errorMessage = hasFailed
+    ? buildAvatarErrorMessage(avatarErrorCode, avatarErrorFields, profileName)
+    : null;
 
   // ─── P1 : preload de l'avatar de référence existant ───
   // Tant que l'image n'est pas téléchargée (et hors régénération), on montre un placeholder neutre
@@ -147,11 +171,15 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
 
   // « Occupé » = régénération en cours OU aucun avatar affichable (création/génération non terminée).
   // Le bouton suit cet état (disabled), en cohérence avec le shimmer d'AvatarDisplay.
-  const busy = isRegenerating || !avatarUrl;
+  // v3.0 — un échec n'est PAS un « occupé » : la ligne « en cours de création »
+  // ne doit pas s'afficher alors que plus rien ne tourne.
+  const busy = !hasFailed && (isRegenerating || !avatarUrl);
 
   // Placeholder de preload : uniquement pour un avatar EXISTANT pas encore téléchargé et hors régé.
   // (Sans avatar → AvatarDisplay affiche son « Création… » légitime ; en régé → shimmer légitime.)
-  const showStablePlaceholder = !!resolvedAvatarUrl && !imgReady && !isRegenerating;
+  // v3.0 — en échec, on n'attend pas le préchargement de l'ancienne image :
+  // c'est justement elle qu'il ne faut plus montrer.
+  const showStablePlaceholder = !hasFailed && !!resolvedAvatarUrl && !imgReady && !isRegenerating;
 
   return (
     <div className="flex flex-col items-center gap-3 pb-2">
@@ -166,6 +194,10 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
           isNew={isNew}
           hasError={hasError}
           isRegenerating={isRegenerating}
+          avatarStatus={avatarStatus}
+          avatarErrorCode={avatarErrorCode}
+          avatarErrorFields={avatarErrorFields}
+          profileName={profileName}
           onImageLoad={onImageLoad}
           onImageError={onImageError}
           fallback={fallback}
@@ -186,6 +218,21 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
         Nouvel avatar en cours de création…
       </p>
 
+      {/* v3.0 — Encart d'échec : le SEUL endroit où le parent peut lire le message
+          sur mobile. Placé juste au-dessus des champs qu'il doit corriger. */}
+      {errorMessage && (
+        <div
+          className="w-full max-w-sm rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 flex gap-3"
+          role="alert"
+        >
+          <AlertTriangle className="h-5 w-5 shrink-0 text-destructive mt-0.5" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-destructive">{errorMessage.title}</p>
+            <p className="text-xs leading-relaxed text-muted-foreground mt-1">{errorMessage.body}</p>
+          </div>
+        </div>
+      )}
+
       {/* Encart TOUJOURS rendu (structure stable) : seul le bouton se (dé)verrouille. */}
       <div className="w-full max-w-sm rounded-xl border border-mcf-mint bg-mcf-mint/5 px-4 py-3 flex flex-col items-center gap-1">
         <ResetAvatarButton
@@ -193,10 +240,12 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
           profileType={profileType}
           profileName={profileName}
           familyId={resolvedFamilyId}
-          disabled={busy}
+          disabled={busy || errorMessage?.canFix === true}
         />
         <p className="text-[11px] leading-snug text-muted-foreground/80 text-center">
-          Garde les mêmes caractéristiques physiques.
+          {errorMessage?.canFix
+            ? "Indisponible tant que la description n'est pas corrigée : régénérer reprendrait le même texte."
+            : 'Garde les mêmes caractéristiques physiques.'}
         </p>
         <p className="text-[11px] leading-snug text-muted-foreground/70 text-center mt-2 pt-2 border-t border-mcf-mint/40">
           ⚠️ Attention : pour changer l'apparence ({appearanceExamples}), modifiez les champs du formulaire ci-dessous et enregistrez.
