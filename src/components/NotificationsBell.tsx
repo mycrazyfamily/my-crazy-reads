@@ -1,3 +1,12 @@
+// NotificationsBell v2.1
+// Changelog v2.1 — LA CLOCHE RÉVEILLE LES CARTES.
+//   La cloche interroge la base toutes les 15 s, useFamilyData toutes les 8 s :
+//   deux horloges non synchronisées, donc l'alerte arrivait parfois quelques
+//   secondes AVANT que la carte ne passe au rouge — le parent lisait « avatar
+//   non créé » en regardant une carte qui affichait encore « Création… ».
+//   Plutôt que d'accélérer l'un ou l'autre, on relie les deux : dès qu'une
+//   alerte d'avatar arrive, on invalide le cache des données famille. Les cartes
+//   se rafraîchissent dans la foulée, sans requête supplémentaire ailleurs.
 // NotificationsBell v2.0
 // Changelog v2.0 — LA CLOCHE NE DÉPEND PLUS DU TEMPS RÉEL.
 //   L'abonnement realtime (INSERT sur notifications) existe depuis l'origine et
@@ -13,8 +22,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { FAMILY_DATA_KEY } from '@/hooks/useFamilyData';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -58,6 +69,29 @@ const NotificationsBell: React.FC = () => {
   const { isAuthenticated, supabaseSession } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  // Dernière notification vue, pour ne réagir qu'aux NOUVELLES. Sans ce garde-fou,
+  // chaque sondage invaliderait le cache famille et relancerait un chargement
+  // complet toutes les 15 secondes.
+  const lastSeenIdRef = useRef<string | null>(null);
+
+  // Une alerte d'avatar signifie qu'une ligne vient de changer de statut :
+  // on force les cartes à se rafraîchir tout de suite plutôt que d'attendre
+  // leur propre cycle.
+  const wakeUpFamilyCards = useCallback(
+    (list: Notification[] | null | undefined) => {
+      const newest = list && list.length > 0 ? list[0] : null;
+      if (!newest) return;
+      const premierChargement = lastSeenIdRef.current === null;
+      if (newest.id === lastSeenIdRef.current) return;
+      lastSeenIdRef.current = newest.id;
+      if (!premierChargement && newest.type === 'avatar_failed') {
+        queryClient.invalidateQueries({ queryKey: [FAMILY_DATA_KEY] });
+      }
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     setIsOpen(false);
@@ -85,6 +119,7 @@ const NotificationsBell: React.FC = () => {
 
     setNotifications(data || []);
     setUnreadCount(data?.filter(n => !n.read).length || 0);
+    wakeUpFamilyCards(data as Notification[] | null);
   };
 
   const markAsRead = async (notificationId: string) => {
@@ -115,8 +150,10 @@ const NotificationsBell: React.FC = () => {
             filter: `user_id=eq.${supabaseSession?.user?.id}`,
           },
           (payload) => {
-            setNotifications(prev => [payload.new as Notification, ...prev]);
+            const arrivee = payload.new as Notification;
+            setNotifications(prev => [arrivee, ...prev]);
             setUnreadCount(prev => prev + 1);
+            wakeUpFamilyCards([arrivee]);
           }
         )
         .subscribe();
@@ -153,7 +190,7 @@ const NotificationsBell: React.FC = () => {
         document.removeEventListener('visibilitychange', onFocus);
       };
     }
-  }, [isAuthenticated, supabaseSession?.user?.id]);
+  }, [isAuthenticated, supabaseSession?.user?.id, wakeUpFamilyCards]);
 
   if (!isAuthenticated) return null;
 
