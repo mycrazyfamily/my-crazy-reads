@@ -1,3 +1,15 @@
+// useFamilyData v3.0
+// Changelog v3.0 — REMONTE LE STATUT DE GÉNÉRATION D'AVATAR.
+//   (a) Les quatre requêtes (enfant, proche, animal, doudou) lisent désormais
+//       avatar_status / avatar_error_code / avatar_error_fields à côté d'avatar_url,
+//       et les transmettent aux cartes. Le hook useRealtimeAvatar cesse alors sa
+//       lecture individuelle au montage : une requête au lieu d'une par carte.
+//   (b) LE POLLING NE TOURNE PLUS DANS LE VIDE. hasMissingAvatar rebouclait
+//       toutes les 8 s tant qu'une entité visible n'avait pas d'avatar_url. Avec
+//       des profils dont la génération a échoué — ou n'a jamais eu lieu — la
+//       condition n'était JAMAIS satisfaite : la page rechargeait indéfiniment,
+//       en arrière-plan, pour rien. On ne recharge maintenant que tant qu'une
+//       génération est réellement en cours (statut 'pending').
 // useFamilyData v2.1
 // Changelog v2.1 : (a) refetchOnMount 'always' → l'enfant/entités fraîchement créés apparaissent
 // sans F5 au retour sur l'espace famille ; (b) refetchInterval conditionnel → tant qu'au moins un
@@ -43,6 +55,10 @@ export interface FamilyChild {
   age: string;
   gender: string | null;
   avatar: string | null;
+  /** v3.0 — statut de génération, transmis aux cartes puis à useRealtimeAvatar. */
+  avatarStatus: string | null;
+  avatarErrorCode: string | null;
+  avatarErrorFields: string | null;
   personalityEmoji: string;
   relatives: any[];
   pets: any[];
@@ -76,7 +92,10 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
         .eq('family_id', familyId)
     : { data: [] as any[] };
 
-  const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url, is_deceased`;
+  // v3.0 — les trois colonnes de statut voyagent avec avatar_url, partout.
+  const AVATAR_COLS = 'avatar_status, avatar_error_code, avatar_error_fields';
+
+  const baseSelect = `id, first_name, birth_date, gender, created_at, family_id, user_id, avatar_url, is_deceased, ${AVATAR_COLS}`;
 
   const qByUser = supabase.from('child_profiles').select(baseSelect).eq('user_id', userId);
   const qByFamily = userProfile?.family_id
@@ -99,6 +118,9 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
     age: profile.birth_date ? calculateExactAge(profile.birth_date) : '',
     gender: profile.gender || null,
     avatar: profile.avatar_url || null,
+    avatarStatus: profile.avatar_status ?? null,
+    avatarErrorCode: profile.avatar_error_code ?? null,
+    avatarErrorFields: profile.avatar_error_fields ?? null,
     personalityEmoji: '🧒',
     relatives: [],
     pets: [],
@@ -130,10 +152,10 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           supabase.from('child_challenges').select('challenges(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_universes').select('universes(label, emoji)').eq('child_id', profile.id),
           supabase.from('child_discoveries').select('discoveries(label, emoji)').eq('child_id', profile.id),
-          supabase.from('child_family_members').select('family_member_id, is_active, family_members(id, name, role, avatar_url, details, is_deceased)').eq('child_id', profile.id),
-          supabase.from('child_pets').select('pet_id, pets(id, name, type, emoji, avatar_url, breed, is_deceased, is_active, inactive_reason)').eq('child_id', profile.id),
+          supabase.from('child_family_members').select(`family_member_id, is_active, family_members(id, name, role, avatar_url, details, is_deceased, ${AVATAR_COLS})`).eq('child_id', profile.id),
+          supabase.from('child_pets').select(`pet_id, pets(id, name, type, emoji, avatar_url, breed, is_deceased, is_active, inactive_reason, ${AVATAR_COLS})`).eq('child_id', profile.id),
           // Nouveau schéma : 1 doudou = 1 enfant, child_id direct sur comforters (plus de jonction)
-          supabase.from('comforters').select('id, label, emoji, avatar_url, is_active, appearance, roles, relation_label').eq('child_id', profile.id),
+          supabase.from('comforters').select(`id, label, emoji, avatar_url, is_active, appearance, roles, relation_label, ${AVATAR_COLS}`).eq('child_id', profile.id),
         ]);
 
         const prefsTotal = (superpowersRes.data?.length || 0) + (likesRes.data?.length || 0) + (challengesRes.data?.length || 0) + (universesRes.data?.length || 0) + (discoveriesRes.data?.length || 0);
@@ -157,6 +179,9 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
             type: fm.role,
             nickname: null,
             avatar_url: fm.avatar_url,
+            avatar_status: fm.avatar_status ?? null,
+            avatar_error_code: fm.avatar_error_code ?? null,
+            avatar_error_fields: fm.avatar_error_fields ?? null,
             is_deceased: fm.is_deceased ?? false,
           };
         }).filter(Boolean);
@@ -170,6 +195,9 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
             type: p.type,
             emoji: p.emoji,
             avatar_url: p.avatar_url,
+            avatar_status: p.avatar_status ?? null,
+            avatar_error_code: p.avatar_error_code ?? null,
+            avatar_error_fields: p.avatar_error_fields ?? null,
             is_deceased: p.is_deceased ?? false,
             is_active: p.is_active ?? true,
             inactive_reason: p.inactive_reason ?? null,
@@ -184,6 +212,9 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
           roles: c.roles ? String(c.roles).split(',').map((r: string) => r.trim()).filter(Boolean) : [],
           emoji: c.emoji,
           avatar_url: c.avatar_url,
+          avatar_status: c.avatar_status ?? null,
+          avatar_error_code: c.avatar_error_code ?? null,
+          avatar_error_fields: c.avatar_error_fields ?? null,
           is_active: c.is_active ?? true,
         }));
 
@@ -207,15 +238,24 @@ async function fetchFamilyData(userId: string): Promise<FamilyChild[]> {
   return children;
 }
 
-// Un avatar est « attendu » tant qu'une entité VISIBLE (active) n'a pas d'avatar_url. On ignore les
-// entités inactives (décédées / perdues / brouillées) pour ne pas boucler sur des cas légitimes.
-function hasMissingAvatar(children: FamilyChild[] | undefined): boolean {
+// v3.0 — On ne recharge que tant qu'une génération est RÉELLEMENT EN COURS.
+//
+// Avant, la condition était « une entité visible n'a pas d'avatar_url ». Elle
+// n'était jamais satisfaite pour un profil dont la génération avait échoué, ou
+// n'avait jamais eu lieu : la page rechargeait toutes les 8 secondes, à l'infini,
+// pour une image qui n'arriverait pas. Le statut 'pending' donne enfin une
+// condition d'arrêt : 'ready' et 'failed' sont deux fins de course légitimes.
+//
+// Les entités inactives (décédées, perdues) sont toujours ignorées : leur avatar
+// ne sera pas régénéré et ne doit pas maintenir la boucle.
+function hasPendingAvatar(children: FamilyChild[] | undefined): boolean {
   if (!children || children.length === 0) return false;
+  const pending = (status: unknown) => status === 'pending';
   return children.some((child) =>
-    (!child.isDeceased && !child.avatar) ||
-    (child.relatives || []).some((r: any) => r?.is_deceased !== true && !r?.avatar_url) ||
-    (child.pets || []).some((p: any) => p?.is_deceased !== true && p?.is_active !== false && !p?.avatar_url) ||
-    (child.toys || []).some((t: any) => t?.is_active !== false && !t?.avatar_url)
+    (!child.isDeceased && pending(child.avatarStatus)) ||
+    (child.relatives || []).some((r: any) => r?.is_deceased !== true && pending(r?.avatar_status)) ||
+    (child.pets || []).some((p: any) => p?.is_deceased !== true && p?.is_active !== false && pending(p?.avatar_status)) ||
+    (child.toys || []).some((t: any) => t?.is_active !== false && pending(t?.avatar_status))
   );
 }
 
@@ -232,10 +272,10 @@ export function useFamilyData() {
     // Rafraîchit à chaque arrivée sur l'espace famille (retour depuis l'abonnement après création,
     // etc.) → l'enfant et les entités fraîchement créés apparaissent sans F5.
     refetchOnMount: 'always',
-    // Tant qu'un avatar manque (image générée avec un délai côté n8n), on refetch toutes les 8 s ;
-    // dès que tous les avatars visibles sont là, on s'arrête. Ne tourne que si l'espace famille est
-    // monté (pas de refetch en arrière-plan).
-    refetchInterval: (query) => (hasMissingAvatar(query.state.data as FamilyChild[] | undefined) ? 8000 : false),
+    // v3.0 — refetch toutes les 8 s tant qu'une génération est en cours ('pending'),
+    // puis arrêt. C'est aussi ce qui fait apparaître l'état d'échec sur la carte en
+    // moins de 8 secondes, même si le realtime n'arrive pas au navigateur.
+    refetchInterval: (query) => (hasPendingAvatar(query.state.data as FamilyChild[] | undefined) ? 8000 : false),
     refetchIntervalInBackground: false,
   });
 }
