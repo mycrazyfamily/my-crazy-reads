@@ -1,3 +1,12 @@
+// ChildProfileCard v2.2
+// Changelog v2.2 — CORRECTIF : l'enfant lisait des champs inexistants.
+//   useFamilyData expose l'enfant en camelCase (contrat de l'interface
+//   FamilyChild : avatarStatus, avatarErrorCode, avatarErrorFields), alors que
+//   les proches, animaux et doudous sont enrichis en snake_case. La v2.1 lisait
+//   child.avatar_status pour les quatre : undefined pour l'enfant seulement.
+//   La carte croyait donc que tout allait bien et affichait l'ancien avatar,
+//   alors que la base disait 'failed' et que la fiche affichait bien l'erreur.
+//   Non détecté par esbuild, qui retire les types sans les vérifier.
 // ChildProfileCard v2.1
 // Changelog v2.1 — un avatar en échec est CLIQUABLE et mène à l'écran de modification.
 //   Les infobulles ne s'ouvrent pas au toucher : sans ce clic, un parent sur mobile
@@ -31,6 +40,10 @@ interface Child {
   hasPets?: number;
   birthDate?: string | null;
   isDeceased?: boolean;
+  /** v2.2 — camelCase, comme le reste de FamilyChild. Voir useFamilyData v3.0. */
+  avatarStatus?: string | null;
+  avatarErrorCode?: string | null;
+  avatarErrorFields?: string | null;
 }
 
 interface ChildProfileCardProps {
@@ -45,9 +58,9 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
       table: 'child_profiles',
       id: child.id,
       initialAvatarUrl: child.avatar,
-      initialAvatarStatus: child?.avatar_status ?? null,
-      initialAvatarErrorCode: child?.avatar_error_code ?? null,
-      initialAvatarErrorFields: child?.avatar_error_fields ?? null,
+      initialAvatarStatus: (child?.avatarStatus ?? null) as any,
+      initialAvatarErrorCode: child?.avatarErrorCode ?? null,
+      initialAvatarErrorFields: child?.avatarErrorFields ?? null,
     });
 
   const ageAlert = getChildAvatarAlert(child.firstName, child.birthDate, avatarUrl);
