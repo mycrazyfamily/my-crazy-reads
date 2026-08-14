@@ -1,3 +1,7 @@
+// PetProfileCard v2.1
+// Changelog v2.1 — un avatar en échec est CLIQUABLE et mène à l'écran de modification.
+//   Les infobulles ne s'ouvrent pas au toucher : sans ce clic, un parent sur mobile
+//   voyait la pastille rouge sans aucun moyen de lire le message ni de corriger.
 // PetProfileCard v2.0
 // Changelog v2.0 — transmet le statut de génération à AvatarDisplay.
 //   Les trois colonnes viennent de useFamilyData v3.0 : le hook n'a plus besoin
@@ -5,7 +9,7 @@
 //   La carte affiche l'état d'échec sans dépendre du realtime : le refetch de
 //   useFamilyData suffit.
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Heart, LogOut } from 'lucide-react';
@@ -20,6 +24,7 @@ interface PetProfileCardProps {
 }
 
 const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, primaryChildId }) => {
+  const navigate = useNavigate();
   const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
           avatarStatus, avatarErrorCode, avatarErrorFields } =
     useRealtimeAvatar({
@@ -100,6 +105,7 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
           avatarErrorCode={avatarErrorCode}
           avatarErrorFields={avatarErrorFields}
           profileName={pet.name}
+          onErrorClick={() => navigate(`/modifier-animal/${primaryChildId}/${pet.id}`)}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}
