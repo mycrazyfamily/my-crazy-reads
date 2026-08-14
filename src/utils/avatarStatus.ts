@@ -1,3 +1,5 @@
+// avatarStatus v1.2
+// Changelog v1.2 : tiret cadratin remplacé par une virgule dans le message technique.
 // avatarStatus v1.1
 // Changelog v1.1 — on n'écrit plus « vous n'avez rien à faire » tout court.
 //   Sur une panne technique, relancer soi-même marche souvent : le message
@@ -96,7 +98,7 @@ export function buildAvatarErrorMessage(
   return {
     title: `L'avatar de ${who} arrive avec du retard`,
     body:
-      "Un incident technique de notre côté a interrompu sa création — rien à voir avec ce que "
+      "Un incident technique de notre côté a interrompu sa création, rien à voir avec ce que "
       + "vous avez saisi. Notre équipe est prévenue et s'en occupe. Si vous ne voulez pas "
       + "attendre, ouvrez sa fiche et utilisez « Générer une autre proposition » : cela relance "
       + 'la création immédiatement.',
