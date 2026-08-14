@@ -1,3 +1,14 @@
+// useRealtimeAvatar v2.1
+// Changelog v2.1 — LE RETOUR À LA NORMALE NE SE VOYAIT PAS.
+//   Après correction, la carte restait rouge jusqu'au rechargement. Deux causes,
+//   toutes deux traitées ici, la troisième l'étant côté workflow (le node
+//   1A_Mark_Avatar_Pending écrit désormais 'pending' au début d'une régénération) :
+//   (a) Au montage, quand le drapeau client dit « une régénération vient d'être
+//       demandée », on efface OPTIMISTEMENT l'état d'échec précédent. Sans ça, la
+//       carte affichait le rouge le temps que le workflow écrive 'pending'.
+//   (b) Le parent (useFamilyData) peut renvoyer un 'failed' PÉRIMÉ pendant cette
+//       fenêtre — son refetch part avant que le workflow n'ait écrit. On l'ignore
+//       tant qu'une régénération est en cours localement.
 // useRealtimeAvatar v2.0
 // Changelog v2.0 — LECTURE DU STATUT DE GÉNÉRATION.
 //   Avant, le hook ne connaissait que avatar_url. Le front ne pouvait donc pas
@@ -109,6 +120,12 @@ export function useRealtimeAvatar({
     if (consumeAvatarRegeneration(id) || isAvatarRegenerating(id)) {
       // Signal found → show shimmer (full if no URL, overlay if URL exists)
       setIsRegenerating(true);
+      // v2.1 — une régénération vient d'être demandée : l'échec précédent n'a plus
+      // cours. On l'efface tout de suite plutôt que d'attendre que le workflow
+      // écrive 'pending', sinon la carte reste rouge une ou deux secondes de trop.
+      setAvatarStatus('pending');
+      setAvatarErrorCode(null);
+      setAvatarErrorFields(null);
     } else {
       // No signal → display existing URL normally
       setIsRegenerating(false);
@@ -164,10 +181,14 @@ export function useRealtimeAvatar({
   // Le parent rafraîchit ses données → on suit.
   useEffect(() => {
     if (!parentProvidesStatus) return;
+    // v2.1 — pendant une régénération demandée localement, un 'failed' venu du
+    // parent est PÉRIMÉ : son refetch est parti avant que le workflow n'écrive
+    // 'pending'. L'accepter ferait clignoter la carte en rouge.
+    if (isRegenerating && (initialAvatarStatus ?? null) === 'failed') return;
     setAvatarStatus(initialAvatarStatus ?? null);
     setAvatarErrorCode(initialAvatarErrorCode ?? null);
     setAvatarErrorFields(initialAvatarErrorFields ?? null);
-  }, [parentProvidesStatus, initialAvatarStatus, initialAvatarErrorCode, initialAvatarErrorFields]);
+  }, [parentProvidesStatus, initialAvatarStatus, initialAvatarErrorCode, initialAvatarErrorFields, isRegenerating]);
 
   // ─── Apply a genuinely NEW url from Realtime or polling ───
   const applyNewUrl = useCallback((newUrl: string | null) => {
