@@ -1,3 +1,7 @@
+// ChildProfileCard v2.1
+// Changelog v2.1 — un avatar en échec est CLIQUABLE et mène à l'écran de modification.
+//   Les infobulles ne s'ouvrent pas au toucher : sans ce clic, un parent sur mobile
+//   voyait la pastille rouge sans aucun moyen de lire le message ni de corriger.
 // ChildProfileCard v2.0
 // Changelog v2.0 — transmet le statut de génération à AvatarDisplay.
 //   Les trois colonnes viennent de useFamilyData v3.0 : le hook n'a plus besoin
@@ -6,7 +10,7 @@
 //   useFamilyData suffit.
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart } from 'lucide-react';
@@ -34,6 +38,7 @@ interface ChildProfileCardProps {
 }
 
 const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
+  const navigate = useNavigate();
   const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
           avatarStatus, avatarErrorCode, avatarErrorFields } =
     useRealtimeAvatar({
@@ -79,6 +84,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
           avatarErrorCode={avatarErrorCode}
           avatarErrorFields={avatarErrorFields}
           profileName={child.firstName}
+          onErrorClick={() => navigate(`/creer-profil-enfant?edit=${child.id}`)}
           onImageLoad={onImageLoad}
           onImageError={onImageError}
           fallback={fallback}
