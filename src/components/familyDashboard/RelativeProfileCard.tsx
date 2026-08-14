@@ -1,3 +1,8 @@
+// RelativeProfileCard v2.2
+// Changelog v2.2 — les trois champs de statut sont DÉCLARÉS dans l'interface.
+//   La lecture était déjà correcte (snake_case, comme relativesEnriched dans
+//   useFamilyData), mais les champs n'étaient pas typés : esbuild laisse passer,
+//   un tsc les refuserait. Aucun changement de comportement.
 // RelativeProfileCard v2.1
 // Changelog v2.1 — un avatar en échec est CLIQUABLE et mène à l'écran de modification.
 //   Les infobulles ne s'ouvrent pas au toucher : sans ce clic, un parent sur mobile
@@ -30,6 +35,9 @@ interface RelativeProfileCardProps {
     birthDate?: string | null;
     details?: any;
     is_deceased?: boolean;
+    avatar_status?: string | null;
+    avatar_error_code?: string | null;
+    avatar_error_fields?: string | null;
   };
   childrenNames: string[];
   primaryChildId: string;
@@ -43,7 +51,7 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
       table: 'family_members',
       id: relative.id,
       initialAvatarUrl: relative.avatar_url,
-      initialAvatarStatus: relative?.avatar_status ?? null,
+      initialAvatarStatus: (relative?.avatar_status ?? null) as any,
       initialAvatarErrorCode: relative?.avatar_error_code ?? null,
       initialAvatarErrorFields: relative?.avatar_error_fields ?? null,
     });
