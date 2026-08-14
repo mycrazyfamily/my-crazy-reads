@@ -1,3 +1,14 @@
+// useRealtimeAvatar v2.3
+// Changelog v2.3 — LE DRAPEAU PÉRIMÉ NE FAIT PLUS REVENIR « Création… ».
+//   Le drapeau localStorage vit 5 minutes. En revenant sur la liste après avoir
+//   consulté une fiche, la carte le relisait et réaffichait le shimmer plusieurs
+//   secondes, alors que la génération était terminée EN ÉCHEC depuis longtemps.
+//   La v2.1 aggravait le cas : elle ignorait le 'failed' venu du parent tant
+//   qu'un drapeau traînait, quel que soit son âge.
+//   On introduit une FENÊTRE DE FRAÎCHEUR : au-delà de 20 secondes, un drapeau
+//   n'est plus une demande en cours mais un vestige — la base fait autorité et le
+//   drapeau est effacé. En deçà, il protège encore du 'failed' périmé que renvoie
+//   useFamilyData le temps que le workflow écrive 'pending'.
 // useRealtimeAvatar v2.2
 // Changelog v2.2 — expose `statusLoaded`.
 //   Quand le parent ne fournit pas le statut (cas d'EditAvatarHeader), le hook va
@@ -37,13 +48,18 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { consumeAvatarRegeneration, clearAvatarRegeneration, signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
-import { clearAvatarRegenerating, isAvatarRegenerating } from '@/utils/avatarRegeneratingFlag';
+import { clearAvatarRegenerating, isAvatarRegenerating, getAvatarRegeneratingSince } from '@/utils/avatarRegeneratingFlag';
 import { FAMILY_DATA_KEY } from '@/hooks/useFamilyData';
 import type { AvatarStatus } from '@/utils/avatarStatus';
 
 // Colonnes lues partout (montage, realtime, polling) — une seule liste pour les trois,
 // pour qu'un ajout futur ne soit pas oublié dans l'un des chemins.
 const AVATAR_COLUMNS = 'avatar_url, avatar_status, avatar_error_code, avatar_error_fields';
+
+// v2.3 — au-delà de ce délai, un drapeau client n'est plus une demande en cours.
+// 20 s couvre largement le temps que le workflow écrive 'pending' (une à deux
+// secondes en pratique), sans laisser un vestige mentir pendant cinq minutes.
+const FRAICHEUR_DEMANDE_MS = 20000;
 
 let instanceCounter = 0;
 
@@ -108,6 +124,27 @@ export function useRealtimeAvatar({
   const [avatarErrorCode, setAvatarErrorCode] = useState<string | null>(initialAvatarErrorCode ?? null);
   const [avatarErrorFields, setAvatarErrorFields] = useState<string | null>(initialAvatarErrorFields ?? null);
   const parentProvidesStatus = initialAvatarStatus !== undefined;
+
+  // v2.3 — horodatage de la demande de régénération en cours, s'il y en a une.
+  const demandeDepuisRef = useRef<number | null>(null);
+  const demandeEstRecente = useCallback(
+    () => {
+      const t = demandeDepuisRef.current;
+      return t !== null && Date.now() - t < FRAICHEUR_DEMANDE_MS;
+    },
+    [],
+  );
+
+  // v2.3 — la base annonce un échec : on abandonne le drapeau client, quel qu'il
+  // soit. Sans ça, un vestige continuerait d'imposer le shimmer par-dessus.
+  const adopterEchec = useCallback(() => {
+    demandeDepuisRef.current = null;
+    setIsRegenerating(false);
+    if (id) {
+      clearAvatarRegeneration(id);
+      clearAvatarRegenerating(id);
+    }
+  }, [id]);
   // v2.2 — si le parent fournit le statut, il est connu dès le premier rendu.
   // Sinon on attend le retour de la lecture au montage.
   const [statusLoaded, setStatusLoaded] = useState<boolean>(parentProvidesStatus);
@@ -129,7 +166,17 @@ export function useRealtimeAvatar({
   useEffect(() => {
     if (!id) return;
 
-    if (consumeAvatarRegeneration(id) || isAvatarRegenerating(id)) {
+    const demandeDepuis = getAvatarRegeneratingSince(id);
+    const signalEphemere = consumeAvatarRegeneration(id);
+
+    // v2.3 — on ne se fie au drapeau QUE s'il est récent. Un drapeau de plus de
+    // 20 secondes vient d'une génération déjà terminée : le relire ferait
+    // réapparaître « Création… » à chaque retour sur la liste.
+    const demandeRecente =
+      demandeDepuis !== null && Date.now() - demandeDepuis < FRAICHEUR_DEMANDE_MS;
+
+    if (signalEphemere || demandeRecente) {
+      demandeDepuisRef.current = demandeDepuis ?? Date.now();
       // Signal found → show shimmer (full if no URL, overlay if URL exists)
       setIsRegenerating(true);
       // v2.1 — une régénération vient d'être demandée : l'échec précédent n'a plus
@@ -197,14 +244,19 @@ export function useRealtimeAvatar({
   // Le parent rafraîchit ses données → on suit.
   useEffect(() => {
     if (!parentProvidesStatus) return;
-    // v2.1 — pendant une régénération demandée localement, un 'failed' venu du
-    // parent est PÉRIMÉ : son refetch est parti avant que le workflow n'écrive
-    // 'pending'. L'accepter ferait clignoter la carte en rouge.
-    if (isRegenerating && (initialAvatarStatus ?? null) === 'failed') return;
+    // v2.3 — un 'failed' venu du parent n'est ignoré que si la demande de
+    // régénération est RÉCENTE : dans ce cas son refetch est parti avant que le
+    // workflow n'écrive 'pending', et l'accepter ferait clignoter la carte en
+    // rouge. Passé la fenêtre, la base a raison.
+    if ((initialAvatarStatus ?? null) === 'failed') {
+      if (isRegenerating && demandeEstRecente()) return;
+      adopterEchec();
+    }
     setAvatarStatus(initialAvatarStatus ?? null);
     setAvatarErrorCode(initialAvatarErrorCode ?? null);
     setAvatarErrorFields(initialAvatarErrorFields ?? null);
-  }, [parentProvidesStatus, initialAvatarStatus, initialAvatarErrorCode, initialAvatarErrorFields, isRegenerating]);
+  }, [parentProvidesStatus, initialAvatarStatus, initialAvatarErrorCode, initialAvatarErrorFields,
+      isRegenerating, demandeEstRecente, adopterEchec]);
 
   // ─── Apply a genuinely NEW url from Realtime or polling ───
   const applyNewUrl = useCallback((newUrl: string | null) => {
