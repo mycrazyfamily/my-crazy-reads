@@ -1,3 +1,10 @@
+// useRealtimeAvatar v2.2
+// Changelog v2.2 — expose `statusLoaded`.
+//   Quand le parent ne fournit pas le statut (cas d'EditAvatarHeader), le hook va
+//   le chercher lui-même : il y a donc un court instant où le statut est INCONNU.
+//   Pendant ce temps, l'écran de modification affichait l'ANCIEN avatar, puis
+//   basculait en rouge — un clignotement qui montrait au parent une image qui
+//   n'existe plus. `statusLoaded` permet d'attendre de savoir avant d'afficher.
 // useRealtimeAvatar v2.1
 // Changelog v2.1 — LE RETOUR À LA NORMALE NE SE VOYAIT PAS.
 //   Après correction, la carte restait rouge jusqu'au rechargement. Deux causes,
@@ -70,6 +77,8 @@ interface UseRealtimeAvatarResult {
   avatarErrorFields: string | null;
   /** Raccourci : la génération a échoué et rien n'est en cours. */
   hasFailed: boolean;
+  /** v2.2 — false tant que le statut n'est pas connu (lecture au montage en cours). */
+  statusLoaded: boolean;
 }
 
 const normalizeAvatarUrl = (url?: string | null): string | null => {
@@ -99,6 +108,9 @@ export function useRealtimeAvatar({
   const [avatarErrorCode, setAvatarErrorCode] = useState<string | null>(initialAvatarErrorCode ?? null);
   const [avatarErrorFields, setAvatarErrorFields] = useState<string | null>(initialAvatarErrorFields ?? null);
   const parentProvidesStatus = initialAvatarStatus !== undefined;
+  // v2.2 — si le parent fournit le statut, il est connu dès le premier rendu.
+  // Sinon on attend le retour de la lecture au montage.
+  const [statusLoaded, setStatusLoaded] = useState<boolean>(parentProvidesStatus);
 
   // Unique instance ID for channel naming — stable for the lifetime of this hook
   const instanceIdRef = useRef<number>(++instanceCounter);
@@ -173,6 +185,10 @@ export function useRealtimeAvatar({
         if (!cancelled) applyStatusRow(data as Record<string, unknown> | null);
       } catch {
         /* statut inconnu : on dégrade sur le comportement historique */
+      } finally {
+        // v2.2 — succès ou échec, on cesse d'attendre : sans ce finally, une
+        // erreur réseau figerait l'écran sur son placeholder neutre.
+        if (!cancelled) setStatusLoaded(true);
       }
     })();
     return () => { cancelled = true; };
@@ -367,5 +383,6 @@ export function useRealtimeAvatar({
     avatarErrorCode,
     avatarErrorFields,
     hasFailed,
+    statusLoaded,
   };
 }
