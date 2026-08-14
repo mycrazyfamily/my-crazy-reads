@@ -1,3 +1,9 @@
+// PetProfileCard v2.0
+// Changelog v2.0 — transmet le statut de génération à AvatarDisplay.
+//   Les trois colonnes viennent de useFamilyData v3.0 : le hook n'a plus besoin
+//   de sa lecture individuelle au montage (une requête par carte en moins).
+//   La carte affiche l'état d'échec sans dépendre du realtime : le refetch de
+//   useFamilyData suffit.
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -14,11 +20,15 @@ interface PetProfileCardProps {
 }
 
 const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, primaryChildId }) => {
-  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
+          avatarStatus, avatarErrorCode, avatarErrorFields } =
     useRealtimeAvatar({
       table: 'pets',
       id: pet.id,
       initialAvatarUrl: (pet as any).avatar_url,
+      initialAvatarStatus: (pet as any)?.avatar_status ?? null,
+      initialAvatarErrorCode: (pet as any)?.avatar_error_code ?? null,
+      initialAvatarErrorFields: (pet as any)?.avatar_error_fields ?? null,
     });
 
   const getPetTypeEmoji = (type: string) => {
@@ -86,6 +96,10 @@ const PetProfileCard: React.FC<PetProfileCardProps> = ({ pet, childrenNames, pri
             isNew={isNew}
             hasError={hasError}
             isRegenerating={isRegenerating}
+          avatarStatus={avatarStatus}
+          avatarErrorCode={avatarErrorCode}
+          avatarErrorFields={avatarErrorFields}
+          profileName={pet.name}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}
