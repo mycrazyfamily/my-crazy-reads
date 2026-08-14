@@ -1,3 +1,6 @@
+// avatarRegeneratingFlag v1.1
+// Changelog v1.1 : ajout de getAvatarRegeneratingSince — l'ÂGE du drapeau, pas
+//   seulement sa présence. Voir le commentaire de la fonction.
 // avatarRegeneratingFlag v1.0
 // Flag PERSISTANT (localStorage) « avatar en cours de régénération », par profil, avec TTL de sécurité.
 // Complète avatarRegenerationSignal (sessionStorage, à usage unique consommé par les cartes du
@@ -15,6 +18,31 @@ export function markAvatarRegenerating(id: string): void {
     localStorage.setItem(PREFIX + id, String(Date.now()));
   } catch {
     /* stockage indisponible (mode privé, quota) : on dégrade sans bloquer */
+  }
+}
+
+/**
+ * v1.1 — Depuis QUAND le drapeau est-il posé ? (millisecondes epoch, ou null)
+ *
+ * isAvatarRegenerating() répond « oui / non » sur une fenêtre de 5 minutes. C'est
+ * trop grossier pour l'affichage : un drapeau vieux de trois minutes, laissé par une
+ * génération déjà terminée EN ÉCHEC, faisait réafficher « Création… » à chaque retour
+ * sur la liste des personnages. Le hook a besoin de l'ÂGE du drapeau pour distinguer
+ * une demande qui vient d'être faite d'un simple vestige.
+ */
+export function getAvatarRegeneratingSince(id: string): number | null {
+  if (!id) return null;
+  try {
+    const raw = localStorage.getItem(PREFIX + id);
+    if (!raw) return null;
+    const ts = Number(raw);
+    if (!Number.isFinite(ts) || Date.now() - ts > TTL_MS) {
+      localStorage.removeItem(PREFIX + id);
+      return null;
+    }
+    return ts;
+  } catch {
+    return null;
   }
 }
 
