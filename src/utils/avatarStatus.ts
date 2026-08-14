@@ -1,3 +1,10 @@
+// avatarStatus v1.1
+// Changelog v1.1 — on n'écrit plus « vous n'avez rien à faire » tout court.
+//   Sur une panne technique, relancer soi-même marche souvent : le message
+//   propose donc « Générer une autre proposition », qui reste ACTIF dans ce cas
+//   (EditAvatarHeader ne le masque que sur un refus de contenu, où régénérer
+//   reprendrait le même mot interdit). On garde la déculpabilisation — ce n'est
+//   pas la faute du parent — tout en lui donnant une porte de sortie immédiate.
 // avatarStatus v1.0
 // Source UNIQUE des textes montrés au parent quand un avatar échoue.
 //
@@ -89,9 +96,10 @@ export function buildAvatarErrorMessage(
   return {
     title: `L'avatar de ${who} arrive avec du retard`,
     body:
-      "Un incident technique de notre côté a interrompu sa création. Notre équipe est prévenue "
-      + "et s'en occupe. Vous n'avez rien à faire : l'avatar apparaîtra automatiquement dès "
-      + "qu'il sera prêt.",
+      "Un incident technique de notre côté a interrompu sa création — rien à voir avec ce que "
+      + "vous avez saisi. Notre équipe est prévenue et s'en occupe. Si vous ne voulez pas "
+      + "attendre, ouvrez sa fiche et utilisez « Générer une autre proposition » : cela relance "
+      + 'la création immédiatement.',
     canFix: false,
     badge: 'Avatar en retard',
   };
