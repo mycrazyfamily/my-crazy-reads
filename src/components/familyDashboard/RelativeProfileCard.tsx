@@ -1,3 +1,9 @@
+// RelativeProfileCard v2.0
+// Changelog v2.0 — transmet le statut de génération à AvatarDisplay.
+//   Les trois colonnes viennent de useFamilyData v3.0 : le hook n'a plus besoin
+//   de sa lecture individuelle au montage (une requête par carte en moins).
+//   La carte affiche l'état d'échec sans dépendre du realtime : le refetch de
+//   useFamilyData suffit.
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -26,11 +32,15 @@ interface RelativeProfileCardProps {
 }
 
 const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, childrenNames, primaryChildId }) => {
-  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc } =
+  const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
+          avatarStatus, avatarErrorCode, avatarErrorFields } =
     useRealtimeAvatar({
       table: 'family_members',
       id: relative.id,
       initialAvatarUrl: relative.avatar_url,
+      initialAvatarStatus: relative?.avatar_status ?? null,
+      initialAvatarErrorCode: relative?.avatar_error_code ?? null,
+      initialAvatarErrorFields: relative?.avatar_error_fields ?? null,
     });
 
   const parsedDetails = React.useMemo(() => {
@@ -121,6 +131,10 @@ const RelativeProfileCard: React.FC<RelativeProfileCardProps> = ({ relative, chi
             isNew={isNew}
             hasError={hasError}
             isRegenerating={isRegenerating}
+          avatarStatus={avatarStatus}
+          avatarErrorCode={avatarErrorCode}
+          avatarErrorFields={avatarErrorFields}
+          profileName={relative.firstName}
             onImageLoad={onImageLoad}
             onImageError={onImageError}
             fallback={fallback}
