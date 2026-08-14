@@ -1,3 +1,11 @@
+// EditAvatarHeader v3.2
+// Changelog v3.2 — PLUS DE FLASH SUR L'ANCIEN AVATAR.
+//   Cet écran ne reçoit pas le statut en props : le hook va le chercher lui-même
+//   au montage. Pendant cette lecture — quelques centaines de millisecondes — le
+//   statut était inconnu, donc « pas en échec », donc l'ancien avatar s'affichait
+//   avant de basculer en rouge. Le parent voyait un visage qui n'existe plus.
+//   Le placeholder neutre couvre désormais aussi ce temps d'attente : on montre
+//   un disque gris tant qu'on ne SAIT PAS, plutôt qu'une image probablement fausse.
 // EditAvatarHeader v3.1
 // Changelog v3.1 — LE ROND QUI TOURNAIT À TORT.
 //   Sur un refus de contenu, le bouton était rendu désactivé — mais
@@ -145,6 +153,7 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
     avatarErrorCode,
     avatarErrorFields,
     hasFailed,
+    statusLoaded,
   } = useRealtimeAvatar({ table, id: profileId, initialAvatarUrl: resolvedAvatarUrl });
 
   // v3.0 — message d'échec, construit depuis la source unique partagée.
@@ -188,7 +197,11 @@ const EditAvatarHeader: React.FC<EditAvatarHeaderProps> = ({
   // (Sans avatar → AvatarDisplay affiche son « Création… » légitime ; en régé → shimmer légitime.)
   // v3.0 — en échec, on n'attend pas le préchargement de l'ancienne image :
   // c'est justement elle qu'il ne faut plus montrer.
-  const showStablePlaceholder = !hasFailed && !!resolvedAvatarUrl && !imgReady && !isRegenerating;
+  // v3.2 — on attend AUSSI de connaître le statut (statusLoaded). Sans ça, l'ancien
+  // avatar s'affichait le temps de la lecture, puis disparaissait : un clignotement
+  // qui montrait une image périmée. Mieux vaut un disque neutre une demi-seconde.
+  const showStablePlaceholder =
+    !hasFailed && !!resolvedAvatarUrl && (!imgReady || !statusLoaded) && !isRegenerating;
 
   return (
     <div className="flex flex-col items-center gap-3 pb-2">
