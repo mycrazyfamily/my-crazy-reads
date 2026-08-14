@@ -1,4 +1,16 @@
-import React, { useState, useEffect } from 'react';
+// NotificationsBell v2.0
+// Changelog v2.0 — LA CLOCHE NE DÉPEND PLUS DU TEMPS RÉEL.
+//   L'abonnement realtime (INSERT sur notifications) existe depuis l'origine et
+//   son code est correct, mais aucun événement n'arrive au navigateur : une
+//   alerte n'apparaissait qu'au changement de page, quand le composant se
+//   remontait et refaisait sa requête. Un parent qui reste sur son espace
+//   famille n'était donc jamais prévenu.
+//   L'abonnement est CONSERVÉ — il rendra la notification instantanée le jour où
+//   le transport sera réparé. On lui ajoute deux filets qui, eux, marchent
+//   partout : un rafraîchissement périodique, et un au retour sur l'onglet.
+//   Même principe que pour les cartes : le temps réel devient un confort, pas
+//   une condition de fonctionnement.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,6 +62,12 @@ const NotificationsBell: React.FC = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  // Intervalle de repli. 15 s : assez court pour que l'alerte suive de près le
+  // basculement de la carte en rouge, assez long pour rester négligeable (une
+  // requête filtrée sur un seul utilisateur).
+  const FALLBACK_POLL_MS = 15000;
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchNotifications = async () => {
     if (!isAuthenticated || !supabaseSession?.user) return;
@@ -103,8 +121,36 @@ const NotificationsBell: React.FC = () => {
         )
         .subscribe();
 
+      // ─── Filet 1 : rafraîchissement périodique ───
+      // Ne tourne que si la cloche est montée et l'onglet visible.
+      const startPolling = () => {
+        if (pollRef.current) return;
+        pollRef.current = setInterval(() => {
+          if (document.visibilityState === 'visible') fetchNotifications();
+        }, FALLBACK_POLL_MS);
+      };
+      const stopPolling = () => {
+        if (pollRef.current) {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+        }
+      };
+      startPolling();
+
+      // ─── Filet 2 : retour sur l'onglet ───
+      // Couvre le parent qui laisse la page ouverte en arrière-plan pendant que
+      // la génération tourne, puis y revient.
+      const onFocus = () => {
+        if (document.visibilityState === 'visible') fetchNotifications();
+      };
+      window.addEventListener('focus', onFocus);
+      document.addEventListener('visibilitychange', onFocus);
+
       return () => {
         supabase.removeChannel(channel);
+        stopPolling();
+        window.removeEventListener('focus', onFocus);
+        document.removeEventListener('visibilitychange', onFocus);
       };
     }
   }, [isAuthenticated, supabaseSession?.user?.id]);
@@ -162,7 +208,13 @@ const NotificationsBell: React.FC = () => {
                 className={`flex items-start gap-3 px-8 py-5 cursor-pointer hover:bg-accent/40 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
               >
                 <div className="shrink-0 text-3xl mt-1">
-                  {notification.type === 'birthday_avatar' ? '🎂' : notification.type === 'age_threshold' ? '⏳' : '🔔'}
+                  {notification.type === 'birthday_avatar'
+                    ? '🎂'
+                    : notification.type === 'age_threshold'
+                      ? '⏳'
+                      : notification.type === 'avatar_failed'
+                        ? '⚠️'
+                        : '🔔'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-foreground leading-snug">
