@@ -1,3 +1,12 @@
+// MyStoriesTab v3.9
+// v3.9 — deux corrections d'affichage sur l'avertissement « Avatar manquant » :
+//   (a) La phrase d'explication était placée sous le compteur de personnages, donc sous
+//       TOUTE la grille. Avec une vingtaine de personnages sur trois colonnes, le parent
+//       devait faire défiler très loin pour la lire, après avoir déjà buté sur des cartes
+//       grisées sans comprendre pourquoi. Elle est remontée juste sous le bandeau du
+//       protagoniste, avant qu'il ne commence à choisir.
+//   (b) Texte raccourci : le parent n'a pas besoin de l'explication technique du visage
+//       qui change à chaque page, seulement de savoir quoi faire.
 // MyStoriesTab v3.8
 // v3.8 — PERSONNAGE SANS AVATAR : NON SÉLECTIONNABLE.
 //   4A_Build_Context_Client v3.3 retire du casting tout personnage sans image de
@@ -1134,6 +1143,17 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
+          {/* v3.9 — la phrase était sous le compteur, donc SOUS toute la grille : avec une
+              vingtaine de personnages, le parent ne la voyait qu'en faisant défiler très loin,
+              après avoir déjà buté sur les cartes grisées. Elle est remontée ici, avant qu'il
+              ne commence à choisir. */}
+          {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
+            <p className="text-xs text-muted-foreground mb-4 leading-snug">
+              Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
+              depuis l'onglet Ma famille, il deviendra sélectionnable.
+            </p>
+          )}
+
           {dedicatedName && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
               <Cake className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -1194,15 +1214,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
-            {/* v3.8 — sans cette phrase, un parent voit « Avatar manquant » sans savoir
-                que c'est à lui d'agir, ni où. */}
-            {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
-              <p className="text-xs text-muted-foreground mt-1 leading-snug">
-                Un personnage sans avatar ne peut pas apparaître dans l'histoire : son visage
-                changerait à chaque page. Créez le sien depuis l'onglet Ma famille, il deviendra
-                sélectionnable.
-              </p>
-            )}
             {(() => {
               let capMessage: string | null = null;
               if (totalCapReached) {
@@ -1256,6 +1267,17 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <span><strong>{childName}</strong> est toujours dans l'histoire</span>
           </div>
 
+          {/* v3.9 — la phrase était sous le compteur, donc SOUS toute la grille : avec une
+              vingtaine de personnages, le parent ne la voyait qu'en faisant défiler très loin,
+              après avoir déjà buté sur les cartes grisées. Elle est remontée ici, avant qu'il
+              ne commence à choisir. */}
+          {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
+            <p className="text-xs text-muted-foreground mb-4 leading-snug">
+              Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
+              depuis l'onglet Ma famille, il deviendra sélectionnable.
+            </p>
+          )}
+
           {dedicatedName && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted mb-4 text-sm text-muted-foreground">
               <Cake className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -1316,15 +1338,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
-            {/* v3.8 — sans cette phrase, un parent voit « Avatar manquant » sans savoir
-                que c'est à lui d'agir, ni où. */}
-            {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
-              <p className="text-xs text-muted-foreground mt-1 leading-snug">
-                Un personnage sans avatar ne peut pas apparaître dans l'histoire : son visage
-                changerait à chaque page. Créez le sien depuis l'onglet Ma famille, il deviendra
-                sélectionnable.
-              </p>
-            )}
             {(() => {
               let capMessage: string | null = null;
               if (totalCapReached) {
