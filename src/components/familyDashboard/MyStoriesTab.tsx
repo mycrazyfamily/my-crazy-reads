@@ -1,3 +1,9 @@
+// MyStoriesTab v4.0
+// v4.0 — l'avertissement « personnages indisponibles » prend la même forme que celui de
+//   l'enfant : encadré rouge, titre en gras. En petit texte gris sous un bandeau neutre,
+//   il se lisait comme une note de bas de page alors que c'est une alerte : le parent
+//   allait buter sur des cartes grisées sans avoir vu l'explication.
+//   Texte du bandeau enfant raccourci au passage.
 // MyStoriesTab v3.9
 // v3.9 — deux corrections d'affichage sur l'avertissement « Avatar manquant » :
 //   (a) La phrase d'explication était placée sous le compteur de personnages, donc sous
@@ -1148,10 +1154,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               après avoir déjà buté sur les cartes grisées. Elle est remontée ici, avant qu'il
               ne commence à choisir. */}
           {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
-            <p className="text-xs text-muted-foreground mb-4 leading-snug">
-              Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
-              depuis l'onglet Ma famille, il deviendra sélectionnable.
-            </p>
+            <div className="mb-4 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-left">
+              <p className="text-sm font-semibold text-destructive">
+                Certains personnages ne sont pas disponibles
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
+                depuis l'onglet Ma famille, il deviendra sélectionnable.
+              </p>
+            </div>
           )}
 
           {dedicatedName && (
@@ -1170,9 +1181,9 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 L'avatar de {childName} n'est pas encore prêt
               </p>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar : il aurait
-                un visage différent à chaque page. Rendez-vous dans l'onglet Ma famille pour créer
-                le sien. Vous pouvez préparer votre choix dès maintenant, il sera conservé.
+                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar.
+                Rendez-vous dans l'onglet Ma famille pour créer le sien. Vous pouvez préparer
+                votre choix dès maintenant, il sera conservé.
               </p>
             </div>
           )}
@@ -1272,10 +1283,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               après avoir déjà buté sur les cartes grisées. Elle est remontée ici, avant qu'il
               ne commence à choisir. */}
           {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
-            <p className="text-xs text-muted-foreground mb-4 leading-snug">
-              Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
-              depuis l'onglet Ma famille, il deviendra sélectionnable.
-            </p>
+            <div className="mb-4 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-left">
+              <p className="text-sm font-semibold text-destructive">
+                Certains personnages ne sont pas disponibles
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Un personnage sans avatar ne peut pas apparaître dans l'histoire. Créez le sien
+                depuis l'onglet Ma famille, il deviendra sélectionnable.
+              </p>
+            </div>
           )}
 
           {dedicatedName && (
@@ -1294,9 +1310,9 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
                 L'avatar de {childName} n'est pas encore prêt
               </p>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar : il aurait
-                un visage différent à chaque page. Rendez-vous dans l'onglet Ma famille pour créer
-                le sien. Vous pouvez préparer votre choix dès maintenant, il sera conservé.
+                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar.
+                Rendez-vous dans l'onglet Ma famille pour créer le sien. Vous pouvez préparer
+                votre choix dès maintenant, il sera conservé.
               </p>
             </div>
           )}
