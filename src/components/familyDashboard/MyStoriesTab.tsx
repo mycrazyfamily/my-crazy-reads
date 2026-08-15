@@ -1,3 +1,16 @@
+// MyStoriesTab v3.8
+// v3.8 — PERSONNAGE SANS AVATAR : NON SÉLECTIONNABLE.
+//   4A_Build_Context_Client v3.3 retire du casting tout personnage sans image de
+//   référence : sans elle, 5E n'injecte rien et Gemini réinvente le visage à chaque
+//   page. Le parent pouvait donc cocher grand-mère et ne pas la trouver dans le
+//   livre, sans explication. C'est exactement la déception qu'on corrige ailleurs.
+//   On réutilise le mécanisme `inactive` déjà en place pour les décès, les brouilles
+//   et les doudous perdus : même grisage, même libellé, aucun affichage nouveau à
+//   maintenir. Le critère est avatar_url, comme dans 4A, et NON avatar_status : un
+//   personnage dont la modification d'avatar a échoué garde son ancienne image et
+//   reste donc sélectionnable.
+//   Un bandeau prévient aussi quand c'est l'ENFANT qui n'a pas d'avatar : dans ce
+//   cas le livre ne peut pas être fabriqué du tout.
 // MyStoriesTab v3.7
 // Changelog v3.7 (DATE DE RÉFÉRENCE de l'âge alignée sur n8n) :
 //   La v3.6 avait aligné la VALEUR du seuil (5 ans) mais pas la DATE à laquelle
@@ -942,6 +955,11 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const selectedPetsCount = characters.filter((c) => c.type === 'pet' && selected.includes(c.id)).length;
   const selectedToysCount = characters.filter((c) => c.type === 'comforter' && selected.includes(c.id)).length;
   const totalCapReached = selected.length >= MAX_TOTAL;
+  // v3.8 — le protagoniste est le seul personnage verrouillé de type 'child'.
+  // Sans avatar, 4A_Build_Context_Client arrêtera la fabrication.
+  const heroSansAvatar = characters.some(
+    (c) => c.locked && c.type === 'child' && (typeof c.avatarUrl !== 'string' || c.avatarUrl.trim() === '')
+  );
   const petsCapReached = selectedPetsCount >= MAX_PETS;
   const toysCapReached = selectedToysCount >= MAX_TOYS;
 
@@ -1123,6 +1141,21 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             </div>
           )}
 
+          {/* v3.8 — l'enfant est le seul qu'on ne peut pas retirer du livre. S'il n'a pas
+              d'avatar, la fabrication s'arrêtera : autant le dire avant que le parent ne
+              compose toute son histoire. */}
+          {heroSansAvatar && (
+            <div className="mb-4 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-left">
+              <p className="text-sm font-semibold text-destructive">
+                L'avatar de {childName} n'est pas encore prêt
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar : il aurait
+                un visage différent à chaque page. Rendez-vous dans l'onglet Ma famille pour créer
+                le sien. Vous pouvez préparer votre choix dès maintenant, il sera conservé.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
@@ -1161,6 +1194,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
+            {/* v3.8 — sans cette phrase, un parent voit « Avatar manquant » sans savoir
+                que c'est à lui d'agir, ni où. */}
+            {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                Un personnage sans avatar ne peut pas apparaître dans l'histoire : son visage
+                changerait à chaque page. Créez le sien depuis l'onglet Ma famille, il deviendra
+                sélectionnable.
+              </p>
+            )}
             {(() => {
               let capMessage: string | null = null;
               if (totalCapReached) {
@@ -1221,6 +1263,21 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             </div>
           )}
 
+          {/* v3.8 — l'enfant est le seul qu'on ne peut pas retirer du livre. S'il n'a pas
+              d'avatar, la fabrication s'arrêtera : autant le dire avant que le parent ne
+              compose toute son histoire. */}
+          {heroSansAvatar && (
+            <div className="mb-4 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-left">
+              <p className="text-sm font-semibold text-destructive">
+                L'avatar de {childName} n'est pas encore prêt
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Son histoire ne pourra pas être fabriquée tant qu'il n'a pas d'avatar : il aurait
+                un visage différent à chaque page. Rendez-vous dans l'onglet Ma famille pour créer
+                le sien. Vous pouvez préparer votre choix dès maintenant, il sera conservé.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-3 mb-8">
             {characters.filter((c) => !c.locked).map((c) => {
               const isSel = selected.includes(c.id);
@@ -1259,6 +1316,15 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
             <p className="text-sm font-medium text-foreground">
               {selected.length} / {MAX_TOTAL} personnages
             </p>
+            {/* v3.8 — sans cette phrase, un parent voit « Avatar manquant » sans savoir
+                que c'est à lui d'agir, ni où. */}
+            {characters.some((c) => !c.locked && c.inactive && c.inactiveLabel === 'Avatar manquant') && (
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                Un personnage sans avatar ne peut pas apparaître dans l'histoire : son visage
+                changerait à chaque page. Créez le sien depuis l'onglet Ma famille, il deviendra
+                sélectionnable.
+              </p>
+            )}
             {(() => {
               let capMessage: string | null = null;
               if (totalCapReached) {
@@ -2631,11 +2697,16 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   // 4. Build characters list from real family data
   const wizardCharacters: WizardCharacter[] = useMemo(() => {
     if (!activeChild) return [];
+    // v3.8 — même critère que 4A_Build_Context_Client : c'est l'URL qui compte,
+    // pas le statut. Un avatar dont la RE-génération a échoué reste exploitable.
+    const sansAvatar = (url: unknown) => typeof url !== 'string' || url.trim() === '';
+
     const child: WizardCharacter = {
       type: 'child',
       id: activeChild.id,
       name: activeChild.firstName,
       emoji: '🧒',
+      avatarUrl: activeChild.avatar || undefined,
       locked: true,
     };
     const estrangedIds = new Set<string>(((activeChild as any).estrangedRelativeIds ?? []));
@@ -2663,8 +2734,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         name: m.firstName || 'Proche',
         emoji,
         avatarUrl: m.avatar_url || undefined,
-        inactive: isDeceased || isEstranged,
-        inactiveLabel: isDeceased ? 'En mémoire' : isEstranged ? 'Plus en contact' : undefined,
+        inactive: isDeceased || isEstranged || sansAvatar(m.avatar_url),
+        inactiveLabel: isDeceased ? 'En mémoire' : isEstranged ? 'Plus en contact'
+          : sansAvatar(m.avatar_url) ? 'Avatar manquant' : undefined,
       };
     });
     const pets: WizardCharacter[] = (activeChild.pets ?? []).map((p: any) => {
@@ -2676,8 +2748,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         name: p.name || 'Animal',
         emoji: p.emoji || '🐾',
         avatarUrl: p.avatar_url || undefined,
-        inactive: isDeceased || isGone,
-        inactiveLabel: isDeceased ? 'En mémoire' : isGone ? "N'est plus avec nous" : undefined,
+        inactive: isDeceased || isGone || sansAvatar(p.avatar_url),
+        inactiveLabel: isDeceased ? 'En mémoire' : isGone ? "N'est plus avec nous"
+          : sansAvatar(p.avatar_url) ? 'Avatar manquant' : undefined,
       };
     });
     const toys: WizardCharacter[] = (activeChild.toys ?? []).map((t: any) => {
@@ -2688,8 +2761,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         name: t.name || 'Doudou',
         emoji: t.emoji || '🧸',
         avatarUrl: t.avatar_url || undefined,
-        inactive: isLost,
-        inactiveLabel: isLost ? 'Perdu' : undefined,
+        inactive: isLost || sansAvatar(t.avatar_url),
+        inactiveLabel: isLost ? 'Perdu' : sansAvatar(t.avatar_url) ? 'Avatar manquant' : undefined,
       };
     });
     const siblings: WizardCharacter[] = ((activeChild as any).siblings ?? []).map((s: any) => {
@@ -2701,8 +2774,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
         emoji: '🧒',
         avatarUrl: s.avatar_url || undefined,
         locked: false,
-        inactive: isDeceased,
-        inactiveLabel: isDeceased ? 'En mémoire' : undefined,
+        inactive: isDeceased || sansAvatar(s.avatar_url),
+        inactiveLabel: isDeceased ? 'En mémoire' : sansAvatar(s.avatar_url) ? 'Avatar manquant' : undefined,
       };
     });
     return [child, ...siblings, ...members, ...pets, ...toys];
