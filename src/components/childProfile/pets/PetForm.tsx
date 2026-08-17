@@ -1,3 +1,12 @@
+// PetForm v1.6
+// Changelog v1.6 : blocklist sur le nom et les champs libres (race, type d'animal,
+//   détails physiques, traits) au moment de valider la fiche. Posée ICI plutôt que
+//   dans les écrans appelants : ce formulaire sert au wizard de création, à
+//   AjouterAnimal et à ModifierAnimal.
+// PetForm v1.5
+// Changelog v1.5 : l'ESPÈCE est transmise à PetPhysicalDetailsInput (prop petType),
+//   pour que les suggestions et le sous-titre correspondent à l'animal décrit.
+//   Auparavant un chien se voyait proposer « fossettes » et « boucles d'oreilles ».
 // PetForm v1.4
 // Changelog v1.4 : changer le TYPE d'animal (sélecteur de boutons) vide désormais le champ
 //   « race », sauf retour au type d'origine où la race d'origine est restaurée (Option B).
