@@ -1,3 +1,8 @@
+// nameBlocklist v2.1
+// Changelog v2.1 : ajout de forbiddenFieldsError, qui construit le message final
+//   à partir du résultat de checkFreeTextFields. Il nomme le MOT et le CHAMP :
+//   sur une fiche qui compte six champs libres, l'un sans l'autre oblige le
+//   parent à chercher.
 // nameBlocklist v2.0
 // Changelog v2.0 — LA LISTE NE SERT PLUS QU'AUX NOMS.
 //   Elle avait été écrite pour des prénoms, donc pour repérer des insultes. Elle
@@ -124,6 +129,25 @@ export function checkFreeTextFields(
  */
 export const FORBIDDEN_NAME_ERROR =
   "Ce nom n'est pas autorisé pour un livre jeunesse";
+
+/**
+ * v2.1 — Message complet à partir du résultat de checkFreeTextFields.
+ *
+ * Nomme le mot ET le champ. Sans le champ, sur une fiche qui en compte six, le
+ * parent doit tous les relire ; sans le mot, il doit deviner lequel gêne.
+ */
+export function forbiddenFieldsError(
+  resultat: { champs: string[]; mots: string[] },
+): string {
+  const mots = resultat.mots.map((m) => `« ${m} »`).join(', ');
+  const champs = resultat.champs.length > 1
+    ? `${resultat.champs.slice(0, -1).join(', ')} et ${resultat.champs[resultat.champs.length - 1]}`
+    : resultat.champs[0];
+  const debut = resultat.mots.length === 1
+    ? `Le mot ${mots} ne peut pas figurer`
+    : `Les mots ${mots} ne peuvent pas figurer`;
+  return `${debut} dans un livre pour jeunes enfants. À corriger : ${champs}.`;
+}
 
 /**
  * v2.0 — Message pour un champ de DESCRIPTION, pas un nom.
