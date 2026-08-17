@@ -1,3 +1,13 @@
+// useChildProfileSubmit v2.0
+// Changelog v2.0 — BLOCKLIST SUR TOUT LE WIZARD.
+//   Ce hook n'enregistrait aucun contrôle de contenu, alors qu'il crée d'un seul
+//   coup l'enfant, ses proches, ses animaux, ses doudous et ses lieux. Les écrans
+//   Ajouter/Modifier étaient protégés, pas le parcours de création initial : un
+//   parent pouvait donc y saisir tout ce qui était refusé ailleurs.
+//   Une garde unique en tête de handleSubmit, avant la moindre écriture.
+//   ATTENTION à setIsSubmitting : ici le return est AVANT le try, donc avant le
+//   finally qui le remet à false. On le remet à la main, sinon le bouton reste
+//   bloqué et le parent ne peut plus rien enregistrer après une erreur.
 // useChildProfileSubmit v1.5
 // Changelog v1.5 : section 16, branche « doudou existant » (toy.comforterId) — on (re)pose child_id
 // + appearance/roles/relation_label à la mise à jour. Le doudou du grand formulaire est pré-créé
@@ -29,12 +39,96 @@ import {
 } from '@/constants/childProfileOptions';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import { splitCamelCase } from '@/utils/nameFormatter';
+import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 
 type UseChildProfileSubmitProps = {
   isGiftMode?: boolean;
   nextPath?: string;
 };
+
+/**
+ * v2.0 — Rassemble TOUS les champs libres saisis dans le wizard de création.
+ *
+ * Ce hook ne crée pas seulement l'enfant : il enregistre d'un coup ses proches,
+ * ses animaux, ses doudous et ses lieux. Une garde posée ici les couvre tous,
+ * alors qu'une garde par écran en aurait manqué la moitié, ces entités n'ayant
+ * pas d'écran propre dans le wizard.
+ *
+ * Les clés servent de libellés dans le message d'erreur, d'où le prénom accolé :
+ * « les détails physiques de Mamie » plutôt que « les détails physiques », qui
+ * enverrait le parent chercher dans la mauvaise fiche.
+ *
+ * Les `details` d'un lieu ne sont pas énumérés (leurs clés varient selon le type
+ * de lieu) : on balaie leurs valeurs textuelles, ce qui couvre aussi les champs
+ * qui seront ajoutés plus tard.
+ */
+function collecterChampsLibres(data: ChildProfileFormData): Record<string, string | string[] | undefined> {
+  const champs: Record<string, string | string[] | undefined> = {};
+  const texte = (v: unknown) => (typeof v === 'string' ? v : undefined);
+  const valeursTexte = (o: unknown) =>
+    o && typeof o === 'object'
+      ? (Object.values(o as Record<string, unknown>).filter((v) => typeof v === 'string') as string[])
+      : [];
+
+  // ─── L'enfant ───
+  champs["le prénom de l'enfant"] = texte(data.firstName);
+  champs['son surnom'] = data.nickname?.type === 'custom' ? texte(data.nickname.custom) : undefined;
+  champs['ses détails physiques'] = data.physicalDetails;
+  champs['sa tenue'] = texte(data.clothingStyle);
+  champs['son type de cheveux'] = texte(data.hairTypeCustom);
+  champs['sa couleur de cheveux'] = texte((data.hairColor as any)?.custom);
+  champs['sa couleur de peau'] = texte((data.skinColor as any)?.custom);
+  champs['sa couleur des yeux'] = texte((data.eyeColor as any)?.custom);
+
+  // ─── Les proches ───
+  for (const r of data.family?.relatives || []) {
+    const qui = r.firstName?.trim() || 'un proche';
+    champs[`le prénom de ${qui}`] = texte(r.firstName);
+    champs[`le surnom de ${qui}`] = r.nickname?.type === 'custom' ? texte(r.nickname.custom) : undefined;
+    champs[`le métier de ${qui}`] = texte(r.job);
+    champs[`la relation de ${qui}`] = texte(r.otherTypeName);
+    champs[`les détails physiques de ${qui}`] = r.physicalDetails;
+    champs[`la tenue de ${qui}`] = texte(r.clothingStyle);
+    champs[`le type de cheveux de ${qui}`] = texte(r.hairTypeCustom);
+    champs[`la couleur de cheveux de ${qui}`] = texte((r.hairColor as any)?.custom);
+    champs[`la couleur de peau de ${qui}`] = texte((r.skinColor as any)?.custom);
+    champs[`la couleur des yeux de ${qui}`] = texte((r.eyeColor as any)?.custom);
+    champs[`les traits de ${qui}`] = valeursTexte(r.customTraits);
+  }
+
+  // ─── Les animaux ───
+  for (const a of data.pets?.pets || []) {
+    const qui = a.name?.trim() || 'un animal';
+    champs[`le nom de ${qui}`] = texte(a.name);
+    champs[`la race de ${qui}`] = texte(a.breed);
+    champs[`le type de ${qui}`] = texte(a.otherType);
+    champs[`les détails physiques de ${qui}`] = ((a.customTraits as any)?.physicalDetails ?? []) as string[];
+    champs[`les traits de ${qui}`] = valeursTexte(a.customTraits);
+  }
+
+  // ─── Les doudous ───
+  for (const d of data.toys?.toys || []) {
+    const quoi = d.name?.trim() || 'un doudou';
+    champs[`le nom de ${quoi}`] = texte(d.name);
+    champs[`la description de ${quoi}`] = texte(d.appearance);
+    champs[`le type de ${quoi}`] = texte(d.otherType);
+  }
+
+  // ─── Les lieux ───
+  for (const l of data.places?.places || []) {
+    const ou = l.label?.trim() || 'un lieu';
+    champs[`le nom de ${ou}`] = texte(l.label);
+    champs[`la description de ${ou}`] = texte(l.description);
+    champs[`la ville de ${ou}`] = texte(l.city);
+    champs[`le pays de ${ou}`] = texte(l.country);
+    champs[`l'adresse de ${ou}`] = texte(l.address);
+    champs[`les précisions de ${ou}`] = valeursTexte(l.details);
+  }
+
+  return champs;
+}
+
 
 export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChildProfileSubmitProps) => {
   const navigate = useNavigate();
@@ -84,6 +178,17 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
     }
     
     setIsSubmitting(true);
+
+    // v2.0 — blocklist sur TOUS les champs libres du wizard, avant la moindre
+    // écriture. Ce hook enregistre l'enfant ET ses proches, animaux, doudous et
+    // lieux : c'est le seul endroit où ils sont tous réunis.
+    const champsLibres = checkFreeTextFields(collecterChampsLibres(data));
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
+      setIsSubmitting(false);
+      return;
+    }
+
     console.log("🚀 [SUBMIT] Handling form submission with data:", data);
     console.log("🚀 [SUBMIT] Data.family:", data.family);
     console.log("🚀 [SUBMIT] Data.pets:", data.pets);
