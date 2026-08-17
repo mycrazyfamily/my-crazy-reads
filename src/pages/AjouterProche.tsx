@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import RelativeForm from '@/components/childProfile/RelativeForm';
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import ErrorBoundary from '@/components/util/ErrorBoundary';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
 import FormProgressIndicator from '@/components/FormProgressIndicator';
@@ -128,6 +128,26 @@ export default function AjouterProche() {
       }
       if (relativeData.nickname?.type === 'custom' && containsForbiddenWord(relativeData.nickname.custom)) {
         toast.error(FORBIDDEN_NAME_ERROR);
+        return;
+      }
+
+      // v2.0 — blocklist sur TOUS les champs libres, pas seulement le prénom.
+      // Un seul appel ici plutôt qu'une garde par champ : c'est le seul endroit
+      // de l'écran où ils sont tous réunis.
+      const champsLibres = checkFreeTextFields({
+        'les détails physiques': relativeData.physicalDetails,
+        'la tenue': relativeData.clothingStyle,
+        'le métier': relativeData.job,
+        'le type de relation': relativeData.otherTypeName,
+        'le type de cheveux': relativeData.hairTypeCustom,
+        'la couleur des cheveux': relativeData.hairColor?.custom,
+        'la couleur de peau': relativeData.skinColor?.custom,
+        'la couleur des yeux': (relativeData.eyeColor as any)?.custom,
+        'les traits de caractère': Object.values(relativeData.customTraits || {})
+          .filter((v) => typeof v === 'string') as string[],
+      });
+      if (!champsLibres.ok) {
+        toast.error(forbiddenFieldsError(champsLibres));
         return;
       }
 
