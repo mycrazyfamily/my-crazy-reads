@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
@@ -160,6 +161,19 @@ const ModifierDoudou: React.FC = () => {
     }
     if (currentToyData.type === 'other' && !currentToyData.otherType?.trim()) {
       toast.error("Veuillez préciser le type d'objet");
+      return;
+    }
+    // v2.4 — blocklist. Cet écran n'en avait AUCUNE, pas même sur le nom.
+    if (containsForbiddenWord(currentToyData.name)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    const champsLibres = checkFreeTextFields({
+      'la description': currentToyData.appearance,
+      "le type d'objet": currentToyData.otherType,
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
     handleSave(currentToyData);
