@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { toast } from 'sonner';
+import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { PlaceForm } from '@/components/childProfile/places/PlaceForm';
 import ChildSelectionCard from '@/components/childProfile/ChildSelectionCard';
@@ -114,6 +115,28 @@ export default function AjouterLieu() {
     try {
       if (selectedChildIds.length === 0) {
         toast.error('Veuillez sélectionner au moins un enfant');
+        return;
+      }
+
+
+      // v2.0 — blocklist sur les champs libres du lieu. Ces textes partent dans
+      // enrich-place-environment puis dans les prompts d'image : un mot interdit
+      // s'y glisserait jusque dans le décor du livre.
+      // Les clés de `details` varient selon le type de lieu (environnement,
+      // activités, souvenir marquant, détails du jardin…) : plutôt que de les
+      // énumérer et d'en oublier une au prochain champ ajouté, on balaie toutes
+      // les valeurs textuelles de l'objet.
+      const champsLibres = checkFreeTextFields({
+        'le nom du lieu': currentPlaceData.label,
+        'la description': currentPlaceData.description,
+        'la ville': currentPlaceData.city,
+        'le pays': currentPlaceData.country,
+        "l'adresse": currentPlaceData.address,
+        'les précisions du lieu': Object.values(currentPlaceData.details || {})
+          .filter((v) => typeof v === 'string') as string[],
+      });
+      if (!champsLibres.ok) {
+        toast.error(forbiddenFieldsError(champsLibres));
         return;
       }
 
