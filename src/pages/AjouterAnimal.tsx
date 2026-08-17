@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -95,6 +96,23 @@ export default function AjouterAnimal() {
     try {
       if (selectedChildIds.length === 0) {
         toast.error('Veuillez sélectionner au moins un enfant');
+        return;
+      }
+
+      // v2.0 — blocklist. Cet écran n'en avait AUCUNE, pas même sur le nom.
+      if (containsForbiddenWord(petData.name)) {
+        toast.error(FORBIDDEN_NAME_ERROR);
+        return;
+      }
+      const champsLibres = checkFreeTextFields({
+        'les détails physiques': ((petData.customTraits as any)?.physicalDetails ?? []) as string[],
+        'la race': petData.breed,
+        "le type d'animal": petData.otherType,
+        'les traits de caractère': Object.values(petData.customTraits || {})
+          .filter((v) => typeof v === 'string') as string[],
+      });
+      if (!champsLibres.ok) {
+        toast.error(forbiddenFieldsError(champsLibres));
         return;
       }
 
