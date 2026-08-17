@@ -85,3 +85,21 @@ export function petPhysicalDetails(petType?: string | null): string[] {
       return PHYSICAL_DETAILS_PET_GENERIC;
   }
 }
+
+/**
+ * Sous-titre du champ, sous le libellé. Doit rester cohérent avec la liste de
+ * suggestions affichée juste en dessous : annoncer « fossettes » au-dessus de
+ * « museau blanc » est déroutant.
+ */
+export function petPhysicalHelpText(petType?: string | null): string {
+  switch (String(petType || '').toLowerCase()) {
+    case 'dog':
+    case 'chien':
+      return 'Oreilles tombantes, museau blanc, tache sur le poitrail, cicatrice, etc.';
+    case 'cat':
+    case 'chat':
+      return 'Yeux vairons, robe tigrée, chaussettes blanches, cicatrice, etc.';
+    default:
+      return 'Tache de couleur, marque sur la tête, plumes colorées, cicatrice, etc.';
+  }
+}
