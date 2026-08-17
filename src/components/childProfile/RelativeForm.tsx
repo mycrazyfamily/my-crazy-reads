@@ -18,7 +18,7 @@ import RelativeTraitsSection from './relatives/RelativeTraitsSection';
 import ChildrenSelector from './ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 
 type RelativeFormProps = {
   relative: RelativeData & { linkedChildrenIds?: string[] };
@@ -185,6 +185,27 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
     }
     if (selectedNickname === 'custom' && containsForbiddenWord(formData.nickname.custom)) {
       toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
+    // v2.0 — blocklist sur TOUS les champs libres, ici plutôt que dans les écrans
+    // appelants : ce formulaire sert à la fois au wizard de création, à
+    // AjouterProche et à ModifierProche. Une garde ici couvre les trois, alors
+    // que le wizard n'en avait aucune avant son tout dernier enregistrement.
+    const champsLibres = checkFreeTextFields({
+      'le métier': formData.job,
+      'le type de relation': formData.otherTypeName,
+      'le type de cheveux': formData.hairTypeCustom,
+      'la couleur des cheveux': (formData.hairColor as any)?.custom,
+      'la couleur de peau': (formData.skinColor as any)?.custom,
+      'la couleur des yeux': (formData.eyeColor as any)?.custom,
+      'les détails physiques': physicalDetails,
+      'la tenue': clothingStyle,
+      'les traits de caractère': Object.values(customTraits || {})
+        .filter((v) => typeof v === 'string') as string[],
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
