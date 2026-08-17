@@ -1,3 +1,12 @@
+// PhysicalDetailsInput v2.0
+// Changelog v2.0 :
+//   (a) BLOCKLIST À LA SAISIE. Un mot interdit est refusé AVANT l'enregistrement,
+//       avec le mot fautif nommé. Sans ça, le parent attendait une trentaine de
+//       secondes pour apprendre que sa description était refusée, et un appel
+//       Gemini partait pour rien. Le champ n'est pas vidé : il corrige sur place.
+//   (b) La liste de suggestions vient de @/constants/physicalDetailsOptions, aux
+//       côtés des listes animales, pour qu'on ne puisse plus en modifier une sans
+//       voir les autres.
 // PhysicalDetailsInput v1.1  ⚠️ Composant ENFANT + PROCHE (l'ANIMAL a son propre fichier :
 //   pets/PetPhysicalDetailsInput.tsx). Importé par BasicInfoForm ('./PhysicalDetailsInput') et par
 //   relatives/RelativeAppearanceSection ('../PhysicalDetailsInput').
@@ -13,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Check } from "lucide-react";
+import { PHYSICAL_DETAILS_HUMAN } from '@/constants/physicalDetailsOptions';
+import { findForbiddenWords, forbiddenContentError } from '@/utils/nameBlocklist';
 
 type PhysicalDetailsInputProps = {
   value: string[];
@@ -21,18 +32,9 @@ type PhysicalDetailsInputProps = {
   noDetailsValue?: boolean;
 };
 
-const SUGGESTIONS = [
-  "Taches de rousseur",
-  "Grain de beauté",
-  "Fossettes",
-  "Cicatrice",
-  "Appareil dentaire",
-  "Boucles d'oreilles",
-  "Mèche colorée",
-  "Grande taille",
-  "Petite taille",
-  "Tache de naissance",
-];
+// v2.0 — la liste vit dans @/constants/physicalDetailsOptions, aux côtés de celles
+// des animaux : on ne peut plus en modifier une sans voir les autres.
+const SUGGESTIONS = PHYSICAL_DETAILS_HUMAN;
 
 const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
   value = [],
@@ -45,6 +47,8 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   // v1.1 (B5) : mémorise le dernier détail ajouté pour afficher un « ✓ ajouté » temporaire.
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  // v2.0 — message affiché quand la saisie contient un mot interdit.
+  const [erreurMot, setErreurMot] = useState<string | null>(null);
   const justAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const details = value.length > 0 ? value : [];
 
@@ -63,6 +67,16 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
 
   const handleAddCustom = () => {
     const trimmed = customInput.trim();
+
+    // v2.0 — on refuse AVANT l'enregistrement plutôt qu'après l'échec de génération.
+    // Sans ça, le parent attendait une trentaine de secondes pour apprendre que son
+    // mot était refusé, et un appel Gemini partait pour rien.
+    const interdits = findForbiddenWords(trimmed);
+    if (interdits.length > 0) {
+      setErreurMot(forbiddenContentError(interdits));
+      return;   // le champ n'est pas vidé : le parent corrige sa saisie sur place
+    }
+
     if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
       onChange([...details, trimmed]);
       setCustomInput('');
@@ -174,7 +188,7 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
             <div className="flex gap-2">
               <Input
                 value={customInput}
-                onChange={(e) => setCustomInput(e.target.value)}
+                onChange={(e) => { setCustomInput(e.target.value); if (erreurMot) setErreurMot(null); }}
                 placeholder="Ex : cicatrice au menton"
                 className="flex-1"
                 onKeyDown={(e) => {
@@ -198,6 +212,11 @@ const PhysicalDetailsInput: React.FC<PhysicalDetailsInputProps> = ({
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+            {erreurMot && (
+              <p className="text-sm text-destructive mt-2 leading-snug" role="alert">
+                {erreurMot}
+              </p>
+            )}
             {justAdded && (
               <p className="text-sm text-mcf-primary flex items-center gap-1 mt-2" aria-live="polite">
                 <Check className="h-4 w-4 flex-shrink-0" />
