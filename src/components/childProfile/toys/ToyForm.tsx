@@ -1,3 +1,8 @@
+// ToyForm v1.4
+// Changelog v1.4 : blocklist au moment de valider la sous-fiche. Ce formulaire est
+//   partagé par le wizard de création, AjouterDoudou et ModifierDoudou : la garde
+//   posée ici couvre les trois, alors que le wizard n'en avait aucune avant son
+//   dernier écran.
 // ToyForm v1.3
 // Changelog v1.3 (B4) : placeholders raccourcis + « … » retirés (règle : exemple court, sans « … »).
 // ToyForm v1.2
@@ -20,6 +25,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toyTypeOptions, toyRoleOptions } from '@/constants/toyOptions';
 import { v4 as uuidv4 } from 'uuid';
 import type { ToyData, ToyType, ToyRole } from '@/types/childProfile';
+import { toast } from 'sonner';
+import { checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
 
 type ToyFormProps = {
   toy?: ToyData;
@@ -93,6 +100,25 @@ const ToyForm: React.FC<ToyFormProps> = ({ toy, onSave, onCancel, showButtons = 
     if (!toyName.trim()) {
       return;
     }
+
+    // v1.4 — blocklist ici plutôt que dans les écrans appelants : ce formulaire
+    // sert au wizard de création, à AjouterDoudou et à ModifierDoudou. Dans le
+    // wizard, rien ne contrôlait la saisie avant le tout dernier enregistrement.
+    if (containsForbiddenWord(toyName)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    const champsLibres = checkFreeTextFields({
+      'la description': appearance,
+      "le type d'objet": otherType,
+      'le premier rôle personnalisé': customRole1,
+      'le second rôle personnalisé': customRole2,
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
+      return;
+    }
+
     onSave(getToyData());
   };
 
