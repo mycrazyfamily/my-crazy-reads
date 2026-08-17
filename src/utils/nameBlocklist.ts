@@ -1,3 +1,7 @@
+// nameBlocklist v2.2
+// Changelog v2.2 : ajout du mot générique « drogue » et de ses proches. La liste
+//   contenait cocaïne, héroïne et crack, mais pas drogue : un doudou nommé
+//   « drogue » passait. Repéré en test le 17/08.
 // nameBlocklist v2.1
 // Changelog v2.1 : ajout de forbiddenFieldsError, qui construit le message final
 //   à partir du résultat de checkFreeTextFields. Il nomme le MOT et le CHAMP :
@@ -44,6 +48,9 @@ export const FORBIDDEN_NAME_WORDS: string[] = [
   'daesh', 'isis',
   // Drogues / contenus inappropriés
   'cocaine', 'cocaïne', 'heroine', 'héroïne', 'crack',
+  // v2.2 — le mot générique manquait : « drogue » passait alors que « cocaïne »
+  // était bloqué. Repéré en test le 17/08.
+  'drogue', 'drogues', 'came', 'shoot', 'seringue', 'overdose',
   // v2.0 — Anatomie explicite et sexualité.
   // C'est ce registre, absent jusqu'ici, qui fait refuser un avatar par le
   // contrôle de contenu de Gemini. Retirez librement une entrée qui vous
