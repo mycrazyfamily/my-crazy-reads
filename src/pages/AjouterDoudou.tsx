@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
 import { splitCamelCase } from '@/utils/nameFormatter';
 import { toast } from 'sonner';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import ToyForm from '@/components/childProfile/toys/ToyForm';
@@ -113,6 +114,20 @@ export default function AjouterDoudou() {
     }
     setIsSubmitting(true);
     try {
+      // v2.0 — blocklist. Cet écran n'en avait AUCUNE, pas même sur le nom.
+      if (containsForbiddenWord(toyData.name)) {
+        toast.error(FORBIDDEN_NAME_ERROR);
+        return;
+      }
+      const champsLibres = checkFreeTextFields({
+        'la description': toyData.appearance,
+        "le type d'objet": toyData.otherType,
+      });
+      if (!champsLibres.ok) {
+        toast.error(forbiddenFieldsError(champsLibres));
+        return;
+      }
+
       let familyId: string | null = null;
 
       // 1. D'abord, essayer de récupérer le family_id depuis le profil enfant (child_profiles)
