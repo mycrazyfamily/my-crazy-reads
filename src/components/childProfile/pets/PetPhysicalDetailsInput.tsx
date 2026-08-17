@@ -1,3 +1,7 @@
+// PetPhysicalDetailsInput v2.1
+// Changelog v2.1 : le SOUS-TITRE suit lui aussi l'espèce. Il annonçait encore
+//   « taches de rousseur, grain de beauté, fossettes » sous des suggestions
+//   devenues animales.
 // PetPhysicalDetailsInput v2.0
 // Changelog v2.0 :
 //   (a) SUGGESTIONS ENFIN ANIMALES. Ce composant était un copier-coller du
@@ -27,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Check } from "lucide-react";
-import { petPhysicalDetails } from '@/constants/physicalDetailsOptions';
+import { petPhysicalDetails, petPhysicalHelpText } from '@/constants/physicalDetailsOptions';
 import { findForbiddenWords, forbiddenContentError } from '@/utils/nameBlocklist';
 
 type PetPhysicalDetailsInputProps = {
@@ -53,6 +57,10 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   petType,
 }) => {
   const SUGGESTIONS = petPhysicalDetails(petType);
+  // v2.1 — le sous-titre était resté humain (« taches de rousseur, fossettes »)
+  // alors que les suggestions étaient devenues animales : deux messages
+  // contradictoires sur la même ligne.
+  const aideSelonEspece = petPhysicalHelpText(petType);
   const MAX_DETAILS = 5;
   const [customInput, setCustomInput] = useState('');
   const [noDetails, setNoDetails] = useState(noDetailsValue);
@@ -131,7 +139,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
           Des détails physiques marquants ? *
         </Label>
         <p className="text-sm text-muted-foreground mt-1">
-          Taches de rousseur, grain de beauté, fossettes, cicatrice, etc.
+          {aideSelonEspece}
         </p>
       </div>
 
