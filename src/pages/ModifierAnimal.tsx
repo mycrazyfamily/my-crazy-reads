@@ -28,7 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { splitCamelCase } from '@/utils/nameFormatter';
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PetForm from '@/components/childProfile/pets/PetForm';
@@ -421,6 +421,20 @@ const ModifierAnimal: React.FC = () => {
     // Blocklist : nom de l'animal
     if (containsForbiddenWord(currentPetData.name)) {
       toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
+    // v2.0 — blocklist étendue aux champs libres. Le nom était contrôlé, pas la
+    // description : c'est pourtant elle qui a fait refuser un avatar par Gemini.
+    const champsLibres = checkFreeTextFields({
+      'les détails physiques': ((currentPetData.customTraits as any)?.physicalDetails ?? []) as string[],
+      'la race': currentPetData.breed,
+      "le type d'animal": currentPetData.otherType,
+      'les traits de caractère': Object.values(currentPetData.customTraits || {})
+        .filter((v) => typeof v === 'string') as string[],
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
