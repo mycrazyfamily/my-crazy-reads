@@ -1,3 +1,15 @@
+// PetPhysicalDetailsInput v2.0
+// Changelog v2.0 :
+//   (a) SUGGESTIONS ENFIN ANIMALES. Ce composant était un copier-coller du
+//       composant humain : il proposait « fossettes », « appareil dentaire » et
+//       « boucles d'oreilles » pour décrire un chien. Seul le placeholder avait
+//       été corrigé en v1.3. La liste dépend désormais de l'ESPÈCE, via la prop
+//       petType (chien, chat, ou générique pour lapin, oiseau, poisson, reptile).
+//   (b) BLOCKLIST À LA SAISIE, identique au composant humain.
+//
+//   petType est OPTIONNEL : sans lui, la liste générique s'applique, déjà bien
+//   plus juste que la liste humaine. Passez pets.type depuis PetForm pour obtenir
+//   les listes chien et chat.
 // PetPhysicalDetailsInput v1.3
 // Changelog v1.3 : exemple adapté à l'ANIMAL (« Ex : cicatrice à la patte ») — ce composant est
 //   celui utilisé par PetForm ; l'exemple précédent (« cicatrice au menton ») venait du gabarit
@@ -15,38 +27,39 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, X, Check } from "lucide-react";
+import { petPhysicalDetails } from '@/constants/physicalDetailsOptions';
+import { findForbiddenWords, forbiddenContentError } from '@/utils/nameBlocklist';
 
 type PetPhysicalDetailsInputProps = {
   value: string[];
   onChange: (value: string[]) => void;
   onNoDetailsChange?: (hasNoDetails: boolean) => void;
   noDetailsValue?: boolean;
+  /** v2.0 — espèce, pour choisir les suggestions. Vient de pets.type ('dog', 'cat'…).
+   *  Absent = liste générique, convenable pour lapin, oiseau, poisson, reptile. */
+  petType?: string | null;
 };
 
-const SUGGESTIONS = [
-  "Taches de rousseur",
-  "Grain de beauté",
-  "Fossettes",
-  "Cicatrice",
-  "Appareil dentaire",
-  "Boucles d'oreilles",
-  "Mèche colorée",
-  "Grande taille",
-  "Petite taille",
-  "Tache de naissance",
-];
+// v2.0 — plus de liste HUMAINE sur une fiche animal. On proposait « fossettes »,
+// « appareil dentaire » et « boucles d'oreilles » pour décrire un chien : la liste
+// était un copier-coller du composant humain, seul le placeholder avait été corrigé.
+// La liste dépend désormais de l'espèce (voir @/constants/physicalDetailsOptions).
 
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   value = [],
   onChange,
   onNoDetailsChange,
-  noDetailsValue = false
+  noDetailsValue = false,
+  petType,
 }) => {
+  const SUGGESTIONS = petPhysicalDetails(petType);
   const MAX_DETAILS = 5;
   const [customInput, setCustomInput] = useState('');
   const [noDetails, setNoDetails] = useState(noDetailsValue);
   // v1.1 (B5) : mémorise le dernier détail ajouté pour afficher un « ✓ ajouté » temporaire.
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  // v2.0 — message affiché quand la saisie contient un mot interdit.
+  const [erreurMot, setErreurMot] = useState<string | null>(null);
   const justAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const details = value.length > 0 ? value : [];
 
@@ -65,6 +78,16 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
 
   const handleAddCustom = () => {
     const trimmed = customInput.trim();
+
+    // v2.0 — on refuse AVANT l'enregistrement plutôt qu'après l'échec de génération.
+    // Sans ça, le parent attendait une trentaine de secondes pour apprendre que son
+    // mot était refusé, et un appel Gemini partait pour rien.
+    const interdits = findForbiddenWords(trimmed);
+    if (interdits.length > 0) {
+      setErreurMot(forbiddenContentError(interdits));
+      return;   // le champ n'est pas vidé : le parent corrige sa saisie sur place
+    }
+
     if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
       onChange([...details, trimmed]);
       setCustomInput('');
@@ -176,7 +199,7 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
             <div className="flex gap-2">
               <Input
                 value={customInput}
-                onChange={(e) => setCustomInput(e.target.value)}
+                onChange={(e) => { setCustomInput(e.target.value); if (erreurMot) setErreurMot(null); }}
                 placeholder="Ex : cicatrice à la patte"
                 className="flex-1"
                 onKeyDown={(e) => {
@@ -200,6 +223,11 @@ const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+            {erreurMot && (
+              <p className="text-sm text-destructive mt-2 leading-snug" role="alert">
+                {erreurMot}
+              </p>
+            )}
             {justAdded && (
               <p className="text-sm text-mcf-primary flex items-center gap-1 mt-2" aria-live="polite">
                 <Check className="h-4 w-4 flex-shrink-0" />
