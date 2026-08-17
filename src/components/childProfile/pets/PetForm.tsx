@@ -426,11 +426,14 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       </div>
 
       {/* Détails physiques de l'animal */}
+      {/* v2.0 — l'espèce pilote les suggestions : un chien ne se décrit pas comme un
+          chat, et aucun des deux ne porte de boucles d'oreilles. */}
       <PetPhysicalDetailsInput
         value={petPhysicalDetails}
         onChange={setPetPhysicalDetails}
         onNoDetailsChange={setNoPhysicalDetails}
         noDetailsValue={noPhysicalDetails}
+        petType={type}
       />
 
       {/* Traits de caractère */}
