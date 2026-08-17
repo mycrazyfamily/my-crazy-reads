@@ -28,7 +28,7 @@ import ChildrenSelector from '../ChildrenSelector';
 import { supabase } from "@/integrations/supabase/client";
 import PetPhysicalDetailsInput from './PetPhysicalDetailsInput';
 import { PetMonthYearPicker } from './PetMonthYearPicker';
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 
 type PetFormProps = {
   pet?: PetData;
@@ -310,6 +310,25 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const handleSubmit = () => {
     if (!validatePetData()) return;
     const newPet = getPetData();
+
+    // v2.0 — blocklist ici plutôt que dans les écrans appelants : ce formulaire
+    // sert au wizard de création, à AjouterAnimal et à ModifierAnimal.
+    if (containsForbiddenWord(newPet.name)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    const champsLibres = checkFreeTextFields({
+      'la race': newPet.breed,
+      "le type d'animal": newPet.otherType,
+      'les détails physiques': ((newPet.customTraits as any)?.physicalDetails ?? []) as string[],
+      'les traits de caractère': Object.values(newPet.customTraits || {})
+        .filter((v) => typeof v === 'string') as string[],
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
+      return;
+    }
+
     onSave(newPet, isCreatingNewChild ? selectedChildrenIds : undefined);
   };
 
