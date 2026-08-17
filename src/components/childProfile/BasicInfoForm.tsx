@@ -1,3 +1,9 @@
+// BasicInfoForm v1.2
+// Changelog v1.2 : blocklist à la validation de l'étape. Le prénom, le surnom
+//   personnalisé, le style vestimentaire sur mesure, le type et les couleurs de
+//   cheveux, de peau et d'yeux personnalisés n'étaient contrôlés nulle part dans
+//   le wizard : le parent traversait tout le parcours avant d'être refusé au
+//   dernier écran.
 // BasicInfoForm v1.1
 // Changelog v1.1 (B4) : placeholders des champs « personnalisé » raccourcis (règle : « Ex : » +
 //   exemple court, sans « … », ≤ ~28 caractères) — « Sa couleur des cheveux personnalisée » était
@@ -28,7 +34,7 @@ import { toast } from "sonner";
 import ErrorBoundary from "@/components/util/ErrorBoundary";
 import PhysicalDetailsInput from './PhysicalDetailsInput';
 import ClothingStyleInput from './ClothingStyleInput';
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 
 type BasicInfoFormProps = {
   selectedNickname: string;
@@ -252,6 +258,31 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
 
     if (errors.length > 0) {
       toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
+      return;
+    }
+
+    // v1.2 — blocklist à la validation de l'ÉTAPE, pas à la fin du wizard.
+    // Le style vestimentaire personnalisé, le surnom et les couleurs libres
+    // n'étaient contrôlés nulle part : le parent pouvait traverser tout le
+    // parcours avant d'être refusé au dernier écran, sans savoir pourquoi.
+    if (containsForbiddenWord(formData.firstName)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    if (formData.nickname?.type === 'custom' && containsForbiddenWord(formData.nickname.custom)) {
+      toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+    const champsLibres = checkFreeTextFields({
+      'la tenue': typeof formData.clothingStyle === 'string' ? formData.clothingStyle : undefined,
+      'les détails physiques': formData.physicalDetails,
+      'le type de cheveux': formData.hairTypeCustom,
+      'la couleur des cheveux': formData.hairColor?.custom,
+      'la couleur de peau': formData.skinColor?.custom,
+      'la couleur des yeux': formData.eyeColor?.custom,
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
