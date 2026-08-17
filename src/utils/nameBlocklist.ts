@@ -1,3 +1,20 @@
+// nameBlocklist v3.0
+// Changelog v3.0 — CINQ CATÉGORIES AJOUTÉES, et des formes génériques partout.
+//   Le trou du 17/08 était instructif : « cocaïne » était bloqué mais « drogue »
+//   non. Une liste par exemples laisse toujours passer le mot que personne n'a
+//   pensé à écrire. Chaque catégorie porte donc désormais ses génériques.
+//   Nouveautés : insultes homophobes et transphobes, insultes validistes,
+//   violence explicite, autodestruction. La scatologie est fournie à part, non
+//   activée (choix éditorial, voir FORBIDDEN_SCATOLOGY).
+//
+// DEUX PRINCIPES ASSUMÉS
+//   1. Les mots à DOUBLE USAGE sont écartés. « handicapé », « autiste »,
+//      « trisomique », « débile », « malade », « folle » peuvent décrire
+//      honnêtement un proche. Les bloquer causerait un tort réel pour un
+//      bénéfice nul. Gemini reste le second rideau.
+//   2. Les VARIANTES écrites (f*ck, s3xe) ne sont pas traitées. Les couvrir
+//      demanderait une normalisation bien plus poussée que le retrait des
+//      accents, pour un gain limité : Gemini les rattrape.
 // nameBlocklist v2.2
 // Changelog v2.2 : ajout du mot générique « drogue » et de ses proches. La liste
 //   contenait cocaïne, héroïne et crack, mais pas drogue : un doudou nommé
@@ -33,33 +50,90 @@
 // ENTIER : « cul » ne matche pas « culotte », « bite » ne matche pas « habite ».
 
 export const FORBIDDEN_NAME_WORDS: string[] = [
-  // Vulgarités françaises
+  // ── Vulgarités françaises ────────────────────────────────────────────────
   'merde', 'putain', 'pute', 'salope', 'salaud', 'connard', 'connasse',
   'enculé', 'encule', 'enfoiré', 'enfoire', 'bite', 'couille', 'couilles',
   'chatte', 'cul', 'foutre', 'bordel', 'pédé', 'pede', 'tapette',
   'bâtard', 'batard', 'nique', 'niquer', 'ntm',
-  // Vulgarités anglaises
+
+  // ── Vulgarités anglaises ─────────────────────────────────────────────────
   'fuck', 'fucker', 'shit', 'bitch', 'asshole', 'bastard', 'dick',
   'cunt', 'pussy', 'whore', 'slut', 'motherfucker',
-  // Insultes racistes / haineuses
+
+  // ── Anatomie et sexualité ────────────────────────────────────────────────
+  // C'est ce registre qui fait refuser un avatar par le contrôle de contenu de
+  // Gemini. Ajouté en v2.0 après le cas « Slip avec dessin de sexe ».
+  'sexe', 'sexes', 'sexuel', 'sexuelle', 'penis', 'pénis', 'vagin', 'vulve',
+  'testicule', 'testicules', 'teton', 'téton', 'tetons', 'tétons',
+  'nichon', 'nichons', 'zizi', 'zezette', 'zézette', 'zboub',
+  'fesse', 'fesses', 'anus', 'sodomie', 'fellation', 'nudite', 'nudité',
+  'porno', 'pornographie', 'pornographique', 'erotique', 'érotique', 'obscene',
+  'obscène', 'masturbation', 'orgasme', 'prostituee', 'prostituée', 'prostitue',
+  'strip', 'striptease',
+
+  // ── Insultes racistes et xénophobes ──────────────────────────────────────
   'nègre', 'negre', 'nigger', 'negro', 'bougnoule', 'youpin', 'chinetoque',
-  // Figures historiques haineuses
-  'hitler', 'nazi', 'nazis', 'führer', 'fuhrer', 'staline', 'mussolini',
-  'daesh', 'isis',
-  // Drogues / contenus inappropriés
+  'bicot', 'raton', 'rebeu', 'raciste', 'racisme',
+
+  // ── Insultes homophobes et transphobes ───────────────────────────────────
+  // v3.0 — la liste ne contenait que « pédé » et « tapette ». Ce sont des mots
+  // de cour de récréation, donc parmi les plus plausibles dans une saisie.
+  'gouine', 'tarlouze', 'tantouze', 'fiotte', 'travelo', 'pd',
+  'faggot', 'tranny', 'homophobe', 'transphobe',
+
+  // ── Insultes validistes ──────────────────────────────────────────────────
+  // v3.0 — volontairement COURTE. « handicapé », « autiste », « trisomique »,
+  // « débile », « malade » en sont ABSENTS : ce sont des mots qu'un parent peut
+  // légitimement employer pour décrire son propre enfant ou un proche. Les
+  // bloquer causerait un tort réel pour un bénéfice nul. Seules les formes
+  // uniquement péjoratives figurent ici.
+  'attardé', 'attarde', 'attardée', 'attardee', 'mongolien', 'mongolienne',
+  'retarded',
+
+  // ── Haine, extrémisme, figures ───────────────────────────────────────────
+  'hitler', 'nazi', 'nazis', 'nazisme', 'führer', 'fuhrer', 'staline',
+  'mussolini', 'daesh', 'isis', 'ku klux klan', 'kkk', 'goebbels', 'petain',
+  'pétain',
+
+  // ── Violence explicite et mort ───────────────────────────────────────────
+  // v3.0 — curseur volontairement HAUT : uniquement des ACTES, jamais des
+  // objets. « épée », « sabre », « arme », « couteau », « bataille », « combat »
+  // en sont absents : un chevalier a une épée, un pirate un sabre, et les
+  // univers Pirates et Super-héros font partie du catalogue.
+  'viol', 'violer', 'violeur', 'egorger', 'égorger', 'torture', 'torturer',
+  'decapiter', 'décapiter', 'decapitation', 'décapitation', 'massacre',
+  'massacrer', 'meurtre', 'assassiner', 'assassinat', 'etrangler', 'étrangler',
+  'poignarder', 'mutiler', 'mutilation', 'charnier', 'genocide', 'génocide',
+  'pendaison', 'lynchage', 'lyncher',
+
+  // ── Autodestruction ──────────────────────────────────────────────────────
+  // v3.0 — aucun usage légitime dans une description de personnage, et un sujet
+  // trop grave pour être laissé au filtre de Gemini seul.
+  'suicide', 'suicider', 'suicidaire', 'automutilation', 'scarification',
+
+  // ── Drogues et substances ────────────────────────────────────────────────
+  // v2.2 — le mot GÉNÉRIQUE manquait : « cocaïne » était bloqué, « drogue » non.
+  // La leçon vaut pour toutes les catégories, d'où les formes génériques
+  // ajoutées partout en v3.0.
   'cocaine', 'cocaïne', 'heroine', 'héroïne', 'crack',
-  // v2.2 — le mot générique manquait : « drogue » passait alors que « cocaïne »
-  // était bloqué. Repéré en test le 17/08.
-  'drogue', 'drogues', 'came', 'shoot', 'seringue', 'overdose',
-  // v2.0 — Anatomie explicite et sexualité.
-  // C'est ce registre, absent jusqu'ici, qui fait refuser un avatar par le
-  // contrôle de contenu de Gemini. Retirez librement une entrée qui vous
-  // paraîtrait excessive : la liste est faite pour être ajustée.
-  'sexe', 'sexes', 'penis', 'pénis', 'vagin', 'vulve', 'testicule', 'testicules',
-  'teton', 'téton', 'tetons', 'tétons', 'nichon', 'nichons', 'zizi', 'zezette',
-  'zézette', 'zboub', 'fesse', 'fesses', 'anus', 'sodomie', 'fellation',
-  'porno', 'pornographie', 'pornographique', 'erotique', 'érotique',
-  'masturbation', 'orgasme', 'prostituee', 'prostituée', 'strip', 'striptease',
+  'drogue', 'drogues', 'drogué', 'drogue', 'droguee', 'droguée', 'came',
+  'shoot', 'seringue', 'overdose', 'dealer', 'stupefiant', 'stupéfiant',
+  'stupefiants', 'stupéfiants', 'cannabis', 'ecstasy', 'lsd', 'meth',
+  'amphetamine', 'amphétamine', 'opium',
+];
+
+/**
+ * v3.0 — SCATOLOGIE : volontairement HORS de la liste principale.
+ *
+ * « Caca », « pipi », « prout » sont un classique de l'humour enfantin, et un
+ * doudou nommé « Prout » ferait rire un enfant de quatre ans. C'est un choix
+ * ÉDITORIAL, pas technique : Gemini ne refuse pas ces mots.
+ *
+ * Pour les bloquer, ajoutez ...FORBIDDEN_SCATOLOGY dans FORBIDDEN_NAME_WORDS
+ * ci-dessus. Pour les autoriser, ne touchez à rien.
+ */
+export const FORBIDDEN_SCATOLOGY: string[] = [
+  'caca', 'pipi', 'prout', 'crotte', 'pet', 'peter', 'péter', 'roter',
 ];
 
 /**
