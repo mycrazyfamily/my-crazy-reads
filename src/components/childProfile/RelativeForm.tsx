@@ -1,3 +1,11 @@
+// RelativeForm v1.3
+// Changelog v1.3 : blocklist sur TOUS les champs libres au moment de valider la
+//   fiche (métier, type de relation, type et couleurs personnalisés, détails
+//   physiques, tenue, traits). Posée ICI plutôt que dans les écrans appelants :
+//   ce formulaire sert au wizard de création, à AjouterProche et à
+//   ModifierProche. Le wizard n'avait aucun contrôle avant son dernier écran, le
+//   parent remplissait donc cinq étapes avant d'être refusé.
+//   Le prénom et le surnom étaient déjà contrôlés, ils le restent.
 // RelativeForm v1.2
 // Changelog v1.2 (FIX « Erreur dans la fiche proche ») : les proches créés AVANT l'ajout de certains
 //   champs n'ont pas toujours les objets nickname / skinColor / hairColor (ni hairType / glasses /
