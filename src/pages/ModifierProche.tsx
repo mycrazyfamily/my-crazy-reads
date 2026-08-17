@@ -24,7 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
 import { useInvalidateFamilyData } from '@/hooks/useFamilyData';
 import { splitCamelCase } from '@/utils/nameFormatter';
-import { containsForbiddenWord, FORBIDDEN_NAME_ERROR } from '@/utils/nameBlocklist';
+import { FORBIDDEN_NAME_ERROR, checkFreeTextFields, containsForbiddenWord, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RelativeBasicInfoSection from '@/components/childProfile/relatives/RelativeBasicInfoSection';
@@ -431,6 +431,25 @@ const ModifierProche: React.FC = () => {
     }
     if (selectedNickname === 'custom' && containsForbiddenWord(nicknameCustomValue)) {
       toast.error(FORBIDDEN_NAME_ERROR);
+      return;
+    }
+
+    // v2.0 — blocklist étendue à TOUS les champs libres, en un seul appel : c'est
+    // le seul endroit de l'écran où ils sont tous réunis.
+    const champsLibres = checkFreeTextFields({
+      'les détails physiques': physicalDetails,
+      'la tenue': clothingStyle,
+      'le métier': job,
+      'le type de relation': otherTypeName,
+      'le type de cheveux': hairTypeCustom,
+      'la couleur des cheveux': hairColorCustomValue,
+      'la couleur de peau': skinColorCustomValue,
+      'la couleur des yeux': eyeColorCustomValue,
+      'les traits de caractère': Object.values(customTraits || {})
+        .filter((v) => typeof v === 'string') as string[],
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
