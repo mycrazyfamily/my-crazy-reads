@@ -1,3 +1,12 @@
+// CheckEmail v2.2
+// Changelog v2.2 — ALLÉGEMENT. Cinq blocs de texte pour une action qui se résume
+//   à « allez voir votre boîte mail », c'était trop, surtout pour une première
+//   inscription. Retirés : « Cliquez dessus pour activer votre compte » (on sait
+//   ce qu'on fait d'un lien de confirmation) et « Ce n'est pas la bonne adresse ?
+//   Revenez en arrière » (le bouton Retour est juste au-dessus, la phrase ne
+//   faisait que le paraphraser). La mention des indésirables passe de deux
+//   phrases à une, à information égale.
+//   Sept lignes de texte deviennent quatre.
 // CheckEmail v2.1
 // Changelog v2.1 : le lien « Connectez-vous » transporte l'adresse saisie, pour
 //   que le parent arrive sur la connexion avec son champ déjà rempli. Il ne lui
@@ -76,25 +85,23 @@ const CheckEmail = () => {
                   <>
                     Nous venons d'envoyer un lien de confirmation à{' '}
                     <span className="font-semibold text-mcf-primary break-all">{email}</span>.
-                    Cliquez dessus pour activer votre compte.
                   </>
                 ) : (
-                  <>
-                    Nous venons d'envoyer un lien de confirmation à votre adresse email.
-                    Cliquez dessus pour activer votre compte.
-                  </>
+                  <>Nous venons d'envoyer un lien de confirmation à votre adresse email.</>
                 )}
               </p>
 
-              {/* v2.0 (a) — après l'essentiel, sans dramatiser. */}
+              {/* v2.0 (a) — après l'essentiel, sans dramatiser.
+                  v2.2 — condensé en une phrase : deux, c'était trop pour une page
+                  dont l'action se résume à « allez voir votre boîte mail ». */}
               <p className="text-sm text-gray-500 leading-relaxed">
-                Le message arrive en général en moins d'une minute. Il lui arrive de se glisser
-                dans les indésirables : pensez à y jeter un œil.
+                Il arrive en général en moins d'une minute, pensez à regarder dans vos
+                indésirables s'il tarde.
               </p>
             </div>
 
             {/* v2.0 (e) — voir l'explication en tête de fichier. */}
-            <div className="pt-4 border-t border-mcf-mint/40 text-center space-y-2">
+            <div className="pt-4 border-t border-mcf-mint/40 text-center">
               <p className="text-sm text-gray-600">
                 Vous aviez déjà un compte ?{' '}
                 {/* v2.1 — le lien TRANSPORTE l'adresse, pour que le parent n'ait
@@ -108,9 +115,6 @@ const CheckEmail = () => {
                 >
                   Connectez-vous
                 </Link>
-              </p>
-              <p className="text-xs text-gray-500">
-                Ce n'est pas la bonne adresse ? Revenez en arrière pour la corriger.
               </p>
             </div>
           </CardContent>
