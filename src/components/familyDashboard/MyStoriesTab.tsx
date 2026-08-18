@@ -1,3 +1,13 @@
+// MyStoriesTab v4.1
+// v4.1 — BLOCKLIST SUR LES TEXTES LIBRES DU WIZARD D'HISTOIRE.
+//   « Votre touche secrète » et « Quelle aventure imaginez-vous » n'étaient
+//   contrôlés nulle part. Contrairement aux champs « Autre » des univers, ces
+//   deux textes SONT enregistrés (book_requests.message et
+//   original_theme_instructions) et 5A_Prepare_Gemini_Payload les injecte dans
+//   la trame narrative : un mot interdit y arrivait jusque dans le livre.
+//   Deux points de contrôle : à l'étape 1 pour l'histoire inédite, saisie tout
+//   au début, et à la validation finale pour la touche personnelle, saisie au
+//   dernier écran.
 // MyStoriesTab v4.0
 // v4.0 — l'avertissement « personnages indisponibles » prend la même forme que celui de
 //   l'enfant : encadré rouge, titre en gras. En petit texte gris sous un bandeau neutre,
@@ -338,6 +348,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFamilyData, type FamilyChild } from '@/hooks/useFamilyData';
 import { useBookTimeline, type BookTimelineRow } from '@/hooks/useBookTimeline';
@@ -1042,7 +1053,28 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
     });
   };
 
+  // v4.1 — blocklist sur les DEUX textes libres de ce wizard. Ils partent
+  // réellement dans le prompt de Gemini : `note` alimente book_requests.message,
+  // `customStory` alimente original_theme_instructions, et 5A les injecte tous
+  // deux dans la trame narrative. C'était le dernier endroit du site où un
+  // parent pouvait écrire n'importe quoi jusque dans son livre.
+  const verifierTextesLibres = (): boolean => {
+    const champsLibres = checkFreeTextFields({
+      'votre histoire': isCustom ? customStory : undefined,
+      'votre touche personnelle': !isCustom ? note : undefined,
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
+      return false;
+    }
+    return true;
+  };
+
   const handleValidate = () => {
+    // Garde de dernier recours : l'étape 1 vérifie déjà l'histoire inédite, mais
+    // la touche personnelle se saisit au tout dernier écran.
+    if (!verifierTextesLibres()) return;
+
     isSubmittingRef.current = true;
     const selectedChars: CharacterChoice[] = characters
       .filter((c) => selected.includes(c.id))
@@ -1114,7 +1146,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
           </div>
 
           <Button
-            onClick={() => setStep(2)}
+            onClick={() => { if (verifierTextesLibres()) setStep(2); }}
             disabled={customStory.trim().length < 30}
             className="w-full text-white hover:opacity-90 disabled:opacity-50"
             style={{ backgroundColor: PRIMARY_VIOLET }}
