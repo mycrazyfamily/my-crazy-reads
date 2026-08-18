@@ -1,6 +1,13 @@
-
+// LoginForm v1.1
+// Changelog v1.1 :
+//   (a) PANNEAU DE CONFIRMATION après « Mot de passe oublié ». Il ne se passait
+//       RIEN auparavant : le parent recliquait et tombait sur le message de
+//       limitation de Supabase, en anglais. Formulation conditionnelle pour ne
+//       pas révéler si un compte existe à cette adresse.
+//   (b) Sparkles décoratif retiré du bouton.
+// LoginForm v1.0
 import React, { useState } from 'react';
-import { Mail, Lock, LogIn, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Mail, Lock, LogIn, Eye, EyeOff, MailCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +21,10 @@ interface LoginFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onResetPassword: (e: React.FormEvent) => void;
+  /** v1.1 — adresse à laquelle un lien de réinitialisation vient d'être envoyé.
+   *  null tant qu'aucune demande n'a abouti. Vient de useAuthForm. */
+  resetEmailSent?: string | null;
+  onBackFromReset?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -21,9 +32,54 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   isLoading,
   onInputChange,
   onSubmit,
-  onResetPassword
+  onResetPassword,
+  resetEmailSent = null,
+  onBackFromReset
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+
+  // v1.1 — LE CAS QUI MANQUAIT. « Mot de passe oublié » n'affichait RIEN : le
+  // mail partait, l'écran ne bougeait pas, le parent recliquait et tombait sur
+  // le message de limitation de Supabase, en anglais.
+  // La formulation est CONDITIONNELLE à dessein : elle ne confirme pas qu'un
+  // compte existe à cette adresse, sinon n'importe qui pourrait tester des
+  // adresses pour savoir qui est client.
+  if (resetEmailSent) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 bg-mcf-mint/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <MailCheck className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+          </div>
+          <h2 className="text-2xl font-bold text-mcf-primary">Vérifiez votre boîte mail</h2>
+        </div>
+
+        <div className="text-center space-y-4">
+          <p className="text-muted-foreground leading-relaxed">
+            Si un compte existe pour{' '}
+            <span className="font-semibold text-mcf-primary break-all">{resetEmailSent}</span>,
+            un lien de réinitialisation vient d'y être envoyé.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Le message arrive en général en moins d'une minute. Il lui arrive de se glisser
+            dans les indésirables : pensez à y jeter un œil. Le lien reste valable une heure.
+          </p>
+        </div>
+
+        {onBackFromReset && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBackFromReset}
+            className="w-full h-12 font-semibold"
+          >
+            Revenir à la connexion
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -93,7 +149,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           disabled={isLoading}
         >
           {isLoading ? "Connexion en cours..." : "Se connecter"}
-          <Sparkles className="h-5 w-5" />
         </Button>
       </form>
     </div>
