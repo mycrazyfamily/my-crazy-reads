@@ -1,3 +1,17 @@
+// useAuthForm v1.3
+// Changelog v1.3 :
+//   (a) « MOT DE PASSE OUBLIÉ » NE FAISAIT RIEN. La branche de succès de
+//       handleResetPassword était littéralement vide : le mail partait, l'écran
+//       ne bougeait pas. Le parent recliquait et tombait sur le message de
+//       limitation de Supabase, en anglais. On expose maintenant resetEmailSent.
+//   (b) URL DE CONFIRMATION DYNAMIQUE. emailRedirectTo était codé en dur sur
+//       mycrazyfamily.lovable.app, absent de la liste blanche Supabase : les
+//       liens repartaient donc vers my-crazy-reads.vercel.app. window.location.origin.
+//   (c) RÈGLES DE MOT DE PASSE (@/utils/passwordRules), partagées avec l'écran
+//       de réinitialisation. Supabase n'imposait que 6 caractères.
+//   (d) MESSAGES SUPABASE TRADUITS, y compris ceux de la connexion, qui
+//       affichaient le message brut en anglais.
+//   (e) L'adresse saisie est transmise à /check-email, qui la rappelle au parent.
 // useAuthForm v1.2
 // Changelog v1.2 : le paramètre `redirectPath` était déclaré mais jamais lu — la destination
 //   post-connexion était écrite en dur. Un appel du type useAuthForm('/abonnement') aurait été
@@ -22,6 +36,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
+import { motDePasseValide, messageMotDePasse } from '@/utils/passwordRules';
 
 interface AuthFormData {
   email: string;
@@ -36,6 +51,14 @@ const mapSupabaseSignupError = (errorMessage: string) => {
     'invalid_email': 'Adresse email invalide. Veuillez vérifier votre saisie.',
     'rate_limit': 'Trop de tentatives. Veuillez réessayer plus tard.',
     'Invalid login credentials': 'Les identifiants sont invalides.',
+    // v1.3 — messages renvoyés en anglais par Supabase, vus par le parent tels
+    // quels. « For security purposes, you can only request this after 50
+    // seconds » s'affichait en anglais sur la page de connexion le 18/08.
+    'For security purposes': "Vous venez de faire cette demande. Patientez une minute avant de réessayer.",
+    'over_email_send_rate_limit': "Trop de messages envoyés. Patientez quelques minutes avant de réessayer.",
+    'Email rate limit exceeded': "Trop de messages envoyés. Patientez quelques minutes avant de réessayer.",
+    'Email not confirmed': "Votre adresse n'a pas encore été confirmée. Cherchez notre email de confirmation, y compris dans vos indésirables.",
+    'same_password': "Votre nouveau mot de passe doit être différent de l'ancien.",
   };
 
   for (const [key, message] of Object.entries(errorMap)) {
@@ -49,6 +72,10 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  // v1.3 — adresse à laquelle un lien de réinitialisation vient d'être envoyé.
+  // null tant qu'aucune demande n'a abouti ; le composant s'en sert pour
+  // remplacer le formulaire par une confirmation.
+  const [resetEmailSent, setResetEmailSent] = useState<string | null>(null);
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -73,7 +100,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
       
       if (error) {
         console.error('Erreur de connexion:', error);
-        toast.error(error.message || "Erreur lors de la connexion");
+        // v1.3 : on traduit au lieu d'afficher le message brut de Supabase.
+        toast.error(mapSupabaseSignupError(error.message || ''));
         return;
       }
       
@@ -103,6 +131,13 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
     setIsLoading(true);
     
     try {
+      // v1.3 — règles de mot de passe. Supabase n'imposait que 6 caractères,
+      // sans contrainte de composition : « azerty » passait.
+      if (!motDePasseValide(formData.password)) {
+        toast.error(messageMotDePasse(formData.password));
+        setIsLoading(false);
+        return;
+      }
       if (formData.password !== formData.confirmPassword) {
         toast.error("Les mots de passe ne correspondent pas.");
         setIsLoading(false);
@@ -118,7 +153,13 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         email: cleanedEmail,
         password: formData.password,
         options: {
-          emailRedirectTo: 'https://mycrazyfamily.lovable.app/auth/callback',
+          // v1.3 — l'URL était codée en dur sur mycrazyfamily.lovable.app, un
+          // domaine absent de la liste blanche Supabase. Résultat : Supabase la
+          // REFUSAIT et retombait sur sa Site URL (my-crazy-reads.vercel.app).
+          // Le parent recevait donc un lien vers un déploiement Vercel, pas vers
+          // mycrazyfamily.com. window.location.origin suit le domaine réel, en
+          // production comme en préproduction.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         }
       });
 
@@ -129,8 +170,11 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
         return;
       }
 
+      // v1.3 : l'adresse est transmise à /check-email, qui la rappelle au parent.
+      // C'est ce qui attrape les fautes de frappe, première cause de « je n'ai
+      // rien reçu ».
       // D4 : replace → « précédent » ne revient pas sur le formulaire d'inscription
-      navigate('/check-email', { replace: true });
+      navigate('/check-email', { replace: true, state: { email: cleanedEmail } });
       
       setFormData({
         email: '',
@@ -148,26 +192,34 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
       toast.error("Veuillez saisir une adresse email valide.");
       return;
     }
-    
+
+    const cleanedResetEmail = formData.email.trim().toLowerCase();
     setIsLoading(true);
-    
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanedResetEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       
       if (error) {
         console.error('Erreur de réinitialisation:', error);
-        toast.error(error.message || "Erreur lors de l'envoi du lien de réinitialisation");
+        toast.error(mapSupabaseSignupError(error.message || ''));
         return;
       }
-      
-      
+
+      // v1.3 — LA BRANCHE DE SUCCÈS ÉTAIT VIDE. Le parent cliquait sur « Mot de
+      // passe oublié », le mail partait, et l'écran ne bougeait pas d'un pixel :
+      // il recliquait, et tombait sur le message de limitation en anglais.
+      // On expose désormais l'état au composant, qui affiche une confirmation.
+      // Formulation volontairement conditionnelle : elle ne révèle pas si un
+      // compte existe à cette adresse, sinon n'importe qui pourrait tester des
+      // adresses pour savoir qui est client.
+      setResetEmailSent(cleanedResetEmail);
     } catch (err) {
       console.error('Erreur inattendue:', err);
       toast.error("Une erreur inattendue est survenue");
@@ -190,6 +242,8 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
   return {
     formData,
     isLoading,
+    resetEmailSent,
+    clearResetEmailSent: () => setResetEmailSent(null),
     handleInputChange,
     handleLogin,
     handleRegister,
