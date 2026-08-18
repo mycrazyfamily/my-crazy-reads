@@ -1,3 +1,8 @@
+// Authentication v1.2
+// Changelog v1.2 :
+//   (a) Sparkles était IMPORTÉ SANS ÊTRE UTILISÉ : import retiré.
+//   (b) Branchement du panneau de confirmation après « Mot de passe oublié »
+//       (resetEmailSent / clearResetEmailSent, voir useAuthForm v1.3).
 // Authentication v1.1
 // Changelog v1.1 (D4 — seconde couche) : rien n'empêchait un utilisateur DÉJÀ CONNECTÉ de voir
 //   cette page (route publique, sans RouteGuard dans App.tsx) — par retour arrière ou en tapant
@@ -11,7 +16,7 @@ import React from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -48,7 +53,9 @@ const Authentication: React.FC = () => {
     handleInputChange,
     handleLogin,
     handleRegister,
-    handleResetPassword
+    handleResetPassword,
+    resetEmailSent,
+    clearResetEmailSent
   } = useAuthForm();
 
   const handleGoBack = () => {
@@ -114,6 +121,8 @@ const Authentication: React.FC = () => {
                     onInputChange={handleInputChange}
                     onSubmit={handleLogin}
                     onResetPassword={handleResetPassword}
+                    resetEmailSent={resetEmailSent}
+                    onBackFromReset={clearResetEmailSent}
                   />
                 </TabsContent>
                 
