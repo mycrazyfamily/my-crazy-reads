@@ -1,9 +1,18 @@
-
+// RegisterForm v1.1
+// Changelog v1.1 :
+//   (a) Sparkles décoratif retiré du bouton (règle du 18/08 : décoratif sur un
+//       bouton, on supprime, sans remplacement).
+//   (b) Les règles de mot de passe s'affichent sous le champ et passent au vert
+//       à mesure de la frappe. Elles viennent de @/utils/passwordRules, partagé
+//       avec l'écran de réinitialisation : une seule définition pour les deux.
+//   (c) Alerte immédiate si les deux mots de passe diffèrent.
+// RegisterForm v1.0
 import React, { useState } from 'react';
-import { Mail, Lock, UserPlus, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Mail, Lock, UserPlus, Eye, EyeOff, Check, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { REGLES_MOT_DE_PASSE } from '@/utils/passwordRules';
 
 interface RegisterFormProps {
   formData: {
@@ -75,6 +84,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
+
+          {/* v1.1 — les règles passent au vert à mesure de la frappe. Un parent
+              qui découvre la contrainte APRÈS avoir soumis recommence tout ;
+              ici il voit ce qu'il lui reste à faire. */}
+          <ul className="space-y-1 pt-1">
+            {REGLES_MOT_DE_PASSE.map((regle) => {
+              const ok = regle.verifie(formData.password);
+              return (
+                <li key={regle.cle} className={`flex items-center gap-1.5 text-xs ${ok ? 'text-mcf-secondary' : 'text-muted-foreground'}`}>
+                  {ok ? <Check className="h-3 w-3 flex-shrink-0" /> : <X className="h-3 w-3 flex-shrink-0 opacity-40" />}
+                  {regle.libelle}
+                </li>
+              );
+            })}
+          </ul>
         </div>
         
         <div className="space-y-2">
@@ -98,6 +122,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
+          {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+            <p className="text-xs text-destructive">Les deux mots de passe ne correspondent pas.</p>
+          )}
         </div>
         
         <Button 
@@ -106,7 +133,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           disabled={isLoading}
         >
           {isLoading ? "Création en cours..." : "Créer mon compte"}
-          <Sparkles className="h-5 w-5" />
         </Button>
       </form>
     </div>
