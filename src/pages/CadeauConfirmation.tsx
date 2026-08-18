@@ -1,3 +1,8 @@
+// CadeauConfirmation.tsx v1.4
+// v1.4: mention des INDÉSIRABLES sur les deux écrans qui annoncent un email.
+//       L'acheteur d'un cadeau est un INVITÉ : pas de compte, donc aucun autre
+//       moyen de retrouver son code s'il perd le message. L'écran de délai
+//       d'attente est le plus sensible : il a payé et repart sans son code.
 // CadeauConfirmation.tsx v1.3
 // v1.3: nuages non tronqués (boîte fixe, positions sûres) — rendu proche du mockup
 // v1.2: mention email rétablie (workflow n8n cadeau désormais en place)
@@ -171,8 +176,14 @@ const CadeauConfirmation: React.FC = () => {
                   <CheckCircle className="h-20 w-20 text-mcf-secondary" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-mcf-primary mb-3">Merci, votre cadeau est prêt !</h1>
-                <p className="text-lg text-muted-foreground mb-8">
+                <p className="text-lg text-muted-foreground mb-2">
                   Voici la carte à transmettre. Le code est aussi envoyé par email.
+                </p>
+                {/* v1.4 — l'acheteur d'un cadeau est un INVITÉ : il n'a pas de compte,
+                    donc aucun autre moyen de retrouver son code s'il perd le mail. */}
+                <p className="text-sm text-muted-foreground mb-8">
+                  Il arrive en général en moins d'une minute. S'il tarde, pensez à regarder
+                  dans vos indésirables.
                 </p>
 
                 <GiftCard gift={gift} />
@@ -202,9 +213,16 @@ const CadeauConfirmation: React.FC = () => {
             {status === 'timeout' && (
               <div className="py-16">
                 <h1 className="text-2xl font-bold text-mcf-primary mb-2">Votre paiement est bien reçu</h1>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-muted-foreground mb-2">
                   La génération de votre code prend un peu plus de temps que prévu. Vous le recevrez par
                   email dans quelques instants.
+                </p>
+                {/* v1.4 — c'est l'écran LE PLUS SENSIBLE de la page : le parent a payé et
+                    repart sans son code. Le mail est son seul recours, il doit savoir où
+                    le chercher. */}
+                <p className="text-sm text-muted-foreground mb-6">
+                  Pensez à regarder dans vos indésirables s'il n'apparaît pas dans votre boîte
+                  de réception.
                 </p>
                 <Link to="/" className="text-mcf-primary font-medium hover:underline">
                   Retour à l'accueil
