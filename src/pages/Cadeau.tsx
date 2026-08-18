@@ -1,3 +1,7 @@
+// Cadeau.tsx v1.3
+// Changelog v1.3 : Sparkles -> Wand2 sur le titre « Personnalisez votre cadeau ».
+//   Icône PORTEUSE DE SENS (elle illustre la personnalisation), donc remplacée et
+//   non supprimée, conformément à la règle arrêtée le 18/08.
 // Cadeau.tsx v1.2
 // Changelog v1.2 :
 //   • C11 ANNULÉ — la phrase du bas redevient une simple ligne de texte gris, à sa place d'origine.
@@ -33,7 +37,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Gift, Check, Sparkles, Star } from 'lucide-react';
+import { Gift, Check, Wand2, Star } from 'lucide-react';
 
 const MAX_MESSAGE = 120;
 
@@ -112,7 +116,7 @@ const Cadeau: React.FC = () => {
             {/* Personnalisation */}
             <div className="bg-card border-2 border-mcf-secondary/40 rounded-2xl p-6 md:p-8 mb-10 card-shadow text-left">
               <h2 className="text-xl font-bold text-mcf-primary mb-5 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-mcf-secondary" />
+                <Wand2 className="w-5 h-5 text-mcf-secondary" />
                 Personnalisez votre cadeau
               </h2>
               <div className="grid md:grid-cols-2 gap-5">
