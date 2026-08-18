@@ -1,12 +1,13 @@
 // WorldsForm v1.4
-// Changelog v1.4 : blocklist sur les quatre champs « Autre » (deux univers, deux
-//   découvertes), seuls textes libres de cette étape et jusqu'ici non contrôlés.
-//
-//   À SAVOIR : ces textes ne sont PAS enregistrés. useChildProfileSubmit filtre
-//   les valeurs commençant par « other » et n'insère que les libellés du
-//   catalogue ; vérifié en base le 17/08, aucun libellé hors catalogue n'existe.
-//   Le parent perd donc sa saisie sans en être averti. Défaut à traiter à part,
-//   la blocklist ne le corrige pas.
+// Changelog v1.4 : les options « Autre » sont RETIRÉES, univers et découvertes.
+//   Le texte saisi n'a jamais été enregistré (voir le commentaire dans le
+//   composant) : le parent croyait être écouté et ne l'était pas. Décision
+//   produit du 18/08, assumée pour la V1 — mieux vaut ne pas proposer que
+//   proposer sans suite. On rouvrira si des utilisateurs le demandent, avec une
+//   vraie persistance derrière.
+//   Disparaissent avec elles : les quatre champs de saisie, leur validation et
+//   leurs deux gestionnaires. Aucune blocklist n'est nécessaire ici puisqu'il
+//   ne reste plus aucun texte libre sur cette étape.
 // WorldsForm v1.3
 // Changelog v1.3 (MOBILE) : nav « Retour / Continuer l'aventure » empilée sur mobile (flex-col) +
 //   bouton qui peut revenir à la ligne — fini le chevauchement. Desktop strictement inchangé.
@@ -23,7 +24,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
-import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
 
@@ -37,6 +37,17 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
   handlePreviousStep
 }) => {
   const form = useFormContext<ChildProfileFormData>();
+
+  // v1.4 — les options « Autre » sont RETIRÉES de l'affichage.
+  // Le texte saisi n'était jamais enregistré : useChildProfileSubmit filtre les
+  // valeurs commençant par « other » et n'insère que les libellés du catalogue.
+  // Vérifié en base le 17/08 : aucun libellé hors catalogue n'existe. Le parent
+  // croyait donc être écouté et ne l'était pas.
+  // Le filtre est posé ICI plutôt que dans @/constants/worldOptions, qui sert
+  // aussi à WorldsSummary : on ne casse rien ailleurs, et le jour où ces univers
+  // seront réellement exploités, il suffira de retirer ces deux lignes.
+  const OPTIONS_UNIVERS = FAVORITE_WORLDS_OPTIONS.filter((o) => !String(o.value).startsWith('other'));
+  const OPTIONS_DECOUVERTES = DISCOVERY_OPTIONS.filter((o) => !String(o.value).startsWith('other'));
   
   // Lecture directe depuis react-hook-form (pas d'état local)
   const favoriteWorlds = form.watch("worlds.favoriteWorlds") || [];
@@ -90,17 +101,6 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
     }
   };
 
-  // Gère les changements dans les champs de texte personnalisés
-  const handleCustomWorldChange = (value: string, fieldNumber: 1 | 2) => {
-    const key = fieldNumber === 1 ? "other1" : "other2";
-    form.setValue(`worlds.customWorlds.${key}`, value, { shouldDirty: true });
-  };
-
-  const handleCustomDiscoveryChange = (value: string, fieldNumber: 1 | 2) => {
-    const key = fieldNumber === 1 ? "other1" : "other2";
-    form.setValue(`worlds.customDiscoveries.${key}`, value, { shouldDirty: true });
-  };
-
   const handleSubmit = () => {
     const errors: string[] = [];
 
@@ -112,35 +112,8 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
       errors.push("au moins un type de découverte");
     }
 
-    // Validation des champs personnalisés si nécessaire
-    if (favoriteWorlds.includes("other1" as FavoriteWorldType) && !customWorlds?.other1?.trim()) {
-      errors.push("l'univers personnalisé 1");
-    }
-    if (favoriteWorlds.includes("other2" as FavoriteWorldType) && !customWorlds?.other2?.trim()) {
-      errors.push("l'univers personnalisé 2");
-    }
-    if (discoveries.includes("other1" as DiscoveryType) && !customDiscoveries?.other1?.trim()) {
-      errors.push("la découverte personnalisée 1");
-    }
-    if (discoveries.includes("other2" as DiscoveryType) && !customDiscoveries?.other2?.trim()) {
-      errors.push("la découverte personnalisée 2");
-    }
-
     if (errors.length > 0) {
       toast.error(`Veuillez sélectionner ou préciser : ${errors.join(', ')}`);
-      return;
-    }
-
-    // v1.4 — blocklist sur les quatre champs « Autre ». Ils sont les seuls textes
-    // libres de cette étape, et n'étaient contrôlés nulle part.
-    const champsLibres = checkFreeTextFields({
-      "l'univers personnalisé 1": customWorlds?.other1,
-      "l'univers personnalisé 2": customWorlds?.other2,
-      'la découverte personnalisée 1': customDiscoveries?.other1,
-      'la découverte personnalisée 2': customDiscoveries?.other2,
-    });
-    if (!champsLibres.ok) {
-      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
@@ -165,7 +138,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {FAVORITE_WORLDS_OPTIONS.map((world) => {
+            {OPTIONS_UNIVERS.map((world) => {
               const isSelected = favoriteWorlds.includes(world.value as FavoriteWorldType);
               const isDisabled = favoriteWorlds.length >= 3 && !isSelected;
               
@@ -198,38 +171,6 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
             })}
           </div>
           
-          {/* Champs personnalisés pour les univers */}
-          <div className="space-y-3 mt-3">
-            {favoriteWorlds.includes("other1" as FavoriteWorldType) && (
-              <div>
-                <Label htmlFor="custom-world-1" className="text-sm font-medium">
-                  Autre univers (1):
-                </Label>
-                <Input
-                  id="custom-world-1"
-                  value={customWorlds?.other1 || ''}
-                  onChange={(e) => handleCustomWorldChange(e.target.value, 1)}
-                  placeholder="Précisez l'univers"
-                  className="mt-1"
-                />
-              </div>
-            )}
-            
-            {favoriteWorlds.includes("other2" as FavoriteWorldType) && (
-              <div>
-                <Label htmlFor="custom-world-2" className="text-sm font-medium">
-                  Autre univers (2):
-                </Label>
-                <Input
-                  id="custom-world-2"
-                  value={customWorlds?.other2 || ''}
-                  onChange={(e) => handleCustomWorldChange(e.target.value, 2)}
-                  placeholder="Précisez l'univers"
-                  className="mt-1"
-                />
-              </div>
-            )}
-          </div>
         </div>
         
         {/* Découvertes */}
@@ -242,7 +183,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {DISCOVERY_OPTIONS.map((discovery) => {
+            {OPTIONS_DECOUVERTES.map((discovery) => {
               const isSelected = discoveries.includes(discovery.value as DiscoveryType);
               const isDisabled = discoveries.length >= 3 && !isSelected;
               
@@ -275,38 +216,6 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
             })}
           </div>
           
-          {/* Champs personnalisés pour les découvertes */}
-          <div className="space-y-3 mt-3">
-            {discoveries.includes("other1" as DiscoveryType) && (
-              <div>
-                <Label htmlFor="custom-discovery-1" className="text-sm font-medium">
-                  Autre découverte (1):
-                </Label>
-                <Input
-                  id="custom-discovery-1"
-                  value={customDiscoveries?.other1 || ''}
-                  onChange={(e) => handleCustomDiscoveryChange(e.target.value, 1)}
-                  placeholder="Précisez le type de découverte"
-                  className="mt-1"
-                />
-              </div>
-            )}
-            
-            {discoveries.includes("other2" as DiscoveryType) && (
-              <div>
-                <Label htmlFor="custom-discovery-2" className="text-sm font-medium">
-                  Autre découverte (2):
-                </Label>
-                <Input
-                  id="custom-discovery-2"
-                  value={customDiscoveries?.other2 || ''}
-                  onChange={(e) => handleCustomDiscoveryChange(e.target.value, 2)}
-                  placeholder="Précisez le type de découverte"
-                  className="mt-1"
-                />
-              </div>
-            )}
-          </div>
         </div>
         
         {/* Boutons de navigation */}
