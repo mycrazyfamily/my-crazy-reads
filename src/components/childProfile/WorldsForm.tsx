@@ -1,3 +1,12 @@
+// WorldsForm v1.4
+// Changelog v1.4 : blocklist sur les quatre champs « Autre » (deux univers, deux
+//   découvertes), seuls textes libres de cette étape et jusqu'ici non contrôlés.
+//
+//   À SAVOIR : ces textes ne sont PAS enregistrés. useChildProfileSubmit filtre
+//   les valeurs commençant par « other » et n'insère que les libellés du
+//   catalogue ; vérifié en base le 17/08, aucun libellé hors catalogue n'existe.
+//   Le parent perd donc sa saisie sans en être averti. Défaut à traiter à part,
+//   la blocklist ne le corrige pas.
 // WorldsForm v1.3
 // Changelog v1.3 (MOBILE) : nav « Retour / Continuer l'aventure » empilée sur mobile (flex-col) +
 //   bouton qui peut revenir à la ligne — fini le chevauchement. Desktop strictement inchangé.
@@ -14,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { FAVORITE_WORLDS_OPTIONS, DISCOVERY_OPTIONS } from '@/constants/worldOptions';
 import type { ChildProfileFormData, FavoriteWorldType, DiscoveryType } from '@/types/childProfile';
 
@@ -118,6 +128,19 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
 
     if (errors.length > 0) {
       toast.error(`Veuillez sélectionner ou préciser : ${errors.join(', ')}`);
+      return;
+    }
+
+    // v1.4 — blocklist sur les quatre champs « Autre ». Ils sont les seuls textes
+    // libres de cette étape, et n'étaient contrôlés nulle part.
+    const champsLibres = checkFreeTextFields({
+      "l'univers personnalisé 1": customWorlds?.other1,
+      "l'univers personnalisé 2": customWorlds?.other2,
+      'la découverte personnalisée 1': customDiscoveries?.other1,
+      'la découverte personnalisée 2': customDiscoveries?.other2,
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
