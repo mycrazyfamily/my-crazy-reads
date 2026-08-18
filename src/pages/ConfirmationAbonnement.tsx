@@ -1,3 +1,12 @@
+// ConfirmationAbonnement.tsx v1.4
+// v1.4: [1] mention des INDÉSIRABLES sur l'étape « email de confirmation ». C'est
+//       le moment le plus sensible du parcours, le parent vient de payer : s'il ne
+//       voit rien arriver et n'a aucune piste, il écrit au support ou doute de sa
+//       commande. Formulation d'après les usages courants : après l'essentiel,
+//       sans dramatiser.
+//       [2] Sparkles -> Wand2. Cette icône est PORTEUSE DE SENS, elle illustre la
+//       personnalisation de l'histoire : elle n'est donc pas supprimée mais
+//       remplacée, conformément à la règle arrêtée le 18/08.
 // ConfirmationAbonnement.tsx v1.3
 // v1.3: [1] « avant le 10 du mois » etait ambigu : lu le 11 aout, le lecteur
 //       comprend le 10 aout, deja passe. On annonce le mois — « avant le
@@ -19,7 +28,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { CheckCircle, Mail, BookOpen, Sparkles } from 'lucide-react';
+import { CheckCircle, Mail, BookOpen, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -42,14 +51,14 @@ const ConfirmationAbonnement: React.FC = () => {
   const steps = [
     {
       icon: Mail,
-      text: 'Vous allez recevoir un email de confirmation avec le récapitulatif de votre abonnement',
+      text: "Vous allez recevoir un email de confirmation avec le récapitulatif de votre abonnement. Il arrive en général en moins d'une minute, pensez à regarder dans vos indésirables s'il tarde",
     },
     {
       icon: BookOpen,
       text: `Votre premier livre sera livré début ${deliveryMonth}`,
     },
     {
-      icon: Sparkles,
+      icon: Wand2,
       text: `Préparez vos personnages ! Rendez-vous dans l'espace famille pour choisir ses héros et son histoire, jusqu'au ${personalizationDeadline}`,
     },
   ];
