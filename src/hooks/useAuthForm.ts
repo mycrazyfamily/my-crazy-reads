@@ -1,3 +1,6 @@
+// useAuthForm v1.4
+// Changelog v1.4 : paramètre `initialEmail`, pour pré-remplir l'adresse quand le
+//   parent arrive depuis /check-email par le lien « Vous aviez déjà un compte ».
 // useAuthForm v1.3
 // Changelog v1.3 :
 //   (a) « MOT DE PASSE OUBLIÉ » NE FAISAIT RIEN. La branche de succès de
@@ -68,7 +71,15 @@ const mapSupabaseSignupError = (errorMessage: string) => {
   return `Une erreur inattendue est survenue : ${errorMessage}`;
 };
 
-export const useAuthForm = (redirectPath = '/espace-famille') => {
+/**
+ * v1.4 — `initialEmail` pré-remplit le champ adresse.
+ * Sert au parcours « vous aviez déjà un compte » : depuis /check-email, le
+ * parent revient sur la connexion avec son adresse déjà saisie, il n'a plus que
+ * son mot de passe à taper.
+ * Aucune fuite d'information : le lien s'affiche pour TOUT LE MONDE et
+ * pré-remplit toujours, que le compte existe ou non.
+ */
+export const useAuthForm = (redirectPath = '/espace-famille', initialEmail = '') => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +88,7 @@ export const useAuthForm = (redirectPath = '/espace-famille') => {
   // remplacer le formulaire par une confirmation.
   const [resetEmailSent, setResetEmailSent] = useState<string | null>(null);
   const [formData, setFormData] = useState<AuthFormData>({
-    email: '',
+    email: initialEmail,
     password: '',
     confirmPassword: ''
   });
