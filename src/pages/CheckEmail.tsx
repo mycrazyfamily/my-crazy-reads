@@ -1,3 +1,7 @@
+// CheckEmail v2.1
+// Changelog v2.1 : le lien « Connectez-vous » transporte l'adresse saisie, pour
+//   que le parent arrive sur la connexion avec son champ déjà rempli. Il ne lui
+//   reste que le mot de passe. Passée par l'état de navigation, pas par l'URL.
 // CheckEmail v2.0
 // Changelog v2.0 :
 //   (a) MENTION DES INDÉSIRABLES. C'était l'objet du chantier : le parent qui ne
@@ -93,8 +97,13 @@ const CheckEmail = () => {
             <div className="pt-4 border-t border-mcf-mint/40 text-center space-y-2">
               <p className="text-sm text-gray-600">
                 Vous aviez déjà un compte ?{' '}
+                {/* v2.1 — le lien TRANSPORTE l'adresse, pour que le parent n'ait
+                    plus que son mot de passe à saisir. Passée par l'état de
+                    navigation et non par l'URL : une adresse en clair dans la
+                    barre du navigateur reste dans l'historique et les journaux. */}
                 <Link
                   to="/authentification"
+                  state={email ? { email } : undefined}
                   className="font-semibold text-mcf-primary hover:underline"
                 >
                   Connectez-vous
