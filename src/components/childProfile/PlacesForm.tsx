@@ -1,3 +1,8 @@
+// PlacesForm v1.6
+// Changelog v1.6 : blocklist à la validation d'un lieu dans le wizard. AjouterLieu
+//   et ModifierLieu étaient protégés, pas cette étape : le parent pouvait y saisir
+//   ce qui était refusé partout ailleurs. Couvre aussi le surnom du lieu, qui
+//   n'existe que dans ce formulaire.
 // PlacesForm v1.5
 // Changelog v1.5 (B4) : placeholder du surnom raccourci + « … » retiré.
 // PlacesForm v1.4
@@ -27,6 +32,7 @@ import ExistingPlacesList from './places/ExistingPlacesList';
 import ChildrenSelector from './ChildrenSelector';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
 import { toast } from 'sonner';
+import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { supabase } from "@/integrations/supabase/client";
 import { useLocation } from 'react-router-dom';
 
@@ -315,6 +321,27 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       toast.error('Veuillez compléter les champs obligatoires', {
         description: `Champs manquants:\n• ${errors.join('\n• ')}`,
       });
+      return;
+    }
+
+    // v1.6 — blocklist à la validation du lieu, dans le wizard. AjouterLieu et
+    // ModifierLieu étaient protégés, pas cette étape : le parent pouvait y écrire
+    // ce qu'il voulait, et ces textes partent dans enrich-place-environment puis
+    // dans les prompts d'image.
+    // Les clés de `details` varient selon le type de lieu : on balaie leurs
+    // valeurs textuelles plutôt que de les énumérer et d'en oublier une.
+    const champsLibres = checkFreeTextFields({
+      'le nom du lieu': currentPlace.label,
+      'le surnom du lieu': childLabel,
+      'la ville': currentPlace.city,
+      'le pays': currentPlace.country,
+      'la description': currentPlace.description,
+      "l'adresse": currentPlace.address,
+      'les précisions du lieu': Object.values(details || {})
+        .filter((v) => typeof v === 'string') as string[],
+    });
+    if (!champsLibres.ok) {
+      toast.error(forbiddenFieldsError(champsLibres));
       return;
     }
 
