@@ -1,3 +1,7 @@
+// App v1.1
+// Changelog v1.1 : retrait de DEUX routes mortes et dangereuses, /finaliser-abonnement
+//   et /confirmation-profil. Toutes deux protégées par AuthGuard, donc atteignables par
+//   n'importe quel parent connecté tapant l'URL. Détail dans les commentaires en place.
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
@@ -24,8 +28,6 @@ import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import CreateChildProfile from './pages/CreateChildProfile'
 import NouvelEnfant from './pages/NouvelEnfant'
-import FinishSubscription from './pages/FinishSubscription'
-import ConfirmationPage from './pages/ConfirmationPage'
 import ConfirmationAbonnement from './pages/ConfirmationAbonnement'
 import FamilyDashboard from './pages/FamilyDashboard'
 import Authentication from './pages/Authentication'
@@ -106,21 +108,20 @@ function App() {
               <Route path="/abonnement" element={<Abonnement />} />
               
               {/* Protected routes - require authentication */}
-              <Route path="/finaliser-abonnement" element={
-                <AuthGuard>
-                  <FinishSubscription />
-                </AuthGuard>
-              } />
+              {/* v1.1 — /finaliser-abonnement RETIRÉE. FinishSubscription était un faux
+                  formulaire de paiement hérité du prototype : champs « Numéro de carte »,
+                  « CVC », et un setTimeout qui déclarait le paiement réussi. Aucun Stripe.
+                  La route était protégée par AuthGuard, donc atteignable par tout parent
+                  connecté tapant l'URL : il aurait pu y saisir sa vraie carte. */}
               <Route path="/confirmation" element={
                 <AuthGuard>
                   <ConfirmationAbonnement />
                 </AuthGuard>
               } />
-              <Route path="/confirmation-profil" element={
-                <AuthGuard>
-                  <ConfirmationPage />
-                </AuthGuard>
-              } />
+              {/* v1.1 — /confirmation-profil RETIRÉE. ConfirmationPage affichait des
+                  données INVENTÉES et codées en dur (« Thomas », « 123 Rue de la Magie »,
+                  7 ans). Remplacée depuis par ConfirmationAbonnement, qui lit le session_id
+                  de Stripe. Elle aussi était atteignable par tout parent connecté. */}
               <Route path="/espace-famille" element={
                 <AuthGuard>
                   <FamilyDashboard />
