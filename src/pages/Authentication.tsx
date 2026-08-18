@@ -1,3 +1,7 @@
+// Authentication v1.3
+// Changelog v1.3 : l'adresse transmise par /check-email pré-remplit le champ de
+//   connexion. L'onglet « Se connecter » est déjà celui par défaut, le parent
+//   n'a donc plus que son mot de passe à saisir.
 // Authentication v1.2
 // Changelog v1.2 :
 //   (a) Sparkles était IMPORTÉ SANS ÊTRE UTILISÉ : import retiré.
@@ -13,7 +17,7 @@
 //   apparaîtrait brièvement au rechargement d'un utilisateur connecté, exactement l'effet qu'on
 //   cherche à supprimer. Un visiteur non connecté voit la page normalement.
 import React from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -47,6 +51,9 @@ const Authentication: React.FC = () => {
   // Alias : `isLoading` est déjà pris par useAuthForm (chargement du FORMULAIRE). Ici il s'agit de
   // la résolution de la SESSION — deux notions distinctes, d'où le renommage.
   const { isAuthenticated, isLoading: isSessionLoading } = useAuth();
+  // v1.3 — adresse transmise par /check-email via l'état de navigation.
+  const location = useLocation();
+  const emailPreRempli = (location.state as { email?: string } | null)?.email || '';
   const {
     formData,
     isLoading,
@@ -56,7 +63,7 @@ const Authentication: React.FC = () => {
     handleResetPassword,
     resetEmailSent,
     clearResetEmailSent
-  } = useAuthForm();
+  } = useAuthForm('/espace-famille', emailPreRempli);
 
   const handleGoBack = () => {
     navigate(-1);
