@@ -1,3 +1,8 @@
+// FinalSummary v1.6
+// Changelog v1.6 (chantier icones IA, lot 2) : bloc « Doudous & objets magiques »,
+//   Sparkles -> Moon, coherent avec QuickActionsSection v1.4 et MyFamilyTab v1.2.
+//   NOTE : l'import Rabbit de ce fichier est mort, il n'est utilise nulle part (les animaux
+//   sont illustres par Cat). Il est laisse en place, hors perimetre du chantier icones.
 // FinalSummary v1.5
 // Changelog v1.5 : retrait du ResetAvatarButton caché en pied de résumé — la régénération d'avatar
 // enfant passe désormais par EditAvatarHeader monté en tête de CreateChildProfile (mode édition).
@@ -22,7 +27,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Sparkles, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
+import { Baby, BookOpen, Brain, Cat, Users, Rabbit, Moon, Globe, Pencil, Gift, Loader2, MapPin } from 'lucide-react';
 import type { ChildProfileFormData, RelativeData, PetData } from '@/types/childProfile';
 import BasicInfoSummary from '@/components/childProfile/summary/BasicInfoSummary';
 import PersonalitySummary from '@/components/childProfile/summary/PersonalitySummary';
@@ -369,7 +374,7 @@ const FinalSummary: React.FC<FinalSummaryProps> = ({
         {completeData.toys && completeData.toys.hasToys && (
           <SummaryBlock 
             title="Doudous & objets magiques" 
-            icon={<Sparkles className="h-5 w-5 text-mcf-primary" />}
+            icon={<Moon className="h-5 w-5 text-mcf-primary" />}
             onEdit={editMode ? undefined : () => handleGoToStep(4)}
             className="lg:col-span-1"
           >
