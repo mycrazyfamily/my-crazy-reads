@@ -1,3 +1,29 @@
+// MyStoriesTab v4.2
+// v4.2 (chantier icones IA, lot 3) — RETRAIT DE SPARKLES, six emplacements, cinq sens.
+//   Sparkles est devenue depuis 2023 le logo generique de l'IA (ChatGPT, Gemini, Copilot).
+//   Sur l'onglet ou le parent compose le livre de son enfant, elle disait « genere par une
+//   machine » a l'endroit exact ou l'on veut dire « fait pour votre enfant ». Traitement par
+//   SENS, pas par substitution mecanique :
+//   [1] badge `to_personalize` (« Bientot en fabrication ») -> Clock. Le commentaire v3.3 dit
+//       deja que ce badge decrit une FENETRE D'ACTION : l'horloge dit le temps qui reste, en
+//       coherence avec l'orange du badge. Meme icone que « A personnaliser » dans
+//       MonthBookCard v1.1, pour un vocabulaire commun.
+//   [2] et [3] boutons « Valider mon livre » / « Valider mon histoire inedite » (etapes 1 et 2
+//       du wizard) : icone SUPPRIMEE sans remplacement. Purement decorative, le libelle dit
+//       deja tout.
+//   [4] bouton « Ajouter votre touche » / « Ajuster votre touche » -> Feather. Icone
+//       CONSERVEE malgre la regle « decoratif sur un bouton, on supprime » : c'est l'action
+//       principale de l'onglet et « votre touche » est litteralement la personnalisation, sens
+//       que Feather porte partout ailleurs sur le site (Cadeau v1.4, ConfirmationAbonnement
+//       v1.5, CustomBookCreator v1.1).
+//   [5] puce d'alternative `milestone` -> Sprout. Une etape du developpement de l'enfant, pas
+//       de la magie. Meme icone que « Notre objectif » (Index v1.6) et « Voir l'evolution de
+//       l'enfant » (BookTimeline v1.1).
+//   [6] carte d'option « Histoire inedite » -> Feather. L'ecriture sur mesure, meme icone que
+//       la colonne « 100% inedit » de MonthBookCard v1.1.
+//   NON TOUCHE : le commentaire de la v2.6 ligne ~207 mentionne Sparkles, c'est un historique
+//   de changelog, on ne reecrit pas l'histoire. Les assertions de ce chantier portent sur le
+//   code seul, commentaires exclus.
 // MyStoriesTab v4.1
 // v4.1 — BLOCKLIST SUR LES TEXTES LIBRES DU WIZARD D'HISTOIRE.
 //   « Votre touche secrète » et « Quelle aventure imaginez-vous » n'étaient
@@ -346,7 +372,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User, X } from 'lucide-react';
+import { Feather, Sprout, Clock, ArrowLeft, Calendar, ChevronRight, ChevronDown, Loader2, MapPin, AlertTriangle, PartyPopper, Cake, BookOpen, Library, Truck, Check, User, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { checkFreeTextFields, forbiddenFieldsError } from '@/utils/nameBlocklist';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -515,7 +541,7 @@ const STATUS_CONFIG: Record<MonthStatus, { label: string; Icon?: React.ElementTy
   to_personalize: {
     // v3.3 — décrit la fenêtre d'action, pas un état terminé.
     label: 'Bientôt en fabrication',
-    Icon: Sparkles,
+    Icon: Clock,
     badgeClass: 'bg-orange-100 text-orange-700 border-orange-200',
     borderClass: 'border-l-[3px] border-l-orange-400',
     secondaryClass: 'text-orange-600',
@@ -1416,7 +1442,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              <Sparkles className="h-4 w-4 mr-2" />
               {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
@@ -1771,7 +1796,6 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
               className="flex-1 text-white hover:opacity-90"
               style={{ backgroundColor: PRIMARY_VIOLET }}
             >
-              <Sparkles className="h-4 w-4 mr-2" />
               {isSaving ? 'Enregistrement…' : validateLabel}
             </Button>
           </div>
@@ -1959,7 +1983,7 @@ const FocusView: React.FC<FocusViewProps> = ({ month, childName, onBack, onConfi
                     className="w-full text-white hover:opacity-90 h-11 text-sm font-semibold"
                     style={{ backgroundColor: PRIMARY_VIOLET }}
                   >
-                    <Sparkles className="h-4 w-4 mr-2" />
+                    <Feather className="h-4 w-4 mr-2" />
                     {isConfigured ? 'Ajuster votre touche' : 'Ajouter votre touche'}
                   </Button>
                   <button
@@ -2114,7 +2138,7 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
         {showAlternatives && (
           <div className="mt-3 flex flex-wrap gap-2">
             {alts.map((alt, i) => {
-              const AltIcon = alt.type === 'birthday' ? PartyPopper : alt.type === 'milestone' ? Sparkles : BookOpen;
+              const AltIcon = alt.type === 'birthday' ? PartyPopper : alt.type === 'milestone' ? Sprout : BookOpen;
               return (
                 <button
                   key={`${alt.type}-${i}`}
@@ -2403,7 +2427,7 @@ const ThemeSelectionSheet: React.FC<ThemeSelectionSheetProps> = ({ open, onOpenC
 
         <OptionCard
           value="custom"
-          icon={<Sparkles className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
+          icon={<Feather className="h-6 w-6" style={{ color: PRIMARY_VIOLET }} />}
           label="Histoire inédite"
           description={`Vous imaginez, nous créons. Décrivez l'histoire de vos rêves pour ${childName}.`}
           selected={selected}
