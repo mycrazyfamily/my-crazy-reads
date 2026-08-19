@@ -1,3 +1,11 @@
+// Abonnement v1.2
+// Changelog v1.2 (chantier icones IA, lot 1) : retrait de l'icone Sparkles de lucide-react.
+//   [1] ligne « L'abonnement est lie a l'enfant selectionne » -> Info. C'est une note
+//       d'information, l'etoile n'y portait aucun sens.
+//   [2] les DEUX boutons « Choisir cette formule » : icone SUPPRIMEE sans remplacement. Elle
+//       etait decorative, et sur un bouton de paiement une etiquette « genere par IA » est
+//       exactement ce qu'il ne faut pas montrer. Le `gap-2` du conteneur reste sans effet
+//       visible avec un seul enfant.
 // Abonnement v1.1
 // Changelog v1.1 (C8 + C9, MOBILE) :
 //   C8 — ALIGNEMENT. Le contenu des deux cartes héritait d'un centrage venant du composant Card
@@ -28,7 +36,7 @@ import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
-import { Sparkles, Gift, Check, Star, Heart, Zap, CheckCircle2 } from 'lucide-react';
+import { Info, Gift, Check, Star, Heart, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getFirstDeliveryMonth } from '@/utils/deliveryMonth';
@@ -340,7 +348,7 @@ const Abonnement: React.FC = () => {
                     </div>
                   )}
                   <p className="text-sm text-muted-foreground mt-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
+                    <Info className="w-4 h-4" />
                     L'abonnement est lié à l'enfant sélectionné.
                   </p>
                 </CardContent>
@@ -407,7 +415,6 @@ const Abonnement: React.FC = () => {
                       isLoading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
-                    <Sparkles className="w-5 h-5" />
                     {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                   </button>
                   <p className="text-sm text-muted-foreground mt-3 text-center">
@@ -489,7 +496,6 @@ const Abonnement: React.FC = () => {
                       isLoading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
-                    <Sparkles className="w-5 h-5" />
                     {isLoading ? 'Chargement...' : 'Choisir cette formule'}
                   </button>
                   <p className="text-sm text-muted-foreground mt-3 text-center">
