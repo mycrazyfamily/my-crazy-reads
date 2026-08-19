@@ -1,8 +1,15 @@
+// StoryCustomizationForm v1.1
+// Changelog v1.1 (chantier icones IA, lot 2) : pastille orange, Sparkles -> Feather. Le bloc
+//   invite le parent a raconter un evenement recent pour l'integrer a la prochaine histoire :
+//   le sens porte est l'ecriture et la personnalisation.
+//   NOTE : ce fichier ne portait aucune banniere de version avant aujourd'hui. Son handleSubmit
+//   ne fait qu'un console.log, rien n'est enregistre en base, a verifier avant mise en
+//   production.
 
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from 'lucide-react';
+import { Feather } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const StoryCustomizationForm: React.FC = () => {
@@ -53,7 +60,7 @@ const StoryCustomizationForm: React.FC = () => {
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <div className="bg-mcf-orange/20 p-3 rounded-full flex-shrink-0">
-            <Sparkles className="h-6 w-6 text-mcf-orange" />
+            <Feather className="h-6 w-6 text-mcf-orange" />
           </div>
           
           <div className="flex-grow">
