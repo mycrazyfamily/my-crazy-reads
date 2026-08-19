@@ -1,9 +1,18 @@
+// BookTimeline v1.1
+// Changelog v1.1 (chantier icones IA, lot 2) : bouton « Voir l'evolution de l'enfant a travers
+//   ses livres », Sparkles -> Sprout. Le sens porte est la croissance de l'enfant, meme icone que
+//   le bloc « Notre objectif » de la page d'accueil (Index v1.6), pour que le meme sens porte
+//   partout la meme icone.
+//   NOTE : ce fichier ne portait aucune banniere de version avant aujourd'hui, v1.1 est donc un
+//   point de depart arbitraire. Il tourne par ailleurs entierement sur des donnees FICTIVES
+//   ecrites en dur (« Thomas et le Tresor de la Foret Enchantee »), a verifier avant mise en
+//   production : soit le composant n'est pas monte, soit il affiche de faux livres.
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Book, Clock, Truck, Tag, FileText, Calendar, 
-  Sparkles, Globe, Brain, Flame
+  Sprout, Globe, Brain, Flame
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -199,7 +208,7 @@ const BookTimeline: React.FC = () => {
             variant="ghost" 
             className="text-mcf-orange-dark hover:bg-mcf-amber/10 gap-2"
           >
-            <Sparkles className="h-4 w-4" /> Voir l'évolution de l'enfant à travers ses livres
+            <Sprout className="h-4 w-4" /> Voir l'évolution de l'enfant à travers ses livres
           </Button>
         </div>
       </div>
