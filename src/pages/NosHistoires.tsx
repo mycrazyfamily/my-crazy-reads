@@ -1,3 +1,15 @@
+// NosHistoires v1.6
+// Changelog v1.6 (chantier icones IA, lot 1) : retrait de Sparkles ET de Wand2. Wand2 est un
+//   ALIAS de WandSparkles dans lucide-react 0.462 : son glyphe contient trois etoiles a quatre
+//   branches, c'est exactement le motif que l'on cherche a retirer.
+//   [1] bouton d'appel a l'action du hero -> Heart, pour s'aligner sur le meme bouton
+//       « Commencer l'aventure » de la page d'accueil, qui porte deja un Heart.
+//   [2] mode « guide » -> Compass. Le sens porte est l'accompagnement, et la boussole contraste
+//       proprement avec la Palette du mode « creatif » juste a cote.
+//   [3] « L'aventure MCF se construit dans la duree, avec vous » -> Heart. Sens porte :
+//       la relation, l'affectif.
+//   [4] bloc « Qualite premium » -> BookOpen. Les trois puces parlent d'impression, de papier et
+//       de finitions : le sens porte est l'objet livre lui-meme.
 // NosHistoires v1.5
 // Changelog v1.5 (section 3) : SUPPRESSION de la phrase de conclusion « Que vous ayez envie de
 //   simplicité ou de créer votre propre histoire, chaque mois devient une aventure personnalisée
@@ -84,7 +96,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HowItWorks from '@/components/HowItWorks';
-import { Sparkles, Users, MessageCircle, Award, Globe, Zap, Wand2, Palette, Loader2 } from 'lucide-react';
+import { Heart, BookOpen, Compass, Users, MessageCircle, Award, Globe, Zap, Palette, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const NosHistoires: React.FC = () => {
@@ -124,7 +136,7 @@ const NosHistoires: React.FC = () => {
               </span>
             ) : (
               <Link to={getDestinationPath()} className="inline-flex items-center gap-2 bg-mcf-primary text-white font-bold text-lg px-12 py-5 rounded-full hover:bg-mcf-secondary transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
-                <Sparkles className="w-5 h-5" />
+                <Heart className="w-5 h-5" />
                 {getButtonText()}
               </Link>
             )}
@@ -156,7 +168,7 @@ const NosHistoires: React.FC = () => {
                 <div className="pt-10 p-8 relative z-10">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-20 h-20 bg-mcf-mint/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform text-4xl shadow-md">
-                      <Wand2 className="w-10 h-10 text-mcf-primary" />
+                      <Compass className="w-10 h-10 text-mcf-primary" />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-mcf-primary">
@@ -247,7 +259,7 @@ const NosHistoires: React.FC = () => {
                   100 % inédit</strong> imaginé pour votre famille.
                 </p>
                 <p className="text-base text-mcf-text/80 leading-relaxed flex items-start gap-2">
-                  <Sparkles className="w-5 h-5 text-mcf-secondary shrink-0 mt-0.5" />
+                  <Heart className="w-5 h-5 text-mcf-secondary shrink-0 mt-0.5" />
                   <em>L'aventure MCF se construit dans la durée, avec vous.</em>
                 </p>
               </div>
@@ -277,7 +289,7 @@ const NosHistoires: React.FC = () => {
                 <CardContent className="pt-10 pb-8 text-left">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-16 h-16 bg-mcf-mint/50 rounded-2xl flex items-center justify-center md:group-hover:scale-110 transition-transform">
-                      <Sparkles className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
+                      <BookOpen className="w-8 h-8 text-mcf-secondary" strokeWidth={2.5} />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-mcf-primary">
                       Qualité premium
