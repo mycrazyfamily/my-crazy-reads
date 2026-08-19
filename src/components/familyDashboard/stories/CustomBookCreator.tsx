@@ -1,9 +1,16 @@
+// CustomBookCreator v1.1
+// Changelog v1.1 (chantier icones IA, lot 2) : Sparkles -> Feather aux deux endroits, en-tete
+//   « Creez une histoire 100% unique » et bouton « Creer ce livre sur mesure ». Sens porte :
+//   l'ecriture sur mesure. L'icone du bouton n'est PAS supprimee bien qu'elle soit sur un bouton,
+//   parce que l'etat « enregistre » du meme bouton porte un CheckCircle2 : sans icone, les deux
+//   etats sauteraient l'un a l'autre.
+//   NOTE : ce fichier ne portait aucune banniere de version avant aujourd'hui.
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Sparkles, 
+  Feather, 
   Users, 
   MapPin, 
   Tag,
@@ -110,7 +117,7 @@ const CustomBookCreator: React.FC<CustomBookCreatorProps> = ({
       {/* En-tête */}
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 border border-primary/20">
         <div className="flex items-start gap-3">
-          <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+          <Feather className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
           <div>
             <h4 className="font-bold text-foreground mb-1">
               Créez une histoire 100% unique pour {childName}
@@ -282,7 +289,7 @@ const CustomBookCreator: React.FC<CustomBookCreatorProps> = ({
           </>
         ) : (
           <>
-            <Sparkles className="h-4 w-4 mr-2" />
+            <Feather className="h-4 w-4 mr-2" />
             Créer ce livre sur mesure
           </>
         )}
