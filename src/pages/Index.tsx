@@ -1,3 +1,17 @@
+// Index v1.6
+// Changelog v1.6 (chantier icones IA, lot 1) : retrait de l'icone Sparkles de lucide-react,
+//   devenue le marqueur generique de l'IA depuis 2023. Traitement par SENS et non par
+//   substitution mecanique :
+//   [1] carte specialiste « Chercheurs en developpement personnel » -> Microscope. Le sens porte
+//       est la caution scientifique, comme Brain pour les psychologues et GraduationCap pour les
+//       enseignants. L'etoile n'y disait rien.
+//   [2] titre « Quelques exemples d'histoires personnalisees » -> Feather. Sens porte :
+//       l'ecriture et la personnalisation.
+//   [3] bloc « Notre objectif » -> Sprout. Le texte parle de confiance, de curiosite et
+//       d'expression de soi : la pousse dit la croissance de l'enfant. Heart etait deja pris par
+//       la section suivante.
+//   [4] CTA final « Pret a creer des souvenirs magiques ? » : icone SUPPRIMEE sans remplacement.
+//       Elle etait purement decorative, et le bouton juste en dessous porte deja un Heart.
 // Index v1.5
 // Changelog v1.5 (PERFORMANCE) : les 6 visuels de livres passent du PNG au WebP. Ils étaient tous
 //   en 1024x1024 pour un affichage dans des cartes de ~400px, et pesaient 9,60 Mo au total ; ils
@@ -49,7 +63,7 @@
 //   Les visuels des livres passent en `loading="lazy"` (ils sont sous la ligne de flottaison).
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, MessageCircle, Sparkles, Brain, GraduationCap, BookOpen, Library, Globe, Gift, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Feather, Microscope, Sprout, Brain, GraduationCap, BookOpen, Library, Globe, Gift, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Navbar from '../components/Navbar';
@@ -143,7 +157,7 @@ const SPECIALISTS: Specialist[] = [
   },
   {
     id: 2,
-    Icon: Sparkles,
+    Icon: Microscope,
     circleClass: 'bg-mcf-secondary/20',
     iconClass: 'text-mcf-secondary',
     title: 'Chercheurs',
@@ -314,7 +328,7 @@ const NewIndex: React.FC = () => {
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold text-mcf-primary mb-4 flex items-center justify-center gap-3">
-                <Sparkles className="w-10 h-10" />
+                <Feather className="w-10 h-10" />
                 Quelques exemples d'histoires personnalisées
               </h2>
               <p className="text-xl text-mcf-text/70 mb-6">
@@ -402,7 +416,7 @@ const NewIndex: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 md:p-10 shadow-xl border-2 border-mcf-primary/20">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-mcf-mint/20 rounded-xl flex items-center justify-center shrink-0">
-                    <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-mcf-primary" />
+                    <Sprout className="w-6 h-6 md:w-7 md:h-7 text-mcf-primary" />
                   </div>
                   <p className="text-xl md:text-2xl font-bold text-mcf-primary">
                     Notre objectif
@@ -471,7 +485,6 @@ const NewIndex: React.FC = () => {
               <div className="absolute bottom-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mb-40 blur-3xl" />
 
               <div className="relative z-10">
-                <Sparkles className="w-12 h-12 mx-auto mb-6 opacity-90" />
                 <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
                   Prêt à créer des souvenirs magiques ?
                 </h2>
