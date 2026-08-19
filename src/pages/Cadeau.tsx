@@ -1,3 +1,11 @@
+// Cadeau.tsx v1.4
+// Changelog v1.4 (chantier icones IA, lot 1) : Wand2 -> Feather sur « Personnalisez votre
+//   cadeau ». Le remplacement en Wand2 de la v1.3 etait une erreur : Wand2 est un ALIAS de
+//   WandSparkles dans lucide-react 0.462, et son glyphe contient trois etoiles a quatre branches.
+//   Le motif que l'on voulait retirer etait donc toujours a l'ecran. Feather porte le meme sens,
+//   la personnalisation, sans l'association a l'IA.
+//   L'icone Star de la pastille « Le plus offert » n'est PAS concernee : cinq branches,
+//   aucune connotation.
 // Cadeau.tsx v1.3
 // Changelog v1.3 : Sparkles -> Wand2 sur le titre « Personnalisez votre cadeau ».
 //   Icône PORTEUSE DE SENS (elle illustre la personnalisation), donc remplacée et
@@ -37,7 +45,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Gift, Check, Wand2, Star } from 'lucide-react';
+import { Gift, Check, Feather, Star } from 'lucide-react';
 
 const MAX_MESSAGE = 120;
 
@@ -116,7 +124,7 @@ const Cadeau: React.FC = () => {
             {/* Personnalisation */}
             <div className="bg-card border-2 border-mcf-secondary/40 rounded-2xl p-6 md:p-8 mb-10 card-shadow text-left">
               <h2 className="text-xl font-bold text-mcf-primary mb-5 flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-mcf-secondary" />
+                <Feather className="w-5 h-5 text-mcf-secondary" />
                 Personnalisez votre cadeau
               </h2>
               <div className="grid md:grid-cols-2 gap-5">
