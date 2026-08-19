@@ -1,3 +1,9 @@
+// ResetAvatarButton v2.7
+// Changelog v2.7 (chantier icones IA, lot 2) : icone SUPPRIMEE du titre de la fenetre de
+//   confirmation, sans remplacement. C'etait le seul endroit du site ou l'etoile disait
+//   litteralement « une machine va generer ». Le bouton qui ouvre la fenetre porte deja un
+//   RefreshCw, et le bouton de validation aussi : le sens est deja porte deux fois, l'etoile
+//   n'ajoutait qu'une signature IA au moment le plus sensible.
 // ResetAvatarButton v2.6
 // Changelog v2.6 : la phrase d'orientation (« ⚠️ Attention : pour changer l'apparence, annulez… »)
 // s'affiche désormais dans LES DEUX cas de la fenêtre (standard ET avertissement renforcé enfant).
@@ -36,7 +42,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { RefreshCw, Sparkles, Loader2 } from 'lucide-react';
+import { RefreshCw, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { signalAvatarRegeneration } from '@/utils/avatarRegenerationSignal';
@@ -153,7 +159,6 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-mcf-orange" />
             Générer une autre proposition{profileName ? ` pour ${profileName}` : ''} ?
           </AlertDialogTitle>
           <AlertDialogDescription>
