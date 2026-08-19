@@ -1,3 +1,19 @@
+// Callback v1.3
+// Changelog v1.3 : cette page n'affiche plus le formulaire de réinitialisation,
+//   elle redirige vers /reset-password. Deux écrans faisaient la même chose avec
+//   des règles différentes : ResetPasswordForm imposait 6 caractères sans
+//   contrainte de composition, alors que ResetPassword applique les règles
+//   partagées de passwordRules. Un parent passant par le mauvais chemin pouvait
+//   se fixer un mot de passe que l'inscription aurait refusé.
+//   Vérifié avant de trancher, le 19/08 : ResetPasswordForm n'est importé que
+//   par ce fichier, `resetPasswordForEmail` n'existe qu'une fois dans le dépôt
+//   et vise /reset-password, et le gabarit Supabase reprend ce redirectTo. Aucun
+//   lien émis ne peut donc atterrir ici. Les liens de réinitialisation expirant
+//   au bout d'une heure, il n'y a pas non plus d'ancien lien en circulation.
+//   La redirection reste comme filet : un lien égaré est rattrapé au lieu d'être
+//   perdu. Le fragment est conservé dans l'URL, ResetPassword sait le lire si le
+//   client Supabase ne l'a pas encore consommé.
+//   ResetPasswordForm.tsx peut désormais être supprimé du dépôt.
 // Callback v1.2
 // Changelog v1.2 :
 //   (a) PAGE DÉDIÉE AU LIEN INVALIDE, à la place de la notification suivie d'une
@@ -48,7 +64,6 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
-import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 
 // v1.1 (a) : traduit les paramètres d'erreur de Supabase en une phrase que le
 // parent peut comprendre et sur laquelle il peut agir. Les valeurs arrivent déjà
@@ -81,18 +96,8 @@ const Callback = () => {
   const [error, setError] = useState<string | null>(null);
   // v1.2 (a) : distinct de `error`, qui reste réservé aux incidents techniques.
   const [lienInvalide, setLienInvalide] = useState<string | null>(null);
-  const [isPasswordReset, setIsPasswordReset] = useState(false);
-  const [resetTokens, setResetTokens] = useState<{ accessToken: string | null; refreshToken: string | null }>({
-    accessToken: null,
-    refreshToken: null
-  });
 
   useEffect(() => {
-    // Don't run auth logic if we already detected a password reset
-    if (isPasswordReset) {
-      return;
-    }
-
     document.title = "Bienvenue - MyCrazyFamily";
 
     const handleCallback = async () => {
@@ -101,15 +106,18 @@ const Callback = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-        let accessToken = urlParams.get('access_token') || hashParams.get('access_token');
-        let refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+        // v1.3 : accessToken et refreshToken ne sont plus lus ici, /reset-password
+        // s'en charge. Seul le type sert encore, à l'aiguillage.
         let type = urlParams.get('type') || hashParams.get('type');
 
-        // Check if this is a password reset callback
-        if (type === 'recovery' && accessToken && refreshToken) {
-          // Store tokens to prevent losing them when URL changes
-          setResetTokens({ accessToken, refreshToken });
-          setIsPasswordReset(true);
+        // v1.3 : un lien de réinitialisation ne s'affiche plus ici, il part vers
+        // /reset-password, seul écran de réinitialisation du site. Le fragment
+        // est conservé : si le client Supabase ne l'a pas encore consommé,
+        // ResetPassword saura y lire les jetons. La condition ne teste plus la
+        // présence des jetons, pour qu'un lien de récupération en erreur arrive
+        // lui aussi sur l'écran qui sait l'expliquer.
+        if (type === 'recovery') {
+          navigate('/reset-password' + window.location.hash, { replace: true });
           return;
         }
 
@@ -178,7 +186,7 @@ const Callback = () => {
     };
 
     handleCallback();
-  }, [login, navigate, isPasswordReset]);
+  }, [login, navigate]);
 
   // v1.2 (a) : la page passe avant le reste, c'est le seul écran que le parent
   // doit voir dans ce cas. Aucune redirection, il choisit lui-même sa sortie.
@@ -221,10 +229,6 @@ const Callback = () => {
 
   if (error) {
     return null;
-  }
-
-  if (isPasswordReset) {
-    return <ResetPasswordForm accessToken={resetTokens.accessToken} refreshToken={resetTokens.refreshToken} />;
   }
 
   return <LoadingCallback />;
