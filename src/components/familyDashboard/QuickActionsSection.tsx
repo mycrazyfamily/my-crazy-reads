@@ -1,3 +1,13 @@
+// QuickActionsSection v1.4
+// Changelog v1.4 (chantier icones IA, lot 2) : carte « Ajouter un doudou », Sparkles -> Moon.
+//   Sparkles est devenue le marqueur generique de l'IA depuis 2023, et elle ne disait de toute
+//   facon pas « doudou ». lucide n'a ni peluche ni doudou : Rabbit aurait ete lu « animal de
+//   compagnie », or la carte voisine est justement « Ajouter un animal ». Moon deplace le sens
+//   vers le coucher et l'histoire du soir, sans collision avec les quatre autres cartes
+//   (Baby, Users, Heart, MapPin).
+//   NOTE : `Plus` est importe sans etre utilise dans ce fichier. Import mort ANTERIEUR a ce
+//   chantier, volontairement laisse en place (modifications chirurgicales). A retirer lors d'un
+//   passage de nettoyage.
 // QuickActionsSection v1.3
 // Changelog v1.3 (C12, MOBILE) : les 5 cartes empilées occupaient ~1 460px, soit près de deux
 //   écrans avant d'atteindre « Mes enfants » — chaque carte faisait ~280px (padding 32px, cercle
@@ -21,7 +31,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
-import { Baby, Users, Heart, MapPin, Plus, Sparkles } from 'lucide-react';
+import { Baby, Users, Heart, MapPin, Plus, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface QuickActionsSectionProps {
@@ -81,7 +91,7 @@ const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ childrenCount
       id: 'toy',
       title: 'Ajouter un doudou',
       description: 'Ajoutez le doudou ou objet fétiche de votre enfant',
-      icon: Sparkles,
+      icon: Moon,
       onClick: () => {
         if (childrenCount === 1 && firstChildId) {
           navigate(`/ajouter-doudou/${firstChildId}`);
