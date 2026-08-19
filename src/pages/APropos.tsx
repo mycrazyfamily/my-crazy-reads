@@ -1,10 +1,16 @@
+// APropos.tsx v1.2
+// Changelog v1.2 (chantier icones IA, lot 1) : retrait de l'icone Sparkles de lucide-react.
+//   [1] en-tete « Notre mission » -> BookOpen. La mission est d'editer des livres : le sens
+//       porte est le produit lui-meme.
+//   [2] portrait de Robin -> Feather. Le texte parle de narration et de vision : le sens porte
+//       est l'ecriture. Violaine garde Heart, l'ecoute et le soin.
 // APropos.tsx v1.1
 // v1.1: ajout d'une phrase (section Notre équipe) sur le collège de relecteurs (professeurs des écoles + auteurs jeunesse)
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Heart, Users, Sparkles, ArrowLeft } from 'lucide-react';
+import { Heart, Users, BookOpen, Feather, ArrowLeft } from 'lucide-react';
 
 const APropos: React.FC = () => {
   return (
@@ -34,7 +40,7 @@ const APropos: React.FC = () => {
           <section className="mb-16">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-mcf-primary/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-mcf-primary" />
+                <BookOpen className="w-5 h-5 text-mcf-primary" />
               </div>
               <h2 className="text-2xl font-bold text-mcf-primary">Notre mission</h2>
             </div>
@@ -86,7 +92,7 @@ const APropos: React.FC = () => {
               <div className="bg-card rounded-2xl p-6 card-shadow border border-border">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-full bg-mcf-secondary/10 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-6 h-6 text-mcf-secondary" />
+                    <Feather className="w-6 h-6 text-mcf-secondary" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-foreground mb-1">
