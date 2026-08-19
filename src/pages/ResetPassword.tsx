@@ -1,3 +1,9 @@
+// ResetPassword v2.1
+// Changelog v2.1 : les erreurs de Supabase étaient affichées telles quelles,
+//   donc en anglais. Le message signalant un mot de passe identique à l'ancien
+//   apparaissait en anglais, cas fréquent puisque le parent vient justement de
+//   retrouver son mot de passe et le ressaisit. On passe par la table partagée
+//   @/utils/supabaseErrors, la même que celle de useAuthForm.
 // ResetPassword v2.0
 // Changelog v2.0 — LE LIEN DE RÉINITIALISATION NE FONCTIONNAIT PAS.
 //   La v1 lisait les jetons dans la CHAÎNE DE REQUÊTE (searchParams). Supabase
@@ -26,6 +32,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { REGLES_MOT_DE_PASSE, motDePasseValide, messageMotDePasse } from '@/utils/passwordRules';
+import { messageErreurSupabase } from '@/utils/supabaseErrors';
 
 type EtatLien = 'verification' | 'valide' | 'invalide';
 
@@ -117,7 +124,7 @@ const ResetPassword = () => {
 
       if (error) {
         console.error('Erreur lors de la mise à jour du mot de passe:', error);
-        toast.error(error.message || "Erreur lors de la mise à jour du mot de passe");
+        toast.error(messageErreurSupabase(error));
         return;
       }
 
