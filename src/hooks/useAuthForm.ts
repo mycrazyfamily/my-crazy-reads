@@ -1,3 +1,11 @@
+// useAuthForm v1.5
+// Changelog v1.5 : la table de traduction des erreurs sort d'ici. Elle était
+//   déclarée en local et non exportée, si bien que ResetPassword ne pouvait pas
+//   s'en servir et affichait le message brut de Supabase en anglais. Elle vit
+//   désormais dans @/utils/supabaseErrors, et lit aussi le CODE d'erreur, ce que
+//   l'ancienne version ne faisait pas : quatre de ses dix entrées étaient des
+//   codes comparés à un message, elles ne matchaient donc jamais. Aucun
+//   changement de comportement pour les six entrées qui fonctionnaient.
 // useAuthForm v1.4
 // Changelog v1.4 : paramètre `initialEmail`, pour pré-remplir l'adresse quand le
 //   parent arrive depuis /check-email par le lien « Vous aviez déjà un compte ».
@@ -40,6 +48,7 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motDePasseValide, messageMotDePasse } from '@/utils/passwordRules';
+import { messageErreurSupabase } from '@/utils/supabaseErrors';
 
 interface AuthFormData {
   email: string;
@@ -47,29 +56,6 @@ interface AuthFormData {
   confirmPassword: string;
 }
 
-const mapSupabaseSignupError = (errorMessage: string) => {
-  const errorMap: { [key: string]: string } = {
-    'User already exists': 'Un compte existe déjà avec cette adresse email.',
-    'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
-    'invalid_email': 'Adresse email invalide. Veuillez vérifier votre saisie.',
-    'rate_limit': 'Trop de tentatives. Veuillez réessayer plus tard.',
-    'Invalid login credentials': 'Les identifiants sont invalides.',
-    // v1.3 — messages renvoyés en anglais par Supabase, vus par le parent tels
-    // quels. « For security purposes, you can only request this after 50
-    // seconds » s'affichait en anglais sur la page de connexion le 18/08.
-    'For security purposes': "Vous venez de faire cette demande. Patientez une minute avant de réessayer.",
-    'over_email_send_rate_limit': "Trop de messages envoyés. Patientez quelques minutes avant de réessayer.",
-    'Email rate limit exceeded': "Trop de messages envoyés. Patientez quelques minutes avant de réessayer.",
-    'Email not confirmed': "Votre adresse n'a pas encore été confirmée. Cherchez notre email de confirmation, y compris dans vos indésirables.",
-    'same_password': "Votre nouveau mot de passe doit être différent de l'ancien.",
-  };
-
-  for (const [key, message] of Object.entries(errorMap)) {
-    if (errorMessage.includes(key)) return message;
-  }
-
-  return `Une erreur inattendue est survenue : ${errorMessage}`;
-};
 
 /**
  * v1.4 — `initialEmail` pré-remplit le champ adresse.
@@ -112,7 +98,7 @@ export const useAuthForm = (redirectPath = '/espace-famille', initialEmail = '')
       if (error) {
         console.error('Erreur de connexion:', error);
         // v1.3 : on traduit au lieu d'afficher le message brut de Supabase.
-        toast.error(mapSupabaseSignupError(error.message || ''));
+        toast.error(messageErreurSupabase(error));
         return;
       }
       
@@ -175,7 +161,7 @@ export const useAuthForm = (redirectPath = '/espace-famille', initialEmail = '')
       });
 
       if (error) {
-        const errorMessage = mapSupabaseSignupError(error.message);
+        const errorMessage = messageErreurSupabase(error);
         toast.error(errorMessage);
         setIsLoading(false);
         return;
@@ -219,7 +205,7 @@ export const useAuthForm = (redirectPath = '/espace-famille', initialEmail = '')
       
       if (error) {
         console.error('Erreur de réinitialisation:', error);
-        toast.error(mapSupabaseSignupError(error.message || ''));
+        toast.error(messageErreurSupabase(error));
         return;
       }
 
