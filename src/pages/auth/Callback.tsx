@@ -1,3 +1,28 @@
+// Callback v1.1
+// Première version numérotée, le fichier n'en portait pas.
+// Changelog v1.1 :
+//   (a) LE FRAGMENT D'ERREUR EST LU. Quand un lien est périmé ou déjà consommé,
+//       Supabase renvoie `error`, `error_code` et `error_description` dans le
+//       fragment. Le code les ignorait, tombait dans la branche « pas de session »
+//       et affichait « Utilisateur non connecté. », exact mais inutile : le parent
+//       ne comprenait ni que son lien avait expiré, ni qu'il devait en redemander
+//       un. Messages explicites désormais, en français.
+//   (b) L'ORDRE EST VOLONTAIRE. La session est vérifiée AVANT les paramètres
+//       d'erreur. Un parent déjà connecté qui reclique un vieux lien continue
+//       donc d'atterrir sur son espace famille, comportement constaté le 19/08
+//       et jugé correct. Le message d'erreur ne s'affiche que s'il n'y a
+//       réellement aucune session à récupérer.
+//   (c) LES CONSOLE.LOG SONT RETIRÉS, dix-neuf au total. Deux d'entre eux
+//       fuyaient des secrets en production : `window.location.href` expose les
+//       jetons du fragment sur le parcours de réinitialisation, et l'objet
+//       session expose le JWT d'accès. Une extension de navigateur lit la
+//       console. Les `console.error` sont conservés, ils ne tracent que des
+//       messages d'erreur.
+//   (d) Deux logs de mise au point au niveau module sont supprimés, dont
+//       « Forcing push of Callback.tsx ».
+//   (e) Le `console.log` placé dans le JSX est retiré, le fragment qui
+//       l'enveloppait devient inutile.
+// Callback v1.0
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +32,32 @@ import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 
-console.log('🔥 Callback.tsx: composant importé avec succès');
-console.log('🛠️ Forcing push of Callback.tsx');
+// v1.1 (a) : traduit les paramètres d'erreur de Supabase en une phrase que le
+// parent peut comprendre et sur laquelle il peut agir. Les valeurs arrivent déjà
+// décodées, URLSearchParams s'en charge.
+const messageDepuisErreur = (
+  error: string | null,
+  errorCode: string | null,
+  errorDescription: string | null
+): string => {
+  const description = (errorDescription || '').toLowerCase();
+
+  if (errorCode === 'otp_expired' || description.includes('expired')) {
+    return "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau depuis la page de connexion.";
+  }
+
+  if (error === 'access_denied') {
+    return "Ce lien n'est plus valide. Demandez-en un nouveau depuis la page de connexion.";
+  }
+
+  if (errorDescription) {
+    return errorDescription;
+  }
+
+  return "Nous n'avons pas pu finaliser la connexion. Le lien est peut-être incomplet, réessayez depuis le message d'origine.";
+};
 
 const Callback = () => {
-  console.log('Callback page component RECREATED and loaded');
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -26,57 +72,43 @@ const Callback = () => {
     if (isPasswordReset) {
       return;
     }
-    
+
     document.title = "Bienvenue - MyCrazyFamily";
-    console.log('🚀 Callback.tsx: useEffect lancé');
-    
+
     const handleCallback = async () => {
-      console.log('📡 Callback.tsx: Début handleCallback');
       try {
-        // Check if this is a password reset callback
-        console.log('🔍 Full URL:', window.location.href);
-        console.log('🔍 URL search:', window.location.search);
-        console.log('🔍 URL hash:', window.location.hash);
-        
         // Check both query string and hash fragment for parameters
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        
+
         let accessToken = urlParams.get('access_token') || hashParams.get('access_token');
         let refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
         let type = urlParams.get('type') || hashParams.get('type');
-        
-        console.log('🔍 URL params detected:', { 
-          type, 
-          accessToken: accessToken ? 'present' : 'missing',
-          refreshToken: refreshToken ? 'present' : 'missing',
-          hasAccessToken: !!accessToken, 
-          hasRefreshToken: !!refreshToken 
-        });
-        
+
+        // Check if this is a password reset callback
         if (type === 'recovery' && accessToken && refreshToken) {
-          console.log('🔑 Password reset callback detected - showing reset form');
           // Store tokens to prevent losing them when URL changes
           setResetTokens({ accessToken, refreshToken });
           setIsPasswordReset(true);
           return;
         }
-        
-        console.log('Starting auth callback process');
+
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('✅ Session récupérée', session);
-        
+
         if (sessionError) {
-          console.error('❌ Erreur session', sessionError.message);
           throw new Error(sessionError.message);
         }
 
         if (!session?.user) {
-          console.warn('⚠️ Pas de user dans la session');
-          throw new Error("Utilisateur non connecté.");
-        }
+          // v1.1 (a) et (b) : on ne cherche la cause qu'ici, une fois établi
+          // qu'aucune session n'est récupérable. Un parent déjà connecté n'atteint
+          // jamais cette branche et poursuit vers son espace famille.
+          const paramErreur = urlParams.get('error') || hashParams.get('error');
+          const codeErreur = urlParams.get('error_code') || hashParams.get('error_code');
+          const descriptionErreur = urlParams.get('error_description') || hashParams.get('error_description');
 
-        console.log('User authenticated:', session.user.email);
+          throw new Error(messageDepuisErreur(paramErreur, codeErreur, descriptionErreur));
+        }
 
         // Check if user profile already exists
         const { data: existingProfile } = await supabase
@@ -84,12 +116,9 @@ const Callback = () => {
           .select()
           .eq('id', session.user.id)
           .single();
-          
-        console.log('📄 Profil existant ?', existingProfile);
 
         // Only create profile if it doesn't exist
         if (!existingProfile) {
-          console.log('Creating new user profile');
           const { error: insertError } = await supabase
             .from('user_profiles')
             .insert([
@@ -102,11 +131,8 @@ const Callback = () => {
             ]);
 
           if (insertError) {
-            console.error('❌ Erreur insert user_profiles', insertError.message);
             throw new Error(insertError.message);
           }
-          
-          console.log('✅ Profil utilisateur créé !');
         }
 
         // Update auth context
@@ -115,11 +141,8 @@ const Callback = () => {
           isAuthenticated: true,
         });
 
-        console.log('Authentication successful - redirecting to family dashboard');
-        
         // Petite delay pour s'assurer que l'état d'auth est mis à jour
         setTimeout(() => {
-          console.log('🚀 Redirection vers /espace-famille');
           navigate('/espace-famille');
         }, 100);
       } catch (error) {
@@ -142,12 +165,7 @@ const Callback = () => {
     return <ResetPasswordForm accessToken={resetTokens.accessToken} refreshToken={resetTokens.refreshToken} />;
   }
 
-  return (
-  <>
-    {console.log("✅ Callback.tsx: le composant est bien monté (return)")}
-    <LoadingCallback />
-  </>
-);
+  return <LoadingCallback />;
 };
 
 export default Callback;
