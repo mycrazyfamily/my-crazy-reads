@@ -1,3 +1,19 @@
+// Callback v1.2
+// Changelog v1.2 :
+//   (a) PAGE DÉDIÉE AU LIEN INVALIDE, à la place de la notification suivie d'une
+//       redirection. Une notification disparaît au bout de quelques secondes et
+//       n'offre aucune action, or dans ce cas précis le parent est bloqué : il ne
+//       peut pas continuer sans agir. C'est ce que font GitHub, Slack ou Stripe,
+//       une page qui nomme le problème et propose une sortie.
+//   (b) COMPORTEMENT UNIFIÉ, connecté ou non. Un seul écran, prévisible. Si une
+//       session existe le parent part vers son espace famille comme avant ; sinon
+//       il voit la page, quel que soit l'état de son navigateur.
+//   (c) LES DEUX CAUSES SONT COUVERTES PAR UNE SEULE FORMULATION. Supabase renvoie
+//       le même `otp_expired` pour un lien expiré et pour un lien déjà consommé,
+//       il est impossible de les distinguer côté client.
+//   (d) Les erreurs qui ne viennent PAS du lien (session illisible, insertion de
+//       profil refusée) gardent l'ancien traitement, notification puis renvoi vers
+//       la page de connexion. Elles relèvent d'un incident, pas d'une impasse.
 // Callback v1.1
 // Première version numérotée, le fichier n'en portait pas.
 // Changelog v1.1 :
@@ -27,6 +43,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingCallback from '@/components/auth/LoadingCallback';
@@ -61,6 +79,8 @@ const Callback = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  // v1.2 (a) : distinct de `error`, qui reste réservé aux incidents techniques.
+  const [lienInvalide, setLienInvalide] = useState<string | null>(null);
   const [isPasswordReset, setIsPasswordReset] = useState(false);
   const [resetTokens, setResetTokens] = useState<{ accessToken: string | null; refreshToken: string | null }>({
     accessToken: null,
@@ -100,14 +120,17 @@ const Callback = () => {
         }
 
         if (!session?.user) {
-          // v1.1 (a) et (b) : on ne cherche la cause qu'ici, une fois établi
+          // v1.1 (b) puis v1.2 (a) : on ne cherche la cause qu'ici, une fois établi
           // qu'aucune session n'est récupérable. Un parent déjà connecté n'atteint
           // jamais cette branche et poursuit vers son espace famille.
+          // On affiche la page plutôt que de lever une exception : ce n'est pas un
+          // incident, c'est une impasse dont le parent doit pouvoir sortir.
           const paramErreur = urlParams.get('error') || hashParams.get('error');
           const codeErreur = urlParams.get('error_code') || hashParams.get('error_code');
           const descriptionErreur = urlParams.get('error_description') || hashParams.get('error_description');
 
-          throw new Error(messageDepuisErreur(paramErreur, codeErreur, descriptionErreur));
+          setLienInvalide(messageDepuisErreur(paramErreur, codeErreur, descriptionErreur));
+          return;
         }
 
         // Check if user profile already exists
@@ -156,6 +179,45 @@ const Callback = () => {
 
     handleCallback();
   }, [login, navigate, isPasswordReset]);
+
+  // v1.2 (a) : la page passe avant le reste, c'est le seul écran que le parent
+  // doit voir dans ce cas. Aucune redirection, il choisit lui-même sa sortie.
+  if (lienInvalide) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-xl border-none px-6 pt-8 pb-8 space-y-6">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
+                <AlertCircle className="h-8 w-8 text-amber-600" strokeWidth={2.5} />
+              </div>
+            </div>
+
+            <div className="text-center space-y-4">
+              <h1 className="text-2xl font-bold text-mcf-primary">
+                Ce lien n'est plus valide
+              </h1>
+              <p className="text-gray-600 leading-relaxed">
+                {lienInvalide}
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Les liens de confirmation sont valables 24 heures et ne servent qu'une fois.
+              </p>
+            </div>
+
+            <div className="pt-2 flex justify-center">
+              <Button
+                onClick={() => navigate('/authentification')}
+                className="bg-mcf-primary hover:bg-mcf-primary/90 text-white"
+              >
+                Aller à la page de connexion
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return null;
