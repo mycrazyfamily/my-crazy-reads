@@ -1,3 +1,8 @@
+// MyFamilyTab v1.2
+// Changelog v1.2 (chantier icones IA, lot 2) : section « Doudous et objets magiques »,
+//   Sparkles -> Moon, aux DEUX endroits (en-tete de section et etat vide). Meme raisonnement que
+//   QuickActionsSection v1.4 : Heart est deja pris par la section « Nos animaux de compagnie »
+//   juste au-dessus.
 // MyFamilyTab v1.1
 // Changelog v1.1 : ajout de la section "Doudous et objets magiques" (entre Animaux et Lieux,
 // même ordre que QuickActionsSection et le wizard) — extraction allToys + ToyProfileCard.
@@ -5,7 +10,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Baby, Users, Heart, MapPin, Sparkles } from 'lucide-react';
+import { Plus, Baby, Users, Heart, MapPin, Moon } from 'lucide-react';
 import ChildProfileCard from './ChildProfileCard';
 import RelativeProfileCard from './RelativeProfileCard';
 import PetProfileCard from './PetProfileCard';
@@ -315,13 +320,13 @@ const MyFamilyTab: React.FC<MyFamilyTabProps> = ({ children }) => {
       {children.length > 0 && (
         <section className="animate-fade-in animation-delay-250">
           <SectionHeader
-            icon={Sparkles}
+            icon={Moon}
             title="Doudous et objets magiques"
           />
 
           {allToys.length === 0 ? (
             <EmptyState
-              icon={Sparkles}
+              icon={Moon}
               title="Ajoutez ses doudous"
               description="Peluche, couverture, figurine... Ils peuvent aussi devenir des personnages de l'histoire !"
               buttonText="Ajouter un doudou"
