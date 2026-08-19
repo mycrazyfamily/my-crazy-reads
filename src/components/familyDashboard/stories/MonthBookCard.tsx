@@ -1,3 +1,13 @@
+// MonthBookCard v1.1
+// Changelog v1.1 (chantier icones IA, lot 2) : trois occurrences de Sparkles, trois sens
+//   differents, trois traitements :
+//   [1] statut « Choix en attente » -> ListChecks. Une action est attendue du parent, il doit
+//       choisir entre plusieurs livres.
+//   [2] statut « En creation » -> Feather. C'est l'endroit ou l'etoile disait le plus
+//       explicitement « genere par une machine ». Feather dit que le livre s'ecrit.
+//   [3] colonne « 100% inedit » -> Feather. Sens porte : l'ecriture sur mesure, meme icone que
+//       l'en-tete de CustomBookCreator juste en dessous.
+//   NOTE : ce fichier ne portait aucune banniere de version avant aujourd'hui.
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +20,8 @@ import {
   Truck,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  ListChecks,
+  Feather
 } from 'lucide-react';
 import { MonthBookSlot, BookStatus } from '@/types/bookTimeline';
 import MainBookOption from './MainBookOption';
@@ -37,7 +48,7 @@ const statusConfig: Record<BookStatus, { label: string; icon: any; color: string
   },
   pending_choice: {
     label: 'Choix en attente',
-    icon: Sparkles,
+    icon: ListChecks,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     iconColor: 'text-yellow-600',
   },
@@ -55,7 +66,7 @@ const statusConfig: Record<BookStatus, { label: string; icon: any; color: string
   },
   in_production: {
     label: 'En création',
-    icon: Sparkles,
+    icon: Feather,
     color: 'bg-purple-100 text-purple-800 border-purple-300',
     iconColor: 'text-purple-600',
   },
@@ -226,7 +237,7 @@ const MonthBookCard: React.FC<MonthBookCardProps> = ({
               {/* Livre 100% inédit */}
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-primary text-center uppercase tracking-wide flex items-center justify-center gap-2">
-                  <Sparkles className="h-4 w-4" />
+                  <Feather className="h-4 w-4" />
                   100% inédit
                 </h4>
                 <CustomBookCreator
