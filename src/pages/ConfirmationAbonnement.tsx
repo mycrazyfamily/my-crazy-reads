@@ -1,3 +1,8 @@
+// ConfirmationAbonnement.tsx v1.5
+// Changelog v1.5 (chantier icones IA, lot 1) : Wand2 -> Feather sur l'etape « Preparez vos
+//   personnages ». Meme motif que sur Cadeau v1.4 : Wand2 est un ALIAS de WandSparkles, dont le
+//   glyphe contient trois etoiles a quatre branches. Le remplacement de la v1.4 n'avait donc
+//   rien retire. Feather porte la personnalisation sans l'association a l'IA.
 // ConfirmationAbonnement.tsx v1.4
 // v1.4: [1] mention des INDÉSIRABLES sur l'étape « email de confirmation ». C'est
 //       le moment le plus sensible du parcours, le parent vient de payer : s'il ne
@@ -28,7 +33,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { CheckCircle, Mail, BookOpen, Wand2 } from 'lucide-react';
+import { CheckCircle, Mail, BookOpen, Feather } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -58,7 +63,7 @@ const ConfirmationAbonnement: React.FC = () => {
       text: `Votre premier livre sera livré début ${deliveryMonth}`,
     },
     {
-      icon: Wand2,
+      icon: Feather,
       text: `Préparez vos personnages ! Rendez-vous dans l'espace famille pour choisir ses héros et son histoire, jusqu'au ${personalizationDeadline}`,
     },
   ];
