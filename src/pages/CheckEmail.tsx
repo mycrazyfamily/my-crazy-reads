@@ -1,3 +1,10 @@
+// CheckEmail v2.3
+// Changelog v2.3 : l'adresse rappelée passe sur sa propre ligne. Insérée dans le
+//   flux de la phrase avec break-all, elle se coupait au milieu (« robin » puis
+//   « @bet-on-you.com » à la ligne), ce qui la rendait difficile à relire alors
+//   que son seul rôle est justement d'attraper les fautes de frappe. La phrase
+//   se termine désormais par deux-points, l'adresse est son propre paragraphe.
+//   Aucun autre changement.
 // CheckEmail v2.2
 // Changelog v2.2 — ALLÉGEMENT. Cinq blocs de texte pour une action qui se résume
 //   à « allez voir votre boîte mail », c'était trop, surtout pour une première
@@ -80,16 +87,26 @@ const CheckEmail = () => {
                 Vérifiez votre boîte mail
               </h1>
 
-              <p className="text-gray-600 leading-relaxed">
-                {email ? (
-                  <>
-                    Nous venons d'envoyer un lien de confirmation à{' '}
-                    <span className="font-semibold text-mcf-primary break-all">{email}</span>.
-                  </>
-                ) : (
-                  <>Nous venons d'envoyer un lien de confirmation à votre adresse email.</>
-                )}
-              </p>
+              {/* v2.3 : l'adresse quitte le flux de la phrase. Inline, elle se
+                  coupait n'importe où (« robin » sur une ligne, « @bet-on-you.com »
+                  sur la suivante) parce que break-all autorise la césure à
+                  n'importe quel caractère. Sur sa propre ligne, une adresse de
+                  longueur normale tient d'un bloc ; break-all reste en filet pour
+                  les adresses très longues, qui déborderaient sinon du cadre. */}
+              {email ? (
+                <div className="space-y-1">
+                  <p className="text-gray-600 leading-relaxed">
+                    Nous venons d'envoyer un lien de confirmation à :
+                  </p>
+                  <p className="font-semibold text-mcf-primary break-all">
+                    {email}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600 leading-relaxed">
+                  Nous venons d'envoyer un lien de confirmation à votre adresse email.
+                </p>
+              )}
 
               {/* v2.0 (a) — après l'essentiel, sans dramatiser.
                   v2.2 — condensé en une phrase : deux, c'était trop pour une page
