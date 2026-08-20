@@ -1,4 +1,14 @@
-// ModifierAnimal v3.6
+// ModifierAnimal v3.7
+// Changelog v3.7 :
+//   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX. pets.physical_details devient la
+//   seule source, comme family_members.physical_details l'est deja pour les proches. Les details
+//   ne transitent plus par child_pets.traits_custom, qui ne garde que les traits de CARACTERE.
+//   Motif : trois chemins d'ecriture divergents laissaient les deux sources se desynchroniser,
+//   et les donnees etaient dupliquees sur chaque lien enfant. Convention : tableau VIDE = aucun
+//   detail, le flag noPhysicalDetails n'est plus persiste.
+//   Quatre points ici : lecture depuis pets.physical_details, ecriture dans pets.physical_details,
+//   petAvatarSignature qui lit le champ propre au lieu de customTraits, et arret de l'ecriture
+//   des details dans child_pets.traits_custom.
 // Changelog v3.6 : LOT F3 — fin du double encodage des colonnes jsonb.
 //   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
 //   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
@@ -89,11 +99,11 @@ type PetStatus = 'active' | 'deceased' | 'gone';
 function petAvatarSignature(p: PetData | null): string {
   // v3.4 : la tenue entre dans la signature. Sans elle, modifier uniquement l'accessoire
   // ne déclencherait aucune régénération, et le back ne saurait jamais qu'elle est inchangée.
-  const cd: any = p?.customTraits || {};
-  const phys = Array.isArray(cd.physicalDetails)
-    ? cd.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
+  // v3.7 : les details viennent de PetData.physicalDetails (pets.physical_details), plus de
+  // customTraits. noPhys disparait : un tableau vide dit la meme chose sans donnee redondante.
+  const phys = Array.isArray(p?.physicalDetails)
+    ? p.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
     : [];
-  const noPhys = cd.noPhysicalDetails === true || cd.noPhysicalDetails === 'true';
   const finalType = p?.type === 'other' && p?.otherType ? p.otherType : (p?.type || '');
   return JSON.stringify({
     type: finalType,
@@ -102,7 +112,6 @@ function petAvatarSignature(p: PetData | null): string {
     // v3.5 : `traits` retire — aucun trait de caractere n'entre dans un prompt, les garder ici
     // faisait payer une generation d'image a chaque changement d'humeur declaree.
     phys,
-    noPhys,
     clothing: (p?.clothingStyle || '').trim(),
   });
 }
@@ -229,6 +238,8 @@ const ModifierAnimal: React.FC = () => {
                                       cleanedCustomTraits.physicalDetails.length > 0 &&
                                       cleanedCustomTraits.physicalDetails.some((d: string) => d.trim() !== '');
           
+          // v3.7 : ce nettoyage devient inerte, les details ne transitent plus par customTraits.
+          // Conserve tel quel : il protege encore les fiches dont la base porte l'ancien format.
           if (hasPhysicalDetails && cleanedCustomTraits.noPhysicalDetails) {
             // Si les deux sont présents, garder uniquement physicalDetails (dernière info saisie)
             const { noPhysicalDetails, ...rest } = cleanedCustomTraits;
@@ -249,6 +260,20 @@ const ModifierAnimal: React.FC = () => {
           customTraits: cleanedCustomTraits,
           // v3.4 : pets.clothing_style est stocké en JSON (tableau). On accepte aussi une
           // chaîne nue, au cas où d'anciennes lignes n'auraient pas le format tableau.
+          // v3.7 : source unique, pets.physical_details. On tolere encore une chaine JSON
+          // pour les lignes anterieures a F3, non normalisees.
+          physicalDetails: (() => {
+            const raw = (data.pets as any).physical_details;
+            if (!raw) return [];
+            try {
+              const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              return Array.isArray(parsed)
+                ? parsed.filter((d: any) => typeof d === 'string' && d.trim() !== '')
+                : [];
+            } catch {
+              return [];
+            }
+          })(),
           clothingStyle: (() => {
             const raw = (data.pets as any).clothing_style;
             if (!raw) return undefined;
@@ -342,6 +367,10 @@ const ModifierAnimal: React.FC = () => {
           clothing_style: updatedPet.clothingStyle
             ? [updatedPet.clothingStyle]
             : [],
+          // v3.7 : source unique. Tableau vide = aucun detail physique.
+          physical_details: Array.isArray(updatedPet.physicalDetails)
+            ? updatedPet.physicalDetails.filter((d) => d && d.trim() !== '')
+            : [],
           ...statusFields,
         })
         .eq('id', petId);
@@ -361,7 +390,14 @@ const ModifierAnimal: React.FC = () => {
         name: splitCamelCase(updatedPet.name),
         birth_month_year: updatedPet.birthMonthYear || null,
         traits: updatedPet.traits?.join(', ') || null,
-        traits_custom: updatedPet.customTraits && typeof updatedPet.customTraits === 'object' ? updatedPet.customTraits : null,
+        // v3.7 : les cles physicalDetails et noPhysicalDetails sont retirees avant ecriture.
+        // child_pets ne porte plus que les traits de CARACTERE personnalises.
+        traits_custom: (() => {
+          const ct: any = updatedPet.customTraits;
+          if (!ct || typeof ct !== 'object') return null;
+          const { physicalDetails, noPhysicalDetails, ...rest } = ct;
+          return Object.keys(rest).length > 0 ? rest : null;
+        })(),
         relation_label: finalType,
         race: updatedPet.breed || null
       };
@@ -492,7 +528,7 @@ const ModifierAnimal: React.FC = () => {
     // v2.0 — blocklist étendue aux champs libres. Le nom était contrôlé, pas la
     // description : c'est pourtant elle qui a fait refuser un avatar par Gemini.
     const champsLibres = checkFreeTextFields({
-      'les détails physiques': ((currentPetData.customTraits as any)?.physicalDetails ?? []) as string[],
+      'les détails physiques': (currentPetData.physicalDetails ?? []) as string[], // v3.7
       'la race': currentPetData.breed,
       "le type d'animal": currentPetData.otherType,
       'les traits de caractère': Object.values(currentPetData.customTraits || {})
@@ -540,13 +576,14 @@ const ModifierAnimal: React.FC = () => {
       errors.push("tous les traits personnalisés");
     }
 
-    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-    const petPhysicalDetails = currentPetData.customTraits?.physicalDetails;
-    const hasPhysicalDetails = Array.isArray(petPhysicalDetails) && petPhysicalDetails.length > 0 && petPhysicalDetails.some((d: string) => d.trim() !== '');
-    // Vérifier si noPhysicalDetails est présent et true (peut être boolean ou string selon la source)
-    const customTraitsAny = currentPetData.customTraits as any;
-    const noPhysicalDetails = customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true';
-    if (!hasPhysicalDetails && !noPhysicalDetails) {
+    // v3.7 : la validation lit le champ propre PetData.physicalDetails, et non plus
+    // customTraits. Le flag noPhysicalDetails n'existe plus : PetForm produit un tableau VIDE
+    // quand la case est cochee, ce qui est desormais une reponse VALIDE. Sans ce changement,
+    // aucune fiche animal ne pourrait plus etre enregistree apres le lot F4.
+    // La case reste donc obligatoire cote PetForm, qui refuse un formulaire ou ni detail ni
+    // case n'ont ete renseignes ; ici on se contente de verifier que le champ est bien un
+    // tableau, vide ou non.
+    if (!Array.isArray(currentPetData.physicalDetails)) {
       errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
     }
 
