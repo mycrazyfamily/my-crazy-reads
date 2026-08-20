@@ -61,12 +61,16 @@ export type Database = {
           delivery_month: string | null
           fabrication_month: string | null
           family_id: string | null
+          generated_at: string | null
+          generated_theme_id: string | null
+          generated_theme_source: string | null
           id: string
           is_active: boolean | null
           is_original: boolean | null
           message: string
           original_theme_instructions: string | null
           personalization_deadline: string | null
+          production_status: string | null
           request_type: string | null
           selected_characters: Json | null
           selected_location_id: string | null
@@ -90,12 +94,16 @@ export type Database = {
           delivery_month?: string | null
           fabrication_month?: string | null
           family_id?: string | null
+          generated_at?: string | null
+          generated_theme_id?: string | null
+          generated_theme_source?: string | null
           id?: string
           is_active?: boolean | null
           is_original?: boolean | null
           message: string
           original_theme_instructions?: string | null
           personalization_deadline?: string | null
+          production_status?: string | null
           request_type?: string | null
           selected_characters?: Json | null
           selected_location_id?: string | null
@@ -119,12 +127,16 @@ export type Database = {
           delivery_month?: string | null
           fabrication_month?: string | null
           family_id?: string | null
+          generated_at?: string | null
+          generated_theme_id?: string | null
+          generated_theme_source?: string | null
           id?: string
           is_active?: boolean | null
           is_original?: boolean | null
           message?: string
           original_theme_instructions?: string | null
           personalization_deadline?: string | null
+          production_status?: string | null
           request_type?: string | null
           selected_characters?: Json | null
           selected_location_id?: string | null
@@ -158,6 +170,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_requests_generated_theme_id_fkey"
+            columns: ["generated_theme_id"]
+            isOneToOne: false
+            referencedRelation: "story_themes"
             referencedColumns: ["id"]
           },
           {
@@ -631,6 +650,11 @@ export type Database = {
       child_profiles: {
         Row: {
           appearance: Json | null
+          avatar_error_at: string | null
+          avatar_error_code: string | null
+          avatar_error_fields: string | null
+          avatar_pending_at: string | null
+          avatar_status: string | null
           avatar_url: string | null
           birth_date: string | null
           clothing_style: Json | null
@@ -653,6 +677,11 @@ export type Database = {
         }
         Insert: {
           appearance?: Json | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
@@ -675,6 +704,11 @@ export type Database = {
         }
         Update: {
           appearance?: Json | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           clothing_style?: Json | null
@@ -849,6 +883,11 @@ export type Database = {
       comforters: {
         Row: {
           appearance: string | null
+          avatar_error_at: string | null
+          avatar_error_code: string | null
+          avatar_error_fields: string | null
+          avatar_pending_at: string | null
+          avatar_status: string | null
           avatar_url: string | null
           child_id: string | null
           created_at: string | null
@@ -864,6 +903,11 @@ export type Database = {
         }
         Insert: {
           appearance?: string | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           child_id?: string | null
           created_at?: string | null
@@ -879,6 +923,11 @@ export type Database = {
         }
         Update: {
           appearance?: string | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           child_id?: string | null
           created_at?: string | null
@@ -1053,6 +1102,11 @@ export type Database = {
       family_members: {
         Row: {
           avatar: string | null
+          avatar_error_at: string | null
+          avatar_error_code: string | null
+          avatar_error_fields: string | null
+          avatar_pending_at: string | null
+          avatar_status: string | null
           avatar_url: string | null
           clothing_style: Json | null
           clothing_style_resolved: string | null
@@ -1070,6 +1124,11 @@ export type Database = {
         }
         Insert: {
           avatar?: string | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
@@ -1087,6 +1146,11 @@ export type Database = {
         }
         Update: {
           avatar?: string | null
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           clothing_style?: Json | null
           clothing_style_resolved?: string | null
@@ -1516,6 +1580,11 @@ export type Database = {
       }
       pets: {
         Row: {
+          avatar_error_at: string | null
+          avatar_error_code: string | null
+          avatar_error_fields: string | null
+          avatar_pending_at: string | null
+          avatar_status: string | null
           avatar_url: string | null
           breed: string | null
           clothing_style: Json | null
@@ -1535,6 +1604,11 @@ export type Database = {
           type: string | null
         }
         Insert: {
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           breed?: string | null
           clothing_style?: Json | null
@@ -1554,6 +1628,11 @@ export type Database = {
           type?: string | null
         }
         Update: {
+          avatar_error_at?: string | null
+          avatar_error_code?: string | null
+          avatar_error_fields?: string | null
+          avatar_pending_at?: string | null
+          avatar_status?: string | null
           avatar_url?: string | null
           breed?: string | null
           clothing_style?: Json | null
@@ -1695,6 +1774,7 @@ export type Database = {
           theme_type: string
           titre: string
           updated_at: string | null
+          variant_order: number | null
           variante_condition: string | null
           variante_resume: string | null
           variante_titre: string | null
@@ -1722,6 +1802,7 @@ export type Database = {
           theme_type?: string
           titre: string
           updated_at?: string | null
+          variant_order?: number | null
           variante_condition?: string | null
           variante_resume?: string | null
           variante_titre?: string | null
@@ -1749,6 +1830,7 @@ export type Database = {
           theme_type?: string
           titre?: string
           updated_at?: string | null
+          variant_order?: number | null
           variante_condition?: string | null
           variante_resume?: string | null
           variante_titre?: string | null
@@ -1765,8 +1847,12 @@ export type Database = {
           family_id: string | null
           id: string
           is_active: boolean | null
+          payment_attempt_count: number | null
+          payment_failed_at: string | null
           start_date: string
           status: string | null
+          stripe_status: string | null
+          stripe_subscription_id: string | null
           type: string
           updated_at: string | null
         }
@@ -1779,8 +1865,12 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          payment_attempt_count?: number | null
+          payment_failed_at?: string | null
           start_date: string
           status?: string | null
+          stripe_status?: string | null
+          stripe_subscription_id?: string | null
           type: string
           updated_at?: string | null
         }
@@ -1793,8 +1883,12 @@ export type Database = {
           family_id?: string | null
           id?: string
           is_active?: boolean | null
+          payment_attempt_count?: number | null
+          payment_failed_at?: string | null
           start_date?: string
           status?: string | null
+          stripe_status?: string | null
+          stripe_subscription_id?: string | null
           type?: string
           updated_at?: string | null
         }
@@ -1946,6 +2040,42 @@ export type Database = {
           },
         ]
       }
+      webhook_anomalies: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_id: string | null
+          event_type: string | null
+          id: string
+          reason: string
+          resolved: boolean
+          source: string
+          stripe_object_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          reason: string
+          resolved?: boolean
+          source?: string
+          stripe_object_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          reason?: string
+          resolved?: boolean
+          source?: string
+          stripe_object_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2024,6 +2154,7 @@ export type Database = {
           theme_type: string
           titre: string
           updated_at: string | null
+          variant_order: number | null
           variante_condition: string | null
           variante_resume: string | null
           variante_titre: string | null
@@ -2035,7 +2166,49 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      is_mcf_admin: { Args: never; Returns: boolean }
       lock_overdue_book_requests: { Args: never; Returns: undefined }
+      mcf_age_mois: {
+        Args: { p_birth_date: string; p_delivery_month: string }
+        Returns: number
+      }
+      mcf_annee_de_vie: {
+        Args: { p_birth_date: string; p_delivery_month: string }
+        Returns: number
+      }
+      mcf_book_avatar_blockers: {
+        Args: { p_delivery_month?: string }
+        Returns: {
+          book_request_id: string
+          book_status: string
+          child_avatar_echoue: boolean
+          child_id: string
+          child_name: string
+          child_sans_avatar: boolean
+          delivery_month: string
+          perso_avatar_echoue: string
+          perso_introuvable: string
+          perso_sans_avatar: string
+        }[]
+      }
+      mcf_expire_stale_pending_avatars: {
+        Args: { p_minutes?: number }
+        Returns: Json
+      }
+      mcf_mark_avatar_failed: {
+        Args: {
+          p_error_code: string
+          p_error_fields?: string
+          p_profile_id: string
+          p_table: string
+        }
+        Returns: Json
+      }
+      mcf_mark_avatar_pending: {
+        Args: { p_profile_id: string; p_type: string }
+        Returns: Json
+      }
     }
     Enums: {
       mcf_production_status:
