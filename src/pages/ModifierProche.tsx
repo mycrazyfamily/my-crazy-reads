@@ -1,3 +1,15 @@
+// ModifierProche v1.4
+// Changelog v1.4 : LOT F1 — les TRAITS DE CARACTERE sortent de relativeAvatarSignature.
+//   Mesure du 20/08 : changer un trait declenchait une regeneration complete de l'avatar, alors
+//   qu'AUCUN trait n'entre dans un prompt, ni a la creation ni a l'edition. Verifie sur les deux
+//   constructeurs 3_Build_Master_Prompt et 3_Build_Edit_Prompt : les seules occurrences du mot
+//   "traits" y sont "no masculine traits" et "physical traits", sans rapport. Le prompt produit
+//   apres un changement de trait etait donc strictement identique au precedent : une generation
+//   Gemini image depensee pour rien. Meme correction que ModifierAnimal v3.5.
+//   Deux cles retirees : `traits` (les traits predefinis) et `customTraits` (le champ « Autre »).
+//   Les deux restent INCHANGES dans le formulaire, en base et dans la validation blocklist :
+//   seul leur pouvoir de declencher une regeneration disparait.
+//   `phys` et `noPhys` restent : ils decrivent bien l'apparence et sont lus par le back.
 // ModifierProche v1.3
 // Changelog v1.3 (AFFICHAGE UNIQUEMENT — alignement sur le patron ModifierAnimal) :
 //   • Avatar passé en PROPS à EditAvatarHeader : loadRelativeData charge avatar_url + family_id
@@ -95,8 +107,9 @@ function relativeAvatarSignature(i: any): string {
     noPhys: !!i?.noPhysicalDetails,
     clothing: (i?.clothingStyle || '').trim(),
     birth: ymd(i?.birthDate),
-    traits: [...(i?.traits || [])].sort(),
-    customTraits: i?.customTraits || {},
+    // v1.4 : `traits` et `customTraits` retires — aucun trait de caractere n'entre dans un
+    // prompt, les garder ici faisait payer une generation d'image a chaque changement d'humeur
+    // declaree. Les champs eux-memes ne bougent pas, seule la detection de changement change.
   });
 }
 
