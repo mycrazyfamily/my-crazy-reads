@@ -1,3 +1,10 @@
+// AjouterAnimal v2.1
+// Changelog v2.1 : persiste le nouveau champ « accessoire ou vêtement » (PetForm v1.7) dans
+//   pets.clothing_style à la création, au même format JSON tableau que les autres écrans.
+//   Sans ça le champ s'affichait à la création mais la saisie était perdue en silence.
+//   Ajouté aussi à la blocklist des champs libres de cet écran, qui les vérifie de son côté.
+//   Aucune autre logique modifiée.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -108,6 +115,7 @@ export default function AjouterAnimal() {
         'les détails physiques': ((petData.customTraits as any)?.physicalDetails ?? []) as string[],
         'la race': petData.breed,
         "le type d'animal": petData.otherType,
+        "l'accessoire ou le vêtement": petData.clothingStyle,
         'les traits de caractère': Object.values(petData.customTraits || {})
           .filter((v) => typeof v === 'string') as string[],
       });
@@ -219,6 +227,10 @@ export default function AjouterAnimal() {
           type: finalType,
           gender: petData.gender || null,
           breed: petData.breed || null,
+          // v2.1 : même format que les autres écrans, un tableau JSON à un élément
+          clothing_style: petData.clothingStyle
+            ? JSON.stringify([petData.clothingStyle])
+            : JSON.stringify([]),
           emoji: null,
           family_id: familyId
         })
