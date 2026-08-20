@@ -1,4 +1,17 @@
-// ModifierProche v1.4
+// ModifierProche v1.5
+// Changelog v1.5 : LOT F3 — fin du double encodage des colonnes jsonb.
+//   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
+//   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
+//   produite par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine, et non un
+//   tableau : la base contenait "[\"Collier rouge\"]" la ou physical_details contenait proprement
+//   ["Poil blanc"]. Le client Supabase serialise deja, il faut lui donner la valeur NATIVE.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved est absent, SANS le deballer. Le livre recevait alors la
+//   chaine brute avec ses guillemets et ses antislashs.
+//   Les fonctions de LECTURE qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les
+//   lignes deja en base restent doublement encodees et doivent rester lisibles. On corrige
+//   l'ecriture, on ne casse pas la lecture.
+//   Deux lignes fautives ici : physical_details ET clothing_style.
 // Changelog v1.4 : LOT F1 — les TRAITS DE CARACTERE sortent de relativeAvatarSignature.
 //   Mesure du 20/08 : changer un trait declenchait une regeneration complete de l'avatar, alors
 //   qu'AUCUN trait n'entre dans un prompt, ni a la creation ni a l'edition. Verifie sur les deux
@@ -604,9 +617,9 @@ const ModifierProche: React.FC = () => {
         name: splitCamelCase(firstName),
         role: type,
         physical_details: noPhysicalDetails
-          ? JSON.stringify([""])
-          : (physicalDetails.length > 0 ? JSON.stringify(physicalDetails) : JSON.stringify([])),
-        clothing_style: clothingStyle ? JSON.stringify([clothingStyle]) : JSON.stringify([]),
+          ? [""]
+          : (physicalDetails.length > 0 ? physicalDetails : []),
+        clothing_style: clothingStyle ? [clothingStyle] : [],
         details: detailsPayload,
         // Statut (décès) — fait global d'entité ; le trigger DB horodate deceased_recorded_at automatiquement.
         is_deceased: relativeStatus === 'deceased'
