@@ -1,4 +1,15 @@
-// useChildProfileSubmit v2.1
+// useChildProfileSubmit v2.2
+// Changelog v2.2 :
+//   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX. pets.physical_details devient la
+//   seule source, comme family_members.physical_details l'est deja pour les proches. Les details
+//   ne transitent plus par child_pets.traits_custom, qui ne garde que les traits de CARACTERE.
+//   Motif : trois chemins d'ecriture divergents laissaient les deux sources se desynchroniser,
+//   et les donnees etaient dupliquees sur chaque lien enfant. Convention : tableau VIDE = aucun
+//   detail, le flag noPhysicalDetails n'est plus persiste.
+//   Ce hook etait le SEUL a ecrire pets.physical_details, mais il lisait la valeur depuis
+//   customTraits. Il lit desormais le champ propre PetData.physicalDetails.
+//   DEUX ecritures child_pets existent dans ce fichier, pas une : les nouveaux animaux (etape 14)
+//   et les animaux existants relies a d'autres enfants (etape 15). Les deux sont traitees.
 // Changelog v2.1 :
 //   LOT F3 — fin du double encodage des colonnes jsonb. physical_details et clothing_style, sur
 //   child_profiles, family_members et pets, sont toutes de type jsonb. Passer une CHAINE produite
@@ -119,7 +130,9 @@ function collecterChampsLibres(data: ChildProfileFormData): Record<string, strin
     champs[`le nom de ${qui}`] = texte(a.name);
     champs[`la race de ${qui}`] = texte(a.breed);
     champs[`le type de ${qui}`] = texte(a.otherType);
-    champs[`les détails physiques de ${qui}`] = ((a.customTraits as any)?.physicalDetails ?? []) as string[];
+    // v2.2 : champ propre PetData.physicalDetails. La ligne 118 ci-dessus fait deja ainsi
+    // pour les proches (r.physicalDetails) : les animaux s'alignent enfin dessus.
+    champs[`les détails physiques de ${qui}`] = (a.physicalDetails ?? []) as string[];
     champs[`les traits de ${qui}`] = valeursTexte(a.customTraits);
   }
 
@@ -633,15 +646,16 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
           
           const petsToCreate = data.pets.pets.map((pet, index) => {
             console.log(`🦴 Animal ${index} - customTraits:`, pet.customTraits);
-            console.log(`🦴 Animal ${index} - customTraits.physicalDetails:`, pet.customTraits?.physicalDetails);
+            console.log(`🦴 Animal ${index} - physicalDetails:`, pet.physicalDetails); // v2.2
             
             return {
               family_id: familyId,
               name: pet.name,
               type: pet.type || pet.otherType || 'autre',
               breed: pet.breed || null,
-              physical_details: (pet.customTraits?.physicalDetails && Array.isArray(pet.customTraits.physicalDetails) && pet.customTraits.physicalDetails.length > 0)
-                ? pet.customTraits.physicalDetails 
+              // v2.2 : lecture du champ propre PetData.physicalDetails
+              physical_details: Array.isArray(pet.physicalDetails)
+                ? pet.physicalDetails.filter((d: string) => d && d.trim() !== '')
                 : [],
               emoji: null
             };
@@ -676,7 +690,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               pet_id: petId,
               name: pet.name,
               traits: pet.traits?.join(', ') || null,
-              traits_custom: pet.customTraits && typeof pet.customTraits === 'object' ? pet.customTraits : null,
+              // v2.2 : premiere ecriture child_pets (nouveaux animaux). Plus de details
+              // physiques ici, uniquement les traits de caractere.
+              traits_custom: (() => {
+                const ct: any = pet.customTraits;
+                if (!ct || typeof ct !== 'object') return null;
+                const { physicalDetails, noPhysicalDetails, ...rest } = ct;
+                return Object.keys(rest).length > 0 ? rest : null;
+              })(),
               relation_label: relationLabel,
               birth_month_year: pet.birthMonthYear || null,
               race: pet.breed || null
@@ -730,7 +751,14 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                   pet_id: createdPetIds[data.pets!.pets.indexOf(pet)] || petId,
                   name: pet.name || '',
                   traits: pet.traits?.join(', ') || null,
-                  traits_custom: pet.customTraits && typeof pet.customTraits === 'object' ? pet.customTraits : null,
+                  // v2.2 : seconde ecriture child_pets (animaux existants relies a d'autres
+                  // enfants). Plus de details physiques ici, uniquement les traits de caractere.
+                  traits_custom: (() => {
+                    const ct: any = pet.customTraits;
+                    if (!ct || typeof ct !== 'object') return null;
+                    const { physicalDetails, noPhysicalDetails, ...rest } = ct;
+                    return Object.keys(rest).length > 0 ? rest : null;
+                  })(),
                   relation_label: relationLabel,
                   birth_month_year: pet.birthMonthYear || null,
                   race: pet.breed || null
