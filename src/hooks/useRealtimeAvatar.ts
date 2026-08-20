@@ -1,3 +1,17 @@
+// useRealtimeAvatar v2.5
+// Changelog v2.5 — TRACES DE DIAGNOSTIC TEMPORAIRES pour le shimmer bloque (lot G1).
+//   Le bug corrige en v2.4 n'etait pas reproductible a volonte : trois tests qui passent ne
+//   prouvent pas qu'il a disparu. Ces traces permettent de trancher en une seconde s'il revient.
+//   TOUTES sont prefixees [MCF-AVATAR] : une recherche sur cette chaine les retrouve toutes.
+//   A RETIRER AVANT LA MISE EN PRODUCTION. Elles sont visibles dans la console du navigateur
+//   des parents. Aucune donnee personnelle n'y transite, seulement des identifiants et des
+//   etats techniques.
+//   Trois points de trace, choisis pour couvrir tout le cycle de vie du shimmer :
+//     MONTAGE  : ce que la RULE 1 decide, et sur quelles entrees. C'est la que naissait le bug.
+//     LEVEE    : qui a leve le shimmer, et par quel chemin (realtime, polling ou parent).
+//     BLOCAGE  : une alarme si la base dit 'ready' avec une URL alors que le shimmer est encore
+//                affiche. Si cette ligne apparait, le bug est de retour et on sait exactement
+//                quel etat client le maintient.
 // useRealtimeAvatar v2.4
 // Changelog v2.4 — LE SHIMMER « Création… » NE PEUT PLUS RESTER BLOQUÉ.
 //   SYMPTÔME (reproduit le 20/08 sur Delphine, deux fois) : le workflow se termine, la base
@@ -218,6 +232,21 @@ export function useRealtimeAvatar({
     const demandeAncienne =
       demandeDepuis !== null && Date.now() - demandeDepuis >= FRAICHEUR_DEMANDE_MS;
 
+    // v2.5 — trace temporaire
+    console.log('[MCF-AVATAR] montage', {
+      table, id,
+      signalEphemere,
+      demandeDepuis: demandeDepuis ? new Date(demandeDepuis).toISOString() : null,
+      ageDemandeMs: demandeDepuis ? Date.now() - demandeDepuis : null,
+      demandeRecente,
+      demandeAncienne,
+      statutFourniParParent: parentProvidesStatus ? (initialAvatarStatus ?? null) : 'non fourni',
+      urlInitiale: normalizeAvatarUrl(initialAvatarUrl),
+      decision: ((signalEphemere || demandeRecente) && !demandeAncienne)
+        ? 'SHIMMER (pending force)'
+        : 'pas de shimmer',
+    });
+
     if ((signalEphemere || demandeRecente) && !demandeAncienne) {
       demandeDepuisRef.current = demandeDepuis ?? Date.now();
       // Signal found → show shimmer (full if no URL, overlay if URL exists)
@@ -249,6 +278,10 @@ export function useRealtimeAvatar({
       // autre. La transition initiale null→URL (chargement de la référence, ex. fetch async de
       // EditAvatarHeader) ne doit PAS couper le shimmer.
       const avatarActuallyChanged = !!previousKnownUrl && incoming !== previousKnownUrl;
+      // v2.5 — trace temporaire
+      if (avatarActuallyChanged) {
+        console.log('[MCF-AVATAR] levee par le parent', { id, ancienne: previousKnownUrl, nouvelle: incoming });
+      }
       if (avatarActuallyChanged) {
         setIsRegenerating(false);
         clearAvatarRegeneration(id);   // signal éphémère (sessionStorage)
@@ -305,6 +338,10 @@ export function useRealtimeAvatar({
   const applyNewUrl = useCallback((newUrl: string | null) => {
     const normalized = normalizeAvatarUrl(newUrl);
     if (normalized && normalized !== knownUrlRef.current) {
+      // v2.5 — trace temporaire
+      console.log('[MCF-AVATAR] levee par nouvelle URL', {
+        id, ancienne: knownUrlRef.current, nouvelle: normalized,
+      });
       knownUrlRef.current = normalized;
       setAvatarUrl(normalized);
       setHasError(false);
@@ -475,6 +512,21 @@ export function useRealtimeAvatar({
     !hasFailed
     && (!baseDitPret || demandeEstRecente())
     && (isRegenerating || avatarStatus === 'pending');
+
+  // v2.5 — ALARME temporaire. Si cette ligne apparait, le bug du shimmer bloque est de retour.
+  // La base annonce un avatar pret ET une URL, mais le shimmer reste affiche : l'etat logue ici
+  // dit exactement quel marqueur client le maintient.
+  if (baseDitPret && regenerating) {
+    console.warn('[MCF-AVATAR] BLOCAGE : base prete mais shimmer actif', {
+      table, id, avatarUrl, avatarStatus,
+      isRegeneratingLocal: isRegenerating,
+      demandeDepuis: demandeDepuisRef.current
+        ? new Date(demandeDepuisRef.current).toISOString()
+        : null,
+      ageDemandeMs: demandeDepuisRef.current ? Date.now() - demandeDepuisRef.current : null,
+      demandeEstRecente: demandeEstRecente(),
+    });
+  }
 
   return {
     avatarUrl,
