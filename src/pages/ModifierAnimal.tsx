@@ -1,15 +1,19 @@
 // ModifierAnimal v3.4
-// Changelog v3.4 : envoie previous_avatar_fields au webhook edit-avatar-mcf, à côté des
-//   previous_type / previous_breed / previous_birth_date déjà présents. C'est la chaîne JSON
-//   produite par petAvatarSignature(petData), donc l'état d'origine complet : type, race,
-//   date de naissance, traits, détails physiques (phys) et flag noPhys.
-//   Objectif (3_Build_Edit_Prompt v6.1, lot E2) : le back compare ce snapshot aux valeurs
-//   relues en base après sauvegarde. Quand les détails physiques n'ont PAS changé, il cesse
-//   d'ordonner « IGNORE the skin color from the reference image » et demande au contraire de
-//   reproduire le pelage de l'image de référence. Sans ça, le pelage d'un animal repartait au
-//   hasard à chaque édition (un berger australien merle devenait blanc).
-//   Aucune autre logique modifiée : la fonction petAvatarSignature n'est pas touchée, et la
-//   condition avatarRelevantChanged qui décide d'appeler le webhook reste identique.
+// Changelog v3.4 : DEUX ajouts, lots E1 et E2.
+//   (1) E2 — envoie previous_avatar_fields au webhook edit-avatar-mcf, à côté des
+//       previous_type / previous_breed / previous_birth_date déjà présents. C'est la chaîne
+//       JSON produite par petAvatarSignature, donc l'état d'origine complet. Le back
+//       (3_Build_Edit_Prompt v6.1) la compare aux valeurs relues en base après sauvegarde :
+//       quand les détails physiques n'ont PAS changé, il cesse d'ordonner « IGNORE the skin
+//       color from the reference image » et demande au contraire de reproduire le pelage de
+//       l'image de référence. Sans ça, le pelage repartait au hasard à chaque édition (un
+//       berger australien merle devenait blanc dès la première modification).
+//   (2) E1 — prise en charge du nouveau champ « accessoire ou vêtement » (PetForm v1.7) :
+//       chargement depuis pets.clothing_style, sauvegarde, et intégration à
+//       petAvatarSignature sous la clé `clothing`. Sans cette clé dans la signature, le back
+//       verrait toujours la tenue comme changée et la réinventerait à chaque édition.
+//       Le champ est aussi ce qui déclenche la régénération quand il est le seul modifié.
+//   petData reste le snapshot d'origine, jamais muté dans handleSave.
 // ModifierAnimal v3.3
 // Changelog v3.3 : envoie previous_type + previous_breed au webhook edit-avatar-mcf (à côté du
 //   previous_birth_date déjà présent). Objectif : permettre au back (3_Build_Edit_Prompt v4.1)
@@ -59,6 +63,8 @@ type PetStatus = 'active' | 'deceased' | 'gone';
  * Le nom est volontairement EXCLU (non visuel, absent du payload avatar).
  */
 function petAvatarSignature(p: PetData | null): string {
+  // v3.4 : la tenue entre dans la signature. Sans elle, modifier uniquement l'accessoire
+  // ne déclencherait aucune régénération, et le back ne saurait jamais qu'elle est inchangée.
   const cd: any = p?.customTraits || {};
   const phys = Array.isArray(cd.physicalDetails)
     ? cd.physicalDetails.filter((d: string) => d && d.trim()).map((d: string) => d.trim())
@@ -72,6 +78,7 @@ function petAvatarSignature(p: PetData | null): string {
     traits: [...(p?.traits || [])].sort(),
     phys,
     noPhys,
+    clothing: (p?.clothingStyle || '').trim(),
   });
 }
 
@@ -214,7 +221,20 @@ const ModifierAnimal: React.FC = () => {
           birthMonthYear: data.birth_month_year || undefined,
           breed: data.race || (data.pets as any).breed || undefined,
           traits: (data.traits ? data.traits.split(', ') : []) as PetTrait[],
-          customTraits: cleanedCustomTraits
+          customTraits: cleanedCustomTraits,
+          // v3.4 : pets.clothing_style est stocké en JSON (tableau). On accepte aussi une
+          // chaîne nue, au cas où d'anciennes lignes n'auraient pas le format tableau.
+          clothingStyle: (() => {
+            const raw = (data.pets as any).clothing_style;
+            if (!raw) return undefined;
+            try {
+              const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+              if (Array.isArray(parsed)) return String(parsed[0] ?? '').trim() || undefined;
+              return String(parsed ?? '').trim() || undefined;
+            } catch {
+              return String(raw).trim() || undefined;
+            }
+          })()
         };
         setPetData(pet);
         setAvatarUrl((data.pets as any).avatar_url ?? null);
@@ -293,6 +313,10 @@ const ModifierAnimal: React.FC = () => {
           type: finalType,
           gender: updatedPet.gender || null,
           breed: updatedPet.breed || null,
+          // v3.4 : même format que les autres écrans, un tableau JSON à un élément
+          clothing_style: updatedPet.clothingStyle
+            ? JSON.stringify([updatedPet.clothingStyle])
+            : JSON.stringify([]),
           ...statusFields,
         })
         .eq('id', petId);
@@ -394,9 +418,9 @@ const ModifierAnimal: React.FC = () => {
                 ? petData.otherType
                 : (petData?.type || null),
               previous_breed: petData?.breed || null,
-              // v3.4 : snapshot complet de l'état d'origine (chaîne JSON déjà calculée pour
-              // décider s'il faut régénérer). Permet au back de savoir CE QUI a changé, et de
-              // ne décrire que ça. petData est le snapshot d'origine, jamais muté dans handleSave.
+              // v3.4 : snapshot complet de l'état d'origine, déjà calculé pour décider s'il
+              // faut régénérer. Permet au back de savoir CE QUI a changé et de ne décrire
+              // que ça, au lieu de tout réinventer à chaque édition.
               previous_avatar_fields: petAvatarSignature(petData)
             })
           });
