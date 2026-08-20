@@ -1,4 +1,15 @@
-// ModifierAnimal v3.4
+// ModifierAnimal v3.5
+// Changelog v3.5 : LOT F1 — les TRAITS DE CARACTERE sortent de petAvatarSignature.
+//   Mesure du 20/08 : changer un trait declenchait une regeneration complete de l'avatar, alors
+//   qu'AUCUN trait n'entre dans un prompt, ni a la creation ni a l'edition. Verifie sur les deux
+//   constructeurs : les seules occurrences du mot "traits" y sont "no masculine traits" et
+//   "physical traits", sans rapport. Le prompt produit apres un changement de trait etait donc
+//   strictement identique au precedent : une generation Gemini image depensee pour rien.
+//   Le champ « Autre » et les traits personnalises restent INCHANGES dans le formulaire et en
+//   base : seul leur pouvoir de declencher une regeneration disparait. Si un parent y ecrit
+//   quelque chose de physique, ce texte n'entrait de toute facon dans aucun prompt.
+//   `phys` et `noPhys` restent dans la signature : ils sont extraits de customTraits mais
+//   decrivent bien l'apparence, et ils pilotent la decision keep_coat cote back.
 // Changelog v3.4 : DEUX ajouts, lots E1 et E2.
 //   (1) E2 — envoie previous_avatar_fields au webhook edit-avatar-mcf, à côté des
 //       previous_type / previous_breed / previous_birth_date déjà présents. C'est la chaîne
@@ -75,7 +86,8 @@ function petAvatarSignature(p: PetData | null): string {
     type: finalType,
     breed: (p?.breed || '').trim(),
     birth: p?.birthMonthYear || '',
-    traits: [...(p?.traits || [])].sort(),
+    // v3.5 : `traits` retire — aucun trait de caractere n'entre dans un prompt, les garder ici
+    // faisait payer une generation d'image a chaque changement d'humeur declaree.
     phys,
     noPhys,
     clothing: (p?.clothingStyle || '').trim(),
