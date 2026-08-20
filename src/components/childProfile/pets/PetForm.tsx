@@ -1,4 +1,28 @@
-// PetForm v1.7
+// PetForm v1.8
+// Changelog v1.8 :
+//   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX.
+//   Les details physiques d'un animal vivaient a DEUX endroits : pets.physical_details (sur
+//   l'animal) et child_pets.traits_custom -> physicalDetails (sur la RELATION enfant-animal).
+//   Trois chemins d'ecriture divergents : le wizard ecrivait dans les DEUX, AjouterAnimal et
+//   ModifierAnimal dans child_pets SEULEMENT. Un animal cree par le wizard voyait donc sa valeur
+//   sur pets figee a jamais, pendant que child_pets evoluait. C'est ce qui a produit le
+//   « Poil blanc » invisible dans le formulaire mais actif dans tous les prompts d'edition.
+//   Second defaut : stockees sur la relation, ces donnees etaient DUPLIQUEES autant de fois que
+//   l'animal avait d'enfants lies, sans rien pour garantir qu'elles restent egales.
+//   CIBLE : pets.physical_details devient la source unique, comme family_members.physical_details
+//   l'est deja pour les proches et child_profiles.physical_details pour les enfants.
+//   child_pets.traits_custom ne garde que les traits de CARACTERE, son role legitime.
+//   CONVENTION : le flag noPhysicalDetails n'est plus persiste. Un tableau VIDE veut dire
+//   « aucun detail ». La case du formulaire reste, elle est simplement deduite a l'affichage.
+//   Les anciennes cles physicalDetails / noPhysicalDetails restent en base, inertes : elles ne
+//   sont plus ni lues ni ecrites. Nettoyage decide separement.
+//   CORRIGE AUSSI UN BUG DE CONTRADICTION INTERNE. L'initialisation du state ne retirait que
+//   physicalDetails de customTraits (const { physicalDetails, ...rest }), alors que la
+//   restauration ulterieure retirait bien les DEUX cles. Le flag noPhysicalDetails survivait
+//   donc dans le state initial et repartait en base a cote du detail fraichement saisi : un
+//   meme objet contenait physicalDetails ET noPhysicalDetails: true. Mesure du 20/08 :
+//   2 animaux (L'idiot, Perro) dans cet etat. Le probleme disparait par construction ici,
+//   puisque les details ne transitent plus par customTraits.
 // Changelog v1.7 : nouveau champ « Porte-t-il un accessoire ou un vêtement ? » (lot E1).
 //   Texte libre facultatif, placé entre les détails physiques et les traits de caractère.
 //   Motif : la colonne pets.clothing_style existe et le back sait l'exploiter (il adapte
@@ -69,23 +93,29 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   const [otherType, setOtherType] = useState(pet?.otherType || '');
   const [birthMonthYear, setBirthMonthYear] = useState(pet?.birthMonthYear || '');
   const [breed, setBreed] = useState(pet?.breed || '');
+  // v1.8 : les details viennent desormais de PetData.physicalDetails (alimente par
+  // pets.physical_details), plus de customTraits.
   const [petPhysicalDetails, setPetPhysicalDetails] = useState<string[]>(() => {
-    const details = pet?.customTraits?.physicalDetails;
-    if (Array.isArray(details)) return details;
+    const details = pet?.physicalDetails;
+    if (Array.isArray(details)) return details.filter((d) => d && d.trim() !== '');
     return [];
   });
+  // v1.8 : le flag n'est plus persiste, il est DEDUIT. Une fiche existante sans aucun detail
+  // ne peut avoir ete enregistree que via la case « aucun detail », la validation l'exige.
+  // Une NOUVELLE fiche (pet undefined) demarre au contraire case decochee.
   const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(() => {
-    // Charger le flag depuis les customTraits si présent
-    const customTraitsAny = pet?.customTraits as any;
-    return customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true';
+    if (!pet) return false;
+    const details = pet?.physicalDetails;
+    return !Array.isArray(details) || details.filter((d) => d && d.trim() !== '').length === 0;
   });
   // v1.7 : accessoire ou vêtement de l'animal, texte libre facultatif
   const [clothingStyle, setClothingStyle] = useState(pet?.clothingStyle || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string | string[] | boolean>>(() => {
     if (!pet?.customTraits) return {};
-    // Filtrer physicalDetails qui sera géré séparément
-    const { physicalDetails, ...rest } = pet.customTraits;
+    // v1.8 : on retire les DEUX cles heritees. L'ancienne version ne retirait que
+    // physicalDetails, laissant noPhysicalDetails repartir en base a cote d'un detail saisi.
+    const { physicalDetails, noPhysicalDetails, ...rest } = pet.customTraits as any;
     return rest;
   });
   
@@ -144,17 +174,12 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       setClothingStyle(pet.clothingStyle || ''); // v1.7
       setSelectedTraits(pet.traits || []);
       
-      // Restaurer petPhysicalDetails
-      const details = pet.customTraits?.physicalDetails;
-      if (Array.isArray(details)) {
-        setPetPhysicalDetails(details);
-      } else {
-        setPetPhysicalDetails([]);
-      }
-      
-      // Restaurer noPhysicalDetails
-      const customTraitsAny = pet.customTraits as any;
-      setNoPhysicalDetails(customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true');
+      // v1.8 : restauration depuis PetData.physicalDetails, et flag deduit du vide.
+      const details = Array.isArray(pet.physicalDetails)
+        ? pet.physicalDetails.filter((d) => d && d.trim() !== '')
+        : [];
+      setPetPhysicalDetails(details);
+      setNoPhysicalDetails(details.length === 0);
       
       // Restaurer customTraits (sans physicalDetails)
       if (pet.customTraits) {
@@ -243,14 +268,14 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   };
 
   const getPetData = (): PetData => {
-    // Ne sauvegarder que l'un ou l'autre, jamais les deux
+    // v1.8 : customTraits ne porte plus QUE les traits de caractere personnalises.
+    // Les details physiques sortent dans PetData.physicalDetails, vers pets.physical_details.
     const mergedCustomTraits = { ...customTraits };
-    
-    if (noPhysicalDetails) {
-      mergedCustomTraits.noPhysicalDetails = true;
-    } else if (petPhysicalDetails.length > 0 && petPhysicalDetails.some(d => d.trim() !== '')) {
-      mergedCustomTraits.physicalDetails = petPhysicalDetails;
-    }
+
+    // Tableau vide = aucun detail. La case du formulaire n'est plus persistee.
+    const physicalDetailsFinal = noPhysicalDetails
+      ? []
+      : petPhysicalDetails.filter((d) => d && d.trim() !== '');
 
     const petData = {
       id: pet?.id || Date.now().toString(),
@@ -261,6 +286,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       birthMonthYear: birthMonthYear || undefined,
       breed: breed.trim() || undefined,
       clothingStyle: clothingStyle.trim() || undefined, // v1.7
+      physicalDetails: physicalDetailsFinal, // v1.8 — toujours un tableau, jamais undefined
       traits: selectedTraits,
       customTraits: Object.keys(mergedCustomTraits).length > 0 ? mergedCustomTraits : undefined,
     };
@@ -345,7 +371,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     const champsLibres = checkFreeTextFields({
       'la race': newPet.breed,
       "le type d'animal": newPet.otherType,
-      'les détails physiques': ((newPet.customTraits as any)?.physicalDetails ?? []) as string[],
+      'les détails physiques': (newPet.physicalDetails ?? []) as string[], // v1.8
       "l'accessoire ou le vêtement": newPet.clothingStyle,
       'les traits de caractère': Object.values(newPet.customTraits || {})
         .filter((v) => typeof v === 'string') as string[],
