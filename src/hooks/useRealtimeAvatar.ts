@@ -1,3 +1,39 @@
+// useRealtimeAvatar v2.4
+// Changelog v2.4 — LE SHIMMER « Création… » NE PEUT PLUS RESTER BLOQUÉ.
+//   SYMPTÔME (reproduit le 20/08 sur Delphine, deux fois) : le workflow se termine, la base
+//   contient la nouvelle URL et avatar_status = 'ready', mais la carte reste sur « Création… ».
+//   Rafraîchir la page n'y change rien. L'affichage se débloque tout seul au bout de 5 minutes,
+//   ou dès qu'on relance une modification.
+//   CAUSE. Deux marqueurs client survivent 5 minutes : le signal sessionStorage et le flag
+//   localStorage. La v2.3 avait déjà borné le second à 20 secondes de fraîcheur, mais PAS le
+//   premier : consumeAvatarRegeneration renvoie true pendant 5 minutes et, malgré son nom, ne
+//   supprime pas la clé. Au REMONTAGE du composant (retour sur la liste après avoir consulté une
+//   fiche), la RULE 1 relit ce signal, repose isRegenerating à true et force avatarStatus à
+//   'pending'.
+//   Or plus rien ne peut alors lever le shimmer : applyNewUrl exige un CHANGEMENT d'URL, et
+//   l'URL est déjà à jour puisque l'avatar est arrivé avant le remontage. Ni le realtime ni le
+//   polling ne voient de transition. Le shimmer attend l'expiration des 5 minutes.
+//   C'est pour cela que le bug ne se voit qu'en faisant des allers-retours entre la fiche et la
+//   liste pendant la génération, et qu'il résiste au rechargement : sessionStorage y survit.
+//   CORRECTIF, en deux points.
+//   (a) LA BASE FAIT AUTORITÉ. Si elle annonce 'ready' ET qu'une URL est présente, aucune trace
+//       client ne peut imposer le shimmer. Le cas devient impossible par construction, quelle
+//       que soit la raison pour laquelle un marqueur traînait.
+//   (b) SAUF PENDANT LA FENÊTRE DE FRAÎCHEUR. Juste après un clic, la base annonce encore
+//       'ready' une seconde ou deux, le temps que 1A_Mark_Avatar_Pending écrive 'pending'.
+//       Pendant ces 20 secondes, la demande locale continue de faire foi, sinon le shimmer ne
+//       s'afficherait pas du tout au moment où le parent en a besoin.
+//       startRegeneration horodate désormais la demande, ce qu'il ne faisait pas : sans cela la
+//       fenêtre de fraîcheur restait vide sur ce chemin.
+//   (c) LA RULE 1 NE FORCE PLUS 'pending' SUR UN SIGNAL PÉRIMÉ. C'est la racine : au remontage,
+//       elle entrait dans sa branche sur le seul signal sessionStorage, vieux de trois minutes,
+//       et écrasait optimistement le statut réel par 'pending'. Elle exige désormais que le flag
+//       localStorage, quand il existe, soit lui aussi dans la fenêtre de 20 secondes. Un flag
+//       présent mais ancien vaut preuve que la demande est terminée, et non l'inverse.
+//   NON MODIFIÉ volontairement : consumeAvatarRegeneration ne supprime toujours pas sa clé. Un
+//   même proche peut apparaître sur PLUSIEURS cartes (Delphine est liée à cinq enfants) ; une
+//   consommation réellement unique priverait les autres cartes du signal. Le correctif (a) rend
+//   cette suppression inutile.
 // useRealtimeAvatar v2.3
 // Changelog v2.3 — LE DRAPEAU PÉRIMÉ NE FAIT PLUS REVENIR « Création… ».
 //   Le drapeau localStorage vit 5 minutes. En revenant sur la liste après avoir
@@ -175,7 +211,14 @@ export function useRealtimeAvatar({
     const demandeRecente =
       demandeDepuis !== null && Date.now() - demandeDepuis < FRAICHEUR_DEMANDE_MS;
 
-    if (signalEphemere || demandeRecente) {
+    // v2.4 — un flag localStorage PRÉSENT mais ANCIEN prouve que la demande est terminée.
+    // Sans ce garde, le signal sessionStorage (vrai pendant 5 minutes) suffisait à rentrer
+    // dans la branche au remontage et à écraser le statut réel par 'pending' : le shimmer
+    // repartait pour cinq minutes alors que l'avatar était déjà arrivé.
+    const demandeAncienne =
+      demandeDepuis !== null && Date.now() - demandeDepuis >= FRAICHEUR_DEMANDE_MS;
+
+    if ((signalEphemere || demandeRecente) && !demandeAncienne) {
       demandeDepuisRef.current = demandeDepuis ?? Date.now();
       // Signal found → show shimmer (full if no URL, overlay if URL exists)
       setIsRegenerating(true);
@@ -281,6 +324,9 @@ export function useRealtimeAvatar({
 
   // ─── RULE 2: startRegeneration — spinner stays indefinitely ───
   const startRegeneration = useCallback(() => {
+    // v2.4 : on horodate la demande. Sans ça, demandeEstRecente() restait faux sur ce chemin
+    // et la fenêtre de fraîcheur du calcul de `regenerating` ne s'ouvrait jamais.
+    demandeDepuisRef.current = Date.now();
     setIsRegenerating(true);
     if (id) signalAvatarRegeneration(id);
   }, [id]);
@@ -419,7 +465,16 @@ export function useRealtimeAvatar({
   // Un échec ferme la parenthèse : on ne montre plus « Création… » sur un avatar
   // dont on sait qu'il n'arrivera pas.
   const hasFailed = avatarStatus === 'failed';
-  const regenerating = !hasFailed && (isRegenerating || avatarStatus === 'pending');
+
+  // v2.4 — LA BASE FAIT AUTORITÉ. 'ready' avec une URL présente est une fin de course : aucun
+  // marqueur client ne peut imposer le shimmer par-dessus. Seule exception, la fenêtre de
+  // fraîcheur : dans les 20 secondes qui suivent une demande, la base annonce encore 'ready'
+  // le temps que le workflow écrive 'pending', et la demande locale doit primer.
+  const baseDitPret = avatarStatus === 'ready' && !!avatarUrl;
+  const regenerating =
+    !hasFailed
+    && (!baseDitPret || demandeEstRecente())
+    && (isRegenerating || avatarStatus === 'pending');
 
   return {
     avatarUrl,
