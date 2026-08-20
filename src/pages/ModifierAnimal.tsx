@@ -1,4 +1,17 @@
-// ModifierAnimal v3.5
+// ModifierAnimal v3.6
+// Changelog v3.6 : LOT F3 — fin du double encodage des colonnes jsonb.
+//   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
+//   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
+//   produite par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine, et non un
+//   tableau : la base contenait "[\"Collier rouge\"]" la ou physical_details contenait proprement
+//   ["Poil blanc"]. Le client Supabase serialise deja, il faut lui donner la valeur NATIVE.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved est absent, SANS le deballer. Le livre recevait alors la
+//   chaine brute avec ses guillemets et ses antislashs.
+//   Les fonctions de LECTURE qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les
+//   lignes deja en base restent doublement encodees et doivent rester lisibles. On corrige
+//   l'ecriture, on ne casse pas la lecture.
+//   Corrige le clothing_style introduit en v3.4, qui reproduisait le defaut existant.
 // Changelog v3.5 : LOT F1 — les TRAITS DE CARACTERE sortent de petAvatarSignature.
 //   Mesure du 20/08 : changer un trait declenchait une regeneration complete de l'avatar, alors
 //   qu'AUCUN trait n'entre dans un prompt, ni a la creation ni a l'edition. Verifie sur les deux
@@ -327,8 +340,8 @@ const ModifierAnimal: React.FC = () => {
           breed: updatedPet.breed || null,
           // v3.4 : même format que les autres écrans, un tableau JSON à un élément
           clothing_style: updatedPet.clothingStyle
-            ? JSON.stringify([updatedPet.clothingStyle])
-            : JSON.stringify([]),
+            ? [updatedPet.clothingStyle]
+            : [],
           ...statusFields,
         })
         .eq('id', petId);
