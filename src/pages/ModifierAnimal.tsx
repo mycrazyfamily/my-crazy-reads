@@ -1,3 +1,15 @@
+// ModifierAnimal v3.4
+// Changelog v3.4 : envoie previous_avatar_fields au webhook edit-avatar-mcf, à côté des
+//   previous_type / previous_breed / previous_birth_date déjà présents. C'est la chaîne JSON
+//   produite par petAvatarSignature(petData), donc l'état d'origine complet : type, race,
+//   date de naissance, traits, détails physiques (phys) et flag noPhys.
+//   Objectif (3_Build_Edit_Prompt v6.1, lot E2) : le back compare ce snapshot aux valeurs
+//   relues en base après sauvegarde. Quand les détails physiques n'ont PAS changé, il cesse
+//   d'ordonner « IGNORE the skin color from the reference image » et demande au contraire de
+//   reproduire le pelage de l'image de référence. Sans ça, le pelage d'un animal repartait au
+//   hasard à chaque édition (un berger australien merle devenait blanc).
+//   Aucune autre logique modifiée : la fonction petAvatarSignature n'est pas touchée, et la
+//   condition avatarRelevantChanged qui décide d'appeler le webhook reste identique.
 // ModifierAnimal v3.3
 // Changelog v3.3 : envoie previous_type + previous_breed au webhook edit-avatar-mcf (à côté du
 //   previous_birth_date déjà présent). Objectif : permettre au back (3_Build_Edit_Prompt v4.1)
@@ -381,7 +393,11 @@ const ModifierAnimal: React.FC = () => {
               previous_type: petData?.type === 'other' && petData?.otherType
                 ? petData.otherType
                 : (petData?.type || null),
-              previous_breed: petData?.breed || null
+              previous_breed: petData?.breed || null,
+              // v3.4 : snapshot complet de l'état d'origine (chaîne JSON déjà calculée pour
+              // décider s'il faut régénérer). Permet au back de savoir CE QUI a changé, et de
+              // ne décrire que ça. petData est le snapshot d'origine, jamais muté dans handleSave.
+              previous_avatar_fields: petAvatarSignature(petData)
             })
           });
         } catch (webhookErr) {
