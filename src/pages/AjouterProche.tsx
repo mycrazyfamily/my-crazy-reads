@@ -1,3 +1,21 @@
+// AjouterProche v1.1
+// (la version d'origine ne portait pas de banniere, consideree v1.0)
+// Changelog v1.1 :
+//   LOT F3 — fin du double encodage des colonnes jsonb. physical_details et clothing_style, sur
+//   child_profiles, family_members et pets, sont toutes de type jsonb. Passer une CHAINE produite
+//   par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine et non un tableau :
+//   la base contenait "[\"Collier bleu\"]" au lieu de ["Collier bleu"]. Le client Supabase
+//   serialise deja, il faut lui donner la valeur NATIVE.
+//   ORIGINE : la migration 20251104184653 a converti ces colonnes de text vers jsonb. Le code
+//   etait CORRECT avant : on stockait une chaine dans une colonne texte. La migration l'a rendu
+//   faux sans rien casser visiblement, donc sans que personne le voie.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved manque, SANS le deballer : le livre recevait la chaine
+//   brute avec ses guillemets et ses antislashs.
+//   Les lectures qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les lignes deja
+//   en base restent doublement encodees et doivent rester lisibles.
+//   Deux ecritures corrigees ici : physical_details et clothing_style sur family_members.
+
 import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -225,13 +243,13 @@ export default function AjouterProche() {
           role: relativeData.type,
           avatar: null,
           physical_details: relativeData.noPhysicalDetails
-            ? JSON.stringify([""])
+            ? [""]
             : (relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
-              ? JSON.stringify(relativeData.physicalDetails) 
-              : JSON.stringify([])),
+              ? relativeData.physicalDetails 
+              : []),
           clothing_style: relativeData.clothingStyle 
-            ? JSON.stringify([relativeData.clothingStyle]) 
-            : JSON.stringify([]),
+            ? [relativeData.clothingStyle] 
+            : [],
           // Persist remaining relative profile for edit prefill
           details: {
             nickname: relativeData.nickname
