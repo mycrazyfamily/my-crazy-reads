@@ -1,4 +1,19 @@
-// CreateChildProfile v1.5
+// CreateChildProfile v1.6
+// Changelog v1.6 : LOT F3 — fin du double encodage des colonnes jsonb.
+//   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
+//   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
+//   produite par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine, et non un
+//   tableau : la base contenait "[\"Collier rouge\"]" la ou physical_details contenait proprement
+//   ["Poil blanc"]. Le client Supabase serialise deja, il faut lui donner la valeur NATIVE.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved est absent, SANS le deballer. Le livre recevait alors la
+//   chaine brute avec ses guillemets et ses antislashs.
+//   Les fonctions de LECTURE qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les
+//   lignes deja en base restent doublement encodees et doivent rester lisibles. On corrige
+//   l'ecriture, on ne casse pas la lecture.
+//   Ici UNE seule ligne etait fautive : physical_details etait deja passe en tableau natif,
+//   deux lignes au-dessus, clothing_style non. Les deux formes coexistaient dans le meme objet
+//   update, ce qui confirme que le natif est la forme correcte.
 // Changelog v1.5 (AFFICHAGE UNIQUEMENT — remplace l'approche v1.4 jugée fragile) :
 //   Le haut (statut + avatar) est révélé via un flag LOCAL topReady : on précharge l'image de
 //   l'avatar et on ne l'affiche que lorsqu'elle est réellement prête (ou pas d'avatar, ou timeout
@@ -302,8 +317,8 @@ const CreateChildProfile = ({
                 ? data.physicalDetails 
                 : []),
             clothing_style: data.clothingStyle 
-              ? JSON.stringify([data.clothingStyle]) 
-              : JSON.stringify([]),
+              ? [data.clothingStyle] 
+              : [],
             updated_at: new Date().toISOString()
           })
           .eq('id', editChildId);
