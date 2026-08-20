@@ -1,4 +1,20 @@
-// useChildProfileSubmit v2.0
+// useChildProfileSubmit v2.1
+// Changelog v2.1 :
+//   LOT F3 — fin du double encodage des colonnes jsonb. physical_details et clothing_style, sur
+//   child_profiles, family_members et pets, sont toutes de type jsonb. Passer une CHAINE produite
+//   par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine et non un tableau :
+//   la base contenait "[\"Collier bleu\"]" au lieu de ["Collier bleu"]. Le client Supabase
+//   serialise deja, il faut lui donner la valeur NATIVE.
+//   ORIGINE : la migration 20251104184653 a converti ces colonnes de text vers jsonb. Le code
+//   etait CORRECT avant : on stockait une chaine dans une colonne texte. La migration l'a rendu
+//   faux sans rien casser visiblement, donc sans que personne le voie.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved manque, SANS le deballer : le livre recevait la chaine
+//   brute avec ses guillemets et ses antislashs.
+//   Les lectures qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les lignes deja
+//   en base restent doublement encodees et doivent rester lisibles.
+//   TROIS ecritures corrigees ici, une par table : family_members (les proches du wizard),
+//   child_profiles (l'enfant) et pets (les animaux du wizard).
 // Changelog v2.0 — BLOCKLIST SUR TOUT LE WIZARD.
 //   Ce hook n'enregistrait aucun contrôle de contenu, alors qu'il crée d'un seul
 //   coup l'enfant, ses proches, ses animaux, ses doudous et ses lieux. Les écrans
@@ -274,13 +290,13 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             role: relative.type,
             avatar: '👤',
             physical_details: relative.noPhysicalDetails
-              ? JSON.stringify([""])
+              ? [""]
               : (relative.physicalDetails && relative.physicalDetails.length > 0 
-                ? JSON.stringify(relative.physicalDetails) 
-                : JSON.stringify([])),
+                ? relative.physicalDetails 
+                : []),
             clothing_style: relative.clothingStyle 
-              ? JSON.stringify([relative.clothingStyle]) 
-              : JSON.stringify([]),
+              ? [relative.clothingStyle] 
+              : [],
             // Persist remaining profile data for edit prefill
             details: {
               nickname: relative.nickname
@@ -354,11 +370,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
                 glasses: data.glasses
               },
               physical_details: data.physicalDetails && data.physicalDetails.length > 0 
-                ? JSON.stringify(data.physicalDetails) 
-                : JSON.stringify([]),
+                ? data.physicalDetails 
+                : [],
               clothing_style: data.clothingStyle 
-                ? JSON.stringify([data.clothingStyle]) 
-                : JSON.stringify([]),
+                ? [data.clothingStyle] 
+                : [],
               has_pet: data.pets?.hasPets || false
             }
           ])
@@ -625,8 +641,8 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               type: pet.type || pet.otherType || 'autre',
               breed: pet.breed || null,
               physical_details: (pet.customTraits?.physicalDetails && Array.isArray(pet.customTraits.physicalDetails) && pet.customTraits.physicalDetails.length > 0)
-                ? JSON.stringify(pet.customTraits.physicalDetails) 
-                : JSON.stringify([]),
+                ? pet.customTraits.physicalDetails 
+                : [],
               emoji: null
             };
           });
