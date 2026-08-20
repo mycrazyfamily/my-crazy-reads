@@ -1,4 +1,24 @@
-// CreateChildProfile v1.6
+// CreateChildProfile v1.7
+// Changelog v1.7 :
+//   LOT E, ETAPE 4 — envoie previous_avatar_fields au webhook edit-avatar-mcf, a cote de
+//   previous_birth_date deja present. C'est la chaine JSON deja calculee par
+//   initialAvatarSigRef pour decider s'il faut regenerer : l'etat d'origine complet, avant
+//   modification. Aucun nouveau calcul, la valeur existe deja au moment de l'appel.
+//   POURQUOI. Le node 3_Build_Edit_Prompt disait « Wear the NEW clothing » de facon
+//   INCONDITIONNELLE a chaque edition, meme quand le parent n'avait pas touche a la tenue.
+//   Combine au label brut ("Boheme nature", deux mots depuis le fix v3.2 du node, au lieu de la
+//   description detaillee d'avant), cela faisait REINVENTER la tenue a chaque fois : changer une
+//   couleur d'yeux suffisait a remplacer une blouse et une jupe par une robe.
+//   Avec ce champ, le node compare l'etat d'origine aux valeurs relues en base apres sauvegarde.
+//   Tenue inchangee => il renvoie a l'image de reference sans aucune description, donc zero
+//   derive. Tenue changee => comportement actuel conserve.
+//   GARDE DE SURETE cote n8n : si le champ est absent, le node se comporte exactement comme
+//   avant. Le front et le back peuvent donc etre deployes dans n'importe quel ordre.
+//   Deja en place sur ModifierAnimal v3.4, valide en production le 20/08.
+//   PARTICULARITE DE CET ECRAN : childAvatarSig ne porte PAS de cle noPhys, contrairement a
+//   relativeAvatarSignature. Sans consequence : le node ne lit que les cles `clothing` et
+//   `phys`, et une cle absente est traitee comme une absence de changement, pas comme un
+//   changement. C'est le comportement voulu par le garde de surete.
 // Changelog v1.6 : LOT F3 — fin du double encodage des colonnes jsonb.
 //   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
 //   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
@@ -724,7 +744,10 @@ const CreateChildProfile = ({
                 profile_id: editChildId,
                 type: 'child',
                 current_avatar_url: childRow?.avatar_url || null,
-                previous_birth_date: originalBirthDate
+                previous_birth_date: originalBirthDate,
+                // v1.7 : snapshot de l'etat d'origine, deja calcule pour decider s'il faut
+                // regenerer. Permet au back de savoir CE QUI a change et de ne decrire que ca.
+                previous_avatar_fields: initialAvatarSigRef.current
               })
             });
           } catch (webhookErr) {
