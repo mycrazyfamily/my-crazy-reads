@@ -1,3 +1,15 @@
+// PetForm v1.7
+// Changelog v1.7 : nouveau champ « Porte-t-il un accessoire ou un vêtement ? » (lot E1).
+//   Texte libre facultatif, placé entre les détails physiques et les traits de caractère.
+//   Motif : la colonne pets.clothing_style existe et le back sait l'exploiter (il adapte
+//   même la pose de l'animal quand il est habillé), mais AUCUN écran ne permettait de la
+//   remplir. Les parents mettaient donc « tshirt blanc » dans les détails physiques, ce qui
+//   produisait un prompt contradictoire : « NO CLOTHING: This animal wears NO clothes »
+//   d'un côté, un t-shirt réclamé de l'autre.
+//   Le champ alimente PetData.clothingStyle, qui existait déjà dans les types.
+//   Ajouté aussi à la blocklist des champs libres et aux dépendances du useEffect
+//   onDataChange, sans quoi une saisie ne remonterait pas au parent.
+//   Facultatif par choix : un champ vide veut dire un animal sans accessoire, cas normal.
 // PetForm v1.6
 // Changelog v1.6 : blocklist sur le nom et les champs libres (race, type d'animal,
 //   détails physiques, traits) au moment de valider la fiche. Posée ICI plutôt que
@@ -67,6 +79,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     const customTraitsAny = pet?.customTraits as any;
     return customTraitsAny?.noPhysicalDetails === true || customTraitsAny?.noPhysicalDetails === 'true';
   });
+  // v1.7 : accessoire ou vêtement de l'animal, texte libre facultatif
+  const [clothingStyle, setClothingStyle] = useState(pet?.clothingStyle || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
   const [customTraits, setCustomTraits] = useState<Record<string, string | string[] | boolean>>(() => {
     if (!pet?.customTraits) return {};
@@ -127,6 +141,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       setOtherType(pet.otherType || '');
       setBirthMonthYear(pet.birthMonthYear || '');
       setBreed(pet.breed || '');
+      setClothingStyle(pet.clothingStyle || ''); // v1.7
       setSelectedTraits(pet.traits || []);
       
       // Restaurer petPhysicalDetails
@@ -245,6 +260,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       otherType: type === 'other' ? otherType.trim() : undefined,
       birthMonthYear: birthMonthYear || undefined,
       breed: breed.trim() || undefined,
+      clothingStyle: clothingStyle.trim() || undefined, // v1.7
       traits: selectedTraits,
       customTraits: Object.keys(mergedCustomTraits).length > 0 ? mergedCustomTraits : undefined,
     };
@@ -330,6 +346,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       'la race': newPet.breed,
       "le type d'animal": newPet.otherType,
       'les détails physiques': ((newPet.customTraits as any)?.physicalDetails ?? []) as string[],
+      "l'accessoire ou le vêtement": newPet.clothingStyle,
       'les traits de caractère': Object.values(newPet.customTraits || {})
         .filter((v) => typeof v === 'string') as string[],
     });
@@ -347,7 +364,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       const petData = getPetData();
       onDataChange(petData);
     }
-  }, [name, type, gender, otherType, birthMonthYear, breed, petPhysicalDetails, noPhysicalDetails, selectedTraits, customTraits]);
+  }, [name, type, gender, otherType, birthMonthYear, breed, clothingStyle, petPhysicalDetails, noPhysicalDetails, selectedTraits, customTraits]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -463,6 +480,21 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         noDetailsValue={noPhysicalDetails}
         petType={type}
       />
+
+      {/* v1.7 — Accessoire ou vêtement de l'animal (facultatif) */}
+      <div className="space-y-3">
+        <Label htmlFor="petClothingStyle" className="text-base font-medium block">
+          Porte-t-il un accessoire ou un vêtement ?{' '}
+          <span className="text-xs text-gray-500">(facultatif)</span>
+        </Label>
+        <Input
+          id="petClothingStyle"
+          value={clothingStyle}
+          onChange={(e) => setClothingStyle(e.target.value)}
+          placeholder="collier rouge"
+          className="text-base"
+        />
+      </div>
 
       {/* Traits de caractère */}
       <div className="space-y-3">
