@@ -1,4 +1,17 @@
-// AjouterAnimal v2.1
+// AjouterAnimal v2.2
+// Changelog v2.2 : LOT F3 — fin du double encodage des colonnes jsonb.
+//   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
+//   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
+//   produite par JSON.stringify fait stocker a Postgres une valeur JSON de type chaine, et non un
+//   tableau : la base contenait "[\"Collier rouge\"]" la ou physical_details contenait proprement
+//   ["Poil blanc"]. Le client Supabase serialise deja, il faut lui donner la valeur NATIVE.
+//   Consequence mesuree : 4D2_Enrich_Context du Book Factory utilise clothing_style en fallback
+//   direct quand clothing_style_resolved est absent, SANS le deballer. Le livre recevait alors la
+//   chaine brute avec ses guillemets et ses antislashs.
+//   Les fonctions de LECTURE qui deballent jusqu'a 3 niveaux sont volontairement CONSERVEES : les
+//   lignes deja en base restent doublement encodees et doivent rester lisibles. On corrige
+//   l'ecriture, on ne casse pas la lecture.
+//   Corrige le clothing_style introduit en v2.1, qui reproduisait le defaut existant.
 // Changelog v2.1 : persiste le nouveau champ « accessoire ou vêtement » (PetForm v1.7) dans
 //   pets.clothing_style à la création, au même format JSON tableau que les autres écrans.
 //   Sans ça le champ s'affichait à la création mais la saisie était perdue en silence.
@@ -229,8 +242,8 @@ export default function AjouterAnimal() {
           breed: petData.breed || null,
           // v2.1 : même format que les autres écrans, un tableau JSON à un élément
           clothing_style: petData.clothingStyle
-            ? JSON.stringify([petData.clothingStyle])
-            : JSON.stringify([]),
+            ? [petData.clothingStyle]
+            : [],
           emoji: null,
           family_id: familyId
         })
