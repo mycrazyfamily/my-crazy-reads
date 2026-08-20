@@ -1,4 +1,13 @@
-// AjouterAnimal v2.2
+// AjouterAnimal v2.3
+// Changelog v2.3 :
+//   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX. pets.physical_details devient la
+//   seule source, comme family_members.physical_details l'est deja pour les proches. Les details
+//   ne transitent plus par child_pets.traits_custom, qui ne garde que les traits de CARACTERE.
+//   Motif : trois chemins d'ecriture divergents laissaient les deux sources se desynchroniser,
+//   et les donnees etaient dupliquees sur chaque lien enfant. Convention : tableau VIDE = aucun
+//   detail, le flag noPhysicalDetails n'est plus persiste.
+//   Cet ecran n'ecrivait PAS pets.physical_details du tout : un animal cree ici naissait sans
+//   aucun detail cote pets, et le chemin creation du Book Factory n'en voyait jamais.
 // Changelog v2.2 : LOT F3 — fin du double encodage des colonnes jsonb.
 //   Les colonnes physical_details et clothing_style, sur child_profiles, family_members et pets,
 //   sont toutes de type jsonb (verifie sur information_schema le 20/08). Passer une CHAINE
@@ -125,7 +134,7 @@ export default function AjouterAnimal() {
         return;
       }
       const champsLibres = checkFreeTextFields({
-        'les détails physiques': ((petData.customTraits as any)?.physicalDetails ?? []) as string[],
+        'les détails physiques': (petData.physicalDetails ?? []) as string[], // v2.3
         'la race': petData.breed,
         "le type d'animal": petData.otherType,
         "l'accessoire ou le vêtement": petData.clothingStyle,
@@ -244,6 +253,10 @@ export default function AjouterAnimal() {
           clothing_style: petData.clothingStyle
             ? [petData.clothingStyle]
             : [],
+          // v2.3 : source unique. Tableau vide = aucun detail physique.
+          physical_details: Array.isArray(petData.physicalDetails)
+            ? petData.physicalDetails.filter((d) => d && d.trim() !== '')
+            : [],
           emoji: null,
           family_id: familyId
         })
@@ -259,7 +272,13 @@ export default function AjouterAnimal() {
         name: splitCamelCase(petData.name),
         birth_month_year: petData.birthMonthYear || null,
         traits: petData.traits?.join(', ') || null,
-        traits_custom: petData.customTraits && typeof petData.customTraits === 'object' ? petData.customTraits : null,
+        // v2.3 : plus de details physiques ici, uniquement les traits de caractere.
+        traits_custom: (() => {
+          const ct: any = petData.customTraits;
+          if (!ct || typeof ct !== 'object') return null;
+          const { physicalDetails, noPhysicalDetails, ...rest } = ct;
+          return Object.keys(rest).length > 0 ? rest : null;
+        })(),
         relation_label: finalType,
         race: petData.breed || null
       }));
