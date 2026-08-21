@@ -1,3 +1,22 @@
+// ModifierProche v1.7
+// Changelog v1.7 :
+//   `role` SORT de relativeAvatarSignature. Mesure du 21/08 : passer un proche de pere a oncle
+//   declenchait une generation d'image complete. Le rendu etait visuellement identique, ce qui est
+//   attendu, mais l'appel n'aurait jamais du partir.
+//   POURQUOI CE CHAMP N'A RIEN A FAIRE DANS UNE SIGNATURE D'APPARENCE. Le role ne decrit pas un
+//   physique, il decrit un lien de parente. Mere vers tante, grand-mere vers mere, pere vers oncle :
+//   ni le genre ni l'age ne bougent (l'age vient de birthDate), donc le physique en base reste
+//   exact. Cote n8n, le role n'apparait que comme etiquette entre parentheses dans la description du
+//   node d'edition, « a woman character (mother) », et 3_Build_Master_Prompt ne le lit meme pas.
+//   Le garder faisait payer une generation d'image, donc du temps et du cout Gemini, a chaque
+//   correction de lien de parente. C'est la meme raison qui avait fait sortir `traits` en v1.4.
+//   CE QUI RESTE COUVERT. `gender` demeure dans la signature : pere vers mere continue de declencher,
+//   et 3_Build_Edit_Prompt v6.8 y leve bodyOverride pour redessiner le personnage au bon genre. Les
+//   ecrans basculent souvent role et genre ensemble, mais c'est le genre qui porte la decision.
+//   AUCUN IMPACT AILLEURS. Le role reste ecrit en base et reste envoye au workflow : seule la
+//   DETECTION de changement cesse de le prendre en compte. Un proche dont on corrige le lien garde
+//   son avatar existant, et la prochaine generation, quelle qu'en soit la cause, utilisera le
+//   nouveau role dans sa description.
 // ModifierProche v1.6
 // Changelog v1.6 :
 //   LOT E, ETAPE 3 — envoie previous_avatar_fields au webhook edit-avatar-mcf, a cote de
@@ -119,11 +138,13 @@ function ymd(d: any): string {
  * Sert à n'appeler MCF_Avatar_Factory que si l'apparence a réellement changé —
  * pas pour un simple changement de statut (décès) ni de liens / brouille enfants.
  * Le nom, le surnom et l'âge textuel sont volontairement EXCLUS (non visuels / dérivés).
+ * Le RÔLE aussi depuis v1.7 : c'est un lien de parenté, pas un physique.
  */
 function relativeAvatarSignature(i: any): string {
   const phys = i?.noPhysicalDetails ? [] : normalizePhysList(i?.physicalDetails);
   return JSON.stringify({
-    role: i?.role || '',
+    // v1.7 : `role` retire. Un lien de parente n'est pas un trait physique : le changer ne doit
+    // pas declencher de generation. `gender` reste, c'est lui qui porte la decision visuelle.
     gender: i?.gender || '',
     skin: [i?.skinColorType || '', (i?.skinColorCustom || '').trim()],
     eye: [i?.eyeColorType || '', (i?.eyeColorCustom || '').trim()],
