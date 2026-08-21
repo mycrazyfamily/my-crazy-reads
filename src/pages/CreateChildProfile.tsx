@@ -1,3 +1,28 @@
+// CreateChildProfile v1.8
+// Changelog v1.8 :
+//   SUJET 1 — `gender` entre dans childAvatarSig. Mesure du 21/08 : changer le sexe d'un enfant
+//   ne declenchait AUCUNE execution du workflow avatar. Cause : la signature d'apparence ne
+//   portait pas ce champ, donc currentAvatarSig restait egal a initialAvatarSigRef et le webhook
+//   n'etait jamais appele. Aucune correction cote n8n ne pouvait y changer quoi que ce soit :
+//   l'appel ne partait pas.
+//   TROIS ENDROITS, indissociables. Les oublier separement produirait un faux positif permanent
+//   ou un faux negatif silencieux :
+//     (1) la fonction childAvatarSig elle-meme ;
+//     (2) le calcul de la signature INITIALE, au chargement du profil en mode edition. Le SELECT
+//         ne ramenait pas `gender` : sans l'ajouter, la signature initiale porterait toujours ""
+//         et la signature courante la vraie valeur, donc un changement detecte a CHAQUE edition ;
+//     (3) le calcul de la signature COURANTE, au moment de la sauvegarde.
+//   COTE n8n. 3_Build_Edit_Prompt v6.8 leve bodyOverride des que `gender` change, ce qui bascule
+//   vers 3_Build_Master_Prompt : le personnage est redessine sans image de reference, mais la note
+//   de continuite conserve couleur de cheveux, couleur des yeux, teinte de peau et marqueurs
+//   d'identite. Le visage change, ce qui est l'effet recherche : corriger le sexe est une
+//   correction d'erreur de saisie.
+//   AUCUN DEFAUT APPLIQUE sur gender, volontairement. Le node v6.8 lit `child.gender || ''` cote
+//   enfant : les deux cotes doivent normaliser une valeur absente de la meme facon, sinon la
+//   comparaison en base declencherait un redessin sur des fiches ou rien n'a change.
+//   ORDRE DE DEPLOIEMENT LIBRE. Le node teste la PRESENCE de la cle avant de comparer : un
+//   snapshot emis par cette version sur un node v6.7 est simplement ignore, et un snapshot v1.7
+//   sur un node v6.8 ne declenche rien.
 // CreateChildProfile v1.7
 // Changelog v1.7 :
 //   LOT E, ETAPE 4 — envoie previous_avatar_fields au webhook edit-avatar-mcf, a cote de
@@ -131,9 +156,11 @@ function colorSig(c: any): [string, string] {
 function childAvatarSig(input: {
   skinColor: any; eyeColor: any; hairColor: any;
   hairType: any; hairTypeCustom: any; hairLength: any; glasses: any;
-  physicalDetails: any; clothingStyle: any; birthDate: any;
+  physicalDetails: any; clothingStyle: any; birthDate: any; gender?: any;
 }): string {
   return JSON.stringify({
+    // v1.8 : pas de valeur par defaut, le node v6.8 normalise une absence de la meme facon.
+    gender: String(input.gender ?? ''),
     skin: colorSig(input.skinColor),
     eye: colorSig(input.eyeColor),
     hairColor: colorSig(input.hairColor),
@@ -201,12 +228,13 @@ const CreateChildProfile = ({
         const { supabase } = await import('@/integrations/supabase/client');
         const { data } = await supabase
           .from('child_profiles')
-          .select('birth_date, appearance, physical_details, clothing_style, first_name, is_deceased, avatar_url, family_id')
+          .select('birth_date, gender, appearance, physical_details, clothing_style, first_name, is_deceased, avatar_url, family_id')
           .eq('id', editChildId)
           .maybeSingle();
         setOriginalBirthDate(data?.birth_date || null);
         const ap: any = (data?.appearance as any) || {};
         initialAvatarSigRef.current = childAvatarSig({
+          gender: data?.gender,   // v1.8
           skinColor: ap.skinColor,
           eyeColor: ap.eyeColor,
           hairColor: ap.hairColor,
@@ -714,6 +742,7 @@ const CreateChildProfile = ({
         // L'avatar n'est régénéré QUE si un champ d'apparence a réellement changé
         // (éditer goûts, doudous, lieux… ne doit PAS relancer la fabrique d'avatar).
         const currentAvatarSig = childAvatarSig({
+          gender: data.gender,   // v1.8
           skinColor: data.skinColor,
           eyeColor: data.eyeColor,
           hairColor: data.hairColor,
