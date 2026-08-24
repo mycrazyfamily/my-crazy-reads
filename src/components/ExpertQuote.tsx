@@ -1,3 +1,11 @@
+// ExpertQuote v1.6
+// Changelog v1.6 : le guillemet decoratif reapparait sur mobile.
+//   Il etait masque en v1.1 parce que la citation etait alors centree sur mobile : un
+//   guillemet accroche en absolute a gauche restait orphelin. Depuis la v1.3 la citation
+//   est alignee a gauche sur mobile, la raison du masquage a donc disparu.
+//   Mise en oeuvre : un seul element, deux comportements. Sur mobile il est dans le flux
+//   normal, aligne a gauche juste au-dessus du texte. Des md: il repasse en absolute a sa
+//   position d'origine. Desktop strictement inchange.
 // ExpertQuote v1.5
 // Changelog v1.5 (contenu, chantier B) : mise a jour du temoignage de Violaine Lallour.
 //   [1] Citation remplacee par le texte qu'elle a dicte. L'angle change : l'ancienne version
@@ -53,9 +61,9 @@ const ExpertQuote: React.FC = () => {
                 centre déjà), et aligné à gauche dès md: où la mise en page passe en 2 colonnes. */}
             <div className="flex-1 text-center md:text-left">
               <div className="relative">
-                {/* Guillemet décoratif — masqué sur mobile : accroché en absolute à gauche, il
-                    restait orphelin une fois le texte centré. Réapparaît dès md:. */}
-                <div className="hidden md:block absolute -top-4 -left-2 text-6xl text-mcf-secondary/30 font-serif leading-none">
+                {/* Guillemet décoratif : dans le flux et aligné à gauche sur mobile,
+                    en absolute à sa position d'origine dès md:. */}
+                <div className="block text-left text-5xl mb-1 md:mb-0 md:absolute md:-top-4 md:-left-2 md:text-6xl text-mcf-secondary/30 font-serif leading-none">
                   "
                 </div>
                 
