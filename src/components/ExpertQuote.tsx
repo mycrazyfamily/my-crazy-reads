@@ -1,3 +1,17 @@
+// ExpertQuote v1.5
+// Changelog v1.5 (contenu, chantier B) : mise a jour du temoignage de Violaine Lallour.
+//   [1] Citation remplacee par le texte qu'elle a dicte. L'angle change : l'ancienne version
+//       parlait de detourner les enfants des ecrans, la nouvelle parle du besoin de partage et
+//       d'echange, de l'imagination et de la confiance en soi. L'argument « ecrans » n'est pas
+//       perdu, il est deplace sur la page A propos ou il ouvre le recit.
+//   [2] Titre : « Psychologue pour enfants depuis 20 ans » devient « Psychologue clinicienne »,
+//       a sa demande. Les vingt ans d'experience ne disparaissent pas du site, ils sont portes
+//       par le recit de la page A propos sous forme descriptive et non sous forme de titre.
+//   [3] Attribut alt de la photo aligne sur le nouveau titre.
+//   [4] La photo violaine-lallour.webp est remplacee (512x512, 13 Ko, recadree carre sur le
+//       visage). L'import ne change pas, le nom de fichier est identique. L'ancienne version
+//       etait en 400x443 pour 48 Ko : le cadre circulaire rognait les cotes d'une photo en
+//       portrait, d'ou un visage decentre.
 // ExpertQuote v1.4
 // Changelog v1.4 (PERFORMANCE) : la photo de Violaine passe du PNG (737x816, 905 Ko) au WebP
 //   (400x443, 47 Ko) — 95% de moins. Elle s'affiche dans un cercle de 128px (mobile) à 160px
@@ -32,7 +46,7 @@ const ExpertQuote: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center md:items-start gap-5 md:gap-8">
             {/* Photo */}
             <div className="flex-shrink-0">
-              <img src={violainePhoto} alt="Violaine Lallour, Psychologue pour enfants" className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-md" loading="lazy" />
+              <img src={violainePhoto} alt="Violaine Lallour, psychologue clinicienne" className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-md" loading="lazy" />
             </div>
             
             {/* Citation — texte centré sur mobile pour s'aligner avec la photo (que `items-center`
@@ -46,13 +60,13 @@ const ExpertQuote: React.FC = () => {
                 </div>
                 
                 <blockquote className="relative pt-0 md:pt-4">
-                  <p className="text-base md:text-xl italic text-mcf-text/90 leading-relaxed mb-4 md:mb-6 text-left">Impliquer les proches dans la lecture est l'un des moyens les plus puissants pour détourner les enfants des écrans.
-Avec My Crazy Family, ils retrouvent leurs repères affectifs et s'identifient à des personnages familiers, ce qui stimule l'apprentissage et renforce la confiance en soi.</p>
+                  <p className="text-base md:text-xl italic text-mcf-text/90 leading-relaxed mb-4 md:mb-6 text-left">Lire avec son enfant nourrit ses besoins de partage et d'échange.
+Avec My Crazy Family, il retrouve ses repères affectifs et s'identifie à des personnages familiers, ce qui stimule son apprentissage, son imagination, et renforce sa confiance en soi.</p>
                   
                   <footer className="text-base md:text-lg font-semibold text-mcf-text">
                     <span className="text-mcf-secondary">Violaine Lallour</span>
                     <span className="block mt-1 text-mcf-text/70 font-normal">
-                      Psychologue pour enfants depuis 20 ans
+                      Psychologue clinicienne
                     </span>
                   </footer>
                 </blockquote>
