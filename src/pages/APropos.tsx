@@ -1,3 +1,12 @@
+// APropos.tsx v2.2
+// v2.2 : sous-titre, « mon meilleur ami » devient « son meilleur ami », pour rester a la
+//   troisieme personne comme le recit qui suit.
+// APropos.tsx v2.1
+// Changelog v2.1 : le sous-titre generique (« My Crazy Family cree des livres
+//   personnalises qui transforment chaque enfant en heros de sa propre histoire »)
+//   est remplace par une phrase qui raconte l'origine du projet et ce qu'il devient.
+//   Le sous-titre annonce desormais le recit qui suit au lieu de repeter l'accroche
+//   de la page d'accueil.
 // APropos.tsx v2.0
 // Changelog v2.0 (chantier B, refonte de la page) : quatre changements.
 //   [1] CORRECTIF DE CENTRAGE. Le sous-titre paraissait decale a gauche. Cause reelle : le
@@ -58,7 +67,8 @@ const APropos: React.FC = () => {
               À propos de nous
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              My Crazy Family crée des livres personnalisés qui transforment chaque enfant en héros de sa propre histoire.
+              Née d'un cadeau fait à la fille de son meilleur ami, My Crazy Family est une collection
+              qui grandit avec votre enfant et se souvient de tout.
             </p>
           </div>
 
