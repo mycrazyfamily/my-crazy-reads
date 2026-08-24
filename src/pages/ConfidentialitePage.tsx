@@ -1,3 +1,8 @@
+// ConfidentialitePage.tsx v1.3
+// v1.3 (chantier I): l'adresse de contact du responsable de traitement passe de
+//   robin@mycrazyfamily.com a hello@mycrazyfamily.com. Un alias partage reste une
+//   adresse de contact valable au sens du RGPD et survit a un changement de personne.
+//   Alignee sur ContactPage.tsx v1.1. Un seul point de verite ici : CONTACT_EMAIL.
 // ConfidentialitePage.tsx v1.2
 // v1.2: alignement à gauche du contenu (text-left) — neutralise le centrage global hérité
 // v1.1: retrait de la mention "traitement IA dans l'UE" (endpoint Vertex encore global) ; transferts hors UE formulés honnêtement ; hébergeur n8n France-Paris + stockage GCS France précisés
@@ -16,7 +21,7 @@ type Block =
 type Section = { id: string; title: string; blocks: Block[] };
 
 const LAST_UPDATED = 'juillet 2026';
-const CONTACT_EMAIL = 'robin@mycrazyfamily.com';
+const CONTACT_EMAIL = 'hello@mycrazyfamily.com';
 
 const sections: Section[] = [
   {
