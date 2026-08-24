@@ -1,12 +1,22 @@
+// ContactPage.tsx v1.1
+// Changelog v1.1 (chantier I) : l'adresse de contact passe de robin@mycrazyfamily.com a
+//   hello@mycrazyfamily.com. Une adresse nominative sur une page Contact publique dit au
+//   visiteur qu'il ecrit a une personne ; un alias dit qu'il ecrit a un service, ce qui est
+//   plus rassurant sur un abonnement et permet de rediriger le jour ou quelqu'un d'autre
+//   traite les demandes. Un seul point de verite dans ce fichier, la constante CONTACT_EMAIL :
+//   elle alimente a la fois le lien mailto: et le libelle affiche sur le bouton.
+//   NOTE : la meme adresse existe aussi dans ConfidentialitePage.tsx (constante CONTACT_EMAIL,
+//   ligne 19). Elle n'est PAS modifiee ici, c'est une page legale ou l'adresse engage le
+//   responsable de traitement : changement a decider separement.
 // ContactPage.tsx v1.0
-// v1.0: page Contact (lien e-mail direct vers robin@mycrazyfamily.com), gabarit aligné sur APropos.tsx
+// v1.0: page Contact (lien e-mail direct vers l'adresse de contact), gabarit aligné sur APropos.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ArrowLeft, Mail } from 'lucide-react';
 
-const CONTACT_EMAIL = 'robin@mycrazyfamily.com';
+const CONTACT_EMAIL = 'hello@mycrazyfamily.com';
 
 const ContactPage: React.FC = () => {
   return (
