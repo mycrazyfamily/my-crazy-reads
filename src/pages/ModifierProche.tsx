@@ -1,3 +1,7 @@
+// ModifierProche v1.8
+// Changelog v1.8 (chantier C1a) : retrait de la validation « au moins un detail physique OU
+//   case cochee ». Voir PhysicalDetailsInput v3.0 et BasicInfoForm v1.3. Details physiques
+//   desormais facultatifs.
 // ModifierProche v1.7
 // Changelog v1.7 :
 //   `role` SORT de relativeAvatarSignature. Mesure du 21/08 : passer un proche de pere a oncle
@@ -582,11 +586,7 @@ const ModifierProche: React.FC = () => {
       }
     }
 
-    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-    const hasPhysicalDetails = physicalDetails.length > 0 && physicalDetails.some(d => d.trim() !== '');
-    if (!hasPhysicalDetails && !noPhysicalDetails) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+    // v3.0 (chantier C1a) : détails physiques facultatifs, voir PhysicalDetailsInput v3.0.
 
     // Validation de la sélection des enfants
     if (selectedChildrenIds.length === 0) {
