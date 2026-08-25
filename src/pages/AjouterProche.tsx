@@ -1,3 +1,7 @@
+// AjouterProche v1.2
+// Changelog v1.2 (chantier C1a) : retrait de la validation « au moins un detail physique OU
+//   case cochee ». Voir PhysicalDetailsInput v3.0 et BasicInfoForm v1.3. Details physiques
+//   desormais facultatifs.
 // AjouterProche v1.1
 // (la version d'origine ne portait pas de banniere, consideree v1.0)
 // Changelog v1.1 :
@@ -207,11 +211,7 @@ export default function AjouterProche() {
       }
 
       // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-      const hasPhysicalDetails = relativeData.physicalDetails && relativeData.physicalDetails.length > 0 && relativeData.physicalDetails.some(d => d.trim() !== '');
-      const hasNoDetailsFlag = relativeData.noPhysicalDetails === true;
-      if (!hasPhysicalDetails && !hasNoDetailsFlag) {
-        errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-      }
+      // v3.0 (chantier C1a) : détails physiques facultatifs, voir PhysicalDetailsInput v3.0.
 
       if (selectedChildIds.length === 0) {
         errors.push("au moins un enfant sélectionné");
