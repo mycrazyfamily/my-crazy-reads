@@ -1,3 +1,13 @@
+// ChildProfileFormContext v1.5
+// Changelog v1.5 (chantier D1) : correctif du BUG DES PROCHES PERDUS.
+//   Symptome : pendant la creation d'un enfant, les proches ajoutes a l'etape 3 disparaissaient
+//   si l'on fermait le formulaire, alors que les animaux, doudous et lieux etaient conserves.
+//   Cause mesuree le 25/08 : l'effet de sauvegarde du brouillon ne dependait que de formStep et
+//   des selecteurs de couleur, jamais des valeurs du formulaire. Ajouter un proche n'ecrivait
+//   donc rien dans le localStorage ; seul un changement d'etape declenchait l'ecriture, ce qui
+//   sauvait les animaux (on clique Suivant apres) mais pas les proches (on ferme apres).
+//   Correctif : la sauvegarde ecoute desormais aussi les valeurs du formulaire, et s'execute
+//   immediatement au demontage. Detail complet au-dessus de l'effet concerne.
 // ChildProfileFormContext v1.4
 // Changelog v1.4 (AFFICHAGE UNIQUEMENT) : nouvelle prop optionnelle onEditDataLoadingChange —
 // remonte l'état de chargement des données d'édition au parent (CreateChildProfile), pour qu'il
@@ -12,7 +22,7 @@
 // précisément CE fallback que FinalSummary.tsx utilise (places.length > 0 ? ... : formData.places)
 // quand son propre fetch filtré ressort vide pour un enfant donné. D'où la persistance du bug
 // même après le fix dans FinalSummary.tsx seul. Même règle appliquée : exclu.
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from "sonner";
 import { useLocation } from 'react-router-dom';
@@ -458,30 +468,88 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     }
   }, [form, familyCode, initialStep, locationState, editMode, useSavedDraft]);
 
-  useEffect(() => {
-    // Ne sauvegarder dans le localStorage QUE si on n'est pas en mode édition et si on souhaite utiliser le brouillon
-    if (editMode || !useSavedDraft) {
-      return;
-    }
-    
-    const saveFormState = () => {
-      const formValues = form.getValues();
-      const stateToSave = {
-        formStep,
-        selectedNickname,
-        selectedSkinColor,
-        selectedEyeColor,
-        selectedHairColor,
-        formValues
-      };
-      
-      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(stateToSave));
-    };
+  // ==========================================================================
+  // SAUVEGARDE DU BROUILLON (v1.5, chantier D1)
+  //
+  // MESURE DU 25/08, formulaire enfant, etape 3 Famille :
+  //   apres ajout d'un proche  -> relatives.length = 0 dans le localStorage
+  //   apres « Etape precedente » -> relatives.length = 1
+  // La sauvegarde ne se declenchait donc QUE sur changement d'etape : la liste de
+  // dependances ne contenait aucune valeur du formulaire, et `form` est une reference
+  // stable de react-hook-form qui ne change jamais. Ajouter un proche ne reveillait rien.
+  //
+  // CE QUE CA EXPLIQUE. Les animaux, doudous et lieux survivaient parce qu'on clique
+  // « Suivant » apres les avoir ajoutes, ce qui change l'etape et declenche l'ecriture.
+  // A l'etape Famille on ajoute puis on ferme : rien n'etait jamais ecrit.
+  //
+  // TROIS DECLENCHEURS DESORMAIS :
+  //   (A) changement d'etape ou de selecteur de couleur, comme avant ;
+  //   (B) NOUVEAU, changement d'une valeur du formulaire, via l'abonnement form.watch ;
+  //   (C) NOUVEAU, demontage du composant, ecriture immediate et non differee, pour
+  //       couvrir la fermeture du formulaire dans les 500 ms qui suivent une saisie.
+  //
+  // POURQUOI form.watch(callback) ET NON form.watch() NU. La forme nue renvoie les
+  // valeurs et provoque un rendu du provider a chaque frappe, donc de tout l'arbre du
+  // formulaire. La forme avec callback est un simple abonnement : aucun rendu.
+  // ==========================================================================
 
-    const timeoutId = setTimeout(saveFormState, 500);
-    
+  // Les etats hors formulaire sont lus via une ref pour que les sauvegardes differees
+  // et celle du demontage voient des valeurs fraiches et non figees dans une closure.
+  const etatHorsFormRef = useRef({ formStep, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor });
+  useEffect(() => {
+    etatHorsFormRef.current = { formStep, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor };
+  }, [formStep, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor]);
+
+  const sauvegarderBrouillon = useCallback(() => {
+    if (editMode || !useSavedDraft) return;
+    const e = etatHorsFormRef.current;
+    const stateToSave = {
+      formStep: e.formStep,
+      selectedNickname: e.selectedNickname,
+      selectedSkinColor: e.selectedSkinColor,
+      selectedEyeColor: e.selectedEyeColor,
+      selectedHairColor: e.selectedHairColor,
+      formValues: form.getValues(),
+    };
+    localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(stateToSave));
+  }, [form, editMode, useSavedDraft]);
+
+  // (A) Changement d'etape ou de selecteur : comportement d'origine, conserve tel quel.
+  useEffect(() => {
+    if (editMode || !useSavedDraft) return;
+    const timeoutId = setTimeout(sauvegarderBrouillon, 500);
     return () => clearTimeout(timeoutId);
-  }, [formStep, form, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor, editMode, useSavedDraft]);
+  }, [formStep, selectedNickname, selectedSkinColor, selectedEyeColor, selectedHairColor, editMode, useSavedDraft, sauvegarderBrouillon]);
+
+  // (B) Changement d'une valeur du formulaire. C'est le correctif du bug des proches perdus.
+  useEffect(() => {
+    if (editMode || !useSavedDraft) return;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const abonnement = form.watch(() => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(sauvegarderBrouillon, 500);
+    });
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      abonnement.unsubscribe();
+    };
+  }, [form, editMode, useSavedDraft, sauvegarderBrouillon]);
+
+  // (C) Demontage : ecriture immediate, sinon une saisie faite moins de 500 ms avant la
+  // fermeture du formulaire est perdue avec le timer annule par le nettoyage.
+  const sauvegarderRef = useRef(sauvegarderBrouillon);
+  useEffect(() => {
+    sauvegarderRef.current = sauvegarderBrouillon;
+  }, [sauvegarderBrouillon]);
+  useEffect(() => {
+    return () => {
+      // GARDE-FOU : ne pas ressusciter un brouillon volontairement efface. Apres une
+      // soumission reussie, useChildProfileSubmit supprime la cle puis navigue, ce qui
+      // demonte ce composant. Sans ce test, on reecrirait le brouillon juste apres.
+      if (localStorage.getItem(FORM_STORAGE_KEY) === null) return;
+      sauvegarderRef.current();
+    };
+  }, []);
 
   const handleNextStep = async () => {
     // Ensure latest values are validated before moving to next step
