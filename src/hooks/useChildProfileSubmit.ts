@@ -302,11 +302,11 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
             name: splitCamelCase(relative.firstName),
             role: relative.type,
             avatar: '👤',
-            physical_details: relative.noPhysicalDetails
-              ? [""]
-              : (relative.physicalDetails && relative.physicalDetails.length > 0 
-                ? relative.physicalDetails 
-                : []),
+            // v(C1a) : ecriture directe, voir ModifierProche v1.9. La branche pilotee par
+            // noPhysicalDetails ecrivait [""] quoi que le parent saisisse.
+            physical_details: (relative.physicalDetails && relative.physicalDetails.length > 0)
+              ? relative.physicalDetails
+              : [],
             clothing_style: relative.clothingStyle 
               ? [relative.clothingStyle] 
               : [],
