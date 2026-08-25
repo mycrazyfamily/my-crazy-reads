@@ -1,5 +1,8 @@
 export const placeTypeOptions = [
-  { value: 'maison_principale', label: '🏠 Maison principale ou appartement', emoji: '🏠' },
+  // C3 : la mention « (obligatoire) » n'apparait QUE dans le menu deroulant de PlaceForm.
+// PlacesList, la seule autre consommatrice, ne lit que `emoji` : aucune fiche deja creee
+// n'affichera ce suffixe.
+  { value: 'maison_principale', label: '🏠 Maison principale ou appartement (obligatoire)', emoji: '🏠' },
   { value: 'maison_secondaire', label: '🏡 Maison secondaire', emoji: '🏡' },
   { value: 'autre_parent', label: '👨‍👩‍👧 Maison de l\'autre parent', emoji: '👨‍👩‍👧' },
   { value: 'vacances', label: '🏕️ Lieu de vacances fréquent', emoji: '🏕️' },
