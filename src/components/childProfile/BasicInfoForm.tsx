@@ -1,3 +1,12 @@
+// BasicInfoForm v1.3
+// Changelog v1.3 (chantier C1a) : retrait de la validation qui exigeait au moins un detail
+//   physique OU la case « Aucun detail physique particulier ». Cette case a disparu de
+//   PhysicalDetailsInput v3.0 : elle ne servait qu'a debloquer ce test, et le drapeau
+//   noPhysicalDetails n'etait deja plus persiste en base. Les details physiques deviennent
+//   donc facultatifs : champ vide = aucun detail, sans clic supplementaire.
+//   La meme validation existait a l'identique dans RelativeForm, ModifierProche et
+//   AjouterProche : les quatre sont retirees dans ce meme lot, sans quoi un formulaire
+//   serait reste bloquant alors que la case n'existe plus pour le debloquer.
 // BasicInfoForm v1.2
 // Changelog v1.2 : blocklist à la validation de l'étape. Le prénom, le surnom
 //   personnalisé, le style vestimentaire sur mesure, le type et les couleurs de
@@ -245,11 +254,9 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
     }
 
     // Détails physiques (obligatoire)
-    const hasPhysicalDetails = Array.isArray(formData.physicalDetails) && 
-      formData.physicalDetails.some(detail => detail.trim() !== '');
-    if (!formData.noPhysicalDetails && !hasPhysicalDetails) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+    // v3.0 (chantier C1a) : les détails physiques deviennent facultatifs. La case
+    // « Aucun détail physique particulier » a disparu de PhysicalDetailsInput, elle ne
+    // servait qu'à débloquer ce test. Champ vide = aucun détail, sans clic supplémentaire.
 
     // Style vestimentaire favori (obligatoire)
     if (!formData.clothingStyle || (typeof formData.clothingStyle === 'string' && !formData.clothingStyle.trim())) {
