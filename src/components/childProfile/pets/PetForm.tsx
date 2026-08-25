@@ -1,3 +1,12 @@
+// PetForm  (chantier C3)
+// Changelog C3 :
+//   [1] LE PRENOM PASSE APRES LE TYPE. Les cartes d'especes portent des emojis et captent le
+//       regard : les testeurs cliquaient dessus en premier et repartaient sans avoir nomme
+//       l'animal. Le champ prenom vient donc apres le choix de l'espece, la ou l'attention
+//       revient. Aucun changement de donnee ni de validation, seul l'ordre d'affichage bouge.
+//   [2] AIDE SUR LA RACE. Un parent qui ne connait pas la race laissait le champ vide, et la
+//       description de l'animal partait sans indication d'espece precise. Une ligne indique
+//       desormais de reecrire l'espece a defaut de race.
 // PetForm  (chantier C1b)
 // Changelog C1b : retrait de la validation « au moins un detail physique OU case cochee ».
 //   La case a disparu de PetPhysicalDetailsInput v3.0 : elle ne servait qu'a debloquer ce
@@ -399,20 +408,6 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         {pet ? 'Modifier' : 'Ajouter'} un animal de compagnie
       </h3>
 
-      {/* Nom de l'animal */}
-      <div className="space-y-2">
-        <Label htmlFor="pet-name" className="text-base font-medium">
-          Prénom de l'animal
-        </Label>
-        <Input
-          id="pet-name"
-          placeholder="Comment s'appelle cet animal ?"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="text-base"
-        />
-      </div>
-
       {/* Type d'animal */}
       <div className="space-y-3">
         <Label className="text-base font-medium block">
@@ -449,6 +444,20 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
             />
           </div>
         )}
+      </div>
+
+      {/* Nom de l'animal */}
+      <div className="space-y-2">
+        <Label htmlFor="pet-name" className="text-base font-medium">
+          Prénom de l'animal
+        </Label>
+        <Input
+          id="pet-name"
+          placeholder="Comment s'appelle cet animal ?"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="text-base"
+        />
       </div>
 
       {/* Sexe de l'animal */}
@@ -488,6 +497,9 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         <Label htmlFor="pet-breed" className="text-base font-medium">
           Quelle est sa race ?
         </Label>
+        <p className="text-sm text-muted-foreground leading-snug">
+          Si vous ne la connaissez pas ou s'il n'en a pas, réécrivez simplement l'espèce.
+        </p>
         <Input
           id="pet-breed"
           placeholder="Ex : Labrador, persan"
