@@ -1,3 +1,8 @@
+// PetForm  (chantier C1b)
+// Changelog C1b : retrait de la validation « au moins un detail physique OU case cochee ».
+//   La case a disparu de PetPhysicalDetailsInput v3.0 : elle ne servait qu'a debloquer ce
+//   test. Les details physiques de l'animal deviennent facultatifs, champ vide = aucun detail.
+//   Meme correction que BasicInfoForm v1.3 cote humain.
 // PetForm v1.8
 // Changelog v1.8 :
 //   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX.
@@ -344,11 +349,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
       errors.push("tous les traits personnalisés");
     }
 
-    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-    const hasPhysicalDetails = petPhysicalDetails.length > 0 && petPhysicalDetails.some(d => d.trim() !== '');
-    if (!hasPhysicalDetails && !noPhysicalDetails) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+    // v(C1b) : détails physiques facultatifs, voir PetPhysicalDetailsInput v3.0.
 
     if (errors.length > 0) {
       toast.error(`Veuillez renseigner : ${errors.join(', ')}`);
