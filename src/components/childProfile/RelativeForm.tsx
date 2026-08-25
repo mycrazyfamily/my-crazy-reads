@@ -1,3 +1,7 @@
+// RelativeForm v1.4
+// Changelog v1.4 (chantier C1a) : retrait de la validation « au moins un detail physique OU
+//   case cochee ». Voir PhysicalDetailsInput v3.0 et BasicInfoForm v1.3. Details physiques
+//   desormais facultatifs.
 // RelativeForm v1.3
 // Changelog v1.3 : blocklist sur TOUS les champs libres au moment de valider la
 //   fiche (métier, type de relation, type et couleurs personnalisés, détails
@@ -281,11 +285,7 @@ const RelativeForm: React.FC<RelativeFormProps> = ({
       }
     }
 
-    // Vérifier les détails physiques : au moins un détail OU la case "aucun détail" cochée
-    const hasPhysicalDetails = physicalDetails.length > 0 && physicalDetails.some(d => d.trim() !== '');
-    if (!hasPhysicalDetails && !noPhysicalDetails) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+    // v3.0 (chantier C1a) : détails physiques facultatifs, voir PhysicalDetailsInput v3.0.
     
     // Pendant la création d'un nouvel enfant, l'association aux enfants existants est facultative.
     // La validation d'association est gérée par les pages dédiées (Ajouter/Modifier Proche).
