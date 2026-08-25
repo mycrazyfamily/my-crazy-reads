@@ -427,7 +427,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
       || selectedPlacesData.some(p => p.type === 'maison_principale' && p.is_active !== false);
 
     if (!hasActivePrincipal) {
-      toast.error("Ajoutez (ou sélectionnez) une maison principale avant de continuer — c'est le lieu de référence de l'enfant");
+      toast.error("Ajoutez ou sélectionnez une maison principale avant de continuer : c'est le lieu de référence de l'enfant");
       return;
     }
 
@@ -442,6 +442,8 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
             <h2 className="text-2xl font-bold mb-2">Lieux de vie</h2>
             <p className="text-muted-foreground">
               Ajoutez les différents lieux de vie de votre enfant (maison principale, maison secondaire, maison de l'autre parent si séparés, lieux de vacances, etc.)
+              <br />
+              <strong>Une maison principale est obligatoire pour continuer.</strong> Les autres lieux sont facultatifs.
             </p>
           </div>
 
