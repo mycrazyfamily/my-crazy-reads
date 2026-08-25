@@ -1,3 +1,14 @@
+// ModifierProche v1.9
+// Changelog v1.9 (chantier C1a, correctif) : le drapeau obsolete noPhysicalDetails cassait
+//   DEUX choses sur les proches, mesure du 25/08 sur la fiche Babette.
+//   [1] ECRITURE. `physical_details: noPhysicalDetails ? [""] : ...` ecrivait [""] quoi que le
+//       parent saisisse. La case ayant disparu en v1.8, plus rien ne pouvait remettre le
+//       drapeau a false : la saisie etait perdue a chaque enregistrement.
+//   [2] DETECTION. relativeAvatarSignature neutralisait la liste par le meme drapeau, donc la
+//       signature ne bougeait jamais et aucun avatar n'etait regenere.
+//   Le drapeau n'est plus ni lu ni ecrit. n8n ne l'a jamais lu : 2C3_Merge_Pets_Logic documente
+//   deja la convention « tableau vide = aucun detail ». La cle noPhys sort aussi de la signature,
+//   sans effet de bord : les deux cotes de la comparaison utilisent la meme formule.
 // ModifierProche v1.8
 // Changelog v1.8 (chantier C1a) : retrait de la validation « au moins un detail physique OU
 //   case cochee ». Voir PhysicalDetailsInput v3.0 et BasicInfoForm v1.3. Details physiques
@@ -145,7 +156,11 @@ function ymd(d: any): string {
  * Le RÔLE aussi depuis v1.7 : c'est un lien de parenté, pas un physique.
  */
 function relativeAvatarSignature(i: any): string {
-  const phys = i?.noPhysicalDetails ? [] : normalizePhysList(i?.physicalDetails);
+  // v1.9 : le drapeau noPhysicalDetails ne neutralise plus la liste. Il restait a true en
+  // base sur les fiches anciennes et, la case ayant disparu, plus rien ne pouvait le remettre
+  // a false : la signature voyait donc toujours phys=[] et aucune edition ne declenchait de
+  // regeneration. Convention retenue, celle que n8n applique deja : tableau vide = aucun detail.
+  const phys = normalizePhysList(i?.physicalDetails);
   return JSON.stringify({
     // v1.7 : `role` retire. Un lien de parente n'est pas un trait physique : le changer ne doit
     // pas declencher de generation. `gender` reste, c'est lui qui porte la decision visuelle.
@@ -158,7 +173,6 @@ function relativeAvatarSignature(i: any): string {
     hairLength: i?.hairLength || '',
     glasses: !!i?.glasses,
     phys,
-    noPhys: !!i?.noPhysicalDetails,
     clothing: (i?.clothingStyle || '').trim(),
     birth: ymd(i?.birthDate),
     // v1.4 : `traits` et `customTraits` retires — aucun trait de caractere n'entre dans un
@@ -653,9 +667,10 @@ const ModifierProche: React.FC = () => {
       const updatePayload: any = {
         name: splitCamelCase(firstName),
         role: type,
-        physical_details: noPhysicalDetails
-          ? [""]
-          : (physicalDetails.length > 0 ? physicalDetails : []),
+        // v1.9 : ecriture directe. La branche noPhysicalDetails ecrivait [""] quoi que le
+        // parent ait saisi, ce qui perdait silencieusement la saisie sur toute fiche dont le
+        // drapeau valait deja true.
+        physical_details: physicalDetails.length > 0 ? physicalDetails : [],
         clothing_style: clothingStyle ? [clothingStyle] : [],
         details: detailsPayload,
         // Statut (décès) — fait global d'entité ; le trigger DB horodate deceased_recorded_at automatiquement.
