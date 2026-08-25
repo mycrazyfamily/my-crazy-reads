@@ -1,3 +1,9 @@
+// BasicInfoForm v1.4
+// Changelog v1.4 (chantier C2) : retrait du champ JJ/MM/AAAA au-dessus du selecteur de date.
+//   Il etait `readOnly` avec `onClick={() => {}}`, donc totalement inerte, mais garde
+//   l'apparence d'un champ et `cursor-pointer` : les testeurs cliquaient dessus sans effet.
+//   Le formulaire proche n'a jamais eu ce champ et se comprend mieux. Aucune donnee perdue :
+//   la valeur vient de field.value, que seul StepDatePicker alimente deja.
 // BasicInfoForm v1.3
 // Changelog v1.3 (chantier C1a) : retrait de la validation qui exigeait au moins un detail
 //   physique OU la case « Aucun detail physique particulier ». Cette case a disparu de
@@ -362,16 +368,12 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 <div className="relative">
 <ErrorBoundary fallback={<div className="text-sm text-muted-foreground">Sélecteur de date indisponible</div>}>
   <div className="space-y-2">
-    <Input
-      value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-      readOnly
-      placeholder="JJ/MM/AAAA"
-      className={cn(
-        "border-mcf-amber cursor-pointer",
-        ageError ? "border-red-500 focus-visible:ring-red-500" : ""
-      )}
-      onClick={() => {}}
-    />
+    {/* v1.4 (chantier C2) : le champ JJ/MM/AAAA a ete retire. Il etait readOnly avec un
+        onClick vide, donc ni saisissable ni cliquable, alors que son apparence de champ
+        et son curseur en pointeur invitaient a cliquer. Les testeurs s'y arretaient. Le
+        formulaire proche n'en a jamais eu et se comprend mieux : on s'aligne dessus.
+        Le retour visuel reste assure par le selecteur (annee, mois et jour surlignes) et
+        par le bandeau « Votre enfant a ... » affiche plus bas des qu'une date est valide. */}
     {ready ? (
       <StepDatePicker
         value={field.value}
