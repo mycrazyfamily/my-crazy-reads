@@ -1,3 +1,7 @@
+// AjouterLieu  (chantier C3)
+// Changelog C3 : la note « une maison principale est obligatoire » apparait desormais AVANT
+//   la saisie, dans l'en-tete du formulaire, et plus seulement dans le toast d'erreur au
+//   moment du blocage. Meme note qu'a l'etape Lieux du formulaire enfant (PlacesForm).
 // AjouterLieu v1.2
 // Changelog v1.2 : le garde-fou « maison principale requise » exige désormais une maison_principale
 // ACTIVE (is_active !== false). Un principal INACTIF (on n'y vit plus) ne compte plus → cohérent
@@ -401,6 +405,13 @@ export default function AjouterLieu() {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {/* C3 : le garde-fou « maison principale requise » n'etait annonce qu'au moment
+                  du blocage. Un parent pouvait saisir plusieurs residences secondaires avant
+                  de decouvrir qu'il lui manquait le lieu de reference. */}
+              <p className="text-sm text-muted-foreground mb-4 leading-snug">
+                <strong>Une maison principale est obligatoire</strong> pour chaque enfant : c'est
+                le lieu de référence de ses histoires. Les autres lieux sont facultatifs.
+              </p>
               <PlaceForm 
                 place={currentPlaceData}
                 onChange={setCurrentPlaceData}
