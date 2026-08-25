@@ -1,3 +1,6 @@
+// ModifierAnimal  (chantier C1b)
+// Changelog C1b : retrait de la derniere validation liee a la case « Aucun detail physique
+//   particulier », supprimee dans PetPhysicalDetailsInput v3.0. Details physiques facultatifs.
 // ModifierAnimal v3.7
 // Changelog v3.7 :
 //   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX. pets.physical_details devient la
@@ -583,9 +586,7 @@ const ModifierAnimal: React.FC = () => {
     // La case reste donc obligatoire cote PetForm, qui refuse un formulaire ou ni detail ni
     // case n'ont ete renseignes ; ici on se contente de verifier que le champ est bien un
     // tableau, vide ou non.
-    if (!Array.isArray(currentPetData.physicalDetails)) {
-      errors.push("un détail physique marquant (ou cochez 'Aucun détail physique particulier')");
-    }
+    // v(C1b) : détails physiques facultatifs, voir PetPhysicalDetailsInput v3.0.
 
     // Vérifier qu'au moins un enfant est associé
     if (selectedChildrenIds.length === 0) {
