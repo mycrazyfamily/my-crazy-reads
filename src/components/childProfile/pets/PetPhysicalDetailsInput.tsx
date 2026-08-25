@@ -1,3 +1,26 @@
+// PetPhysicalDetailsInput v3.0
+// Changelog v3.0 (chantier C1b) : meme refonte que PhysicalDetailsInput v3.0, cote animal.
+//   Le systeme d'etiquettes est remplace par une zone de texte libre, pour les memes raisons.
+//   [1] PLUS DE VALIDATION PAR ENTREE. C'etait le seul champ du parcours a exiger un clic sur
+//       + ou la touche Entree. Une saisie non validee etait perdue en silence.
+//   [2] SUGGESTIONS SUPPRIMEES. « Oreilles tombantes », « Museau blanc », « Cicatrice » ne
+//       portent ni emplacement ni taille. Elles donnaient au parent le sentiment d'avoir
+//       repondu tout en produisant des prompts inexploitables.
+//   [3] CONSIGNE DE PRECISION EXPLICITE, avec un exemple avant/apres adapte a l'animal.
+//   [4] CASE « AUCUN DETAIL » SUPPRIMEE, champ facultatif.
+//
+//   FORMAT DE STOCKAGE INCHANGE : toujours un string[]. La zone de texte est stockee comme un
+//   tableau a un seul element, vide quand rien n'est saisi. C'est la convention que PetForm
+//   applique deja depuis sa v2.x et que 2C3_Merge_Pets_Logic documente cote n8n : un tableau
+//   VIDE veut dire « aucun detail », le drapeau noPhysicalDetails n'est plus persiste.
+//
+//   COMPATIBILITE ASCENDANTE : une fiche existante a plusieurs etiquettes les voit reunies en
+//   une phrase separee par des virgules, sans perte.
+//
+//   La prop petType devient inutile : elle ne servait qu'a choisir la liste de suggestions.
+//   Elle reste dans la signature pour ne pas casser PetForm, mais n'est plus utilisee.
+//   Idem pour onNoDetailsChange et noDetailsValue.
+//
 // PetPhysicalDetailsInput v2.1
 // Changelog v2.1 : le SOUS-TITRE suit lui aussi l'espèce. Il annonçait encore
 //   « taches de rousseur, grain de beauté, fossettes » sous des suggestions
@@ -25,232 +48,100 @@
 //   personnalisé (le champ se vide alors que la chip apparaît plus haut dans « Détails
 //   sélectionnés »), on affiche un « ✓ ajouté » ~2,5 s sous le champ, pour que l'utilisateur voie
 //   que sa saisie a bien été prise en compte (notamment au « ✓ » du clavier iOS = onBlur).
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, X, Check } from "lucide-react";
-import { petPhysicalDetails, petPhysicalHelpText } from '@/constants/physicalDetailsOptions';
+import { Textarea } from "@/components/ui/textarea";
 import { findForbiddenWords, forbiddenContentError } from '@/utils/nameBlocklist';
 
 type PetPhysicalDetailsInputProps = {
   value: string[];
   onChange: (value: string[]) => void;
+  /** @deprecated v3.0 : la case « Aucun détail » n'existe plus, le champ est facultatif. */
   onNoDetailsChange?: (hasNoDetails: boolean) => void;
+  /** @deprecated v3.0 : voir onNoDetailsChange. */
   noDetailsValue?: boolean;
-  /** v2.0 — espèce, pour choisir les suggestions. Vient de pets.type ('dog', 'cat'…).
-   *  Absent = liste générique, convenable pour lapin, oiseau, poisson, reptile. */
+  /** @deprecated v3.0 : ne servait qu'à choisir la liste de suggestions, désormais supprimée. */
   petType?: string | null;
 };
 
-// v2.0 — plus de liste HUMAINE sur une fiche animal. On proposait « fossettes »,
-// « appareil dentaire » et « boucles d'oreilles » pour décrire un chien : la liste
-// était un copier-coller du composant humain, seul le placeholder avait été corrigé.
-// La liste dépend désormais de l'espèce (voir @/constants/physicalDetailsOptions).
+// Même plafond que le composant humain, pour que les deux formulaires se comportent pareil.
+const MAX_CARACTERES = 200;
 
 const PetPhysicalDetailsInput: React.FC<PetPhysicalDetailsInputProps> = ({
   value = [],
   onChange,
-  onNoDetailsChange,
-  noDetailsValue = false,
-  petType,
 }) => {
-  const SUGGESTIONS = petPhysicalDetails(petType);
-  // v2.1 — le sous-titre était resté humain (« taches de rousseur, fossettes »)
-  // alors que les suggestions étaient devenues animales : deux messages
-  // contradictoires sur la même ligne.
-  const aideSelonEspece = petPhysicalHelpText(petType);
-  const MAX_DETAILS = 5;
-  const [customInput, setCustomInput] = useState('');
-  const [noDetails, setNoDetails] = useState(noDetailsValue);
-  // v1.1 (B5) : mémorise le dernier détail ajouté pour afficher un « ✓ ajouté » temporaire.
-  const [justAdded, setJustAdded] = useState<string | null>(null);
-  // v2.0 — message affiché quand la saisie contient un mot interdit.
+  const [texte, setTexte] = useState<string>(() => (value ?? []).join(', '));
   const [erreurMot, setErreurMot] = useState<string | null>(null);
-  const justAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const details = value.length > 0 ? value : [];
+  const dernierEmis = useRef<string>((value ?? []).join(', '));
 
-  const handleAddSuggestion = (suggestion: string) => {
-    if (!details.includes(suggestion) && details.length < MAX_DETAILS) {
-      onChange([...details, suggestion]);
-      // Décocher automatiquement "aucun détail" quand on ajoute un détail
-      if (noDetails) {
-        setNoDetails(false);
-        if (onNoDetailsChange) {
-          onNoDetailsChange(false);
-        }
-      }
+  useEffect(() => {
+    const entrant = (value ?? []).join(', ');
+    if (entrant !== dernierEmis.current) {
+      setTexte(entrant);
+      dernierEmis.current = entrant;
     }
-  };
+  }, [value]);
 
-  const handleAddCustom = () => {
-    const trimmed = customInput.trim();
+  const handleChange = (nouveau: string) => {
+    setTexte(nouveau);
 
-    // v2.0 — on refuse AVANT l'enregistrement plutôt qu'après l'échec de génération.
-    // Sans ça, le parent attendait une trentaine de secondes pour apprendre que son
-    // mot était refusé, et un appel Gemini partait pour rien.
-    const interdits = findForbiddenWords(trimmed);
+    const propre = nouveau.trim();
+
+    // Blocklist conservée depuis la v2.0 : refus à la saisie plutôt qu'après une trentaine
+    // de secondes d'attente et un appel Gemini parti pour rien.
+    const interdits = findForbiddenWords(propre);
     if (interdits.length > 0) {
       setErreurMot(forbiddenContentError(interdits));
-      return;   // le champ n'est pas vidé : le parent corrige sa saisie sur place
-    }
-
-    if (trimmed && !details.includes(trimmed) && details.length < MAX_DETAILS) {
-      onChange([...details, trimmed]);
-      setCustomInput('');
-      // v1.1 (B5) : feedback visible que l'ajout a bien été pris en compte
-      setJustAdded(trimmed);
-      if (justAddedTimer.current) clearTimeout(justAddedTimer.current);
-      justAddedTimer.current = setTimeout(() => setJustAdded(null), 2500);
-      // Décocher automatiquement "aucun détail" quand on ajoute un détail
-      if (noDetails) {
-        setNoDetails(false);
-        if (onNoDetailsChange) {
-          onNoDetailsChange(false);
-        }
-      }
-    }
-  };
-
-  const handleRemoveDetail = (detailToRemove: string) => {
-    onChange(details.filter(d => d !== detailToRemove));
-  };
-
-  const handleNoDetailsChange = (checked: boolean) => {
-    console.info('👆 noPhysicalDetails (animal) toggled', {
-      checked,
-      previous: noDetails,
-      currentDetails: details,
-    });
-    setNoDetails(checked);
-    if (onNoDetailsChange) {
-      onNoDetailsChange(checked);
-    }
-    if (checked) {
+      dernierEmis.current = '';
       onChange([]);
+      return;
     }
+
+    setErreurMot(null);
+    dernierEmis.current = propre;
+    onChange(propre ? [propre] : []);
   };
+
+  const restants = MAX_CARACTERES - texte.length;
 
   return (
     <div className="space-y-3">
       <div>
         <Label className="text-base font-medium">
-          Des détails physiques marquants ? *
+          Des détails physiques marquants ?
         </Label>
-        <p className="text-sm text-muted-foreground mt-1">
-          {aideSelonEspece}
+        <p className="text-sm text-muted-foreground mt-1 leading-snug">
+          Soyez précis : dites <strong>où</strong> et <strong>de quelle taille</strong>.
+          Écrivez « grande tache blanche sur le poitrail » plutôt que « tache ».
+          Laissez vide s'il n'y a rien de particulier.
         </p>
       </div>
 
-      <div className="flex items-center space-x-2 p-3 border rounded-md bg-muted/30">
-        <Checkbox
-          id="no-physical-details-pet"
-          checked={noDetails}
-          onCheckedChange={handleNoDetailsChange}
+      <div>
+        <Textarea
+          value={texte}
+          onChange={(e) => handleChange(e.target.value)}
+          maxLength={MAX_CARACTERES}
+          rows={3}
+          placeholder="Ex : grande tache blanche sur le poitrail, oreille gauche repliée"
+          className="resize-none"
         />
-        <Label
-          htmlFor="no-physical-details-pet"
-          className="text-sm font-normal cursor-pointer"
-        >
-          Aucun détail physique particulier
-        </Label>
-      </div>
-
-      {/* Détails sélectionnés */}
-      {!noDetails && details.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {details.map((detail, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-1 bg-mcf-secondary-light/50 border border-mcf-primary rounded-full px-3 py-1.5"
-            >
-              <span className="text-sm">{detail}</span>
-              <button
-                type="button"
-                onClick={() => handleRemoveDetail(detail)}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mt-1">
+          {erreurMot ? (
+            <p className="text-sm text-destructive leading-snug" role="alert">
+              {erreurMot}
+            </p>
+          ) : (
+            <span />
+          )}
+          <span
+            className={`text-xs shrink-0 ml-2 ${restants <= 20 ? 'text-destructive' : 'text-muted-foreground'}`}
+          >
+            {texte.length}/{MAX_CARACTERES}
+          </span>
         </div>
-      )}
-
-      {/* Suggestions */}
-      {!noDetails && details.length < MAX_DETAILS && (
-        <>
-          <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">
-              Suggestions ({details.length}/{MAX_DETAILS})
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.filter(s => !details.includes(s)).map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  onClick={() => handleAddSuggestion(suggestion)}
-                  className="px-3 py-1.5 text-sm border border-gray-200 rounded-full hover:border-mcf-primary hover:bg-mcf-secondary-light/30 transition-all"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Champ personnalisé */}
-          <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">
-              Autre (à préciser)
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                value={customInput}
-                onChange={(e) => { setCustomInput(e.target.value); if (erreurMot) setErreurMot(null); }}
-                placeholder="Ex : cicatrice à la patte"
-                className="flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddCustom();
-                  }
-                }}
-                onBlur={() => {
-                  // Ajouter automatiquement la valeur saisie si l'utilisateur oublie de cliquer sur +
-                  handleAddCustom();
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={handleAddCustom}
-                disabled={!customInput.trim() || details.length >= MAX_DETAILS}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            {erreurMot && (
-              <p className="text-sm text-destructive mt-2 leading-snug" role="alert">
-                {erreurMot}
-              </p>
-            )}
-            {justAdded && (
-              <p className="text-sm text-mcf-primary flex items-center gap-1 mt-2" aria-live="polite">
-                <Check className="h-4 w-4 flex-shrink-0" />
-                « {justAdded} » ajouté à la liste
-              </p>
-            )}
-          </div>
-        </>
-      )}
-
-      {!noDetails && details.length >= MAX_DETAILS && (
-        <p className="text-sm text-muted-foreground">
-          Maximum de {MAX_DETAILS} détails atteint
-        </p>
-      )}
+      </div>
     </div>
   );
 };
