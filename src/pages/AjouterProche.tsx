@@ -1,3 +1,6 @@
+// AjouterProche v1.3
+// Changelog v1.3 (chantier C1a, correctif) : ecriture directe de physical_details. La branche
+//   pilotee par noPhysicalDetails ecrivait [""] quoi que le parent saisisse. Voir ModifierProche v1.9.
 // AjouterProche v1.2
 // Changelog v1.2 (chantier C1a) : retrait de la validation « au moins un detail physique OU
 //   case cochee ». Voir PhysicalDetailsInput v3.0 et BasicInfoForm v1.3. Details physiques
@@ -242,11 +245,10 @@ export default function AjouterProche() {
           name: splitCamelCase(relativeData.firstName),
           role: relativeData.type,
           avatar: null,
-          physical_details: relativeData.noPhysicalDetails
-            ? [""]
-            : (relativeData.physicalDetails && relativeData.physicalDetails.length > 0 
-              ? relativeData.physicalDetails 
-              : []),
+          // v1.3 : ecriture directe, voir ModifierProche v1.9.
+          physical_details: (relativeData.physicalDetails && relativeData.physicalDetails.length > 0)
+            ? relativeData.physicalDetails
+            : [],
           clothing_style: relativeData.clothingStyle 
             ? [relativeData.clothingStyle] 
             : [],
