@@ -1,3 +1,11 @@
+// useLeaveFormGuard v1.1  (chantier D2)
+// Changelog v1.1 : correctif du DOUBLE AVERTISSEMENT. Confirmer la sortie via le bouton
+//   « Quitter » ouvrait la modale une seconde fois. Cause : l'entree d'historique factice
+//   posee au montage. L'action de sortie consommait cette entree, ce qui declenchait un
+//   popstate que notre propre ecouteur interceptait comme un « Précédent » du navigateur.
+//   Deux verrous desormais : le drapeau sortieEnCoursRef est arme avant d'executer l'action,
+//   et les appelants naviguent vers une route explicite plutot qu'en relatif (voir
+//   NouvelEnfant v1.3).
 // useLeaveFormGuard v1.0  (chantier D2)
 // Intercepte les trois facons de quitter un formulaire en cours et, pour deux d'entre elles,
 // laisse l'appelant afficher une modale rassurante avant de laisser partir.
@@ -86,6 +94,11 @@ export function useLeaveFormGuard({ actif = true }: UseLeaveFormGuardOptions = {
 
   const confirmerSortie = useCallback(() => {
     setConfirmationOuverte(false);
+    // v1.1 : on arme le drapeau AVANT d'executer l'action. Sans lui, une action qui
+    // consomme une entree d'historique (navigate(-1), history.go) declenchait un popstate
+    // que notre propre ecouteur interceptait, ce qui rouvrait la modale : il fallait
+    // confirmer deux fois pour sortir.
+    sortieEnCoursRef.current = true;
     const action = actionEnAttenteRef.current;
     actionEnAttenteRef.current = null;
     if (action) action();
