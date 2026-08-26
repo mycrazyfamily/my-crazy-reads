@@ -1,3 +1,11 @@
+// ModifierProche  (chantier D2)
+// Changelog D2 : avertissement avant de quitter la page de modification.
+//   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
+//   des qu'on quitte. Une modale previent donc avant de partir, variante 'perte' de
+//   LeaveFormDialog. Elle couvre les boutons de sortie de la page ET le bouton
+//   « Précédent » du navigateur, via useLeaveFormGuard.
+//   La modale est inseree apres CHAQUE bouton de sortie : ces pages ont plusieurs branches
+//   de rendu (chargement, erreur, formulaire) et une seule est montee a la fois.
 // ModifierProche v1.9
 // Changelog v1.9 (chantier C1a, correctif) : le drapeau obsolete noPhysicalDetails cassait
 //   DEUX choses sur les proches, mesure du 25/08 sur la fiche Babette.
@@ -88,6 +96,8 @@
 // Changelog v1.1 : ajout de la validation birthDate obligatoire dans handleSave (jamais vérifiée jusqu'ici)
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
+import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -183,6 +193,17 @@ function relativeAvatarSignature(i: any): string {
 
 const ModifierProche: React.FC = () => {
   const navigate = useNavigate();
+
+  // D2 : garde-fou de sortie. Toujours actif : toute modification non enregistree est perdue.
+  const {
+    confirmationOuverte,
+    setConfirmationOuverte,
+    demanderSortie,
+    confirmerSortie,
+  } = useLeaveFormGuard({ actif: true });
+
+  const handleSortie = () => demanderSortie(() => navigate('/espace-famille'));
+
   const invalidateFamilyData = useInvalidateFamilyData();
   const { childId, relativeId } = useParams<{ childId: string; relativeId: string }>();
   
@@ -813,12 +834,19 @@ const ModifierProche: React.FC = () => {
         <main className="container mx-auto px-4 py-20 max-w-3xl">
           <Button
             variant="ghost"
-            onClick={() => navigate('/espace-famille')}
+            onClick={handleSortie}
             className="mb-6 text-mcf-orange-dark hover:bg-mcf-amber/10"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour à l'espace famille
           </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-mcf-orange-dark mb-2">
@@ -844,12 +872,19 @@ const ModifierProche: React.FC = () => {
       <main className="container mx-auto px-4 py-20 max-w-3xl">
         <Button
           variant="ghost"
-          onClick={() => navigate('/espace-famille')}
+          onClick={handleSortie}
           className="mb-6 text-mcf-orange-dark hover:bg-mcf-amber/10"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Retour à l'espace famille
         </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-mcf-orange-dark mb-2">
@@ -969,11 +1004,18 @@ const ModifierProche: React.FC = () => {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => navigate('/espace-famille')}
+              onClick={handleSortie}
               className="flex-1"
             >
               Annuler
             </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
             <Button
               onClick={handleSave}
               disabled={saving}
