@@ -1,3 +1,7 @@
+// ChildProfileFormContext v1.6
+// Changelog v1.6 (chantier D2) : memorisation de l'etape la plus avancee atteinte
+//   (maxStepAtteint). Elle permet de recliquer sur un rond deja franchi pour revenir en
+//   AVANT, sans avoir a repasser par « Continuer » a chaque etape intermediaire.
 // ChildProfileFormContext v1.5
 // Changelog v1.5 (chantier D1) : correctif du BUG DES PROCHES PERDUS.
 //   Symptome : pendant la creation d'un enfant, les proches ajoutes a l'etape 3 disparaissaient
@@ -47,6 +51,8 @@ type ChildProfileFormContextType = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
+  /** v1.6 : etape la plus avancee deja atteinte, pour la navigation par les ronds. */
+  maxStepAtteint: number;
   handleSubmitForm: () => void;
   editMode: boolean;
   isEditDataLoading: boolean;
@@ -573,6 +579,18 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     }
   };
   
+  // v1.6 (chantier D2) : etape la PLUS AVANCEE deja atteinte.
+  // Sans cette memoire, revenir de l'etape 5 a l'etape 2 obligeait a recliquer sur
+  // « Continuer » a chaque etape intermediaire pour revenir a 5, alors que 3 et 4 avaient
+  // deja ete validees et n'avaient pas bouge. On memorise donc le point le plus loin
+  // atteint, ce qui rend cliquables toutes les etapes jusque-la, en avant comme en arriere.
+  // La validation n'est pas contournee : on ne peut jamais depasser ce point sans passer
+  // par « Continuer », qui reste le seul chemin pour l'avancer.
+  const [maxStepAtteint, setMaxStepAtteint] = useState<number>(formStep);
+  useEffect(() => {
+    setMaxStepAtteint((precedent) => (formStep > precedent ? formStep : precedent));
+  }, [formStep]);
+
   const handlePreviousStep = () => {
     let prevStep = formStep - 1;
     
@@ -616,6 +634,7 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     handleNextStep,
     handlePreviousStep, 
     handleGoToStep,
+    maxStepAtteint,
     handleSubmitForm,
     editMode,
     isEditDataLoading,
