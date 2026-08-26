@@ -1,3 +1,6 @@
+// FormSteps v1.5
+// Changelog v1.5 (chantier D2) : transmission de maxStepAtteint a FormProgressIndicator,
+//   avec la conversion etape reelle vers index affiche qu'impose le mode edition.
 // FormSteps v1.4
 // Changelog v1.4 (chantier D2) : les ronds d'etape deviennent cliquables pour revenir en
 //   arriere. FormProgressIndicator v1.2 n'autorise que les etapes DEJA VISITEES. Une
@@ -55,6 +58,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
     handleNextStep, 
     handlePreviousStep, 
     handleGoToStep,
+    maxStepAtteint,
     selectedNickname,
     setSelectedNickname,
     selectedSkinColor,
@@ -117,6 +121,17 @@ const FormSteps: React.FC<FormStepsProps> = ({
   // En mode edition, 8 etapes sont compressees en 4 par getAdjustedStep ; sans cette
   // traduction, un clic sur le rond 3 renverrait a formStep 3 (Animaux) au lieu de
   // formStep 5 (Univers). Hors edition les deux index coincident.
+  // v1.5 : conversion dans l'autre sens, pour traduire maxStepAtteint (une etape REELLE)
+  // en index affiche. Meme table que getAdjustedStep, avec repli sur l'etape la plus
+  // proche vers le bas pour les etapes masquees en mode edition.
+  const etapeAfficheeDepuisReelle = (etapeReelle: number): number => {
+    if (!editMode) return etapeReelle;
+    if (etapeReelle >= 7) return 3;
+    if (etapeReelle >= 5) return 2;
+    if (etapeReelle >= 1) return 1;
+    return 0;
+  };
+
   const etapeReelleDepuisAffichee = (indexAffiche: number): number => {
     if (!editMode) return indexAffiche;
     const inverse: { [key: number]: number } = { 0: 0, 1: 1, 2: 5, 3: 7 };
@@ -167,6 +182,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
         totalSteps={totalSteps}
         stepLabels={stepLabels}
         onStepClick={(index) => goTo(etapeReelleDepuisAffichee(index))}
+        maxStepAtteint={etapeAfficheeDepuisReelle(maxStepAtteint)}
       />
       
       {formStep === 0 && (
