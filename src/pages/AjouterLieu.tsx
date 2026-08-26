@@ -1,3 +1,12 @@
+// AjouterLieu  (chantier D2)
+// Changelog D2 : avertissement avant de quitter le formulaire.
+//   Le bouton de sortie en haut a gauche fait deux choses selon l'etat : s'il y a un
+//   formulaire ouvert il revient a la selection, sinon il retourne a l'espace famille.
+//   Dans le premier cas la saisie en cours est PERDUE, aucun brouillon n'existe sur cette
+//   page. Une modale previent donc avant, variante 'perte' de LeaveFormDialog.
+//   Le garde-fou est ACTIF UNIQUEMENT quand le formulaire est ouvert (showForm) : sur
+//   l'ecran de selection il n'y a rien a perdre, avertir serait du bruit. Il couvre aussi
+//   le bouton « Précédent » du navigateur, via useLeaveFormGuard.
 // AjouterLieu  (chantier C3)
 // Changelog C3 : la note « une maison principale est obligatoire » apparait desormais AVANT
 //   la saisie, dans l'en-tete du formulaire, et plus seulement dans le toast d'erreur au
@@ -12,6 +21,8 @@
 // sélectionné). Ne bloque pas la création de la maison principale elle-même.
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
+import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
@@ -36,6 +47,22 @@ interface Child {
 
 export default function AjouterLieu() {
   const navigate = useNavigate();
+
+  // D2 : garde-fou de sortie. Actif seulement quand un formulaire est ouvert.
+  const {
+    confirmationOuverte,
+    setConfirmationOuverte,
+    demanderSortie,
+    confirmerSortie,
+  } = useLeaveFormGuard({ actif: showForm });
+
+  const handleSortie = () => {
+    if (showForm) {
+      demanderSortie(() => setShowForm(false));
+    } else {
+      navigate('/espace-famille');
+    }
+  };
   const invalidateFamilyData = useInvalidateFamilyData();
   const { childId } = useParams<{ childId?: string }>();
   const { user, supabaseSession } = useAuth();
@@ -321,13 +348,20 @@ export default function AjouterLieu() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => showForm ? setShowForm(false) : navigate('/espace-famille')}
+            onClick={handleSortie}
             className="border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un lieu de vie</h1>
         </div>
+
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
 
         <FormProgressIndicator 
           currentStep={showForm ? 1 : 0}
