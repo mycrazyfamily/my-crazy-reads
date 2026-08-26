@@ -1,3 +1,10 @@
+// WorldsForm v1.5
+// Changelog D2 : le bouton de recul en bas d'etape s'appelle « Étape précédente » et non plus
+//   « Retour ». Le mot « Retour » designait aussi le bouton du haut, qui ferme tout le
+//   formulaire, et les testeurs confondaient les deux. Le bouton du haut est devenu
+//   « Quitter » avec une croix (NouvelEnfant), celui-ci nomme ce qu'il fait.
+//   Ces ecrans n'utilisent pas NavigationButtons, ils ont leur propre bouton en dur : le
+//   libelle est donc a corriger fichier par fichier.
 // WorldsForm v1.4
 // Changelog v1.4 : les options « Autre » sont RETIRÉES, univers et découvertes.
 //   Le texte saisi n'a jamais été enregistré (voir le commentaire dans le
@@ -226,7 +233,7 @@ const WorldsForm: React.FC<WorldsFormProps> = ({
             variant="outline"
             className="font-semibold w-full sm:w-auto"
           >
-            ← Retour
+            ← Étape précédente
           </Button>
           
           <Button 
