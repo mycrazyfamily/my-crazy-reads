@@ -1,3 +1,12 @@
+// PetsForm v1.0
+// Changelog D2 : le bouton de recul en bas d'etape s'appelle « Étape précédente » et non plus
+//   NOTE : ce fichier n'avait aucune banniere de version. v1.0 est donc sa premiere
+//   version numerotee, elle ne remplace rien.
+//   « Retour ». Le mot « Retour » designait aussi le bouton du haut, qui ferme tout le
+//   formulaire, et les testeurs confondaient les deux. Le bouton du haut est devenu
+//   « Quitter » avec une croix (NouvelEnfant), celui-ci nomme ce qu'il fait.
+//   Ces ecrans n'utilisent pas NavigationButtons, ils ont leur propre bouton en dur : le
+//   libelle est donc a corriger fichier par fichier.
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -344,7 +353,7 @@ const PetsForm: React.FC<PetsFormProps> = ({
               variant="outline"
               className="font-semibold w-full sm:w-auto"
             >
-              ← Retour
+              ← Étape précédente
             </Button>
             
             <Button 
