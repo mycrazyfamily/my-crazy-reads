@@ -1,4 +1,13 @@
-// AjouterProche v1.4
+// AjouterProche v1.5
+// Changelog v1.5 (chantier D2, suite) : harmonisation de la sortie avec le formulaire enfant.
+//   [1] « QUITTER » QUITTE VRAIMENT. Le bouton du haut revenait a l'ecran de selection des
+//       enfants quand un formulaire etait ouvert. Confirmer « Quitter sans enregistrer »
+//       pour se retrouver a l'etape 1 de la meme page n'a aucun sens : on part maintenant
+//       a l'espace famille, comme le fait le formulaire enfant.
+//   [2] LE BOUTON « ANNULER » DU BAS declenche la meme modale. Il naviguait directement,
+//       sans rien demander, alors qu'il fait exactement la meme chose que le bouton du haut.
+//   [3] FLECHE REMPLACEE PAR UNE CROIX + LE MOT « QUITTER », comme sur le formulaire enfant.
+//       Un bouton icone seul ne disait pas ce qu'il faisait.
 // Changelog D2 : avertissement avant de quitter le formulaire.
 //   Le bouton de sortie en haut a gauche fait deux choses selon l'etat : s'il y a un
 //   formulaire ouvert il revient a la selection, sinon il retourne a l'espace famille.
@@ -39,7 +48,7 @@ import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
 import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Plus, CheckCircle2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFamilyIdSync } from '@/hooks/useFamilyIdSync';
@@ -85,8 +94,11 @@ export default function AjouterProche() {
   } = useLeaveFormGuard({ actif: showForm });
 
   const handleSortie = () => {
+    // La modale ne s'affiche que si un formulaire est ouvert : sur l'ecran de selection
+    // il n'y a rien a perdre. Dans les deux cas on quitte la page, on ne revient plus a
+    // l'ecran de selection.
     if (showForm) {
-      demanderSortie(() => setShowForm(false));
+      demanderSortie(() => navigate('/espace-famille'));
     } else {
       navigate('/espace-famille');
     }
@@ -358,11 +370,11 @@ export default function AjouterProche() {
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="outline"
-            size="icon"
             onClick={handleSortie}
-            className="border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10"
+            className="flex items-center gap-2 border-mcf-orange/30 text-mcf-orange-dark hover:bg-mcf-amber/10"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <X className="h-4 w-4" />
+            Quitter
           </Button>
           <h1 className="text-3xl font-bold text-mcf-orange-dark">Ajouter un proche</h1>
         </div>
@@ -456,7 +468,7 @@ export default function AjouterProche() {
                   key={relativeKey}
                   relative={createEmptyRelative()}
                   onSave={handleAddRelative} 
-                  onCancel={() => navigate('/espace-famille')}
+                  onCancel={handleSortie}
                   isDisabled={isSubmitting}
                 />
               </ErrorBoundary>
