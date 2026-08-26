@@ -946,7 +946,13 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       }
 
     // Définir la destination en fonction du mode
-    const destination = isGiftMode && nextPath ? nextPath : '/start-adventure';
+    // (chantier F) : hors mode cadeau, on ne propulse plus le parent sur la page tarifs.
+    // Il vient de creer un enfant, il veut le VOIR. L'espace famille l'accueille avec sa
+    // fiche, son avatar, et le bouton « S'abonner » pose sur la carte. Il peut au passage
+    // ajouter des proches, un animal, un doudou : le profil s'enrichit AVANT l'abonnement,
+    // ce qui augmente la valeur percue au moment de payer. La conversion est portee par le
+    // CTA de la carte enfant (ChildProfileCard v2.3), plus par une redirection brutale.
+    const destination = isGiftMode && nextPath ? nextPath : '/espace-famille';
     console.log("Will redirect to:", destination);
 
     // Navigate after a short delay so the toast is visible
@@ -956,7 +962,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
       if (isGiftMode && nextPath) {
         navigate(nextPath, { state: { childProfile: data } });
       } else {
-        navigate('/abonnement?context=adventure', { state: { childProfile: data } });
+        navigate('/espace-famille', { state: { childProfile: data } });
       }
     }, 1000);
   };
