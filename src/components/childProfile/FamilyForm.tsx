@@ -1,4 +1,4 @@
-// ToysForm v1.0
+// FamilyForm v1.0
 // Changelog D2 : le bouton de recul en bas d'etape s'appelle « Étape précédente » et non plus
 //   NOTE : ce fichier n'avait aucune banniere de version. v1.0 est donc sa premiere
 //   version numerotee, elle ne remplace rien.
@@ -10,215 +10,347 @@
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import type { ChildProfileFormData, ToyData } from '@/types/childProfile';
-import ToyForm from './toys/ToyForm';
-import ToysList from './toys/ToysList';
-
-type ToysFormProps = {
-  handleNextStep: () => void;
+import type { ChildProfileFormData, RelativeData, RelativeType, RelativeGender } from '@/types/childProfile';
+import RelativeForm from './RelativeForm';
+import RelativeTypeSelection from './relatives/RelativeTypeSelection';
+import RelativesList from './relatives/RelativesList';
+import ExistingRelativesList from './relatives/ExistingRelativesList';
+import { supabase } from "@/integrations/supabase/client";
+type FamilyFormProps = {
   handlePreviousStep: () => void;
+  onSubmit: () => void;
 };
 
-const ToysForm: React.FC<ToysFormProps> = ({
-  handleNextStep,
-  handlePreviousStep
+// Helper function to determine gender based on relative type
+const getRelativeGender = (type: RelativeType): RelativeGender => {
+  const femaleTypes = ["mother", "sister", "grandmother", "aunt", "femaleCousin", "femaleFriend", "nanny"];
+  const maleTypes = ["father", "brother", "grandfather", "uncle", "maleCousin", "maleFriend"];
+  if (femaleTypes.includes(type)) return "female";
+  if (maleTypes.includes(type)) return "male";
+  return "male";
+  return "neutral";
+};
+type ExistingRelative = {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  family_id: string;
+};
+
+const FamilyForm: React.FC<FamilyFormProps> = ({
+  handlePreviousStep,
+  onSubmit
 }) => {
   const form = useFormContext<ChildProfileFormData>();
-  const [isAddingToy, setIsAddingToy] = useState(false);
-  const [currentToy, setCurrentToy] = useState<ToyData | null>(null);
-  
-  // Getter pour hasToys
-  const hasToys = form.watch("toys.hasToys");
-  
-  // Getter pour la liste des doudous
-  const toys = form.watch("toys.toys") || [];
+  const [currentRelative, setCurrentRelative] = useState<RelativeData | null>(null);
+  const [isEditingRelative, setIsEditingRelative] = useState(false);
+  const [isSavingRelative, setIsSavingRelative] = useState(false);
+  const [existingRelatives, setExistingRelatives] = useState<ExistingRelative[]>([]);
+  const [selectedExistingRelativeIds, setSelectedExistingRelativeIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un doudou
+  // Revenir en haut quand on ouvre/ferme le sous-formulaire d'un proche
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [isAddingToy]);
+  }, [isEditingRelative]);
 
-  const handleHasToysChange = (value: string) => {
-    const hasToysValue = value === "true";
-    
-    // Empêcher de sélectionner "Non" s'il y a des doudous actifs
-    const activeToys = toys.filter(toy => toy.isActive !== false);
-    if (!hasToysValue && activeToys.length > 0) {
-      toast.error("Veuillez d'abord marquer tous les doudous comme perdus avant de sélectionner 'Non'");
-      return;
-    }
-    
-    form.setValue("toys.hasToys", hasToysValue, { shouldDirty: true });
-  };
 
-  const handleAddToy = () => {
-    setCurrentToy(null);
-    setIsAddingToy(true);
-  };
+  // Charger les proches existants de la famille
+  useEffect(() => {
+    const loadExistingRelatives = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.log('No user found');
+          setLoading(false);
+          return;
+        }
 
-  const handleEditToy = (toy: ToyData) => {
-    setCurrentToy(toy);
-    setIsAddingToy(true);
-  };
+        // Charger le family_id de l'utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('family_id')
+          .eq('id', user.id)
+          .maybeSingle();
 
-  const handleDeleteToy = (id: string) => {
-    const updatedToys = toys.filter(toy => toy.id !== id);
-    form.setValue("toys.toys", updatedToys, { shouldDirty: true });
-  };
+        if (profileError) {
+          console.error('Error loading user profile:', profileError);
+          setLoading(false);
+          return;
+        }
 
-  const handleToggleActive = (id: string) => {
-    const updatedToys = toys.map(toy => 
-      toy.id === id ? { ...toy, isActive: toy.isActive === false ? true : false } : toy
-    );
-    form.setValue("toys.toys", updatedToys, { shouldDirty: true });
-    
-    const toy = toys.find(t => t.id === id);
-    // Status updated silently
-  };
+        let relativesFromTable: ExistingRelative[] = [];
 
-  const handleSaveToy = (toy: ToyData) => {
-    const existing = toys.find(t => t.id === toy.id);
-    const isEditing = !!existing;
-    const merged = isEditing ? { ...existing, ...toy } : toy;
-    // S'assurer de ne jamais perdre les champs de liaison
-    const safeMerged: ToyData = {
-      ...merged,
-      comforterId: merged.comforterId ?? existing?.comforterId,
-      isActive: merged.isActive ?? existing?.isActive
+        // Si l'utilisateur a un family_id, charger depuis family_members
+        if (profile?.family_id) {
+          console.log('Loading family_members for family_id:', profile.family_id);
+
+          const { data: familyMembers, error: fmError } = await supabase
+            .from('family_members')
+            .select('id, name, role, avatar, family_id')
+            .eq('family_id', profile.family_id);
+
+          if (fmError) {
+            console.error('Error loading family_members:', fmError);
+          } else if (familyMembers && familyMembers.length > 0) {
+            relativesFromTable = familyMembers.map((fm: any) => ({
+              id: fm.id,
+              name: fm.name || 'Sans nom',
+              role: fm.role || 'Proche',
+              avatar: fm.avatar || '👤',
+              family_id: fm.family_id || ''
+            }));
+            console.log('Loaded family_members:', relativesFromTable);
+          }
+        }
+
+        // Les proches sont maintenant uniquement dans family_members
+
+        if (relativesFromTable.length > 0) {
+          setExistingRelatives(relativesFromTable);
+        } else {
+          console.log('No relatives found');
+        }
+      } catch (error) {
+        console.error('Error loading existing relatives:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const updatedToys = isEditing
-      ? toys.map(t => t.id === toy.id ? safeMerged : t)
-      : [...toys, safeMerged];
-    
-    form.setValue("toys.toys", updatedToys, { shouldDirty: true });
-    setIsAddingToy(false);
-    setCurrentToy(null);
-  };
+    loadExistingRelatives();
+  }, []);
 
-  const handleCancelToyForm = () => {
-    setIsAddingToy(false);
-    setCurrentToy(null);
-  };
-
-  const handleToysSectionContinue = () => {
-    // Vérification obligatoire de la réponse à la question "Oui/Non"
-    if (hasToys === undefined || hasToys === null) {
-      toast.error("Veuillez répondre à la question sur la présence d'un doudou ou objet fétiche");
-      return;
+  // Restaurer les sélections de proches existants depuis le formulaire
+  useEffect(() => {
+    const savedIds = form.getValues().family?.existingRelativeIds;
+    if (savedIds && savedIds.length > 0) {
+      setSelectedExistingRelativeIds(savedIds);
     }
+  }, [form]);
 
-    // Si l'utilisateur a sélectionné "Oui" mais n'a ajouté aucun doudou (ni actif ni inactif)
-    if (hasToys && toys.length === 0) {
-      toast.error("Veuillez ajouter au moins un doudou ou objet magique, ou sélectionner \"Non\"");
-      return;
-    }
-    
-    // Permettre la validation même si tous les doudous sont perdus
-    // Les doudous perdus restent sauvegardés et visibles
-    handleNextStep();
-  };
-
-  return (
-    <div className="mb-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-6 text-mcf-primary">
-        Doudous et objets magiques
-      </h2>
+  // Gérer la sélection/désélection des proches existants
+  const handleToggleExistingRelative = (relativeId: string) => {
+    setSelectedExistingRelativeIds(prev => {
+      const newIds = prev.includes(relativeId)
+        ? prev.filter(id => id !== relativeId)
+        : [...prev, relativeId];
       
-      {!isAddingToy ? (
-        <div className="space-y-8">
-          {/* Question sur la présence de doudous */}
-          <div className="space-y-4">
-            <Label className="text-base font-medium">
-              Votre enfant a-t-il un doudou ou un objet fétiche ?
-            </Label>
-            
-            <RadioGroup 
-              defaultValue={hasToys ? "true" : "false"}
-              onValueChange={handleHasToysChange}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="true" id="has-toys-yes" />
-                <Label htmlFor="has-toys-yes" className="cursor-pointer">Oui</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem 
-                  value="false" 
-                  id="has-toys-no" 
-                  disabled={toys.filter(t => t.isActive !== false).length > 0}
-                  className={toys.filter(t => t.isActive !== false).length > 0 ? "opacity-50 cursor-not-allowed" : ""}
-                />
-                <Label 
-                  htmlFor="has-toys-no" 
-                  className={toys.filter(t => t.isActive !== false).length > 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
-                >
-                  Non
-                </Label>
-              </div>
-            </RadioGroup>
-            {toys.filter(t => t.isActive !== false).length > 0 && (
-              <p className="text-sm text-muted-foreground italic mt-2">
-                Marquez d'abord tous les doudous comme perdus pour pouvoir sélectionner "Non"
-              </p>
-            )}
+      // Sauvegarder immédiatement dans le formulaire
+      form.setValue("family.existingRelativeIds", newIds);
+      
+      return newIds;
+    });
+  };
+  const handleAddRelative = (relativeType: RelativeType) => {
+    const gender = getRelativeGender(relativeType);
+
+    // Créer un nouveau proche vide
+    const newRelative: RelativeData = {
+      id: '', // vide pour signaler un nouveau proche (évite le mode "modifier")
+      type: relativeType,
+      gender: gender,
+      firstName: '',
+      nickname: {
+        type: "none"
+      },
+      age: '',
+      birthDate: undefined,
+      job: '',
+      // Valeurs "custom" par défaut pour ne rien présélectionner dans l'UI
+      skinColor: {
+        type: "custom"
+      },
+      hairColor: {
+        type: "custom"
+      },
+      hairType: "custom",
+      glasses: false, // l'UI utilise un état séparé (null au départ)
+      traits: []
+    };
+    setCurrentRelative(newRelative);
+    setIsEditingRelative(true);
+  };
+  const handleSaveRelative = (relative: RelativeData, selectedChildrenIds?: string[]) => {
+    // Marquer comme en cours de sauvegarde pour éviter les doubles clics
+    if (isSavingRelative) return;
+    setIsSavingRelative(true);
+    
+    // Sauvegarder les IDs des enfants sélectionnés pour les liens ultérieurs
+    if (selectedChildrenIds && selectedChildrenIds.length > 0) {
+      const existingLinks = form.getValues().family?.relativeChildLinks || {};
+      const relativeId = relative.id || Date.now().toString();
+      
+      form.setValue("family.relativeChildLinks", {
+        ...existingLinks,
+        [relativeId]: selectedChildrenIds
+      });
+    }
+    // Validation basique
+    if (!relative.firstName) {
+      toast.error("Le prénom est requis");
+      setIsSavingRelative(false);
+      return;
+    }
+    if (relative.traits.length > 3) {
+      toast.error("Veuillez sélectionner au maximum 3 traits de caractère");
+      setIsSavingRelative(false);
+      return;
+    }
+
+    // Récupérer la liste actuelle des proches
+    const currentRelatives = form.getValues().family?.relatives || [];
+
+    // Déterminer s'il s'agit d'une mise à jour ou d'un ajout
+    const isUpdate = relative.id && currentRelatives.some(r => r.id === relative.id);
+
+    // Si ajout, générer un identifiant
+    const relativeToSave: RelativeData = {
+      ...relative,
+      id: isUpdate ? relative.id : Date.now().toString(),
+    } as RelativeData;
+
+    // Ajouter ou mettre à jour le proche
+    const updatedRelatives = isUpdate
+      ? currentRelatives.map(r => r.id === relativeToSave.id ? relativeToSave : r)
+      : [...currentRelatives, relativeToSave];
+
+    // Mettre à jour le formulaire
+    form.setValue("family.relatives", updatedRelatives);
+
+    // Réinitialiser l'état de sélection après avoir sauvegardé un proche
+    form.setValue("family.selectedRelatives", []);
+
+    // CRITICAL FIX: Attendre que les Portals (DatePicker, etc.) se démontent proprement
+    // avant de démonter le composant RelativeForm parent
+    setTimeout(() => {
+      setCurrentRelative(null);
+      setIsEditingRelative(false);
+      setIsSavingRelative(false);
+    }, 100); // Délai suffisant pour permettre au Portal de se nettoyer
+  };
+  const handleEditRelative = (relative: RelativeData) => {
+    // Ensure the relative has a gender property
+    const relativeWithGender = {
+      ...relative,
+      gender: relative.gender || getRelativeGender(relative.type),
+      // Préserver les enfants liés existants
+      linkedChildrenIds: form.getValues().family?.relativeChildLinks?.[relative.id || ''] || []
+    };
+    setCurrentRelative(relativeWithGender);
+    setIsEditingRelative(true);
+  };
+  const handleDeleteRelative = (id: string) => {
+    // Récupérer la liste actuelle des proches
+    const currentRelatives = form.getValues().family?.relatives || [];
+
+    // Filtrer pour retirer le proche à supprimer
+    const updatedRelatives = currentRelatives.filter(r => r.id !== id);
+
+    // Mettre à jour le formulaire
+    form.setValue("family.relatives", updatedRelatives);
+  };
+  const handleCancelRelativeEdit = () => {
+    // CRITICAL FIX: Même logique pour l'annulation - laisser le temps aux Portals de se nettoyer
+    setTimeout(() => {
+      setCurrentRelative(null);
+      setIsEditingRelative(false);
+    }, 100);
+  };
+  const handleFamilySectionContinue = () => {
+    // Sauvegarder les IDs et les données des proches existants sélectionnés
+    const selectedRelativesData = existingRelatives.filter(r => 
+      selectedExistingRelativeIds.includes(r.id)
+    );
+    
+    form.setValue("family.existingRelativeIds", selectedExistingRelativeIds);
+    form.setValue("family.existingRelativesData", selectedRelativesData as any);
+    
+    // Suppression de la vérification obligatoire des proches
+    // Le formulaire permet maintenant de continuer même sans ajouter de proche
+    onSubmit();
+  };
+
+  // Simplifier le toggle pour qu'un seul type puisse être sélectionné à la fois
+  const handleRelativeTypeToggle = (relativeType: RelativeType) => {
+    const currentValues = form.getValues().family?.selectedRelatives || [];
+    let newValues;
+    if (currentValues.includes(relativeType)) {
+      // Désélectionner
+      newValues = [];
+    } else {
+      // Sélectionner uniquement ce type
+      newValues = [relativeType];
+    }
+    form.setValue("family.selectedRelatives", newValues, {
+      shouldDirty: true
+    });
+  };
+
+  // Récupérer l'état actuel des types de proches sélectionnés
+  const selectedRelatives = form.watch("family.selectedRelatives") || [];
+  const relatives = form.watch("family.relatives") || [];
+  return <div className="mb-6 animate-fade-in">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-mcf-primary mb-2">
+          Famille et entourage
+        </h2>
+        <p className="text-sm text-gray-600 italic">Vous pourrez toujours ajouter ou modifier les membres de la famille plus tard si vous le souhaitez</p>
+      </div>
+      
+      {!isEditingRelative ? <div className="space-y-8">
+          {/* Liste des proches existants à sélectionner */}
+          {!loading && existingRelatives.length > 0 && (
+            <ExistingRelativesList 
+              existingRelatives={existingRelatives}
+              selectedRelativeIds={selectedExistingRelativeIds}
+              onToggleRelative={handleToggleExistingRelative}
+            />
+          )}
+
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold text-mcf-primary mb-4">Ajouter un nouveau proche</h3>
+            <RelativeTypeSelection selectedRelatives={selectedRelatives} handleRelativeTypeToggle={handleRelativeTypeToggle} onAddRelative={handleAddRelative} />
           </div>
           
-          {/* Section d'ajout de doudous (visible uniquement si "Oui" est sélectionné) */}
-          {hasToys && (
-            <div className="space-y-6">
-              <Button
-                type="button"
-                onClick={handleAddToy}
-                className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-semibold"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter un doudou
+          <RelativesList relatives={relatives} onEditRelative={handleEditRelative} onDeleteRelative={handleDeleteRelative} />
+          
+          {/* Section de confirmation et bouton de finalisation */}
+          <div className="mt-10 space-y-6">
+            <div className="bg-gradient-to-r from-mcf-mint/20 to-mcf-amber/20 p-6 rounded-xl border-2 border-mcf-primary/20 shadow-lg">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-mcf-primary mb-2">
+                  Avez-vous ajouté tous les personnages importants pour votre enfant ?
+                </h3>
+                <p className="text-mcf-orange-dark font-medium">
+                  Pas d'inquiétude, vous pourrez en ajouter d'autres plus tard dans votre espace famille
+                </p>
+              </div>
+            </div>
+            
+            <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+              <Button type="button" onClick={handlePreviousStep} variant="outline" className="font-semibold w-full sm:w-auto">
+                ← Étape précédente
               </Button>
               
-              <ToysList 
-                toys={toys} 
-                onEditToy={handleEditToy} 
-                onDeleteToy={handleDeleteToy}
-                onToggleActive={handleToggleActive}
-              />
+              <Button type="button" onClick={handleFamilySectionContinue} className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight">
+                {relatives.length > 0 ? "Oui, j'ai ajouté tous les proches !" : "Continuer sans ajouter de proches →"}
+              </Button>
             </div>
-          )}
-          
-          {/* Boutons de navigation */}
-          <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <Button 
-              type="button" 
-              onClick={handlePreviousStep}
-              variant="outline"
-              className="font-semibold w-full sm:w-auto"
-            >
-              ← Étape précédente
-            </Button>
-            
-            <Button 
-              type="button" 
-              onClick={handleToysSectionContinue}
-              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto h-auto whitespace-normal sm:whitespace-nowrap leading-tight"
-            >
-              Passer à l'étape suivante →
-            </Button>
           </div>
-        </div>
-      ) : (
-        <ToyForm 
-          toy={currentToy || undefined} 
-          onSave={handleSaveToy} 
-          onCancel={handleCancelToyForm} 
-        />
-      )}
-    </div>
-  );
+        </div> : currentRelative && <div className="animate-fade-in">
+          <RelativeForm 
+            relative={currentRelative} 
+            onSave={handleSaveRelative} 
+            onCancel={handleCancelRelativeEdit}
+            isCreatingNewChild={true}
+            isDisabled={isSavingRelative}
+          />
+        </div>}
+    </div>;
 };
-
-export default ToysForm;
+export default FamilyForm;
