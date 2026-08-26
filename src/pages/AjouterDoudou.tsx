@@ -1,4 +1,4 @@
-// AjouterDoudou  (chantier D2)
+// AjouterDoudou v2.2
 // Changelog D2 : avertissement avant de quitter le formulaire.
 //   Le bouton de sortie en haut a gauche fait deux choses selon l'etat : s'il y a un
 //   formulaire ouvert il revient a la selection, sinon il retourne a l'espace famille.
@@ -55,6 +55,15 @@ function emojiForToyType(type: string): string {
 export default function AjouterDoudou() {
   const navigate = useNavigate();
 
+  const invalidateFamilyData = useInvalidateFamilyData();
+  const { user, supabaseSession } = useAuth();
+
+  // Synchroniser automatiquement le family_id
+  useFamilyIdSync();
+
+  const [children, setChildren] = useState<Child[]>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   // D2 : garde-fou de sortie. Actif seulement quand un formulaire est ouvert.
   const {
     confirmationOuverte,
@@ -70,15 +79,6 @@ export default function AjouterDoudou() {
       navigate('/espace-famille');
     }
   };
-  const invalidateFamilyData = useInvalidateFamilyData();
-  const { user, supabaseSession } = useAuth();
-
-  // Synchroniser automatiquement le family_id
-  useFamilyIdSync();
-
-  const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
