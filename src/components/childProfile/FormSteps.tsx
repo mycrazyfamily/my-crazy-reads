@@ -1,3 +1,10 @@
+// FormSteps v1.4
+// Changelog v1.4 (chantier D2) : les ronds d'etape deviennent cliquables pour revenir en
+//   arriere. FormProgressIndicator v1.2 n'autorise que les etapes DEJA VISITEES. Une
+//   traduction inverse est necessaire en mode edition, ou getAdjustedStep compresse 8 etapes
+//   en 4 : sans elle, un clic sur le rond 3 renverrait a Animaux au lieu d'Univers.
+//   Le squelette de chargement ne recoit PAS onStepClick : cliquer pendant le chargement
+//   des donnees n'aurait pas de sens.
 // FormSteps v1.3
 // Changelog v1.3 (AFFICHAGE UNIQUEMENT) : prop forceLoading — permet au parent de garder le skeleton
 // affiché tant que l'avatar du haut n'est pas prêt, pour révéler avatar + champs EN MÊME TEMPS.
@@ -106,6 +113,16 @@ const FormSteps: React.FC<FormStepsProps> = ({
   
   const adjustedStep = getAdjustedStep();
 
+  // v1.4 (chantier D2) : traduction INVERSE de l'index affiche vers l'etape reelle.
+  // En mode edition, 8 etapes sont compressees en 4 par getAdjustedStep ; sans cette
+  // traduction, un clic sur le rond 3 renverrait a formStep 3 (Animaux) au lieu de
+  // formStep 5 (Univers). Hors edition les deux index coincident.
+  const etapeReelleDepuisAffichee = (indexAffiche: number): number => {
+    if (!editMode) return indexAffiche;
+    const inverse: { [key: number]: number } = { 0: 0, 1: 1, 2: 5, 3: 7 };
+    return inverse[indexAffiche] ?? 0;
+  };
+
   // v1.2 : pendant le chargement des données d'édition, on montre un skeleton de champs au lieu des
   // valeurs par défaut (qui « sauteraient » ensuite aux vraies valeurs). La barre de progression est
   // conservée à l'identique → pas de décalage au moment où les vrais champs apparaissent.
@@ -149,6 +166,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
         currentStep={adjustedStep}
         totalSteps={totalSteps}
         stepLabels={stepLabels}
+        onStepClick={(index) => goTo(etapeReelleDepuisAffichee(index))}
       />
       
       {formStep === 0 && (
