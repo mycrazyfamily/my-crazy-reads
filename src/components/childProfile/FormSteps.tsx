@@ -1,3 +1,6 @@
+// FormSteps v1.6
+// Changelog v1.6 (chantier D2) : le clic sur un rond de l'indicateur VALIDE le formulaire
+//   avant d'avancer, et ne valide rien pour reculer. Detail au-dessus de allerVersRond.
 // FormSteps v1.5
 // Changelog v1.5 (chantier D2) : transmission de maxStepAtteint a FormProgressIndicator,
 //   avec la conversion etape reelle vers index affiche qu'impose le mode edition.
@@ -21,6 +24,7 @@
 // au lieu de 5 en édition). Contrepartie obligatoire dans ChildProfileFormContext.tsx (v1.1).
 import React from 'react';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
+import { toast } from "sonner";
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
 import PersonalityForm from '@/components/childProfile/PersonalityForm';
 import FamilyForm from '@/components/childProfile/FamilyForm';
@@ -54,6 +58,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
   forceLoading = false
 }) => {
   const { 
+    form,
     formStep, 
     handleNextStep, 
     handlePreviousStep, 
@@ -124,6 +129,31 @@ const FormSteps: React.FC<FormStepsProps> = ({
   // v1.5 : conversion dans l'autre sens, pour traduire maxStepAtteint (une etape REELLE)
   // en index affiche. Meme table que getAdjustedStep, avec repli sur l'etape la plus
   // proche vers le bas pour les etapes masquees en mode edition.
+  // v1.6 (chantier D2) : clic sur un rond de l'indicateur.
+  //
+  // RECULER est toujours permis, sans validation, exactement comme le bouton « Étape
+  // précédente ». Sans cette dissymetrie on creerait une impasse : un formulaire rendu
+  // invalide par un champ de l'etape 2 empecherait de cliquer sur le rond 2, c'est-a-dire
+  // sur l'endroit meme ou se trouve le probleme a corriger.
+  //
+  // AVANCER applique la MEME validation que « Continuer », soit form.trigger(). Sans elle,
+  // on pouvait revenir a une etape deja validee, vider un champ obligatoire comme le prenom,
+  // puis sauter directement a l'etape 5 sans le moindre avertissement. La validation finale
+  // rattrapait le coup, mais tres loin de l'endroit ou le champ manquait.
+  const allerVersRond = React.useCallback(async (indexAffiche: number) => {
+    const cible = etapeReelleDepuisAffichee(indexAffiche);
+    if (cible <= formStep) {
+      goTo(cible);
+      return;
+    }
+    const estValide = await form.trigger();
+    if (!estValide) {
+      toast.error("Veuillez compléter tous les champs requis");
+      return;
+    }
+    goTo(cible);
+  }, [formStep, form, goTo, editMode]);
+
   const etapeAfficheeDepuisReelle = (etapeReelle: number): number => {
     if (!editMode) return etapeReelle;
     if (etapeReelle >= 7) return 3;
@@ -181,7 +211,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
         currentStep={adjustedStep}
         totalSteps={totalSteps}
         stepLabels={stepLabels}
-        onStepClick={(index) => goTo(etapeReelleDepuisAffichee(index))}
+        onStepClick={allerVersRond}
         maxStepAtteint={etapeAfficheeDepuisReelle(maxStepAtteint)}
       />
       
