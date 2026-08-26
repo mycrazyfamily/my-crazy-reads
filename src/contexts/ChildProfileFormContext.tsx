@@ -1,3 +1,11 @@
+// ChildProfileFormContext v1.7
+// Changelog v1.7 (chantier D2, retour arriere) :
+//   [1] RETRAIT de maxStepAtteint, introduit en v1.6. Le saut en avant par les ronds
+//       contournait les validations locales des etapes (le formulaire n'a pas de resolver
+//       global) et permettait de creer un enfant sans prenom. Les ronds ne font plus que
+//       reculer, voir FormSteps v1.7.
+//   [2] VERROU FINAL dans handleSubmitForm : la soumission est refusee si le prenom est
+//       vide, avec retour a l'etape Infos. Ceinture independante du chemin de navigation.
 // ChildProfileFormContext v1.6
 // Changelog v1.6 (chantier D2) : memorisation de l'etape la plus avancee atteinte
 //   (maxStepAtteint). Elle permet de recliquer sur un rond deja franchi pour revenir en
@@ -51,8 +59,6 @@ type ChildProfileFormContextType = {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
   handleGoToStep: (step: number) => void;
-  /** v1.6 : etape la plus avancee deja atteinte, pour la navigation par les ronds. */
-  maxStepAtteint: number;
   handleSubmitForm: () => void;
   editMode: boolean;
   isEditDataLoading: boolean;
@@ -579,18 +585,6 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     }
   };
   
-  // v1.6 (chantier D2) : etape la PLUS AVANCEE deja atteinte.
-  // Sans cette memoire, revenir de l'etape 5 a l'etape 2 obligeait a recliquer sur
-  // « Continuer » a chaque etape intermediaire pour revenir a 5, alors que 3 et 4 avaient
-  // deja ete validees et n'avaient pas bouge. On memorise donc le point le plus loin
-  // atteint, ce qui rend cliquables toutes les etapes jusque-la, en avant comme en arriere.
-  // La validation n'est pas contournee : on ne peut jamais depasser ce point sans passer
-  // par « Continuer », qui reste le seul chemin pour l'avancer.
-  const [maxStepAtteint, setMaxStepAtteint] = useState<number>(formStep);
-  useEffect(() => {
-    setMaxStepAtteint((precedent) => (formStep > precedent ? formStep : precedent));
-  }, [formStep]);
-
   const handlePreviousStep = () => {
     let prevStep = formStep - 1;
     
@@ -616,6 +610,18 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
   const handleSubmitForm = () => {
     console.log("Direct submit in context triggered");
     const formData = form.getValues();
+    // v1.7 VERROU FINAL : jamais de soumission sans prenom, quel que soit le chemin.
+    // Le formulaire n'a pas de resolver global, chaque etape valide dans son propre bouton
+    // « Continuer » : tout chemin qui contourne ces boutons (navigation par les ronds,
+    // liens Modifier du resume) contourne aussi leur validation. Un enfant sans prenom a
+    // ete cree ainsi en test le 26/08. Ce verrou est la derniere ceinture : il renvoie a
+    // l'etape Infos plutot que de soumettre.
+    if (!formData.firstName || !formData.firstName.trim()) {
+      toast.error("Le prénom de l'enfant est obligatoire. Retour à l'étape Infos.");
+      setFormStep(0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     onSubmit(formData);
   };
 
@@ -634,7 +640,6 @@ export const ChildProfileFormProvider: React.FC<ChildProfileFormProviderProps> =
     handleNextStep,
     handlePreviousStep, 
     handleGoToStep,
-    maxStepAtteint,
     handleSubmitForm,
     editMode,
     isEditDataLoading,
