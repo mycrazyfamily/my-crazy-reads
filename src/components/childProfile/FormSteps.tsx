@@ -1,3 +1,16 @@
+// FormSteps v1.7
+// Changelog v1.7 (chantier D2, retour arriere) : LES RONDS NE FONT PLUS QUE RECULER.
+//   Les v1.5 et v1.6 permettaient de ressauter en avant vers une etape deja visitee. Or le
+//   formulaire n'a AUCUN schema de validation global (useForm sans resolver) : form.trigger()
+//   repond toujours vrai, et la vraie validation vit dans le bouton « Continuer » de chaque
+//   etape. Sauter en avant contournait donc toute validation, jusqu'a permettre de creer un
+//   enfant sans prenom, constate en test le 26/08.
+//   Comportement retenu, celui du site des impots : on recule librement en cliquant sur un
+//   rond, on avance uniquement par « Continuer », qui valide. Tout etant deja enregistre,
+//   retraverser les etapes est rapide. maxStepAtteint et la validation au clic sont retires ;
+//   FormProgressIndicator retombe sur son comportement par defaut, recul seulement.
+//   En derniere ceinture, ChildProfileFormContext v1.7 refuse desormais la soumission finale
+//   sans prenom, quel que soit le chemin emprunte.
 // FormSteps v1.6
 // Changelog v1.6 (chantier D2) : le clic sur un rond de l'indicateur VALIDE le formulaire
 //   avant d'avancer, et ne valide rien pour reculer. Detail au-dessus de allerVersRond.
@@ -24,7 +37,6 @@
 // au lieu de 5 en édition). Contrepartie obligatoire dans ChildProfileFormContext.tsx (v1.1).
 import React from 'react';
 import { useChildProfileForm } from '@/contexts/ChildProfileFormContext';
-import { toast } from "sonner";
 import BasicInfoForm from '@/components/childProfile/BasicInfoForm';
 import PersonalityForm from '@/components/childProfile/PersonalityForm';
 import FamilyForm from '@/components/childProfile/FamilyForm';
@@ -58,12 +70,10 @@ const FormSteps: React.FC<FormStepsProps> = ({
   forceLoading = false
 }) => {
   const { 
-    form,
     formStep, 
     handleNextStep, 
     handlePreviousStep, 
     handleGoToStep,
-    maxStepAtteint,
     selectedNickname,
     setSelectedNickname,
     selectedSkinColor,
@@ -129,39 +139,6 @@ const FormSteps: React.FC<FormStepsProps> = ({
   // v1.5 : conversion dans l'autre sens, pour traduire maxStepAtteint (une etape REELLE)
   // en index affiche. Meme table que getAdjustedStep, avec repli sur l'etape la plus
   // proche vers le bas pour les etapes masquees en mode edition.
-  // v1.6 (chantier D2) : clic sur un rond de l'indicateur.
-  //
-  // RECULER est toujours permis, sans validation, exactement comme le bouton « Étape
-  // précédente ». Sans cette dissymetrie on creerait une impasse : un formulaire rendu
-  // invalide par un champ de l'etape 2 empecherait de cliquer sur le rond 2, c'est-a-dire
-  // sur l'endroit meme ou se trouve le probleme a corriger.
-  //
-  // AVANCER applique la MEME validation que « Continuer », soit form.trigger(). Sans elle,
-  // on pouvait revenir a une etape deja validee, vider un champ obligatoire comme le prenom,
-  // puis sauter directement a l'etape 5 sans le moindre avertissement. La validation finale
-  // rattrapait le coup, mais tres loin de l'endroit ou le champ manquait.
-  const allerVersRond = React.useCallback(async (indexAffiche: number) => {
-    const cible = etapeReelleDepuisAffichee(indexAffiche);
-    if (cible <= formStep) {
-      goTo(cible);
-      return;
-    }
-    const estValide = await form.trigger();
-    if (!estValide) {
-      toast.error("Veuillez compléter tous les champs requis");
-      return;
-    }
-    goTo(cible);
-  }, [formStep, form, goTo, editMode]);
-
-  const etapeAfficheeDepuisReelle = (etapeReelle: number): number => {
-    if (!editMode) return etapeReelle;
-    if (etapeReelle >= 7) return 3;
-    if (etapeReelle >= 5) return 2;
-    if (etapeReelle >= 1) return 1;
-    return 0;
-  };
-
   const etapeReelleDepuisAffichee = (indexAffiche: number): number => {
     if (!editMode) return indexAffiche;
     const inverse: { [key: number]: number } = { 0: 0, 1: 1, 2: 5, 3: 7 };
@@ -211,8 +188,7 @@ const FormSteps: React.FC<FormStepsProps> = ({
         currentStep={adjustedStep}
         totalSteps={totalSteps}
         stepLabels={stepLabels}
-        onStepClick={allerVersRond}
-        maxStepAtteint={etapeAfficheeDepuisReelle(maxStepAtteint)}
+        onStepClick={(index) => goTo(etapeReelleDepuisAffichee(index))}
       />
       
       {formStep === 0 && (
