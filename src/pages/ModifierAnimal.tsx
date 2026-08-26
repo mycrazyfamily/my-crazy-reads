@@ -1,3 +1,11 @@
+// ModifierAnimal  (chantier D2)
+// Changelog D2 : avertissement avant de quitter la page de modification.
+//   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
+//   des qu'on quitte. Une modale previent donc avant de partir, variante 'perte' de
+//   LeaveFormDialog. Elle couvre les boutons de sortie de la page ET le bouton
+//   « Précédent » du navigateur, via useLeaveFormGuard.
+//   La modale est inseree apres CHAQUE bouton de sortie : ces pages ont plusieurs branches
+//   de rendu (chargement, erreur, formulaire) et une seule est montee a la fois.
 // ModifierAnimal  (chantier C1b)
 // Changelog C1b : retrait de la derniere validation liee a la case « Aucun detail physique
 //   particulier », supprimee dans PetPhysicalDetailsInput v3.0. Details physiques facultatifs.
@@ -71,6 +79,8 @@
 //                  côté PetForm/AjouterAnimal mais pas ici, showButtons=false contourne PetForm.validatePetData)
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
+import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -168,6 +178,17 @@ function sanitizeTraitsCustom(raw: any): Record<string, any> | undefined {
 const ModifierAnimal: React.FC = () => {
   const { childId, petId } = useParams<{ childId: string; petId: string }>();
   const navigate = useNavigate();
+
+  // D2 : garde-fou de sortie. Toujours actif : toute modification non enregistree est perdue.
+  const {
+    confirmationOuverte,
+    setConfirmationOuverte,
+    demanderSortie,
+    confirmerSortie,
+  } = useLeaveFormGuard({ actif: true });
+
+  const handleSortie = () => demanderSortie(() => navigate('/espace-famille'));
+
   const invalidateFamilyData = useInvalidateFamilyData();
   const [loading, setLoading] = useState(true);
   const [petData, setPetData] = useState<PetData | null>(null);
@@ -621,12 +642,19 @@ const ModifierAnimal: React.FC = () => {
         <main className="container mx-auto px-4 py-20 max-w-3xl">
           <Button
             variant="ghost"
-            onClick={handleCancel}
+            onClick={handleSortie}
             className="flex items-center gap-2 text-muted-foreground hover:text-mcf-primary hover:bg-mcf-mint/10 mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
             Retour à l'espace famille
           </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
 
           <h1 className="text-3xl font-bold text-mcf-orange-dark mb-6">
             Modifier l'animal
@@ -650,12 +678,19 @@ const ModifierAnimal: React.FC = () => {
       <main className="container mx-auto px-4 py-20 max-w-3xl">
         <Button 
           variant="ghost" 
-          onClick={handleCancel}
+          onClick={handleSortie}
           className="flex items-center gap-2 text-muted-foreground hover:text-mcf-primary hover:bg-mcf-mint/10 mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour à l'espace famille
         </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
 
         <h1 className="text-3xl font-bold text-mcf-orange-dark mb-6">
           Modifier l'animal
@@ -719,11 +754,18 @@ const ModifierAnimal: React.FC = () => {
             <div className="flex justify-between">
               <Button 
                 type="button" 
-                onClick={handleCancel}
+                onClick={handleSortie}
                 variant="outline"
               >
                 Annuler
               </Button>
+        <LeaveFormDialog
+          open={confirmationOuverte}
+          onOpenChange={setConfirmationOuverte}
+          onConfirm={confirmerSortie}
+          variante="perte"
+        />
+
               
               <Button 
                 type="button"
