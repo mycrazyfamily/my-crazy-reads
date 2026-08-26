@@ -1,3 +1,9 @@
+// ConfirmationAbonnement.tsx v1.6
+// Changelog v1.6 (chantier F) : « Continuer » ouvre desormais l'onglet MES HISTOIRES.
+//   Le bouton renvoyait sur /espace-famille, dont l'onglet par defaut est « Ma famille ».
+//   Le parent venait de payer, il voulait voir ses livres a venir, et retombait sur la
+//   liste de ses profils sans comprendre ou aller. Le parametre ?tab=stories est lu par
+//   FamilyDashboard v1.1.
 // ConfirmationAbonnement.tsx v1.5
 // Changelog v1.5 (chantier icones IA, lot 1) : Wand2 -> Feather sur l'etape « Preparez vos
 //   personnages ». Meme motif que sur Cadeau v1.4 : Wand2 est un ALIAS de WandSparkles, dont le
@@ -114,7 +120,7 @@ const ConfirmationAbonnement: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              onClick={() => navigate('/espace-famille')}
+              onClick={() => navigate('/espace-famille?tab=stories')}
               className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-lg"
             >
               Accéder à mon espace famille
