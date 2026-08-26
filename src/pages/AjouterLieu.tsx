@@ -1,4 +1,4 @@
-// AjouterLieu  (chantier D2)
+// AjouterLieu v1.3
 // Changelog D2 : avertissement avant de quitter le formulaire.
 //   Le bouton de sortie en haut a gauche fait deux choses selon l'etat : s'il y a un
 //   formulaire ouvert il revient a la selection, sinon il retourne a l'espace famille.
@@ -48,6 +48,16 @@ interface Child {
 export default function AjouterLieu() {
   const navigate = useNavigate();
 
+  const invalidateFamilyData = useInvalidateFamilyData();
+  const { childId } = useParams<{ childId?: string }>();
+  const { user, supabaseSession } = useAuth();
+  
+  // Synchroniser automatiquement le family_id
+  useFamilyIdSync();
+  
+  const [children, setChildren] = useState<Child[]>([]);
+  const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
+  const [showForm, setShowForm] = useState(false);
   // D2 : garde-fou de sortie. Actif seulement quand un formulaire est ouvert.
   const {
     confirmationOuverte,
@@ -63,16 +73,6 @@ export default function AjouterLieu() {
       navigate('/espace-famille');
     }
   };
-  const invalidateFamilyData = useInvalidateFamilyData();
-  const { childId } = useParams<{ childId?: string }>();
-  const { user, supabaseSession } = useAuth();
-  
-  // Synchroniser automatiquement le family_id
-  useFamilyIdSync();
-  
-  const [children, setChildren] = useState<Child[]>([]);
-  const [selectedChildIds, setSelectedChildIds] = useState<string[]>([]);
-  const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
