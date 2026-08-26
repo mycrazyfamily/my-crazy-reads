@@ -1,3 +1,9 @@
+// FormProgressIndicator v1.3
+// Changelog v1.3 (chantier D2) : nouvelle prop maxStepAtteint. Les ronds sont cliquables
+//   jusqu'a l'etape la plus avancee deja franchie, en AVANT comme en arriere. Revenir de
+//   l'etape 5 a la 2 puis repartir directement a la 5 ne demande plus de recliquer sur
+//   « Continuer » a chaque etape intermediaire. Retrocompatible : sans la prop, le
+//   comportement v1.2 s'applique, retour en arriere seulement.
 // FormProgressIndicator v1.2
 // Changelog v1.2 (chantier D2) : les etapes DEJA VISITEES deviennent cliquables.
 //   Un parent qui veut corriger une reponse de l'etape 2 depuis l'etape 6 devait cliquer
@@ -26,14 +32,21 @@ interface FormProgressIndicatorProps {
   stepLabels?: string[];
   /** v1.2 : si fournie, les etapes deja visitees deviennent cliquables. */
   onStepClick?: (step: number) => void;
+  /** v1.3 : index de l'etape la plus avancee deja atteinte. Toutes les etapes jusqu'a
+   *  celle-ci sont cliquables, en arriere comme en avant. Defaut : currentStep, ce qui
+   *  reproduit le comportement v1.2 (retour en arriere seulement). */
+  maxStepAtteint?: number;
 }
 
 const FormProgressIndicator: React.FC<FormProgressIndicatorProps> = ({ 
   currentStep, 
   totalSteps,
   stepLabels = [],
-  onStepClick
+  onStepClick,
+  maxStepAtteint
 }) => {
+  // Repli sur currentStep : sans maxStepAtteint, on ne peut que revenir en arriere.
+  const plafond = maxStepAtteint ?? currentStep;
   return (
     <div className="w-full mb-8">
       {/* Progress bar */}
@@ -53,8 +66,10 @@ const FormProgressIndicator: React.FC<FormProgressIndicatorProps> = ({
             const isCompleted = index < currentStep;
             const isCurrent = index === currentStep;
             const stepNumber = index + 1;
-            // v1.2 : seules les etapes deja franchies sont atteignables.
-            const estCliquable = !!onStepClick && isCompleted;
+            // v1.3 : atteignable jusqu'au point le plus avance deja franchi, dans les deux
+            // sens. On ne peut jamais aller AU-DELA de ce point sans passer par
+            // « Continuer », donc aucune validation n'est contournee.
+            const estCliquable = !!onStepClick && index <= plafond && !isCurrent;
             
             return (
               <div key={index} className="flex flex-col items-center">
