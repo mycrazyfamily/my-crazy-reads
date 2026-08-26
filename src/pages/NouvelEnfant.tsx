@@ -1,4 +1,5 @@
-// NouvelEnfant v1.1
+// NouvelEnfant v1.2
+// v1.2 : la modale s'affiche aussi en mode edition, avec la variante 'perte'.
 // Changelog v1.1 (chantier D2) : le bouton de sortie du formulaire enfant.
 //   [1] « Retour » DEVIENT « Quitter », avec une croix a la place de la fleche. Deux boutons
 //       portaient le meme mot sur le meme ecran : celui-ci ferme tout le formulaire, celui du
@@ -9,9 +10,10 @@
 //       l'onglet passe par beforeunload, dont le texte est impose par le navigateur.
 //       Son role n'est pas de retenir le parent mais de le RASSURER : le brouillon est
 //       conserve depuis ChildProfileFormContext v1.5, encore fallait-il le lui dire.
-//   [3] LE GARDE-FOU EST DESACTIVE EN MODE EDITION. Sur une fiche existante il n'y a pas de
-//       brouillon (useSavedDraft vaut false quand editChildId est present) : promettre que
-//       tout est conserve serait faux. En edition, « Quitter » sort directement.
+//   [3] DEUX VARIANTES SELON LE MODE. En CREATION, un brouillon existe reellement, la modale
+//       rassure (variante 'brouillon'). En EDITION, useSavedDraft vaut false : aucune
+//       sauvegarde intermediaire, la modification non enregistree est perdue. La modale le
+//       dit franchement (variante 'perte'). Le garde-fou reste actif dans les deux cas.
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -26,16 +28,15 @@ const NouvelEnfant: React.FC = () => {
   const [searchParams] = useSearchParams();
   const editChildId = searchParams.get('edit');
 
-  // Le brouillon n'existe qu'en creation. En edition, pas de promesse de conservation,
-  // donc pas de modale : voir [3] en tete de fichier.
-  const gardeFouActif = !editChildId;
+  // Le brouillon n'existe qu'en creation : le message change en consequence, voir [3].
+  const varianteModale = editChildId ? 'perte' : 'brouillon';
 
   const {
     confirmationOuverte,
     setConfirmationOuverte,
     demanderSortie,
     confirmerSortie,
-  } = useLeaveFormGuard({ actif: gardeFouActif });
+  } = useLeaveFormGuard({ actif: true });
 
   const sortirVraiment = () => {
     // Si on est en mode édition, toujours retourner à l'espace famille
@@ -72,6 +73,7 @@ const NouvelEnfant: React.FC = () => {
         open={confirmationOuverte}
         onOpenChange={setConfirmationOuverte}
         onConfirm={confirmerSortie}
+        variante={varianteModale}
       />
 
       <CreateChildProfile 
