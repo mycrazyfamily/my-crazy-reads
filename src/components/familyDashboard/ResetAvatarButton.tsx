@@ -1,3 +1,9 @@
+// ResetAvatarButton v2.8
+// Changelog v2.8 (chantier E) : le tiret cadratin de la notification est remplace par une virgule.
+//   « Retour a l'espace famille — le nouvel avatar... » devenait « ..., le nouvel avatar... ».
+//   Le tiret cadratin est une des marques les plus reconnaissables d'un texte ecrit par une
+//   IA : il n'apparait quasiment jamais sous les doigts d'un francophone, qui ecrit une
+//   virgule, un deux-points ou une parenthese.
 // ResetAvatarButton v2.7
 // Changelog v2.7 (chantier icones IA, lot 2) : icone SUPPRIMEE du titre de la fenetre de
 //   confirmation, sans remplacement. C'etait le seul endroit du site ou l'etoile disait
@@ -120,7 +126,7 @@ const ResetAvatarButton: React.FC<ResetAvatarButtonProps> = ({
       signalAvatarRegeneration(profileId);
 
       toast.success('Nouvelle proposition en cours de création…', {
-        description: "Retour à l'espace famille — le nouvel avatar y apparaîtra dans quelques instants.",
+        description: "Retour à l'espace famille, le nouvel avatar y apparaîtra dans quelques instants.",
         duration: 5000,
       });
       setTimeout(() => navigate('/espace-famille'), 500);
