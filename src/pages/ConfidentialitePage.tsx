@@ -1,3 +1,8 @@
+// ConfidentialitePage.tsx v1.4
+// Changelog v1.4 (chantier E) : les sept tirets cadratins de la liste des sous-traitants
+//   deviennent des deux-points. « Supabase — hebergement de la base » se lit desormais
+//   « Supabase : hebergement de la base ». Meme sens, ponctuation francaise usuelle.
+//   Aucun autre changement, le contenu juridique est strictement identique.
 // ConfidentialitePage.tsx v1.3
 // v1.3 (chantier I): l'adresse de contact du responsable de traitement passe de
 //   robin@mycrazyfamily.com a hello@mycrazyfamily.com. Un alias partage reste une
@@ -91,14 +96,14 @@ const sections: Section[] = [
     blocks: [
       { type: 'p', text: `Vos données ne sont jamais vendues. Elles sont partagées uniquement avec les prestataires strictement nécessaires à la fourniture du service, dans le cadre d'accords de traitement des données (DPA) conformes au RGPD :` },
       { type: 'list', items: [
-        `Supabase — hébergement de la base de données et authentification (région Union européenne, Paris) ;`,
-        `Google Vertex AI — génération des textes et des illustrations par intelligence artificielle ;`,
-        `Google Cloud Storage — stockage des fichiers et illustrations générés (région France) ;`,
-        `Stripe — traitement sécurisé des paiements ;`,
-        `Google (Gmail) — envoi des e-mails transactionnels (confirmation, connexion) ;`,
+        `Supabase : hébergement de la base de données et authentification (région Union européenne, Paris) ;`,
+        `Google Vertex AI : génération des textes et des illustrations par intelligence artificielle ;`,
+        `Google Cloud Storage : stockage des fichiers et illustrations générés (région France) ;`,
+        `Stripe : traitement sécurisé des paiements ;`,
+        `Google (Gmail) : envoi des e-mails transactionnels (confirmation, connexion) ;`,
         `notre hébergeur d'automatisation (serveur situé en France, à Paris) ;`,
-        `un imprimeur partenaire situé en France (Yvelines) — impression des livres ;`,
-        `La Poste — livraison des livres.`,
+        `un imprimeur partenaire situé en France (Yvelines) : impression des livres ;`,
+        `La Poste : livraison des livres.`,
       ] },
     ],
   },
