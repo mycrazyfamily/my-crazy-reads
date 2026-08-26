@@ -1,3 +1,9 @@
+// PlacesForm v1.7
+// Changelog v1.7 (chantier D2) : le bouton « Précédent » du bas devient « Étape précédente ».
+//   Uniformisation avec les autres etapes du wizard, ou le mot « Retour » designait aussi le
+//   bouton du haut qui ferme tout le formulaire.
+// Changelog v1.7 (chantier C3, rappel) : mention « une maison principale est obligatoire »
+//   ajoutee dans l'en-tete de l'etape, et tiret cadratin retire du message d'erreur.
 // PlacesForm v1.6
 // Changelog v1.6 : blocklist à la validation d'un lieu dans le wizard. AjouterLieu
 //   et ModifierLieu étaient protégés, pas cette étape : le parent pouvait y saisir
@@ -469,7 +475,7 @@ export const PlacesForm: React.FC<PlacesFormProps> = ({ onNext, onPrev }) => {
 
           <div className="flex gap-4">
             <Button variant="outline" onClick={onPrev} className="flex-1" type="button">
-              Précédent
+              Étape précédente
             </Button>
             <Button onClick={handleContinue} className="flex-1" type="button">
               Suivant
