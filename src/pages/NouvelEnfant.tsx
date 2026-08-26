@@ -1,4 +1,5 @@
-// NouvelEnfant v1.2
+// NouvelEnfant v1.3
+// v1.3 : sortie par route explicite, correctif du double avertissement.
 // v1.2 : la modale s'affiche aussi en mode edition, avec la variante 'perte'.
 // Changelog v1.1 (chantier D2) : le bouton de sortie du formulaire enfant.
 //   [1] « Retour » DEVIENT « Quitter », avec une croix a la place de la fleche. Deux boutons
@@ -39,17 +40,12 @@ const NouvelEnfant: React.FC = () => {
   } = useLeaveFormGuard({ actif: true });
 
   const sortirVraiment = () => {
-    // Si on est en mode édition, toujours retourner à l'espace famille
-    if (editChildId) {
-      navigate('/espace-famille');
-    } else {
-      // Sinon, essayer de revenir en arrière ou aller à l'espace famille
-      if (window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate('/espace-famille');
-      }
-    }
+    // v1.3 : navigation EXPLICITE, jamais relative. L'ancienne version faisait navigate(-1)
+    // hors mode edition. Or useLeaveFormGuard empile une entree d'historique factice pour
+    // intercepter le « Précédent » du navigateur : navigate(-1) consommait cette entree et
+    // laissait le parent sur la page, qui devait cliquer « Quitter » une seconde fois.
+    // Une route explicite est predictible quel que soit l'etat de l'historique.
+    navigate('/espace-famille');
   };
 
   const handleGoBack = () => {
