@@ -1,4 +1,4 @@
-// AjouterAnimal v1.1
+// AjouterAnimal v2.4
 // Changelog D2 : avertissement avant de quitter le formulaire.
 //   Le bouton de sortie en haut a gauche fait deux choses selon l'etat : s'il y a un
 //   formulaire ouvert il revient a la selection, sinon il retourne a l'espace famille.
