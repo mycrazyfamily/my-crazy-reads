@@ -1,5 +1,20 @@
+// FamilyDashboard v1.1
+// Changelog v1.1 (chantier F) : DEUX CHANGEMENTS.
+//   [1] ONGLET IMPOSABLE PAR L'URL. `?tab=stories` ouvre « Mes histoires ». Utilise au
+//       retour de paiement pour que le parent tombe sur ses livres a venir. Par defaut,
+//       « Ma famille » comme avant.
+//   [2] ONGLETS RENDUS VISIBLES. Test utilisateur du 24/08 : la testeuse ne voyait pas
+//       qu'il y avait deux onglets. Deux causes cumulees. Le bloc etait etroit, 448 px
+//       centres sous un titre en 48 px, donc noye. Et l'onglet INACTIF etait blanc sur
+//       fond blanc, sans bordure : rien n'indiquait qu'il etait cliquable.
+//       Correctifs : bloc elargi a 672 px et epaissi (h-14 -> h-20), fond legerement
+//       teinte pour le detacher, texte en text-lg gras, icones en 24 px, et surtout
+//       l'onglet inactif recoit un fond blanc sur conteneur teinte, une bordure coloree
+//       et une couleur de texte : il existe visuellement comme un bouton. L'onglet actif
+//       gagne un leger agrandissement et une ombre portee pour rester distinct.
+//       Pas de compteur sur l'onglet, ecarte explicitement.
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +34,14 @@ import ManageSubscription from '@/components/familyDashboard/ManageSubscription'
 
 const FamilyDashboard: React.FC = () => {
   const navigate = useNavigate();
+
+  // v1.1 (chantier F) : l'onglet ouvert peut etre impose par l'URL, ?tab=stories.
+  // Sert au retour de paiement : ConfirmationAbonnement v1.6 y renvoie pour que le parent
+  // tombe directement sur ses livres a venir, et non sur la liste de ses profils.
+  // Valeur par defaut inchangee, « Ma famille », qui reste le bon accueil apres la
+  // creation d'un enfant (useChildProfileSubmit, chantier F).
+  const [searchParams] = useSearchParams();
+  const ongletInitial = searchParams.get('tab') === 'stories' ? 'stories' : 'family';
   const { logout, supabaseSession } = useAuth();
   
   useFamilyIdSync();
@@ -128,20 +151,20 @@ const FamilyDashboard: React.FC = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="family" className="space-y-8">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-14 bg-white border-2 border-mcf-mint/30 p-1 rounded-xl shadow-sm mb-12">
+        <Tabs defaultValue={ongletInitial} className="space-y-8">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 h-20 bg-mcf-mint/10 border-2 border-mcf-mint/50 p-2 rounded-2xl shadow-md mb-12">
             <TabsTrigger 
               value="family" 
-              className="rounded-lg data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2 text-base"
+              className="rounded-xl h-full bg-white border-2 border-mcf-primary/25 text-mcf-primary/70 shadow-sm data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:border-mcf-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.03] hover:border-mcf-primary/60 hover:text-mcf-primary transition-all font-bold flex items-center gap-2 text-lg"
             >
-              <Users2 className="h-5 w-5" strokeWidth={2.5} />
+              <Users2 className="h-6 w-6" strokeWidth={2.5} />
               Ma famille
             </TabsTrigger>
             <TabsTrigger 
               value="stories" 
-              className="rounded-lg data-[state=active]:bg-mcf-secondary data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-semibold flex items-center gap-2 text-base"
+              className="rounded-xl h-full bg-white border-2 border-mcf-secondary/25 text-mcf-secondary/70 shadow-sm data-[state=active]:bg-mcf-secondary data-[state=active]:text-white data-[state=active]:border-mcf-secondary data-[state=active]:shadow-lg data-[state=active]:scale-[1.03] hover:border-mcf-secondary/60 hover:text-mcf-secondary transition-all font-bold flex items-center gap-2 text-lg"
             >
-              <BookHeart className="h-5 w-5" strokeWidth={2.5} />
+              <BookHeart className="h-6 w-6" strokeWidth={2.5} />
               Mes histoires
             </TabsTrigger>
           </TabsList>
