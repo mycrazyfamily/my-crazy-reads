@@ -1,3 +1,16 @@
+// ChildProfileCard v2.4
+// Changelog v2.4 (chantier K, impayes) : bandeau « Paiement en attente » sur la carte.
+//   Quand le dernier prelevement a echoue, la carte n'affiche plus « Abonne » mais un
+//   bandeau orange avec un bouton « Mettre a jour ma carte », qui ouvre le portail Stripe
+//   via l'Edge Function customer-portal (meme geste que ManageSubscription).
+//   REGLE D'IMPAYE : payment_failed_at renseigne, OU stripe_status past_due, unpaid ou
+//   incomplete. Identique au dashboard admin (Dashboard v1.6) : le parent et Robin voient
+//   toujours le meme etat.
+//   CLE DE CACHE : passe de ['subscription', id] a ['subscription-carte', id]. La cle
+//   etait partagee avec MyStoriesTab qui lit moins de colonnes ; voir le commentaire au
+//   niveau de la requete.
+//   HORS PERIMETRE, VOLONTAIREMENT : la pastille « Abonne » et l'icone du bouton
+//   « S'abonner » ne bougent pas. Ils font partie des retours du chantier F, reportes.
 // ChildProfileCard v2.3
 // Changelog v2.3 (chantier F) : la carte porte l'ABONNEMENT DE CET ENFANT.
 //   Un bouton « S'abonner » quand l'enfant n'a pas d'abonnement actif, une pastille
@@ -29,13 +42,15 @@
 //   La carte affiche l'état d'échec sans dépendre du realtime : le refetch de
 //   useFamilyData suffit.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart, Sparkles, CheckCircle2, CreditCard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 import { useRealtimeAvatar } from '@/hooks/useRealtimeAvatar';
 import AvatarDisplay from '@/components/familyDashboard/AvatarDisplay';
 import { getChildAvatarAlert } from '@/utils/avatarAgeAlert';
@@ -71,12 +86,18 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
   // MyStoriesTab (table subscriptions, child_id, is_active), meme cle de cache
   // ['subscription', id] : react-query mutualise, aucune requete supplementaire quand les
   // deux onglets ont deja ete ouverts.
+  // v2.4 : cle de cache PROPRE a la carte, ['subscription-carte', id].
+  // Elle partageait jusqu'ici ['subscription', id] avec MyStoriesTab, qui ne lit que
+  // cancel_at, end_date et status. React Query sert la premiere reponse mise en cache :
+  // un parent passe d'abord par « Mes histoires » aurait recu un objet SANS les colonnes
+  // de paiement, et le bandeau d'impaye ne se serait jamais affiche. Une cle distincte
+  // coute une requete de plus, elle evite une panne silencieuse.
   const { data: abonnement, isLoading: abonnementEnCours } = useQuery({
-    queryKey: ['subscription', child.id],
+    queryKey: ['subscription-carte', child.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('subscriptions')
-        .select('cancel_at, end_date, status')
+        .select('cancel_at, end_date, status, payment_failed_at, stripe_status')
         .eq('child_id', child.id)
         .eq('is_active', true)
         .maybeSingle();
@@ -85,6 +106,39 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
     enabled: !!child.id,
   });
   const estAbonne = !!abonnement;
+
+  // v2.4 : un abonnement peut etre ACTIF et IMPAYE. Meme regle que le dashboard admin
+  // (Dashboard v1.6), pour que le parent et Robin voient toujours le meme etat.
+  const estImpaye = estAbonne && (
+    !!abonnement?.payment_failed_at ||
+    ['past_due', 'unpaid', 'incomplete'].includes(abonnement?.stripe_status ?? '')
+  );
+
+  // v2.4 : ouverture du portail Stripe pour mettre la carte a jour. Meme geste que
+  // ManageSubscription : Edge Function customer-portal, qui renvoie { url }.
+  const { supabaseSession } = useAuth();
+  const [ouverturePortail, setOuverturePortail] = useState(false);
+  const ouvrirPortailPaiement = async () => {
+    if (!supabaseSession) {
+      toast.error("Session expirée. Reconnectez-vous pour mettre votre carte à jour.");
+      return;
+    }
+    setOuverturePortail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: { Authorization: `Bearer ${supabaseSession.access_token}` },
+      });
+      if (error || !data?.url) {
+        toast.error("Impossible d'ouvrir la page de paiement. Écrivez-nous à hello@mycrazyfamily.com.");
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      toast.error("Impossible d'ouvrir la page de paiement. Écrivez-nous à hello@mycrazyfamily.com.");
+    } finally {
+      setOuverturePortail(false);
+    }
+  };
   const navigate = useNavigate();
   const { avatarUrl, isNew, isLoading, hasError, isRegenerating, onImageError, onImageLoad, imgSrc,
           avatarStatus, avatarErrorCode, avatarErrorFields } =
@@ -189,7 +243,30 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
             de QUEL enfant il s'agit, puisque l'abonnement est par enfant.
             Pendant le chargement on n'affiche ni l'un ni l'autre : faire clignoter
             « S'abonner » sur un enfant deja abonne serait pire que d'attendre. */}
-        {!abonnementEnCours && (
+        {/* v2.4 : etat IMPAYE, prioritaire sur « Abonne ». Les deux autres etats sont
+            strictement inchanges (chantier F en attente, a ne pas toucher). */}
+        {!abonnementEnCours && estImpaye && (
+          <div className="w-full rounded-xl border border-amber-300 bg-amber-50 p-3 text-left">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-900">
+              <CreditCard className="h-4 w-4 shrink-0" />
+              <span>Paiement en attente</span>
+            </div>
+            <p className="mt-1 text-xs leading-snug text-amber-900/80">
+              Le dernier prélèvement n'a pas abouti. Mettez votre carte à jour pour
+              recevoir le prochain livre de {child.firstName}.
+            </p>
+            <Button
+              size="sm"
+              onClick={ouvrirPortailPaiement}
+              disabled={ouverturePortail}
+              className="mt-2 w-full rounded-full bg-amber-600 font-bold text-white hover:bg-amber-700"
+            >
+              {ouverturePortail ? "Ouverture..." : "Mettre à jour ma carte"}
+            </Button>
+          </div>
+        )}
+
+        {!abonnementEnCours && !estImpaye && (
           estAbonne ? (
             <div className="w-full flex items-center justify-center gap-2 rounded-full bg-mcf-mint/20 border border-mcf-secondary/40 py-1.5 text-sm font-semibold text-mcf-secondary">
               <CheckCircle2 className="h-4 w-4" />
