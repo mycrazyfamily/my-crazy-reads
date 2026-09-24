@@ -1,3 +1,18 @@
+// ChildProfileCard v2.5
+// Changelog v2.5 (chantier F, retours du test du 26/08) : trois changements au pied de carte.
+//   [1] PASTILLE « ABONNE » : plus de cadre ni de fond. Avec sa bordure et son fond teinte,
+//       elle ressemblait a un bouton et invitait a cliquer, alors qu'elle ne fait rien.
+//       Il reste l'icone et le texte, en vert fonce #2A6F5A : l'ancien vert (mcf-secondary)
+//       donnait un contraste de 2,0:1 sur fond blanc, illisible ; celui-ci donne 6,0:1.
+//       Meme vert que l'onglet « Mes histoires » de FamilyDashboard v1.2.
+//   [2] ICONE DU BOUTON « S'ABONNER » : Sparkles -> Heart. Sparkles evoque l'IA et a ete
+//       retiree du reste du site (chantier icones IA) ; ce bouton etait le dernier usage.
+//       Heart est l'icone du bouton principal de la page d'accueil (Index.tsx).
+//   [3] LE BOUTON « S'ABONNER » TRANSMET L'ENFANT : lien /abonnement?child=<id> au lieu de
+//       /abonnement. La page tarifs (Abonnement v1.3) presselectionne l'enfant : le parent
+//       qui clique sous la carte de Lea n'a plus a rechoisir Lea dans une liste, il choisit
+//       seulement mensuel ou annuel. Sans Abonnement v1.3, le parametre est ignore et la
+//       page se comporte comme avant.
 // ChildProfileCard v2.4
 // Changelog v2.4 (chantier K, impayes) : bandeau « Paiement en attente » sur la carte.
 //   Quand le dernier prelevement a echoue, la carte n'affiche plus « Abonne » mais un
@@ -46,7 +61,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart, Sparkles, CheckCircle2, CreditCard } from 'lucide-react';
+import { Edit, Users, Palette, Cat, Gamepad2, MapPin, Heart, CheckCircle2, CreditCard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -268,17 +283,19 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ child }) => {
 
         {!abonnementEnCours && !estImpaye && (
           estAbonne ? (
-            <div className="w-full flex items-center justify-center gap-2 rounded-full bg-mcf-mint/20 border border-mcf-secondary/40 py-1.5 text-sm font-semibold text-mcf-secondary">
+            // v2.5 [1] : ni cadre ni fond, pour ne plus ressembler a un bouton.
+            <div className="w-full flex items-center justify-center gap-2 py-1.5 text-sm font-semibold text-[#2A6F5A]">
               <CheckCircle2 className="h-4 w-4" />
               <span>Abonné</span>
             </div>
           ) : (
-            <Link to="/abonnement" className="w-full">
+            // v2.5 [3] : l'enfant est transmis, la page tarifs le presselectionne.
+            <Link to={`/abonnement?child=${child.id}`} className="w-full">
               <Button
                 size="sm"
                 className="w-full flex items-center justify-center gap-2 bg-mcf-primary hover:bg-mcf-primary-dark text-white rounded-full font-bold shadow-md hover:shadow-lg transition-all duration-300"
               >
-                <Sparkles className="h-4 w-4" />
+                <Heart className="h-4 w-4" />
                 <span>S'abonner</span>
               </Button>
             </Link>
