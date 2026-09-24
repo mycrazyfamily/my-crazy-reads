@@ -1,4 +1,4 @@
--// Abonnement v1.4
+// Abonnement v1.4
 // Changelog v1.4 (chantier F, point 11) : LES ENFANTS NE BOUGENT PLUS A L'OUVERTURE.
 //   Constat du 24/09 : a l'ouverture, les boutons des enfants se deplacaient avant de se figer.
 //   Aucun tri dans le code : c'etait l'affichage. Blocs gris de largeur fixe, puis vrais
