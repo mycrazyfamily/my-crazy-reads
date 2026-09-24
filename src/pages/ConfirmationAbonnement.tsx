@@ -1,3 +1,19 @@
+// ConfirmationAbonnement.tsx v1.7
+// Changelog v1.7 (chantier F, retours #4 et #5 du test du 26/08) : LE BOUTON NOMME L'ENFANT
+//   ET OUVRE SES HISTOIRES.
+//   [1] Libelle : « Acceder a mon espace famille » ne disait pas ce que le parent allait y
+//       faire. Il devient « Composer la premiere histoire de <prenom> », ou « Composer sa
+//       premiere histoire » quand le prenom n'est pas connu. Le bouton peut passer a la
+//       ligne (whitespace-normal, h-auto) : un prenom long debordait sur mobile, le bouton
+//       par defaut interdisant le retour a la ligne.
+//   [2] Cible : /espace-famille?tab=stories&child=<id>. MyStoriesTab v4.3 ouvre la timeline
+//       de cet enfant au lieu du premier de la liste.
+//   D'ou vient l'enfant : Stripe ne renvoie que session_id. Abonnement v1.3 ecrit
+//   { id, prenom, at } dans le sessionStorage (cle CLE_ENFANT_PAIEMENT) juste avant le depart
+//   vers Stripe ; on le relit ici. Valeur ignoree si absente, mal formee ou vieille de plus de
+//   24 h. Effacee au clic, pour qu'un paiement suivant ne puisse jamais afficher l'enfant
+//   precedent. Sans Abonnement v1.3, rien n'est lu et la page retombe sur le libelle
+//   generique et l'ancienne cible, sans erreur.
 // ConfirmationAbonnement.tsx v1.6
 // Changelog v1.6 (chantier F) : « Continuer » ouvre desormais l'onglet MES HISTOIRES.
 //   Le bouton renvoyait sur /espace-famille, dont l'onglet par defaut est « Ma famille ».
@@ -36,7 +52,7 @@
 //       les deux ne peuvent plus diverger.
 // ConfirmationAbonnement.tsx v1.1
 // v1.1: retrait des emojis (🎉 ✅ 📖 ✨) → pictogrammes lucide-react (Mail, BookOpen, Sparkles) en ronds colorés
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { CheckCircle, Mail, BookOpen, Feather } from 'lucide-react';
@@ -45,12 +61,51 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getFirstDeliveryMonth, getFirstPersonalizationDeadline } from '@/utils/deliveryMonth';
 
+// v1.7 : enfant memorise par Abonnement v1.3 juste avant le depart vers Stripe.
+// MEME CLE, ECRITE EN DUR, DANS LES DEUX FICHIERS : en changer une, changer l'autre.
+const CLE_ENFANT_PAIEMENT = 'mcf_checkout_child';
+const VALIDITE_ENFANT_PAIEMENT_MS = 24 * 60 * 60 * 1000;
+
+type EnfantPaiement = { id: string; prenom: string | null };
+
+const lireEnfantPaiement = (): EnfantPaiement | null => {
+  try {
+    const brut = sessionStorage.getItem(CLE_ENFANT_PAIEMENT);
+    if (!brut) return null;
+    const valeur = JSON.parse(brut) as { id?: unknown; prenom?: unknown; at?: unknown };
+    if (typeof valeur.id !== 'string' || valeur.id === '') return null;
+    if (typeof valeur.at !== 'number' || Date.now() - valeur.at > VALIDITE_ENFANT_PAIEMENT_MS) return null;
+    const prenom = typeof valeur.prenom === 'string' && valeur.prenom.trim() !== '' ? valeur.prenom.trim() : null;
+    return { id: valeur.id, prenom };
+  } catch {
+    return null;
+  }
+};
+
 const ConfirmationAbonnement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { refreshSubscription, user } = useAuth();
   const deliveryMonth = getFirstDeliveryMonth();
   const personalizationDeadline = getFirstPersonalizationDeadline();
+
+  // v1.7 : lu une seule fois, au montage (initialiseur de useState).
+  const [enfantPaiement] = useState<EnfantPaiement | null>(lireEnfantPaiement);
+  const libelleBoutonHistoires = enfantPaiement?.prenom
+    ? `Composer la première histoire de ${enfantPaiement.prenom}`
+    : 'Composer sa première histoire';
+  const ouvrirMesHistoires = () => {
+    try {
+      sessionStorage.removeItem(CLE_ENFANT_PAIEMENT);
+    } catch {
+      /* ignore */
+    }
+    navigate(
+      enfantPaiement
+        ? `/espace-famille?tab=stories&child=${encodeURIComponent(enfantPaiement.id)}`
+        : '/espace-famille?tab=stories'
+    );
+  };
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -119,11 +174,12 @@ const ConfirmationAbonnement: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* v1.7 : libelle avec le prenom, cible sur l'enfant ; retour a la ligne autorise. */}
             <Button
-              onClick={() => navigate('/espace-famille?tab=stories')}
-              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-lg"
+              onClick={ouvrirMesHistoires}
+              className="bg-mcf-primary hover:bg-mcf-primary-dark text-white font-bold py-3 px-8 rounded-lg whitespace-normal h-auto"
             >
-              Accéder à mon espace famille
+              {libelleBoutonHistoires}
             </Button>
 
             <Button
