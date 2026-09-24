@@ -1,3 +1,22 @@
+// FamilyDashboard v1.2
+// Changelog v1.2 (chantier F, retour #1 du test du 26/08) : ONGLETS LISIBLES ET SANS CHEVAUCHEMENT.
+//   Mesure des contrastes de la v1.1 sur fond blanc : texte de l'onglet inactif « Mes histoires »
+//   (vert mcf-secondary a 70 %) 1,6:1 ; texte blanc sur l'onglet actif vert 2,0:1 ; texte de
+//   l'onglet inactif « Ma famille » (bleu a 70 %) 2,3:1. Le seuil de lisibilite courant est
+//   4,5:1. D'ou le retour : sur « Ma famille », on ne voyait pas « Mes histoires ».
+//   Correctifs, valides sur maquette :
+//   [1] conteneur en gris franc (bg-gray-100), sans bordure mint : les onglets blancs s'en
+//       detachent nettement ;
+//   [2] onglet INACTIF : fond blanc, bordure pleine, texte fonce (bleu #0A68DB 5,2:1, vert
+//       #2A6F5A 6,0:1), survol teinte. Il a l'air d'un bouton ;
+//   [3] onglet ACTIF vert : #358D72 au lieu de mcf-secondary, texte blanc a 4,0:1 au lieu de
+//       2,0:1. Le bleu actif (mcf-primary) ne change pas ;
+//   [4] suppression de l'agrandissement de l'onglet actif (scale 1.03), cause du
+//       chevauchement : il debordait sur son voisin dans une grille sans ecart. Un ecart
+//       gap-3 separe desormais les onglets.
+//   Le survol ne s'applique qu'a l'onglet inactif (data-[state=inactive]:hover), pour ne pas
+//   delaver l'onglet actif. Couleurs en valeurs arbitraires, comme ailleurs dans le projet
+//   (ChildProfileCard) : aucun nouveau jeton dans tailwind.config.ts.
 // FamilyDashboard v1.1
 // Changelog v1.1 (chantier F) : DEUX CHANGEMENTS.
 //   [1] ONGLET IMPOSABLE PAR L'URL. `?tab=stories` ouvre « Mes histoires ». Utilise au
@@ -152,17 +171,18 @@ const FamilyDashboard: React.FC = () => {
         </div>
 
         <Tabs defaultValue={ongletInitial} className="space-y-8">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 h-20 bg-mcf-mint/10 border-2 border-mcf-mint/50 p-2 rounded-2xl shadow-md mb-12">
+          {/* v1.2 [1] : conteneur gris franc, ecart entre les onglets. */}
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 gap-3 h-20 bg-gray-100 p-2 rounded-2xl mb-12">
             <TabsTrigger 
               value="family" 
-              className="rounded-xl h-full bg-white border-2 border-mcf-primary/25 text-mcf-primary/70 shadow-sm data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:border-mcf-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.03] hover:border-mcf-primary/60 hover:text-mcf-primary transition-all font-bold flex items-center gap-2 text-lg"
+              className="rounded-xl h-full bg-white border-2 border-mcf-primary text-[#0A68DB] shadow-sm data-[state=inactive]:hover:bg-mcf-primary/10 data-[state=active]:bg-mcf-primary data-[state=active]:text-white data-[state=active]:border-mcf-primary data-[state=active]:shadow-md transition-colors font-bold flex items-center gap-2 text-lg"
             >
               <Users2 className="h-6 w-6" strokeWidth={2.5} />
               Ma famille
             </TabsTrigger>
             <TabsTrigger 
               value="stories" 
-              className="rounded-xl h-full bg-white border-2 border-mcf-secondary/25 text-mcf-secondary/70 shadow-sm data-[state=active]:bg-mcf-secondary data-[state=active]:text-white data-[state=active]:border-mcf-secondary data-[state=active]:shadow-lg data-[state=active]:scale-[1.03] hover:border-mcf-secondary/60 hover:text-mcf-secondary transition-all font-bold flex items-center gap-2 text-lg"
+              className="rounded-xl h-full bg-white border-2 border-[#358D72] text-[#2A6F5A] shadow-sm data-[state=inactive]:hover:bg-[#358D72]/10 data-[state=active]:bg-[#358D72] data-[state=active]:text-white data-[state=active]:border-[#358D72] data-[state=active]:shadow-md transition-colors font-bold flex items-center gap-2 text-lg"
             >
               <BookHeart className="h-6 w-6" strokeWidth={2.5} />
               Mes histoires
