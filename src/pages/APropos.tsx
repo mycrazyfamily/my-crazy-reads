@@ -1,3 +1,8 @@
+// APropos.tsx v2.3
+// v2.3 (chantier F) : la naissance a eu lieu (27/08/2026). Section Notre histoire, 3e
+//   paragraphe : « il attend lui-meme une petite fille pour septembre 2026 » devient
+//   « il est lui-meme papa d'une petite fille ». Le reste de la phrase ne bouge pas. La
+//   consigne « A METTRE A JOUR APRES LA NAISSANCE » de la v2.0 est retiree, appliquee.
 // APropos.tsx v2.2
 // v2.2 : sous-titre, « mon meilleur ami » devient « son meilleur ami », pour rester a la
 //   troisieme personne comme le recit qui suit.
@@ -26,11 +31,6 @@
 //       confidentialite.
 //   [4] Cartes « Notre equipe » conservees, elles resument le recit. Titre de Violaine aligne
 //       sur sa demande : « Psychologue clinicienne ».
-//
-//   A METTRE A JOUR APRES LA NAISSANCE (section Notre histoire, 3e paragraphe) :
-//   remplacer  « il attend lui-meme une petite fille pour septembre 2026 »
-//   par        « il est lui-meme papa d'une petite fille »
-//   Le reste de la phrase ne bouge pas.
 //
 // APropos.tsx v1.2
 // Changelog v1.2 (chantier icones IA, lot 1) : retrait de l'icone Sparkles de lucide-react.
@@ -98,8 +98,8 @@ const APropos: React.FC = () => {
                 tenait pas un cadeau isolé, mais une idée.
               </p>
               <p>
-                À 33 ans, entouré de jeunes parents, il attend lui-même une petite fille pour
-                septembre 2026. Ce sont les livres qu'il veut lui lire qu'il fabrique aujourd'hui.
+                À 33 ans, entouré de jeunes parents, il est lui-même papa d'une petite fille.
+                Ce sont les livres qu'il veut lui lire qu'il fabrique aujourd'hui.
               </p>
               <p>
                 Pour que ces livres tiennent leur promesse, il s'est entouré. Violaine Lallour,
