@@ -1,3 +1,22 @@
+// Abonnement v1.3
+// Changelog v1.3 (chantier F) : deux changements, pour que l'enfant suive le parent d'un bout
+//   a l'autre du parcours d'abonnement.
+//   [1] PRESELECTION PAR L'URL. `?child=<id>` presselectionne l'enfant, a condition qu'il
+//       appartienne a la famille (present dans la liste chargee) et ne soit pas deja abonne.
+//       Le bouton « S'abonner » de la carte enfant (ChildProfileCard v2.5) passe ce parametre :
+//       le parent qui clique sous la carte de Lea n'a plus qu'a choisir mensuel ou annuel.
+//       Un choix manuel n'est jamais ecrase (on ne presselectionne que si rien n'est choisi).
+//       Pas de verrou « une seule fois » : au chargement, l'authentification peut arriver apres
+//       un premier passage avec une liste vide, et un verrou aurait perdu la preselection.
+//   [2] L'ENFANT EST MEMORISE AVANT LE DEPART VERS STRIPE. Juste avant la redirection, on
+//       ecrit { id, prenom, at } dans le sessionStorage, cle CLE_ENFANT_PAIEMENT. Stripe ne
+//       renvoie que session_id a la page de confirmation, et create-checkout, fonction
+//       protegee, n'est pas modifiee. Le sessionStorage survit a l'aller-retour vers Stripe
+//       dans le meme onglet. ConfirmationAbonnement v1.7 le relit pour nommer l'enfant sur
+//       son bouton et ouvrir Mes histoires sur lui. Si le stockage est indisponible, rien ne
+//       casse : la confirmation retombe sur son libelle generique.
+//       La cle est ecrite en toutes lettres dans les deux fichiers, sans module partage, pour
+//       que chacun puisse etre deploye seul. Toute modification doit toucher les deux.
 // Abonnement v1.2
 // Changelog v1.2 (chantier icones IA, lot 1) : retrait de l'icone Sparkles de lucide-react.
 //   [1] ligne « L'abonnement est lie a l'enfant selectionne » -> Info. C'est une note
@@ -42,6 +61,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getFirstDeliveryMonth } from '@/utils/deliveryMonth';
 
 const SUBSCRIPTION_CACHE_KEY = 'mcf_subscription_status';
+
+// v1.3 [2] : enfant en cours de paiement, relu par ConfirmationAbonnement v1.7.
+// MEME CLE, ECRITE EN DUR, DANS LES DEUX FICHIERS : en changer une, changer l'autre.
+const CLE_ENFANT_PAIEMENT = 'mcf_checkout_child';
 const SUBSCRIPTION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const readSubscriptionCache = (userId: string): string[] | null => {
@@ -197,6 +220,19 @@ const Abonnement: React.FC = () => {
     load();
   }, [isAuthenticated, supabaseSession?.access_token]);
   
+  // v1.3 [1] : presselection de l'enfant transmis par la carte enfant (?child=<id>).
+  // Place apres toutes les declarations d'etat qu'il lit (children, selectedChildId,
+  // subscribedChildIds) : un hook qui lit un etat declare plus bas plante au montage.
+  const enfantDemande = searchParams.get('child');
+  useEffect(() => {
+    if (!enfantDemande || selectedChildId) return;
+    // Enfant inconnu (autre famille, supprime, liste pas encore chargee) : on attend ou on ignore.
+    if (!children.some((c) => c.id === enfantDemande)) return;
+    // Deja abonne : rien a presselectionner, la pastille verte le signale deja.
+    if (subscribedChildIds.includes(enfantDemande)) return;
+    setSelectedChildId(enfantDemande);
+  }, [enfantDemande, children, subscribedChildIds, selectedChildId]);
+
   const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
       localStorage.setItem('mcf_subscription_option', plan);
@@ -266,6 +302,16 @@ const Abonnement: React.FC = () => {
 
       console.log('▶︎ Abonnement.checkout: session created', data);
       if (data?.url) {
+        // v1.3 [2] : memoriser l'enfant pour la page de confirmation (retour de Stripe).
+        try {
+          const enfant = children.find((c) => c.id === selectedChildId);
+          sessionStorage.setItem(
+            CLE_ENFANT_PAIEMENT,
+            JSON.stringify({ id: selectedChildId, prenom: enfant?.first_name ?? null, at: Date.now() })
+          );
+        } catch {
+          /* stockage indisponible : la confirmation affichera son libelle generique */
+        }
         // Rediriger Stripe dans le même onglet
         window.location.href = data.url;
       } else {
