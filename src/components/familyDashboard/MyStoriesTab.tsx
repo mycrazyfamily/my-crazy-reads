@@ -1,3 +1,13 @@
+// MyStoriesTab v4.3
+// v4.3 (chantier F, retour #5 du test du 26/08) — L'ENFANT DEMANDE PAR L'URL EST PRESELECTIONNE.
+//   Apres un abonnement, l'onglet ouvrait toujours la timeline du premier enfant de la liste
+//   (list[0]), pas celle de l'enfant qu'on venait d'abonner. `?child=<id>` est desormais lu :
+//   s'il designe un enfant de la liste, il passe avant list[0] a la selection initiale ; sinon
+//   (enfant inconnu, parametre absent), comportement inchange. ConfirmationAbonnement v1.7
+//   passe ce parametre. Lu directement dans l'URL plutot que recu en prop : FamilyDashboard
+//   n'a rien a transmettre, et chaque fichier peut etre deploye seul.
+//   Seule la selection INITIALE change : un clic sur un autre enfant reste prioritaire, et la
+//   prop `children`, deja ignoree (le composant lit useFamilyData), n'est pas touchee.
 // MyStoriesTab v4.2
 // v4.2 (chantier icones IA, lot 3) — RETRAIT DE SPARKLES, six emplacements, cinq sens.
 //   Sparkles est devenue depuis 2023 le logo generique de l'IA (ChatGPT, Gemini, Copilot).
@@ -362,7 +372,7 @@
 // côté n8n (ex: shuffledPets dans 4A_Build_Context_Client) — pas modifiable depuis ce fichier.
 import React, { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from "@/components/ui/card";
@@ -2475,6 +2485,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const { data: familyChildren, isLoading: isLoadingChildren } = useFamilyData();
   const rawList: FamilyChild[] = familyChildren ?? [];
   const navigate = useNavigate();
+  // v4.3 : enfant a ouvrir en premier, transmis par l'URL (?child=<id>).
+  const [searchParams] = useSearchParams();
+  const enfantDemande = searchParams.get('child');
 
   // Fetch timelines for all children in parallel to compute ordering
   const timelineQueries = useQueries({
@@ -2529,11 +2542,13 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
   // Auto-select first child once loaded
+  // v4.3 : l'enfant demande par l'URL passe avant le premier de la liste, s'il en fait partie.
   React.useEffect(() => {
     if (!activeChildId && list.length > 0) {
-      setActiveChildId(list[0].id);
+      const demande = enfantDemande ? list.find((c) => c.id === enfantDemande) : undefined;
+      setActiveChildId((demande ?? list[0]).id);
     }
-  }, [list, activeChildId]);
+  }, [list, activeChildId, enfantDemande]);
 
   const activeChild = useMemo(
     () => list.find((c) => c.id === activeChildId) ?? list[0] ?? null,
