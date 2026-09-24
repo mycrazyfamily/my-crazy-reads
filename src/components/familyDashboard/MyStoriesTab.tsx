@@ -1,3 +1,21 @@
+// MyStoriesTab v4.4
+// v4.4 (chantier F, point 11) — LES ENFANTS NE BOUGENT PLUS A L'OUVERTURE.
+//   Cause : l'ordre depend des livres de chaque enfant (abonne ou non, date limite proche),
+//   charges par une requete par enfant, en parallele. Chaque reponse relancait le tri : les
+//   pastilles se deplacaient jusqu'a la derniere reponse (58 requetes sur le compte de test).
+//   Et l'enfant selectionne a l'ouverture etait choisi AVANT la fin du tri, donc pas
+//   forcement le premier de l'ordre final.
+//   [1] AFFICHAGE D'UN SEUL COUP. Les pastilles restent en blocs gris tant que TOUTES les
+//       requetes de livres n'ont pas repondu (succes ou erreur, une erreur comptant comme
+//       « aucun livre », comme avant). Contrepartie assumee : l'attente de la plus lente.
+//   [2] ORDRE FIGE PENDANT LA VISITE. Calcule une fois, a l'ouverture, puis conserve
+//       (ordreFige) : valider un livre ne fait plus sauter l'enfant a une autre place. Un
+//       enfant ajoute pendant la visite s'affiche en fin de liste. L'ordre est recalcule a
+//       la prochaine ouverture de l'onglet.
+//   [3] REGLE DE TRI INCHANGEE (enfants avec des livres d'abord, puis date limite dans les
+//       14 jours, puis du plus jeune au plus age), plus un departage prenom puis id : deux
+//       jumeaux ne s'echangent plus d'une visite a l'autre.
+//   La selection initiale (enfant de l'URL, sinon le premier) attend l'ordre final.
 // MyStoriesTab v4.3
 // v4.3 (chantier F, retour #5 du test du 26/08) — L'ENFANT DEMANDE PAR L'URL EST PRESELECTIONNE.
 //   Apres un abonnement, l'onglet ouvrait toujours la timeline du premier enfant de la liste
@@ -2510,7 +2528,9 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
     return map;
   }, [rawList, timelineQueries]);
 
-  const list: FamilyChild[] = useMemo(() => {
+  // v4.4 : tri calcule a chaque rendu (inchange), mais n'est AFFICHE qu'a travers `list`,
+  // l'ordre fige ci-dessous.
+  const listeTriee: FamilyChild[] = useMemo(() => {
     const sorted = [...rawList].sort((a, b) => {
       const tA = timelinesByChild[a.id] ?? [];
       const tB = timelinesByChild[b.id] ?? [];
@@ -2534,10 +2554,51 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
       // Younger first → most recent birth date first
       const dA = a.birthDate ? new Date(a.birthDate).getTime() : 0;
       const dB = b.birthDate ? new Date(b.birthDate).getTime() : 0;
-      return dB - dA;
+      if (dB !== dA) return dB - dA;
+      // v4.4 [3] : departage stable, pour un ordre identique d'une visite a l'autre.
+      return a.firstName.localeCompare(b.firstName, 'fr') || a.id.localeCompare(b.id);
     });
     return sorted;
   }, [rawList, timelinesByChild]);
+
+  // v4.4 [1] : toutes les requetes de livres ont repondu (succes ou erreur).
+  const livresTousCharges = timelineQueries.every((q) => q.isSuccess || q.isError);
+
+  // v4.4 [2] : ordre calcule une fois, a l'ouverture, puis conserve pendant la visite.
+  const [ordreFige, setOrdreFige] = useState<string[] | null>(null);
+
+  // v4.4 [1] : filet de securite. Une requete en erreur est relancee automatiquement par
+  // React Query (3 nouvelles tentatives, environ 7 s au total, QueryClient par defaut dans
+  // App.tsx). Pour ne pas laisser les blocs gris aussi longtemps, l'ordre est fige avec ce
+  // qui est arrive au bout de 5 s. Place apres ordreFige, qu'il lit.
+  const [delaiDepasse, setDelaiDepasse] = useState(false);
+  React.useEffect(() => {
+    if (isLoadingChildren || ordreFige !== null) return;
+    const minuteur = window.setTimeout(() => setDelaiDepasse(true), 5000);
+    return () => window.clearTimeout(minuteur);
+  }, [isLoadingChildren, ordreFige]);
+
+  React.useEffect(() => {
+    if (ordreFige !== null || isLoadingChildren || listeTriee.length === 0) return;
+    if (!livresTousCharges && !delaiDepasse) return;
+    setOrdreFige(listeTriee.map((c) => c.id));
+  }, [ordreFige, isLoadingChildren, livresTousCharges, delaiDepasse, listeTriee]);
+
+  // Liste affichee : ordre fige, donnees a jour (avatar, prenom). Un enfant absent de
+  // l'ordre fige (ajoute pendant la visite) va en fin de liste. Vide tant que rien n'est fige.
+  // (lit familyChildren et non rawList : rawList est un nouveau tableau a chaque rendu tant
+  // que les enfants ne sont pas charges, ce qui recalculerait ce memo pour rien.)
+  const list: FamilyChild[] = useMemo(() => {
+    if (ordreFige === null) return [];
+    const source: FamilyChild[] = familyChildren ?? [];
+    const parId = new Map(source.map((c) => [c.id, c] as const));
+    const figes = ordreFige.map((id) => parId.get(id)).filter((c): c is FamilyChild => !!c);
+    const nouveaux = source.filter((c) => !ordreFige.includes(c.id));
+    return [...figes, ...nouveaux];
+  }, [ordreFige, familyChildren]);
+
+  // v4.4 [1] : blocs gris tant que l'ordre n'est pas fige (famille non vide).
+  const chargementListe = isLoadingChildren || (rawList.length > 0 && ordreFige === null);
 
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
@@ -2968,7 +3029,8 @@ const MyStoriesTab: React.FC<MyStoriesTabProps> = () => {
   return (
     <div className="space-y-6">
       {/* 1. Children chips */}
-      {isLoadingChildren ? (
+      {/* v4.4 [1] : blocs gris jusqu'a l'ordre final, plus seulement jusqu'aux enfants. */}
+      {chargementListe ? (
         <div className="flex items-center gap-2 sm:gap-3">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-10 w-28 rounded-full" />
