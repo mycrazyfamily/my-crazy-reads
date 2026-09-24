@@ -1,3 +1,24 @@
+-// Abonnement v1.4
+// Changelog v1.4 (chantier F, point 11) : LES ENFANTS NE BOUGENT PLUS A L'OUVERTURE.
+//   Constat du 24/09 : a l'ouverture, les boutons des enfants se deplacaient avant de se figer.
+//   Aucun tri dans le code : c'etait l'affichage. Blocs gris de largeur fixe, puis vrais
+//   boutons de largeurs differentes, puis coches vertes qui elargissent certains boutons et
+//   font passer les suivants a la ligne. Et si le jeton de session changeait apres le montage,
+//   le chargement repartait de zero, blocs gris compris.
+//   [1] ORDRE FIXE, choisi pour le but de la page (abonner) : les enfants NON abonnes d'abord,
+//       puis les abonnes ; dans chaque groupe du plus jeune au plus age, comme Mes histoires
+//       (MyStoriesTab v4.4) ; sans date de naissance, en fin de groupe ; prenom puis id en
+//       departage, pour que deux visites donnent toujours le meme ordre. Avant : date de
+//       creation, le plus recent d'abord, sans signification pour un parent.
+//       Il faut la date de naissance : `birth_date` est ajoute a la requete des enfants.
+//   [2] PAS DE RETOUR AUX BLOCS GRIS une fois les enfants charges : un second passage du
+//       chargement (jeton rafraichi) met a jour la liste sans la vider a l'ecran
+//       (enfantsChargesRef). Les boutons n'apparaissent toujours qu'une fois le statut
+//       d'abonnement connu : coches et ordre sont donc justes des le premier affichage.
+//   [3] CACHE DES STATUTS VIDE AU DEPART VERS STRIPE. Le cache (5 min) aurait montre, au
+//       retour, l'enfant qu'on vient d'abonner comme non abonne, puis l'aurait deplace dans
+//       le groupe des abonnes a l'arrivee du vrai statut. On le vide juste avant la
+//       redirection : au retour, le statut est relu avant tout affichage.
 // Abonnement v1.3
 // Changelog v1.3 (chantier F) : deux changements, pour que l'enfant suive le parent d'un bout
 //   a l'autre du parcours d'abonnement.
@@ -46,7 +67,7 @@
 //     avant). La hiérarchie est conservée, mais les deux encarts existent visuellement.
 //   Desktop : alignement et tailles d'origine restaurés dès md: ; les bordures changent aussi sur
 //   desktop, c'est volontaire (le déséquilibre existait aussi, en moins gênant).
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -97,12 +118,15 @@ const Abonnement: React.FC = () => {
   const { isAuthenticated, hasActiveSubscription, supabaseSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingChildren, setIsLoadingChildren] = useState(true);
-  const [children, setChildren] = useState<Array<{ id: string; first_name: string }>>([]);
+  // v1.4 [1] : birth_date ajoutee, pour le tri par age.
+  const [children, setChildren] = useState<Array<{ id: string; first_name: string; birth_date: string | null }>>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [subscribedChildIds, setSubscribedChildIds] = useState<string[]>([]);
   const [isCheckingSubscriptions, setIsCheckingSubscriptions] = useState(false);
   
   const checkoutOpeningRef = useRef(false);
+  // v1.4 [2] : vrai des que la liste des enfants a ete chargee une fois.
+  const enfantsChargesRef = useRef(false);
   
   const isFromAdventure = searchParams.get('context') === 'adventure';
 
@@ -129,7 +153,8 @@ const Abonnement: React.FC = () => {
       console.log('▶︎ Abonnement.load: fetch user_profile and children for', userId);
 
       // 1) Charger les enfants (par user_id ET par family_id si dispo)
-      setIsLoadingChildren(true);
+      // v1.4 [2] : blocs gris au premier chargement seulement, jamais lors d'un second passage.
+      if (!enfantsChargesRef.current) setIsLoadingChildren(true);
       try {
         const { data: userProfile, error: userProfileError } = await supabase
           .from('user_profiles')
@@ -142,7 +167,7 @@ const Abonnement: React.FC = () => {
           console.log('▶︎ Abonnement.load: user_profile', userProfile);
         }
 
-        const baseSelect = 'id, first_name, created_at, family_id, user_id';
+        const baseSelect = 'id, first_name, birth_date, created_at, family_id, user_id';
         const qByUser = supabase
           .from('child_profiles')
           .select(baseSelect)
@@ -174,7 +199,8 @@ const Abonnement: React.FC = () => {
           totalUnique: uniqueRows.length,
         });
 
-        setChildren(uniqueRows.map((r) => ({ id: r.id, first_name: r.first_name })));
+        setChildren(uniqueRows.map((r) => ({ id: r.id, first_name: r.first_name, birth_date: r.birth_date ?? null })));
+        enfantsChargesRef.current = true;
       } catch (e) {
         console.error('❌ Abonnement.load: children load error', e);
         // Ne pas vider les enfants si une autre étape échoue
@@ -232,6 +258,21 @@ const Abonnement: React.FC = () => {
     if (subscribedChildIds.includes(enfantDemande)) return;
     setSelectedChildId(enfantDemande);
   }, [enfantDemande, children, subscribedChildIds, selectedChildId]);
+
+  // v1.4 [1] : ordre d'affichage. Non abonnes d'abord, puis abonnes ; dans chaque groupe du
+  // plus jeune au plus age (sans date : en fin de groupe) ; prenom puis id en departage.
+  const enfantsTries = useMemo(() => {
+    const naissance = (d: string | null) => (d ? new Date(d).getTime() : Number.NEGATIVE_INFINITY);
+    return [...children].sort((a, b) => {
+      const aboA = subscribedChildIds.includes(a.id) ? 1 : 0;
+      const aboB = subscribedChildIds.includes(b.id) ? 1 : 0;
+      if (aboA !== aboB) return aboA - aboB;
+      const nA = naissance(a.birth_date);
+      const nB = naissance(b.birth_date);
+      if (nA !== nB) return nB > nA ? 1 : -1;
+      return a.first_name.localeCompare(b.first_name, 'fr') || a.id.localeCompare(b.id);
+    });
+  }, [children, subscribedChildIds]);
 
   const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
     if (!isAuthenticated) {
@@ -309,6 +350,8 @@ const Abonnement: React.FC = () => {
             CLE_ENFANT_PAIEMENT,
             JSON.stringify({ id: selectedChildId, prenom: enfant?.first_name ?? null, at: Date.now() })
           );
+          // v1.4 [3] : statut relu au retour, pas servi depuis un cache anterieur au paiement.
+          sessionStorage.removeItem(SUBSCRIPTION_CACHE_KEY);
         } catch {
           /* stockage indisponible : la confirmation affichera son libelle generique */
         }
@@ -364,13 +407,13 @@ const Abonnement: React.FC = () => {
                   ) : (
                     <div className="flex flex-wrap gap-3">
                       {isCheckingSubscriptions && subscribedChildIds.length === 0
-                        ? children.map((c) => (
+                        ? enfantsTries.map((c) => (
                             <Skeleton
                               key={c.id}
                               className="h-12 w-32 rounded-full"
                             />
                           ))
-                        : children.map((c) => {
+                        : enfantsTries.map((c) => {
                         const isSubscribed = subscribedChildIds.includes(c.id);
                         const isSelected = selectedChildId === c.id;
                         const baseClasses = isSubscribed
