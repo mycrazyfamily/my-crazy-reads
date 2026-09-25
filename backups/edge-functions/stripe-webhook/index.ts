@@ -3,6 +3,33 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 // ============================================================================
+// stripe-webhook v2.3 — 25/09/2026
+//
+// SECURITE — LE MAIL CADEAU N'EST PLUS DECLENCHABLE PAR N'IMPORTE QUI
+//   Constat du 24/09 : le webhook n8n `gift-confirmation` n'avait aucune
+//   authentification. Quiconque connaissait son adresse (le serveur n8n est
+//   visible dans le code public du site) pouvait faire envoyer par MCF un mail
+//   « cadeau » a n'importe quelle adresse, avec un nom et un message libres.
+//
+//   [1] L'appel au webhook envoie desormais l'en-tete X-MCF-Secret, avec le
+//       secret N8N_WEBHOOK_SECRET deja utilise par trigger-book-factory pour la
+//       Book Factory (les secrets Supabase sont communs a toutes les
+//       fonctions). Cote n8n, le noeud « Webhook Cadeau » passe en Header Auth
+//       avec le meme identifiant (Header Auth account 4). Ordre de deploiement :
+//       cette version d'abord (n8n ignore l'en-tete tant que le controle n'est
+//       pas active), le controle n8n ensuite.
+//   [2] Un mail cadeau qui ne part pas laisse enfin une trace. Avant, la
+//       reponse de n8n n'etait pas lue : un refus (403) ou un workflow
+//       desactive (404) passait pour un succes dans les logs, et l'acheteur ne
+//       recevait jamais son code sans que personne le sache. Desormais : toute
+//       reponse non OK, ou n8n injoignable, est enregistree dans
+//       webhook_anomalies avec le destinataire et le code, pour renvoi manuel.
+//   Toujours NON BLOQUANT : Stripe recoit 200 dans tous les cas. Rejouer
+//   n'enverrait de toute facon pas le mail (idempotence du code cadeau).
+//
+//   Blocs INCHANGES : tout le reste du fichier.
+//
+// ============================================================================
 // stripe-webhook v2.2 — 11/08/2026
 //
 // AJOUT v2.2 — DETECTION DES ECHECS DE PAIEMENT
@@ -278,10 +305,16 @@ serve(async (req) => {
         // Déclenche l'email de confirmation cadeau (workflow n8n), sans bloquer le webhook
         const n8nGiftUrl = Deno.env.get("N8N_GIFT_WEBHOOK_URL")
           || "https://mcf-automation-n8n.jnow9f.easypanel.host/webhook/gift-confirmation";
+        // v2.3 [1] — secret partage avec la Book Factory (en-tete X-MCF-Secret).
+        const n8nSecret = Deno.env.get("N8N_WEBHOOK_SECRET");
+        if (!n8nSecret) logStep("N8N_WEBHOOK_SECRET absent : appel du mail cadeau sans en-tete d'authentification");
         try {
-          await fetch(n8nGiftUrl, {
+          const giftRes = await fetch(n8nGiftUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(n8nSecret ? { "X-MCF-Secret": n8nSecret } : {}),
+            },
             body: JSON.stringify({
               to: purchaserEmail,
               purchaserName: purchaserName,
@@ -290,9 +323,23 @@ serve(async (req) => {
               code: promo.code,
             }),
           });
-          logStep("Gift email workflow triggered", { to: purchaserEmail });
+          if (giftRes.ok) {
+            logStep("Gift email workflow triggered", { to: purchaserEmail });
+          } else {
+            // v2.3 [2] — refus (403), workflow desactive (404)… : trace durable.
+            await logAnomaly(supabaseAdmin, {
+              eventId: event.id, eventType: event.type, stripeObjectId: session.id,
+              reason: `Mail cadeau NON envoyé : n8n a répondu ${giftRes.status} — renvoyer le code à la main`,
+              details: { to: purchaserEmail, code: promo.code, durationMonths },
+            });
+          }
         } catch (e) {
-          logStep("Failed to trigger gift email (non-blocking)", { error: String(e) });
+          // v2.3 [2] — n8n injoignable : trace durable, toujours non bloquant.
+          await logAnomaly(supabaseAdmin, {
+            eventId: event.id, eventType: event.type, stripeObjectId: session.id,
+            reason: "Mail cadeau NON envoyé : n8n injoignable — renvoyer le code à la main",
+            details: { to: purchaserEmail, code: promo.code, durationMonths, error: String(e) },
+          });
         }
 
         return new Response("OK", { status: 200 });
