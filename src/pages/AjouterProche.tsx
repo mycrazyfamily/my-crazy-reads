@@ -1,3 +1,8 @@
+// AjouterProche v1.6
+// Changelog v1.6 : plus d'alerte « Quitter le site ? » apres l'enregistrement. Le garde-fou
+//   de sortie (useLeaveFormGuard v1.2) est libere juste avant le rechargement vers l'espace
+//   famille. Avant, Chrome affichait son avertissement alors que le proche etait bien
+//   enregistre, et « Annuler » puis un nouvel enregistrement creait un doublon.
 // AjouterProche v1.5
 // Changelog v1.5 (chantier D2, suite) : harmonisation de la sortie avec le formulaire enfant.
 //   [1] « QUITTER » QUITTE VRAIMENT. Le bouton du haut revenait a l'ecran de selection des
@@ -91,6 +96,7 @@ export default function AjouterProche() {
     setConfirmationOuverte,
     demanderSortie,
     confirmerSortie,
+    libererSortie, // v1.6
   } = useLeaveFormGuard({ actif: showForm });
 
   const handleSortie = () => {
@@ -344,6 +350,7 @@ export default function AjouterProche() {
       toast.success('Proche ajouté avec succès !');
       invalidateFamilyData();
       queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
+      libererSortie(); // v1.6 : enregistrement reussi, on part sans avertissement
       window.location.href = '/espace-famille';
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
