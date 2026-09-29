@@ -1,6 +1,6 @@
 # Sauvegarde des Edge Functions non versionnées
 
-Copies des sept Edge Functions qui n'existent pas dans `supabase/functions`. Chacune tient en un seul fichier `index.ts`. Mise à jour du **25/09/2026**.
+Copies des huit Edge Functions qui n'existent pas dans `supabase/functions`. Chacune tient en un seul fichier `index.ts`. Mise à jour du **29/09/2026**.
 
 **Ce dossier n'est jamais déployé.** Il est volontairement hors de `supabase/functions` : aucun outil ne doit pouvoir redéployer ces fonctions depuis le dépôt avec des réglages par défaut.
 
@@ -8,7 +8,7 @@ Copies des sept Edge Functions qui n'existent pas dans `supabase/functions`. Cha
 
 Les six autres (`create-checkout`, `check-subscription`, `cancel-subscription`, `reactivate-subscription`, `customer-portal`, `send-email`) sont versionnées dans `supabase/functions`.
 
-## Les sept fonctions
+## Les huit fonctions
 
 | Fonction | Version | Rôle | Vérification du JWT | Appelée par | Contrôle de l'appelant |
 |---|---|---|---|---|---|
@@ -19,8 +19,11 @@ Les six autres (`create-checkout`, `check-subscription`, `cancel-subscription`, 
 | `enrich-place-environment` | v2.2 | Ambiance et lieux emblématiques d'une ville ; modération des destinations libres | **Activée, obligatoire** | Déclencheur `notify_enrich_place` (création ou modification d'un lieu) | Jeton de rôle `service_role` |
 | `create-gift-checkout` | sans numéro | Crée le paiement Stripe d'un cadeau | Activée | Page « Offrir » du site | Aucun, volontairement : on peut offrir sans compte |
 | `get-gift-by-session` | sans numéro | Affiche la carte cadeau après paiement | Activée | Page de confirmation cadeau | Identifiant de session Stripe, impossible à deviner |
+| `gift-card` | v1.1 | Carte cadeau en PDF, et image des nuages du mail cadeau | **Désactivée, obligatoire** | Page de confirmation cadeau (bouton « Télécharger »), n8n `MCF_Email_Gift_Confirmation` (pièce jointe), messageries (image) | Identifiant de session Stripe pour la page ; en-tête `X-MCF-Secret` pour n8n ; image publique, sans donnée |
 
 **« Activée, obligatoire »** : ces deux fonctions lisent le rôle inscrit dans le jeton reçu, et c'est la vérification JWT de Supabase qui en garantit la signature. Désactiver ce réglage permettrait à n'importe qui de fabriquer un jeton se disant `service_role`.
+
+**`gift-card` doit garder la vérification du JWT désactivée** : les messageries chargent l'image des nuages sans jeton, et n8n appelle avec son secret. La fonction fait elle-même ses contrôles.
 
 `lock-overdue-books` n'a pas de contrôle de l'appelant : n'importe qui muni de la clé anon peut la déclencher. Elle ne fait que verrouiller les livres dont la date limite est déjà passée, ce que le passage quotidien ferait de toute façon.
 
@@ -33,6 +36,7 @@ Seuls les noms figurent dans le code. `SUPABASE_URL`, `SUPABASE_ANON_KEY` et `SU
 - `enrich-clothing`, `enrich-place-environment` : `GEMINI_API_KEY`.
 - `create-gift-checkout` : `STRIPE_SECRET_KEY`. **Les identifiants de prix et de coupons sont écrits dans le code, ceux du mode test** : à remplacer au passage en Live.
 - `get-gift-by-session` : rien de plus.
+- `gift-card` : `N8N_WEBHOOK_SECRET` (mode n8n). Le PDF est dessiné avec les polices standard ; le dégradé et le nuage sont des images intégrées au code.
 
 **Secret Vault `service_role_key`** : la clé service_role, lue par les déclencheurs `notify_enrich_clothing` et `notify_enrich_place` pour appeler les deux fonctions d'enrichissement. **Le jour où les clés changent, il faut mettre à jour ce secret**, sinon les enrichissements s'arrêtent (avec un avertissement en base, sans bloquer les mises à jour).
 
@@ -50,4 +54,5 @@ Le script qui a mis ces déclencheurs en place est dans `backups/sql/securite_cl
    - `trigger-book-factory` : lancer un livre de test depuis le dashboard admin ;
    - `enrich-clothing` : régénérer l'avatar d'un enfant de test, puis lire les logs ;
    - `enrich-place-environment` : changer la ville d'un lieu de test, puis lire les logs ;
-   - fonctions cadeau : faire un achat cadeau en mode test.
+   - fonctions cadeau : faire un achat cadeau en mode test ;
+   - `gift-card` : ouvrir `…/functions/v1/gift-card?image=nuage` (un nuage blanc), puis `…/gift-card?session_id=<identifiant d'un achat>` (la carte PDF).
