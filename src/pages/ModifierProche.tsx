@@ -1,3 +1,8 @@
+// ModifierProche v1.1
+// Changelog v1.1 : plus d'alerte « Quitter le site ? » apres l'enregistrement. Le garde-fou
+//   de sortie (useLeaveFormGuard v1.2) est libere juste avant le rechargement vers l'espace
+//   famille : Chrome avertissait d'une perte de modifications pourtant enregistrees.
+//   Premiere numerotation : la version precedente, sans numero, est la v1.0.
 // ModifierProche  (chantier D2)
 // Changelog D2 : avertissement avant de quitter la page de modification.
 //   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
@@ -200,6 +205,7 @@ const ModifierProche: React.FC = () => {
     setConfirmationOuverte,
     demanderSortie,
     confirmerSortie,
+    libererSortie, // v1.1
   } = useLeaveFormGuard({ actif: true });
 
   const handleSortie = () => demanderSortie(() => navigate('/espace-famille'));
@@ -817,6 +823,7 @@ const ModifierProche: React.FC = () => {
 
       invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
+      libererSortie(); // v1.1 : enregistrement reussi, on part sans avertissement
       window.location.href = '/espace-famille';
     } catch (e) {
       console.error('Error saving relative:', e);
