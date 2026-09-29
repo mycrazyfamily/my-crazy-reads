@@ -1,3 +1,13 @@
+// useLeaveFormGuard v1.2
+// Changelog v1.2 : « QUITTER LE SITE ? » APRES UN ENREGISTREMENT REUSSI. AjouterProche et
+//   ModifierProche repartent vers l'espace famille par un rechargement complet
+//   (window.location.href). Le garde-fou beforeunload, toujours actif, faisait alors afficher
+//   par Chrome « Les modifications ne seront peut-etre pas enregistrees » alors qu'elles
+//   l'etaient. Pire : « Annuler » laissait le parent sur le formulaire, un second clic sur
+//   « Enregistrer » creait un doublon (constate le 29/09 : deux « Gp Ladji »).
+//   Nouvelle action libererSortie() : a appeler juste avant de quitter volontairement la
+//   page apres un enregistrement. Elle arme le meme drapeau que la sortie confirmee, que
+//   l'ecouteur beforeunload consulte desormais aussi.
 // useLeaveFormGuard v1.1  (chantier D2)
 // Changelog v1.1 : correctif du DOUBLE AVERTISSEMENT. Confirmer la sortie via le bouton
 //   « Quitter » ouvrait la modale une seconde fois. Cause : l'entree d'historique factice
@@ -49,6 +59,8 @@ export function useLeaveFormGuard({ actif = true }: UseLeaveFormGuardOptions = {
   useEffect(() => {
     if (!actif) return;
     const handler = (e: BeforeUnloadEvent) => {
+      // v1.2 : sortie voulue (enregistrement reussi ou sortie confirmee) : on laisse partir.
+      if (sortieEnCoursRef.current) return;
       e.preventDefault();
       // Valeur historique attendue par certains navigateurs. Le texte affiche reste celui
       // du navigateur, pas celui-ci.
@@ -104,6 +116,12 @@ export function useLeaveFormGuard({ actif = true }: UseLeaveFormGuardOptions = {
     if (action) action();
   }, []);
 
+  // v1.2 : a appeler juste avant de quitter la page de son plein gre, apres un enregistrement
+  // reussi. Plus aucun avertissement ne se declenche ensuite.
+  const libererSortie = useCallback(() => {
+    sortieEnCoursRef.current = true;
+  }, []);
+
   return {
     /** A passer a LeaveFormDialog. */
     confirmationOuverte,
@@ -112,6 +130,8 @@ export function useLeaveFormGuard({ actif = true }: UseLeaveFormGuardOptions = {
     demanderSortie,
     /** A passer a LeaveFormDialog comme onConfirm. */
     confirmerSortie,
+    /** v1.2 : a appeler avant de quitter la page apres un enregistrement reussi. */
+    libererSortie,
   };
 }
 
