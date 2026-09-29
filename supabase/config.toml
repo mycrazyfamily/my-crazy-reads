@@ -1,7 +1,24 @@
 project_id = "rjbmhcoctpwmlqndzybm"
 
+# Reglages alignes sur la production au 29/09/2026 (verification du JWT
+# desactivee : chaque fonction authentifie elle-meme l'utilisateur).
+# Ce fichier ne deploie rien a lui seul ; il documente et protege ces reglages
+# si les fonctions etaient un jour redeployees depuis le depot.
+
 [functions.send-email]
 verify_jwt = false
 
 [functions.check-subscription]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.reactivate-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
 verify_jwt = false

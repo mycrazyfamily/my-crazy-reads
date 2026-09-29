@@ -1,5 +1,36 @@
+// ============================================================================
+// check-subscription v1.1 — 11/08/2026
+//
+// CORRECTIF : les abonnements en periode d'essai n'etaient pas reconnus.
+//
+//   La requete Stripe filtrait sur `status: "active"`. Or `active` et
+//   `trialing` sont deux statuts DISTINCTS chez Stripe : un abonnement en
+//   essai n'apparaissait tout simplement pas dans la liste.
+//
+//   Le defaut etait dormant jusqu'au 11/08/2026. Depuis create-checkout v2.0,
+//   tout abonnement souscrit apres le 10 du mois s'ouvre en `trialing` — le
+//   premier prelevement est reporte au 10, jour de cloture de la
+//   personnalisation. Le filtre a donc commence a exclure une part croissante
+//   des abonnes.
+//
+//   Consequence observee : l'abonne payait, sa carte etait enregistree,
+//   `subscriptions` en base portait bien status='active' — mais l'application
+//   le declarait NON abonne et lui reproposait de s'abonner. « Shimer finale »
+//   s'est ainsi retrouve avec DEUX abonnements le meme jour.
+//
+//   Ce n'etait pas la base qui mentait, mais la question posee a Stripe.
+//
+// CHANGEMENT UNIQUE : on recupere tous les abonnements (`status: "all"`) et on
+// filtre soi-meme sur les statuts qui valent couverture. Le reste du fichier
+// est inchange : authentification, recherche du customer, forme de la reponse.
+//
+// ⚠️ Tout nouveau statut Stripe valant couverture devra etre ajoute a
+//    COVERING_STATUSES. Voir aussi stripe-webhook v2.2, qui stocke le statut
+//    brut dans subscriptions.stripe_status.
+// ============================================================================
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -45,22 +76,19 @@ serve(async (req) => {
     );
 
     const token = authHeader.replace("Bearer ", "");
-    logStep("Authenticating user with token");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError || !userData.user) throw new Error(`Authentication error: ${userError?.message || 'Invalid token'}`);
 
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) throw new Error(`Authentication error: ${claimsError?.message || 'Invalid token'}`);
-
-    const userId = claimsData.claims.sub;
-    const userEmail = claimsData.claims.email as string;
+    const userEmail = userData.user.email;
     if (!userEmail) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId, email: userEmail });
+    logStep("User authenticated", { userId: userData.user.id, email: userEmail });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
-      return new Response(JSON.stringify({ subscribed: false }), {
+      logStep("No customer found, returning unsubscribed state");
+      return new Response(JSON.stringify({ subscribed: false, subscriptions: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -69,17 +97,43 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    const subscriptions = await stripe.subscriptions.list({
+    // v1.1 — On ne filtre PLUS sur status:"active" côté Stripe.
+    // `active` et `trialing` sont deux statuts DISTINCTS chez Stripe. Depuis
+    // create-checkout v2.0, tout abonnement souscrit après le 10 s'ouvre en
+    // `trialing` (premier prélèvement reporté au 10). Le filtre les excluait :
+    // l'abonné payait, sa carte était enregistrée, et l'application le croyait
+    // NON abonné — au point de lui proposer de se réabonner. Constaté le
+    // 11/08/2026 sur « Shimer finale », abonné deux fois de suite.
+    //
+    // On récupère donc TOUS les abonnements et on filtre nous-mêmes sur les
+    // statuts qui valent couverture. Volontairement exclus :
+    //   · past_due / unpaid  -> impayés, traités par stripe-webhook v2.2 et
+    //                           signalés en rouge au dashboard admin
+    //   · incomplete         -> paiement initial jamais abouti
+    //   · canceled / paused  -> plus de couverture
+    const COVERING_STATUSES = ["active", "trialing"];
+
+    const allSubscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
+      status: "all",
       limit: 100,
     });
+    const subscriptions = {
+      data: allSubscriptions.data.filter((s) => COVERING_STATUSES.includes(s.status)),
+    };
+
+    logStep("Subscriptions fetched", {
+      total: allSubscriptions.data.length,
+      covering: subscriptions.data.length,
+      statuses: allSubscriptions.data.map((s) => s.status),
+    });
+
     const hasActiveSub = subscriptions.data.length > 0;
     let productId = null;
     let subscriptionEnd = null;
     let priceId = null;
 
-    const detailedSubs = subscriptions.data.map((subscription: any) => {
+    const detailedSubs = subscriptions.data.map((subscription) => {
       const price = subscription.items.data[0].price;
       const pid = typeof price.product === 'string' ? price.product : price.product?.id;
       return {

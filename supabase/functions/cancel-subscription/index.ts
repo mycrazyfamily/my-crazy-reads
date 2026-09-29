@@ -1,22 +1,43 @@
+// ============================================================================
+// cancel-subscription v1.1 — 11/08/2026
+//
+// CORRECTIF : la mise a jour Supabase ne ciblait pas le bon abonnement.
+//   La v1.0 posait cancel_at sur TOUTES les lignes actives de l'enfant, sans
+//   jamais regarder quel abonnement Stripe etait reellement annule. Un enfant
+//   portant deux abonnements actifs voyait les deux marques — dont celui qu'on
+//   voulait garder. Cas reel constate le 11/08/2026 sur « Shimer finale ».
+//   Et si child_id manquait des metadonnees Stripe, la requete retombait sur
+//   created_by seul : TOUS les abonnements de la famille etaient touches.
+//
+//   On cible desormais par stripe_subscription_id (appariement fort), avec
+//   repli sur (child_id, created_by) pour les lignes anterieures au 06/08 qui
+//   n'ont pas cette colonne renseignee. Si rien ne correspond, on n'ecrit PAS :
+//   mieux vaut une ligne non mise a jour qu'une ecriture sur le mauvais
+//   abonnement. MCF_Stripe_Reconcile detectera l'ecart la nuit suivante.
+//
+//   Meme motif que stripe-webhook v2.1.
+//
+// Note : cancel_at_period_end fonctionne aussi sur un abonnement en periode
+// d'essai (create-checkout v2.0). Dans ce cas current_period_end vaut la fin
+// de l'essai : annuler pendant l'essai ne declenche aucun prelevement et aucun
+// livre. Comportement voulu.
+//
+// Le reste du fichier est inchange : authentification, verification que
+// l'abonnement appartient bien a l'utilisateur, appel Stripe, feedback.
+// ============================================================================
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CANCEL-SUBSCRIPTION] ${step}${detailsStr}`);
-};
-
-const safeError = (msg: string) => {
-  if (msg.includes("authorization") || msg.includes("authenticated")) return "Authentication required";
-  if (msg.toLowerCase().includes("stripe")) return "Payment service temporarily unavailable";
-  if (msg.includes("not found") || msg.includes("forbidden")) return "Subscription not found";
-  return "An unexpected error occurred. Please try again.";
 };
 
 serve(async (req) => {
@@ -27,11 +48,8 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) throw new Error("No authorization header provided");
+    const authHeader = req.headers.get("Authorization")!;
+    const token = authHeader.replace("Bearer ", "");
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -39,63 +57,125 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) throw new Error("Authentication error");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError || !userData.user) throw new Error("User not authenticated");
+    const user = userData.user;
+    logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const userEmail = claimsData.claims.email as string;
-    if (!userEmail) throw new Error("User not authenticated");
-    logStep("User authenticated", { email: userEmail });
+    const { subscription_id, reason, comment } = await req.json();
+    if (!subscription_id) throw new Error("subscription_id is required");
+    logStep("Request received", { subscription_id, reason });
 
-    const body = await req.json().catch(() => ({}));
-    const subscriptionId = body?.subscription_id;
-    const reason = typeof body?.reason === "string" ? body.reason.slice(0, 200) : null;
-    const comment = typeof body?.comment === "string" ? body.comment.slice(0, 1000) : null;
-    if (!subscriptionId || typeof subscriptionId !== "string" || !subscriptionId.startsWith("sub_")) {
-      return new Response(JSON.stringify({ error: "Invalid subscription_id" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+
+    // Vérification ownership
+    const subscription = await stripe.subscriptions.retrieve(subscription_id);
+    const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
+
+    if (customer.email !== user.email) {
+      logStep("Unauthorized cancellation attempt", { userId: user.id });
+      throw new Error("Unauthorized: subscription does not belong to this user");
     }
+    logStep("Ownership verified", { customerId: customer.id });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Verify ownership: subscription's customer email must match the authenticated user
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
-    const customer = await stripe.customers.retrieve(customerId);
-    const customerEmail = (customer as any)?.email;
-    if (!customerEmail || customerEmail.toLowerCase() !== userEmail.toLowerCase()) {
-      logStep("Ownership mismatch", { customerEmail, userEmail });
-      throw new Error("forbidden");
-    }
-
-    const updated = await stripe.subscriptions.update(subscriptionId, {
+    // Annulation à la fin de la période
+    const updatedSubscription = await stripe.subscriptions.update(subscription_id, {
       cancel_at_period_end: true,
-      metadata: {
-        ...(reason ? { cancellation_reason: reason } : {}),
-        ...(comment ? { cancellation_comment: comment } : {}),
-      },
     });
-    logStep("Subscription set to cancel at period end", { id: updated.id });
 
-    const cancelAt = updated.cancel_at
-      ? new Date(updated.cancel_at * 1000).toISOString()
-      : new Date(updated.current_period_end * 1000).toISOString();
+    const cancelAt = new Date(updatedSubscription.current_period_end * 1000).toISOString();
+    logStep("Subscription scheduled for cancellation", { subscription_id, cancelAt });
+
+    // Mise à jour Supabase
+    const childId = subscription.metadata?.child_id || null;
+
+    // ── v1.1 — CIBLAGE FORT PAR stripe_subscription_id ────────────────────
+    // La v1.0 mettait a jour TOUTES les lignes actives de l'enfant :
+    //     .eq('child_id', childId).eq('created_by', user.id).eq('is_active', true)
+    // Un enfant portant deux abonnements actifs — cas reel du 11/08/2026 sur
+    // « Shimer finale » — voyait donc les DEUX modifies, dont celui qu'on
+    // voulait garder. Et si child_id manquait des metadonnees, la requete
+    // retombait sur created_by seul et touchait TOUS les abonnements de la
+    // famille.
+    // Meme motif que stripe-webhook v2.1 : appariement fort d'abord, repli
+    // ensuite. La colonne stripe_subscription_id existe depuis le 06/08.
+    let targetIds: string[] = [];
+
+    const { data: strongMatch } = await supabaseClient
+      .from('subscriptions')
+      .select('id')
+      .eq('stripe_subscription_id', subscription_id)
+      .eq('is_active', true);
+
+    if (strongMatch && strongMatch.length > 0) {
+      targetIds = strongMatch.map((r: any) => r.id);
+      logStep("Matched by stripe_subscription_id", { count: targetIds.length });
+    } else if (childId) {
+      // Repli : lignes anterieures au 06/08, sans stripe_subscription_id.
+      const { data: fallback } = await supabaseClient
+        .from('subscriptions')
+        .select('id')
+        .eq('child_id', childId)
+        .eq('created_by', user.id)
+        .eq('is_active', true);
+      targetIds = (fallback ?? []).map((r: any) => r.id);
+      logStep("Fallback match by child_id", { count: targetIds.length });
+    }
+
+    if (targetIds.length === 0) {
+      // On n'ecrit PAS a l'aveugle : mieux vaut une ligne non mise a jour
+      // qu'une mise a jour sur le mauvais abonnement. Stripe reste la source
+      // de verite, et MCF_Stripe_Reconcile detectera l'ecart la nuit suivante.
+      logStep("No matching row in Supabase — nothing updated", { subscription_id, childId });
+    } else {
+      const { error: updateError } = await supabaseClient
+        .from('subscriptions')
+        .update({
+          cancel_at: cancelAt,
+          updated_at: new Date().toISOString(),
+        })
+        .in('id', targetIds);
+
+      if (updateError) {
+        logStep("Error updating cancel_at", { error: updateError.message });
+      } else {
+        logStep("cancel_at updated in Supabase", { rows: targetIds.length });
+      }
+    }
+
+    // Enregistrement du feedback de résiliation
+    if (reason) {
+      const { error: feedbackError } = await supabaseClient
+        .from('cancellation_feedback')
+        .insert({
+          subscription_id,
+          child_id: childId,
+          user_id: user.id,
+          reason,
+          comment: comment || null,
+        });
+
+      if (feedbackError) {
+        logStep("Error saving cancellation feedback", { error: feedbackError.message });
+      } else {
+        logStep("Cancellation feedback saved", { reason });
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,
-      subscription_id: updated.id,
       cancel_at: cancelAt,
-      cancel_at_period_end: updated.cancel_at_period_end,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: msg });
-    return new Response(JSON.stringify({ error: safeError(msg) }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

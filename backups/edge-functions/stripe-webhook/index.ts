@@ -3,6 +3,26 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 // ============================================================================
+// stripe-webhook v2.4 — 29/09/2026
+//
+// ADRESSE DE LIVRAISON ENREGISTREE A L'ABONNEMENT
+//   Depuis create-checkout v2.2, Stripe demande l'adresse de livraison (France
+//   uniquement) et le telephone. A checkout.session.completed (abonnement), cette
+//   adresse devient celle de la FAMILLE de l'enfant, dans shipping_addresses
+//   (adresse_livraison_v1.sql) : une ligne par famille, la derniere saisie l'emporte.
+//   Famille : celle de l'enfant abonne (child_profiles.family_id), a defaut celle du
+//   compte retrouve par email.
+//   Deux formes lues, comme ailleurs dans ce fichier : shipping_details a la racine
+//   (ancienne forme, SDK epingle) et collected_information.shipping_details (forme
+//   des versions recentes de l'API, celle de l'endpoint).
+//   NON BLOQUANT : une adresse absente, refusee par la base (code DOM ou Monaco,
+//   par exemple) ou impossible a rattacher laisse une trace dans
+//   webhook_anomalies, et l'abonnement suit son cours normalement. Le parent
+//   pourra la saisir dans « Mon abonnement ».
+//   L'adresse de facturation reste chez Stripe (factures) : elle n'est pas copiee.
+//   Blocs INCHANGES : tout le reste du fichier.
+//
+// ============================================================================
 // stripe-webhook v2.3 — 25/09/2026
 //
 // SECURITE — LE MAIL CADEAU N'EST PLUS DECLENCHABLE PAR N'IMPORTE QUI
@@ -455,6 +475,68 @@ serve(async (req) => {
           insertedSubId = raced?.id ?? null;
           logStep("Concurrent insert detected, reusing existing row", { subscriptionRowId: insertedSubId });
         }
+      }
+
+      // ── v2.4 — Adresse de livraison de la famille ────────────────────────
+      // Non bloquant : un echec laisse une trace durable, l'abonnement continue.
+      try {
+        const s: any = session;
+        const livraison = s.shipping_details ?? s.collected_information?.shipping_details ?? null;
+        const adresse = livraison?.address ?? null;
+        const telephone: string | null = s.customer_details?.phone ?? null;
+
+        // Famille : celle de l'enfant abonne d'abord, celle du compte ensuite.
+        let familleLivraison: string | null = null;
+        if (childId) {
+          const { data: enfant } = await supabaseAdmin
+            .from('child_profiles')
+            .select('family_id')
+            .eq('id', childId)
+            .maybeSingle();
+          familleLivraison = enfant?.family_id ?? null;
+        }
+        familleLivraison = familleLivraison ?? familyId;
+
+        if (!adresse?.line1 || !adresse?.postal_code || !adresse?.city) {
+          await logAnomaly(supabaseAdmin, {
+            eventId: event.id, eventType: event.type, stripeObjectId: session.id,
+            reason: "Abonnement sans adresse de livraison dans Stripe — a saisir dans « Mon abonnement »",
+            details: { childId, familyId: familleLivraison },
+          });
+        } else if (!familleLivraison) {
+          await logAnomaly(supabaseAdmin, {
+            eventId: event.id, eventType: event.type, stripeObjectId: session.id,
+            reason: "Adresse de livraison impossible a rattacher a une famille",
+            details: { childId, customerEmail, city: adresse.city },
+          });
+        } else {
+          const { error: adresseError } = await supabaseAdmin
+            .from('shipping_addresses')
+            .upsert({
+              family_id: familleLivraison,
+              full_name: String(livraison?.name ?? s.customer_details?.name ?? '').trim() || 'Destinataire',
+              line1: String(adresse.line1).trim(),
+              line2: adresse.line2 ? String(adresse.line2).trim() : null,
+              postal_code: String(adresse.postal_code).replace(/\s+/g, ''),
+              city: String(adresse.city).trim(),
+              country: adresse.country ?? 'FR',
+              phone: telephone,
+              source: 'stripe_checkout',
+            }, { onConflict: 'family_id' });
+
+          if (adresseError) {
+            // Ex. : code postal refuse par la base (DOM, Monaco) ou pays hors France.
+            await logAnomaly(supabaseAdmin, {
+              eventId: event.id, eventType: event.type, stripeObjectId: session.id,
+              reason: "Adresse de livraison refusee par la base — a corriger dans « Mon abonnement »",
+              details: { familyId: familleLivraison, error: adresseError.message, postal_code: adresse.postal_code, country: adresse.country },
+            });
+          } else {
+            logStep("Shipping address saved", { familyId: familleLivraison, city: adresse.city });
+          }
+        }
+      } catch (e) {
+        logStep("Shipping address step failed (non-blocking)", { error: String(e) });
       }
 
       // ── Génération des livres (déterministe) ─────────────────────────────

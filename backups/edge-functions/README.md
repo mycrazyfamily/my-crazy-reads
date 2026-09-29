@@ -1,18 +1,18 @@
 # Sauvegarde des Edge Functions non versionnées
 
-Copies des huit Edge Functions qui n'existent pas dans `supabase/functions`. Chacune tient en un seul fichier `index.ts`. Mise à jour du **29/09/2026**.
+Copies des huit Edge Functions qui n'existent pas dans `supabase/functions`. Chacune tient en un seul fichier `index.ts`. Mise à jour du **29/09/2026** (`stripe-webhook` v2.4 : adresse de livraison).
 
 **Ce dossier n'est jamais déployé.** Il est volontairement hors de `supabase/functions` : aucun outil ne doit pouvoir redéployer ces fonctions depuis le dépôt avec des réglages par défaut.
 
 **À tenir à jour** : toute modification d'une de ces fonctions dans Supabase doit être recopiée ici le jour même.
 
-Les six autres (`create-checkout`, `check-subscription`, `cancel-subscription`, `reactivate-subscription`, `customer-portal`, `send-email`) sont versionnées dans `supabase/functions`.
+**Les cinq autres fonctions** (`create-checkout`, `check-subscription`, `cancel-subscription`, `reactivate-subscription`, `customer-portal`) sont dans `supabase/functions`. **Attention** : jusqu'au 29/09/2026, ces copies dataient de janvier à avril 2026 alors que la production avait évolué (report du prélèvement au 10, abonnements en essai, ciblage des résiliations). Elles ont été réalignées sur la production le 29/09/2026. Même règle qu'ici : toute modification faite dans Supabase doit y être recopiée le jour même. `send-email` est un reste inutilisé : les mails d'authentification passent par Brevo en SMTP.
 
 ## Les huit fonctions
 
 | Fonction | Version | Rôle | Vérification du JWT | Appelée par | Contrôle de l'appelant |
 |---|---|---|---|---|---|
-| `stripe-webhook` | v2.3 | Abonnements, renouvellements, échecs de paiement, résiliations, achats cadeaux | **Désactivée** | Stripe, endpoint `mcf-stripe-webhook` (5 événements) | Signature Stripe |
+| `stripe-webhook` | v2.4 | Abonnements, renouvellements, échecs de paiement, résiliations, achats cadeaux | **Désactivée** | Stripe, endpoint `mcf-stripe-webhook` (5 événements) | Signature Stripe |
 | `trigger-book-factory` | v1.1 | Lance la fabrication d'un livre dans n8n | Activée | Dashboard admin, bouton « Lancer » | Administrateur uniquement (`is_mcf_admin()`) |
 | `lock-overdue-books` | sans numéro | Verrouille les livres dont la date limite est passée | Activée | n8n `MCF_Lock_Overdue_Books`, chaque jour à 2 h | Aucun (voir plus bas) |
 | `enrich-clothing` | v3.3 | Décrit la tenue d'un avatar (Gemini Vision) | **Activée, obligatoire** | Déclencheur `notify_enrich_clothing` (nouvel avatar) | Jeton de rôle `service_role` |
@@ -31,7 +31,7 @@ Les six autres (`create-checkout`, `check-subscription`, `cancel-subscription`, 
 
 Seuls les noms figurent dans le code. `SUPABASE_URL`, `SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` sont fournis automatiquement par Supabase.
 
-- `stripe-webhook` : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `N8N_WEBHOOK_SECRET` (en-tête du mail cadeau), `N8N_GIFT_WEBHOOK_URL` (facultatif, adresse de repli dans le code).
+- `stripe-webhook` : `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `N8N_WEBHOOK_SECRET` (en-tête du mail cadeau), `N8N_GIFT_WEBHOOK_URL` (facultatif, adresse de repli dans le code). Depuis la v2.4, écrit aussi dans la table `shipping_addresses` (script `adresse_livraison_v1.sql`).
 - `trigger-book-factory` : `N8N_WEBHOOK_SECRET` (doit correspondre à l'identifiant n8n `Header Auth account 4`), `SUPABASE_ANON_KEY`.
 - `enrich-clothing`, `enrich-place-environment` : `GEMINI_API_KEY`.
 - `create-gift-checkout` : `STRIPE_SECRET_KEY`. **Les identifiants de prix et de coupons sont écrits dans le code, ceux du mode test** : à remplacer au passage en Live.
