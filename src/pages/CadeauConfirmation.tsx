@@ -1,3 +1,8 @@
+// CadeauConfirmation.tsx v1.5
+// v1.5 (chantier G) : BOUTON « TELECHARGER LA CARTE (PDF) » sous la carte. Le PDF est
+//       produit par l'Edge Function gift-card (meme carte que le mail) ; le lien porte
+//       l'identifiant de session Stripe, deja present dans l'adresse de la page.
+//       Le texte d'introduction annonce aussi le PDF joint au mail.
 // CadeauConfirmation.tsx v1.4
 // v1.4: mention des INDÉSIRABLES sur les deux écrans qui annoncent un email.
 //       L'acheteur d'un cadeau est un INVITÉ : pas de compte, donc aucun autre
@@ -13,7 +18,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowLeft, Download } from 'lucide-react';
 
 type Gift = {
   code: string;
@@ -23,6 +28,9 @@ type Gift = {
 };
 
 const MAX_ATTEMPTS = 12;
+
+// v1.5 : meme projet Supabase que src/integrations/supabase/client.ts.
+const URL_CARTE_PDF = 'https://rjbmhcoctpwmlqndzybm.supabase.co/functions/v1/gift-card';
 const POLL_INTERVAL_MS = 2000;
 
 const Cloud: React.FC<{ style: React.CSSProperties; scale?: number }> = ({ style, scale = 1 }) => {
@@ -177,7 +185,7 @@ const CadeauConfirmation: React.FC = () => {
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-mcf-primary mb-3">Merci, votre cadeau est prêt !</h1>
                 <p className="text-lg text-muted-foreground mb-2">
-                  Voici la carte à transmettre. Le code est aussi envoyé par email.
+                  Voici la carte à transmettre. Le code est aussi envoyé par email, avec la carte en PDF.
                 </p>
                 {/* v1.4 — l'acheteur d'un cadeau est un INVITÉ : il n'a pas de compte,
                     donc aucun autre moyen de retrouver son code s'il perd le mail. */}
@@ -187,6 +195,22 @@ const CadeauConfirmation: React.FC = () => {
                 </p>
 
                 <GiftCard gift={gift} />
+
+                {/* v1.5 : la meme carte en PDF, a imprimer ou a transferer. */}
+                {sessionId && (
+                  <div className="mt-6 flex flex-col items-center gap-2">
+                    <a
+                      href={`${URL_CARTE_PDF}?session_id=${encodeURIComponent(sessionId)}&download=1`}
+                      className="inline-flex items-center gap-2 rounded-lg bg-mcf-primary px-6 py-3 font-bold text-white shadow-md transition-colors hover:bg-mcf-primary-dark"
+                    >
+                      <Download className="h-5 w-5" />
+                      Télécharger la carte (PDF)
+                    </a>
+                    <p className="text-sm text-muted-foreground">
+                      À imprimer pour l'offrir en main propre, ou à envoyer par email.
+                    </p>
+                  </div>
+                )}
 
                 <div className="bg-mcf-mint/20 rounded-2xl p-6 mt-8 text-left">
                   <h2 className="font-bold text-mcf-primary mb-3">Comment l'offrir ?</h2>
