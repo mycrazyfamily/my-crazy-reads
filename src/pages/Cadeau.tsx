@@ -1,3 +1,9 @@
+// Cadeau.tsx v1.5
+// Changelog v1.5 (chantier G) : equivalent mensuel « soit 24,99 €/mois » pour les cadeaux
+//   6 et 12 mois, au lieu de « soit 25,00 €/mois ». Le cadeau 12 mois coute le meme prix
+//   que l'abonnement annuel (299,99 €), que la page Abonnement affiche a 24,99 €/mois :
+//   deux chiffres pour le meme prix. Convention retenue partout : 24,99 (troncature).
+//   Le 6 mois (149,99 €) est au meme tarif mensuel. Les prix eux-memes ne changent pas.
 // Cadeau.tsx v1.4
 // Changelog v1.4 (chantier icones IA, lot 1) : Wand2 -> Feather sur « Personnalisez votre
 //   cadeau ». Le remplacement en Wand2 de la v1.3 etait une erreur : Wand2 est un ALIAS de
@@ -58,8 +64,8 @@ type Offer = {
 
 const OFFERS: Offer[] = [
   { months: 3, price: '89,97 €', perMonth: 'soit 29,99 €/mois' },
-  { months: 6, price: '149,99 €', perMonth: 'soit 25,00 €/mois', highlight: true },
-  { months: 12, price: '299,99 €', perMonth: 'soit 25,00 €/mois' },
+  { months: 6, price: '149,99 €', perMonth: 'soit 24,99 €/mois', highlight: true }, // v1.5
+  { months: 12, price: '299,99 €', perMonth: 'soit 24,99 €/mois' }, // v1.5 : comme l'annuel
 ];
 
 const Cadeau: React.FC = () => {
