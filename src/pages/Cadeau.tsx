@@ -1,3 +1,7 @@
+// Cadeau.tsx v1.6
+// Changelog v1.6 (chantier adresse de livraison) : « Livraison incluse » precise la zone,
+//   « en France métropolitaine », comme sur la page Abonnement. La personne qui recoit le
+//   cadeau devra s'abonner avec une adresse en France metropolitaine ou en Corse.
 // Cadeau.tsx v1.5
 // Changelog v1.5 (chantier G) : equivalent mensuel « soit 24,99 €/mois » pour les cadeaux
 //   6 et 12 mois, au lieu de « soit 25,00 €/mois ». Le cadeau 12 mois coute le meme prix
@@ -208,7 +212,7 @@ const Cadeau: React.FC = () => {
                       <div className="w-5 h-5 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Check className="w-3.5 h-3.5 text-mcf-secondary" strokeWidth={3} />
                       </div>
-                      <span className="text-sm">Livraison incluse</span>
+                      <span className="text-sm">Livraison incluse en France métropolitaine</span>
                     </li>
                   </ul>
 
