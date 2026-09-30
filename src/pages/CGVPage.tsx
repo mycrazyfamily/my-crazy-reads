@@ -1,3 +1,7 @@
+// CGVPage.tsx v1.2
+// v1.2: article 7.2 — zone de livraison (France metropolitaine et Corse ; Monaco et DOM-TOM
+//       exclus), adresse unique par famille, adresse figee au moment de l'expedition,
+//       modification depuis l'espace famille. Decisions du 29/09/2026.
 // CGVPage.tsx v1.1
 // v1.1: alignement à gauche du contenu (text-left) — neutralise le centrage global hérité
 // v1.0: page Conditions générales de vente (contenu fidèle au document MCF), gabarit aligné sur APropos.tsx
@@ -105,6 +109,8 @@ const sections: Section[] = [
         `à des circonstances exceptionnelles.`,
       ] },
       { type: 'sub', text: `7.2 Adresse de livraison` },
+      { type: 'p', text: `Les livres sont livrés en France métropolitaine et en Corse uniquement. Monaco et les départements et territoires d'outre-mer ne sont pas desservis.` },
+      { type: 'p', text: `L'adresse de livraison est saisie lors de l'abonnement. Elle est commune à tous les enfants abonnés d'une même famille et peut être modifiée à tout moment depuis l'espace famille, rubrique « Gérer mes abonnements ». Chaque livre est expédié à l'adresse enregistrée au moment de son expédition.` },
       { type: 'p', text: `Le client est responsable de l'exactitude de l'adresse fournie.` },
       { type: 'p', text: `En cas d'erreur entraînant un retour ou une non-livraison, les frais de réexpédition pourront être à la charge du client.` },
     ],
