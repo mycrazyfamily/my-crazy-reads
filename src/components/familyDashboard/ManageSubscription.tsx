@@ -1,3 +1,9 @@
+// ManageSubscription v1.1 — 29/09/2026
+// Changelog v1.1 (chantier adresse de livraison) : bloc « Adresse de livraison »
+//   (ShippingAddressCard) en tete de la section, avant les abonnements : une adresse par
+//   famille, valable pour tous les enfants. Affiche seulement quand la famille a au moins
+//   un abonnement actif. Premiere numerotation : la version precedente, sans numero, est
+//   la v1.0.
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -22,6 +28,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { FamilyChild } from '@/hooks/useFamilyData';
+import ShippingAddressCard from './ShippingAddressCard'; // v1.1
 
 interface StripeSubscriptionItem {
   subscription_id: string;
@@ -282,6 +289,8 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ familyChildren 
         <CreditCard className="h-6 w-6" />
         Gérer mes abonnements
       </h2>
+      {/* v1.1 : une adresse par famille, valable pour tous les enfants abonnés. */}
+      <ShippingAddressCard />
       <div className="grid gap-6 md:grid-cols-2">
         {subs.map((sub) => {
           const childName = findChildName(sub.child_id);
