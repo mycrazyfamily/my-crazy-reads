@@ -1,3 +1,7 @@
+// Abonnement v1.5
+// Changelog v1.5 (chantier adresse de livraison) : « Livraison incluse » precise la zone,
+//   « en France métropolitaine », sur les deux formules. La Corse est comprise, Monaco et
+//   les DOM-TOM ne sont pas desservis (voir CGV, article 7.2).
 // Abonnement v1.4
 // Changelog v1.4 (chantier F, point 11) : LES ENFANTS NE BOUGENT PLUS A L'OUVERTURE.
 //   Constat du 24/09 : a l'ouverture, les boutons des enfants se deplacaient avant de se figer.
@@ -474,7 +478,7 @@ const Abonnement: React.FC = () => {
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
                       </div>
-                      <span className="text-base">Livraison incluse</span>
+                      <span className="text-base">Livraison incluse en France métropolitaine</span>
                     </li>
                   </ul>
                   <div className="mb-8 p-6 bg-gradient-to-br from-mcf-mint/20 to-mcf-mint/10 rounded-xl border-2 border-mcf-mint/30">
@@ -555,7 +559,7 @@ const Abonnement: React.FC = () => {
                       <div className="w-6 h-6 bg-mcf-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Check className="w-4 h-4 text-mcf-secondary" strokeWidth={3} />
                       </div>
-                      <span className="text-base">Livraison incluse</span>
+                      <span className="text-base">Livraison incluse en France métropolitaine</span>
                     </li>
                   </ul>
                   <div className="mb-8 p-6 bg-gradient-to-br from-mcf-mint/20 to-mcf-mint/10 rounded-xl border-2 border-mcf-mint/30">
