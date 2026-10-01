@@ -1,3 +1,5 @@
+// Footer.tsx v1.7
+// v1.7: lien « Mentions légales » (/mentions-legales) dans la colonne Légal.
 // Footer.tsx v1.6
 // v1.6: libellé « Cadeau » → « Offrir un abonnement » (cohérence avec le header, plus parlant)
 // v1.5: libellé « Offrir un abonnement » → « Cadeau » (cohérence avec le header)
@@ -218,6 +220,17 @@ const Footer: React.FC = () => {
                 <Link to="/confidentialite" className="text-muted-foreground hover:text-mcf-primary transition-colors">
 
                   Politique de confidentialité
+
+                </Link>
+
+              </li>
+
+              {/* v1.7 */}
+              <li>
+
+                <Link to="/mentions-legales" className="text-muted-foreground hover:text-mcf-primary transition-colors">
+
+                  Mentions légales
 
                 </Link>
 
