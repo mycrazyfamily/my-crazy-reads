@@ -1,4 +1,10 @@
 // ============================================================================
+// create-checkout v2.3 — 29/09/2026
+//
+// Changelog v2.3 : message au-dessus de l'adresse. Il renvoyait a une rubrique
+//   « Mon abonnement » qui n'existe pas sous ce nom : l'adresse se modifie dans
+//   l'espace famille, section « Gerer mes abonnements ». Rien d'autre ne change.
+//
 // create-checkout v2.2 — 29/09/2026
 //
 // Changelog v2.2 : ADRESSE DE LIVRAISON, FACTURATION ET TELEPHONE.
@@ -254,7 +260,7 @@ serve(async (req) => {
       custom_text: {
         // v2.2 — zone de livraison, affichee au-dessus de l'adresse.
         shipping_address: {
-          message: "Livraison en France métropolitaine et en Corse. Vous pourrez modifier cette adresse à tout moment depuis votre espace, rubrique « Mon abonnement ».",
+          message: "Livraison en France métropolitaine et en Corse. Vous pourrez la modifier à tout moment depuis votre espace famille, rubrique « Gérer mes abonnements ».",
         },
         submit: {
           message: deliveryMessage,
