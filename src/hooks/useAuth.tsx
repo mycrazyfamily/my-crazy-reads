@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
+import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 
 type SubscriptionStatus = 'none' | 'active' | 'expired' | 'pending';
 
@@ -63,7 +63,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data?.subscribed) {
         const subscription: Subscription = {
           status: 'active',
-          type: data.price_id === 'price_1SLPaABm2xG2OMOvaDzDSB2s' ? 'monthly' : 'yearly',
+          // 01/10/2026 : l'identifiant du mensuel est lu dans subscriptionPlans.ts. L'ancien
+          // identifiant ecrit en dur ne correspondait a aucun prix existant.
+          type: data.price_id === SUBSCRIPTION_PLANS.monthly.priceId ? 'monthly' : 'yearly',
           nextPaymentDate: data.subscription_end,
           priceId: data.price_id,
           productId: data.product_id,
