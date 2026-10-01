@@ -1,3 +1,7 @@
+// ConfidentialitePage.tsx v1.5
+// Changelog v1.5 (chantier adresse de livraison) : les donnees de livraison mentionnent le
+//   numero de telephone (demande a l'abonnement, utile au transporteur) et precisent que
+//   l'adresse est commune a la famille et modifiable depuis l'espace famille.
 // ConfidentialitePage.tsx v1.4
 // Changelog v1.4 (chantier E) : les sept tirets cadratins de la liste des sous-traitants
 //   deviennent des deux-points. « Supabase — hebergement de la base » se lit desormais
@@ -57,7 +61,8 @@ const sections: Section[] = [
       { type: 'p', text: `Aucune photo de votre enfant n'est collectée : les illustrations sont générées uniquement à partir des descriptions que vous fournissez.` },
       { type: 'sub', text: `Données de livraison et de paiement` },
       { type: 'list', items: [
-        `nom et adresse postale de livraison ;`,
+        `nom et adresse postale de livraison, commune à la famille et modifiable depuis l'espace famille ;`,
+        `numéro de téléphone, transmis si besoin au transporteur pour la livraison ;`,
         `les paiements sont traités par notre prestataire Stripe : nous ne stockons jamais vos coordonnées bancaires.`,
       ] },
       { type: 'sub', text: `Données techniques` },
