@@ -1,3 +1,6 @@
+// App v1.2
+// Changelog v1.2 : route /mentions-legales (MentionsLegalesPage), avec les autres pages
+//   legales. Rien d'autre ne change.
 // App v1.1
 // Changelog v1.1 : retrait de DEUX routes mortes et dangereuses, /finaliser-abonnement
 //   et /confirmation-profil. Toutes deux protégées par AuthGuard, donc atteignables par
@@ -49,6 +52,7 @@ import ModifierDoudou from './pages/ModifierDoudou'
 import NosHistoires from './pages/NosHistoires'
 import CGVPage from './pages/CGVPage'
 import CGUPage from './pages/CGUPage'
+import MentionsLegalesPage from './pages/MentionsLegalesPage' // v1.2
 import ConfidentialitePage from './pages/ConfidentialitePage'
 import ContactPage from './pages/ContactPage'
 import FAQPage from './pages/FAQPage'
@@ -219,6 +223,7 @@ function App() {
               <Route path="/cgv" element={<CGVPage />} />
               <Route path="/cgu" element={<CGUPage />} />
               <Route path="/confidentialite" element={<ConfidentialitePage />} />
+              <Route path="/mentions-legales" element={<MentionsLegalesPage />} /> {/* v1.2 */}
               {/* Redirections des anciennes routes légales (liens/SEO existants) */}
               <Route path="/conditions-generales" element={<Navigate to="/cgv" replace />} />
               <Route path="/livraison" element={<Navigate to="/cgv" replace />} />
