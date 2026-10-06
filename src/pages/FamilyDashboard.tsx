@@ -1,3 +1,18 @@
+// FamilyDashboard v1.3 (01/10/2026)
+// Changelog v1.3 : BOUTON « DECONNEXION », TEXTE QUI NOIRCISSAIT AU SURVOL.
+//   Cause, en deux morceaux :
+//   [a] le fond bleu du bouton ne venait d'aucune classe de couleur reelle : App.css peint en
+//       #4A90E2 (!important) tout element dont les classes CONTIENNENT le texte
+//       « bg-mcf-orange » ou « border-mcf-orange ». Le bouton portait
+//       « hover:bg-mcf-orange/5 » et « border-mcf-orange/30 », deux classes qui n'existent pas
+//       dans tailwind.config.ts mais qui declenchaient ces regles par simple sous-chaine ;
+//   [b] la variante « outline » du composant Button ajoute « hover:text-accent-foreground »
+//       (gris tres fonce). Rien ne la neutralisait : au survol, le texte devenait presque
+//       noir, l'icone restait blanche (classe text-white posee directement sur elle).
+//   Correctif : couleurs explicites, en valeurs arbitraires comme ailleurs dans ce fichier.
+//   Fond et bordure #4A90E2 (la couleur affichee jusqu'ici), texte blanc, et au survol le
+//   texte et le fond restent identiques. L'agrandissement au survol (scale 105 %) est
+//   conserve, comme sur « Retour a l'accueil ». Rendu au repos inchange.
 // FamilyDashboard v1.2
 // Changelog v1.2 (chantier F, retour #1 du test du 26/08) : ONGLETS LISIBLES ET SANS CHEVAUCHEMENT.
 //   Mesure des contrastes de la v1.1 sur fond blanc : texte de l'onglet inactif « Mes histoires »
@@ -217,7 +232,7 @@ const FamilyDashboard: React.FC = () => {
             
             <Button 
               variant="outline" 
-              className="border-2 border-mcf-orange/30 text-white hover:bg-mcf-orange/5 gap-2 font-semibold rounded-xl hover:scale-105 transition-all"
+              className="border-2 border-[#4A90E2] bg-[#4A90E2] text-white hover:bg-[#4A90E2] hover:text-white gap-2 font-semibold rounded-xl hover:scale-105 transition-all"
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 text-white" /> Déconnexion
