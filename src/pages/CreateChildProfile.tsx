@@ -1,3 +1,13 @@
+// CreateChildProfile v1.9 (08/10/2026)
+// Changelog v1.9 : VERROU ANTI DOUBLE CLIC sur la creation et la modification d'un enfant.
+//   Test du 08/10 : un double tap pouvait lancer deux enregistrements. Le garde lisait l'etat
+//   isSubmitting, mis a jour seulement au rafraichissement suivant. Pire : le finally le remettait
+//   a faux des la fin du traitement, alors que la navigation n'arrive qu'apres un delai (0,5 s en
+//   modification, 1 s en creation). Pendant ce delai, le bouton etait de nouveau cliquable et
+//   pouvait creer l'enfant une seconde fois.
+//   Desormais un ref bloque des le premier tap ; en cas de succes, le verrou reste pose jusqu'au
+//   depart de la page ; en cas d'erreur, il se libere. En creation, le succes est connu grace a
+//   useChildProfileSubmit v2.4, dont handleSubmit renvoie true.
 // CreateChildProfile v1.8
 // Changelog v1.8 :
 //   SUJET 1 — `gender` entre dans childAvatarSig. Mesure du 21/08 : changer le sexe d'un enfant
@@ -200,6 +210,7 @@ const CreateChildProfile = ({
   
   // Protection contre la double soumission
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const soumissionRef = React.useRef(false); // v1.9 : verrou synchrone anti double clic
   const [originalBirthDate, setOriginalBirthDate] = React.useState<string | null>(null);
   // Signature d'apparence au chargement : ne régénère l'avatar que si le visuel change
   const initialAvatarSigRef = React.useRef<string>('');
@@ -315,7 +326,7 @@ const CreateChildProfile = ({
   };
   
   const handleFormSubmit = async (data: ChildProfileFormData) => {
-    if (isSubmitting) {
+    if (soumissionRef.current || isSubmitting) { // v1.9 : le ref bloque sans attendre
       console.log('⚠️ Submission already in progress, ignoring duplicate');
       return;
     }
@@ -324,9 +335,11 @@ const CreateChildProfile = ({
     console.log('🎯 [FORM-SUBMIT] Edit mode:', editMode, 'Edit child ID:', editChildId);
     console.log('🎯 [FORM-SUBMIT] Form data:', JSON.stringify(data, null, 2));
     
+    soumissionRef.current = true; // v1.9
     setIsSubmitting(true);
     if (editMode && editChildId) {
       // Mode édition : mettre à jour le profil existant dans child_profiles
+      let editionReussie = false; // v1.9
       try {
         const { supabase } = await import('@/integrations/supabase/client');
         
@@ -794,6 +807,7 @@ const CreateChildProfile = ({
         // Petit délai pour laisser le toast s'afficher avant la navigation
         // Remplace l'entrée du formulaire dans l'historique pour que le bouton précédent du navigateur
         // ne ramène pas vers le profil édité après l'enregistrement.
+        editionReussie = true; // v1.9 : verrou garde jusqu'au depart de la page
         setTimeout(() => {
           navigate('/espace-famille', { replace: true });
         }, 500);
@@ -808,14 +822,18 @@ const CreateChildProfile = ({
         });
         toast.error(`Une erreur est survenue lors de l'enregistrement: ${error?.message || 'Erreur inconnue'}`);
       } finally {
-        setIsSubmitting(false);
+        if (!editionReussie) { // v1.9
+          soumissionRef.current = false;
+          setIsSubmitting(false);
+        }
       }
     } else {
       // Mode création : utiliser la logique normale
       console.log('🚀 [CREATE-CHILD] Calling handleSubmit in creation mode');
       console.log('🚀 [CREATE-CHILD] Data being submitted:', JSON.stringify(data, null, 2));
+      let creationReussie = false; // v1.9
       try {
-        await handleSubmit(data);
+        creationReussie = (await handleSubmit(data)) === true;
       } catch (error: any) {
         console.error('❌ [CREATE-CHILD] Error in handleSubmit:', error);
         console.error('❌ [CREATE-CHILD] Error details:', {
@@ -827,7 +845,10 @@ const CreateChildProfile = ({
         });
         toast.error(`Une erreur est survenue lors de l'enregistrement: ${error?.message || 'Erreur inconnue'}`);
       } finally {
-        setIsSubmitting(false);
+        if (!creationReussie) { // v1.9
+          soumissionRef.current = false;
+          setIsSubmitting(false);
+        }
       }
     }
   };
