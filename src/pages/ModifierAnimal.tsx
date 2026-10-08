@@ -1,3 +1,12 @@
+// ModifierAnimal (08/10/2026) : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
+//   Ici, aucun garde n'existait et le bouton n'etait jamais grise : il affiche desormais
+//   « Enregistrement… » pendant la sauvegarde.
 // ModifierAnimal  (chantier D2)
 // Changelog D2 : avertissement avant de quitter la page de modification.
 //   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
@@ -77,7 +86,7 @@
 // Changelog v2.9 : ajout gender (select pets, chargement, sauvegarde, validation obligatoire)
 //                  + fix validation manquante birthMonthYear dans handleSubmitClick (existait déjà
 //                  côté PetForm/AjouterAnimal mais pas ici, showButtons=false contourne PetForm.validatePetData)
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
 import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
@@ -197,6 +206,7 @@ const ModifierAnimal: React.FC = () => {
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   const [originalBirthMonthYear, setOriginalBirthMonthYear] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false); // 08/10 : verrou synchrone anti double clic
   const [petStatus, setPetStatus] = useState<PetStatus>('active');
   const [pendingDeceased, setPendingDeceased] = useState(false);
   // Avatar + family_id chargés ici (avec le profil) → passés en props à EditAvatarHeader
@@ -361,6 +371,10 @@ const ModifierAnimal: React.FC = () => {
 
   const handleSave = async (updatedPet: PetData) => {
     if (!petId) return;
+    if (isSubmittingRef.current) return; // 08/10 : verrou synchrone
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    let reussi = false;
 
     // L'avatar n'est régénéré QUE si un champ visuel a changé (pas pour le statut ni les liens enfants).
     const avatarRelevantChanged = petAvatarSignature(petData) !== petAvatarSignature(updatedPet);
@@ -517,12 +531,18 @@ const ModifierAnimal: React.FC = () => {
       }
       invalidateFamilyData();
       toast.success('Animal modifié avec succès !');
+      reussi = true; // 08/10 : verrou garde jusqu'au depart de la page
       setTimeout(() => {
         navigate('/espace-famille');
       }, 500);
     } catch (error) {
       console.error('Error saving pet:', error);
       toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      if (!reussi) { // 08/10
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -770,9 +790,10 @@ const ModifierAnimal: React.FC = () => {
               <Button 
                 type="button"
                 onClick={handleSubmitClick}
+                disabled={isSubmitting}
                 className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
               >
-                Enregistrer les modifications
+                {isSubmitting ? 'Enregistrement…' : 'Enregistrer les modifications'}
               </Button>
             </div>
           </div>
