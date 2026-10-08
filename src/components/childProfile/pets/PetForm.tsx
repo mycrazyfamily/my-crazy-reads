@@ -1,3 +1,15 @@
+// PetForm v1.9 (07/10/2026)
+// Changelog v1.9 : LES DETAILS PHYSIQUES SAISIS EN MODIFICATION ETAIENT JETES.
+//   Test du 07/10 : sur un animal existant sans detail physique, « yeux verts » ecrit dans le champ
+//   disparaissait a l'enregistrement, et aucune regeneration ne partait.
+//   Cause : le drapeau noPhysicalDetails (case « aucun detail ») etait encore DEDUIT a l'ouverture :
+//   fiche existante sans detail => drapeau vrai. getPetData jetait alors les details saisis. La case
+//   a disparu de l'ecran au chantier C1b (PetPhysicalDetailsInput v3.0 ignore noDetailsValue et
+//   onNoDetailsChange) : plus aucun moyen de la decocher. Meme defaut sur un animal remodifie dans
+//   le formulaire enfant avant validation.
+//   Correctif : le drapeau n'est plus deduit (toujours faux), et getPetData envoie toujours ce qui
+//   est ecrit. Champ vide = [] = aucun detail, convention inchangee. Les details enregistres
+//   changent desormais la signature de ModifierAnimal, ce qui relance bien la regeneration.
 // PetForm  (chantier C3)
 // Changelog C3 :
 //   [1] LE PRENOM PASSE APRES LE TYPE. Les cartes d'especes portent des emojis et captent le
@@ -117,11 +129,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
   // v1.8 : le flag n'est plus persiste, il est DEDUIT. Une fiche existante sans aucun detail
   // ne peut avoir ete enregistree que via la case « aucun detail », la validation l'exige.
   // Une NOUVELLE fiche (pet undefined) demarre au contraire case decochee.
-  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(() => {
-    if (!pet) return false;
-    const details = pet?.physicalDetails;
-    return !Array.isArray(details) || details.filter((d) => d && d.trim() !== '').length === 0;
-  });
+  // v1.9 : le drapeau n'est plus deduit, il reste faux (la case n'existe plus a l'ecran).
+  const [noPhysicalDetails, setNoPhysicalDetails] = useState<boolean>(false);
   // v1.7 : accessoire ou vêtement de l'animal, texte libre facultatif
   const [clothingStyle, setClothingStyle] = useState(pet?.clothingStyle || '');
   const [selectedTraits, setSelectedTraits] = useState<PetTrait[]>(pet?.traits || []);
@@ -193,7 +202,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
         ? pet.physicalDetails.filter((d) => d && d.trim() !== '')
         : [];
       setPetPhysicalDetails(details);
-      setNoPhysicalDetails(details.length === 0);
+      setNoPhysicalDetails(false); // v1.9 : plus de deduction depuis le vide
       
       // Restaurer customTraits (sans physicalDetails)
       if (pet.customTraits) {
@@ -287,9 +296,8 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave, onCancel, isCreatingNewC
     const mergedCustomTraits = { ...customTraits };
 
     // Tableau vide = aucun detail. La case du formulaire n'est plus persistee.
-    const physicalDetailsFinal = noPhysicalDetails
-      ? []
-      : petPhysicalDetails.filter((d) => d && d.trim() !== '');
+    // v1.9 : ce qui est ecrit part toujours, le drapeau n'intervient plus.
+    const physicalDetailsFinal = petPhysicalDetails.filter((d) => d && d.trim() !== '');
 
     const petData = {
       id: pet?.id || Date.now().toString(),
