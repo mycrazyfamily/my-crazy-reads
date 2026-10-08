@@ -1,3 +1,8 @@
+// useChildProfileSubmit v2.4 (08/10/2026)
+// Changelog v2.4 : handleSubmit RENVOIE true QUAND LA CREATION A REUSSI.
+//   CreateChildProfile v1.9 en a besoin pour garder son verrou anti double clic jusqu'a la
+//   navigation (succes) ou le relacher (erreur, saisie refusee). Seule la fin du chemin de succes
+//   change : tous les autres retours restent tels quels et valent « pas de succes ».
 // useChildProfileSubmit v2.3 (07/10/2026)
 // Changelog v2.3 : LE SEXE ET L'ACCESSOIRE DES ANIMAUX CREES DANS LE FORMULAIRE ENFANT.
 //   Test du 07/10 : un animal cree depuis le formulaire enfant arrivait en base SANS sexe et SANS
@@ -980,6 +985,7 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
         navigate('/espace-famille', { state: { childProfile: data } });
       }
     }, 1000);
+    return true; // v2.4 : creation reussie, la navigation est programmee
   };
 
   return { handleSubmit, isSubmitting };
