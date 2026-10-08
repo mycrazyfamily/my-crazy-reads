@@ -1,3 +1,13 @@
+// useChildProfileSubmit v2.3 (07/10/2026)
+// Changelog v2.3 : LE SEXE ET L'ACCESSOIRE DES ANIMAUX CREES DANS LE FORMULAIRE ENFANT.
+//   Test du 07/10 : un animal cree depuis le formulaire enfant arrivait en base SANS sexe et SANS
+//   accessoire, alors que PetForm les fournit (PetData.gender, PetData.clothingStyle). L'insertion
+//   de l'etape 13 ne les recopiait pas. Consequences : l'avatar etait genere sans l'accessoire
+//   (collier absent), et « Modifier l'animal » bloquait sur « Choisissez un sexe ».
+//   AjouterAnimal et ModifierAnimal ecrivaient deja ces deux colonnes : l'insertion s'aligne sur
+//   elles, au meme format (gender ou null ; clothing_style en tableau a un element, [] si vide).
+//   Verifie au passage : proches, doudous et lieux du formulaire enfant ecrivent deja les memes
+//   champs que leurs pages dediees.
 // useChildProfileSubmit v2.2
 // Changelog v2.2 :
 //   LOT F4 — SOURCE UNIQUE DES DETAILS PHYSIQUES DES ANIMAUX. pets.physical_details devient la
@@ -652,7 +662,12 @@ export const useChildProfileSubmit = ({ isGiftMode = false, nextPath }: UseChild
               family_id: familyId,
               name: pet.name,
               type: pet.type || pet.otherType || 'autre',
+              // v2.3 : sexe et accessoire, comme AjouterAnimal et ModifierAnimal
+              gender: pet.gender || null,
               breed: pet.breed || null,
+              clothing_style: pet.clothingStyle
+                ? [pet.clothingStyle]
+                : [],
               // v2.2 : lecture du champ propre PetData.physicalDetails
               physical_details: Array.isArray(pet.physicalDetails)
                 ? pet.physicalDetails.filter((d: string) => d && d.trim() !== '')
