@@ -1,3 +1,11 @@
+// AjouterAnimal v2.6 (08/10/2026)
+// Changelog v2.6 : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
 // AjouterAnimal v2.5
 // Changelog v2.5 (chantier D2, suite) : harmonisation de la sortie avec le formulaire enfant.
 //   [1] « QUITTER » QUITTE VRAIMENT. Le bouton du haut revenait a l'ecran de selection des
@@ -45,7 +53,7 @@
 //   Ajouté aussi à la blocklist des champs libres de cet écran, qui les vérifie de son côté.
 //   Aucune autre logique modifiée.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
 import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
@@ -106,6 +114,7 @@ export default function AjouterAnimal() {
   };
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false); // v2.6 : verrou synchrone anti double clic
 
   useEffect(() => {
     if (supabaseSession?.user) {
@@ -159,8 +168,10 @@ export default function AjouterAnimal() {
   };
 
   const handleAddPet = async (petData: PetData) => {
-    if (isSubmitting) return;
+    if (isSubmittingRef.current) return; // v2.6 : verrou synchrone
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
+    let reussi = false; // v2.6
     try {
       if (selectedChildIds.length === 0) {
         toast.error('Veuillez sélectionner au moins un enfant');
@@ -335,12 +346,16 @@ export default function AjouterAnimal() {
 
       toast.success('Animal ajouté avec succès !');
       invalidateFamilyData();
+      reussi = true; // v2.6 : on garde le verrou jusqu'au depart de la page
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'animal:', error);
       toast.error('Erreur lors de l\'ajout de l\'animal');
     } finally {
-      setIsSubmitting(false);
+      if (!reussi) { // v2.6
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
