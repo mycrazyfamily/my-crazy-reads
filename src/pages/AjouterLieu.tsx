@@ -1,3 +1,11 @@
+// AjouterLieu v1.5 (08/10/2026)
+// Changelog v1.5 : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
 // AjouterLieu v1.4
 // Changelog v1.4 (chantier D2, suite) : harmonisation de la sortie avec le formulaire enfant.
 //   [1] « QUITTER » QUITTE VRAIMENT. Le bouton du haut revenait a l'ecran de selection des
@@ -28,7 +36,7 @@
 // Changelog v1.1 : garde-fou — impossible d'ajouter un lieu non-principal si l'enfant n'a pas
 // déjà une maison principale (vérifiée via child_places + places.type, pour chaque enfant
 // sélectionné). Ne bloque pas la création de la maison principale elle-même.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
 import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
@@ -87,6 +95,7 @@ export default function AjouterLieu() {
   };
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false); // v1.5 : verrou synchrone anti double clic
 
   // Revenir en haut quand on passe de la sélection d'enfant au formulaire (et inversement)
   useEffect(() => {
@@ -153,8 +162,10 @@ export default function AjouterLieu() {
   };
 
   const handleAddPlace = async () => {
-    if (isSubmitting) return;
+    if (isSubmittingRef.current) return; // v1.5 : verrou synchrone
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
+    let reussi = false; // v1.5
     try {
       if (selectedChildIds.length === 0) {
         toast.error('Veuillez sélectionner au moins un enfant');
@@ -327,12 +338,16 @@ export default function AjouterLieu() {
 
       toast.success('Lieu de vie ajouté avec succès !');
       invalidateFamilyData();
+      reussi = true; // v1.5 : on garde le verrou jusqu'au depart de la page
       navigate('/espace-famille');
     } catch (error) {
       console.error('Erreur lors de l\'ajout du lieu:', error);
       toast.error('Erreur lors de l\'ajout du lieu');
     } finally {
-      setIsSubmitting(false);
+      if (!reussi) { // v1.5
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
