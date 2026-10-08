@@ -1,3 +1,11 @@
+// MyStoriesTab v4.5 (07/10/2026)
+// v4.5 : DEUX RETOURS DU TEST MOBILE DU 07/10.
+//   [1] BADGE MASQUE SUR MOBILE. Dans la ligne d'un mois, le mois et le badge (« Bientôt en
+//       fabrication ») partageaient une ligne insecable, le bouton « Ajouter votre touche » etant
+//       fixe a droite : sur iPhone, le bouton recouvrait le badge. Sur mobile, le badge passe sur
+//       sa propre ligne, sous le mois ; le bouton ne bouge pas. Ordinateur inchange.
+//   [2] RETOUR EN HAUT A CHAQUE ETAPE du wizard « Ajouter votre touche », sur mobile (panneau plein
+//       ecran) comme sur ordinateur (fenetre) : la zone qui defile remonte d'un coup.
 // MyStoriesTab v4.4
 // v4.4 (chantier F, point 11) — LES ENFANTS NE BOUGENT PLUS A L'OUVERTURE.
 //   Cause : l'ordre depend des livres de chaque enfant (abonne ou non, date limite proche),
@@ -1016,6 +1024,14 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const [isPreparingDest, setIsPreparingDest] = useState(false);
   const [destError, setDestError] = useState<string | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
+  // v4.5 [2] : ancre dans le contenu du wizard, pour retrouver la zone qui defile.
+  const contenuWizardRef = useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    // Mobile : panneau plein ecran (flex-1 overflow-y-auto). Ordinateur : DialogContent
+    // (overflow-y-auto). Dans les deux cas, l'ancetre le plus proche qui defile remonte en haut.
+    const zone = contenuWizardRef.current?.closest('.overflow-y-auto') as HTMLElement | null;
+    if (zone) zone.scrollTop = 0;
+  }, [step]);
 
   // Selection caps based on child's age
   // v3.6 — SEUIL DE FORMAT. Ce 5 doit rester d'accord avec 4A_Build_Context_Client (n8n),
@@ -1149,7 +1165,7 @@ const Wizard: React.FC<WizardProps> = ({ open, onOpenChange, childName, childAge
   const validateLabel = isCustom ? 'Valider mon histoire inédite' : 'Valider mon livre';
 
   const Content = (
-    <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
+    <div ref={contenuWizardRef} className="px-5 pb-6 pt-2 sm:px-8 sm:pt-6 relative">
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-2 mb-6">
         <div
@@ -2068,8 +2084,10 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
                 (la ligne « Ajoutez votre touche avant le … · Livraison … » juste en dessous le dit
                 déjà) et, en whitespace-nowrap à côté du mois + du bouton, il débordait sur iPhone.
                 Un badge uniquement quand il y a quelque chose à dire. */}
+            {/* v4.5 [1] : a cote du mois seulement a partir de sm. Sur mobile, voir la ligne dediee
+                sous la ligne du haut. */}
             {month.status !== 'to_plan' && (
-              <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
+              <span className={`hidden sm:inline-flex text-xs font-medium px-2.5 py-1 rounded-full border items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
                 {StatusIcon && <StatusIcon className="h-3 w-3" />}
                 {cfg.label}
               </span>
@@ -2094,6 +2112,16 @@ const MonthRow: React.FC<MonthRowProps> = ({ month, onClick, onConfigure, altern
             )}
           </div>
         </div>
+
+        {/* v4.5 [1] : badge sur mobile, sur sa propre ligne sous le mois */}
+        {month.status !== 'to_plan' && (
+          <div className="sm:hidden mb-2">
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border inline-flex items-center gap-1 ${cfg.badgeClass} whitespace-nowrap`}>
+              {StatusIcon && <StatusIcon className="h-3 w-3" />}
+              {cfg.label}
+            </span>
+          </div>
+        )}
 
         {/* Mobile-only book title line */}
         <p className={`sm:hidden text-sm truncate mb-1 ${month.bookTitle === PLACEHOLDER_TITLE ? 'italic text-muted-foreground/70' : 'text-muted-foreground'}`}>
