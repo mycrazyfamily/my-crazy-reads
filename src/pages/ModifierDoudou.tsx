@@ -1,3 +1,12 @@
+// ModifierDoudou (08/10/2026) : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
+//   Ici, aucun garde n'existait et le bouton n'etait jamais grise : il affiche desormais
+//   « Enregistrement… » pendant la sauvegarde.
 // ModifierDoudou  (chantier D2)
 // Changelog D2 : avertissement avant de quitter la page de modification.
 //   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
@@ -26,7 +35,7 @@
 // lecture seule ; (c) bouton "Enregistrer" déplacé en bas de page (après Statut), même pattern
 // que ModifierAnimal/ModifierProche — corrige la confusion UX où le bouton semblait "ne rien
 // faire" quand on cliquait Perdu après coup.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
 import { useLeaveFormGuard } from '@/hooks/useLeaveFormGuard';
@@ -93,6 +102,9 @@ const ModifierDoudou: React.FC = () => {
   const invalidateFamilyData = useInvalidateFamilyData();
 
   const [loading, setLoading] = useState(true);
+  // 08/10 : verrou anti double clic (etat pour le bouton, ref pour bloquer sans attendre)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [toyData, setToyData] = useState<ToyData | null>(null);
   const [currentToyData, setCurrentToyData] = useState<ToyData | null>(null);
   const [childName, setChildName] = useState<string>('');
@@ -202,6 +214,10 @@ const ModifierDoudou: React.FC = () => {
 
   const handleSave = async (updatedToy: ToyData) => {
     if (!comforterId) return;
+    if (isSubmittingRef.current) return; // 08/10 : verrou synchrone
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    let reussi = false;
 
     // L'avatar n'est régénéré QUE si l'apparence a réellement changé (pas pour un simple
     // changement de statut Perdu). Comparaison faite AVANT toute écriture, entre les données
@@ -257,12 +273,18 @@ const ModifierDoudou: React.FC = () => {
 
       invalidateFamilyData();
       toast.success('Doudou modifié avec succès !');
+      reussi = true; // 08/10 : verrou garde jusqu'au depart de la page
       setTimeout(() => {
         navigate('/espace-famille');
       }, 500);
     } catch (error) {
       console.error('Error saving toy:', error);
       toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      if (!reussi) { // 08/10
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -387,9 +409,10 @@ const ModifierDoudou: React.FC = () => {
             <Button
               type="button"
               onClick={handleSubmitClick}
+              disabled={isSubmitting}
               className="bg-mcf-primary hover:bg-mcf-primary-dark text-white"
             >
-              Enregistrer les modifications
+              {isSubmitting ? 'Enregistrement…' : 'Enregistrer les modifications'}
             </Button>
           </div>
         </div>
