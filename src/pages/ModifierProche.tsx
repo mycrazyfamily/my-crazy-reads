@@ -1,3 +1,13 @@
+// ModifierProche v1.2 (08/10/2026)
+// Changelog v1.2 : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
+//   Le ref est pose juste avant la premiere ecriture : les verifications qui precedent sont
+//   toutes synchrones, aucun second tap ne peut s'intercaler avant lui.
 // ModifierProche v1.1
 // Changelog v1.1 : plus d'alerte « Quitter le site ? » apres l'enregistrement. Le garde-fou
 //   de sortie (useLeaveFormGuard v1.2) est libere juste avant le rechargement vers l'espace
@@ -215,6 +225,7 @@ const ModifierProche: React.FC = () => {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false); // v1.2 : verrou synchrone anti double clic
   const [childData, setChildData] = useState<any>(null);
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
@@ -666,7 +677,10 @@ const ModifierProche: React.FC = () => {
     });
     const avatarRelevantChanged = currentAvatarSig !== initialAvatarSigRef.current;
 
+    if (savingRef.current) return; // v1.2 : verrou synchrone
+    savingRef.current = true;
     setSaving(true);
+    let reussi = false; // v1.2
     try {
       // Mettre à jour dans family_members
       const detailsPayload = {
@@ -824,12 +838,16 @@ const ModifierProche: React.FC = () => {
       invalidateFamilyData();
       toast.success('Proche modifié avec succès !');
       libererSortie(); // v1.1 : enregistrement reussi, on part sans avertissement
+      reussi = true; // v1.2 : verrou garde pendant le rechargement de la page
       window.location.href = '/espace-famille';
     } catch (e) {
       console.error('Error saving relative:', e);
       toast.error("Erreur lors de la sauvegarde");
     } finally {
-      setSaving(false);
+      if (!reussi) { // v1.2
+        savingRef.current = false;
+        setSaving(false);
+      }
     }
   };
 
