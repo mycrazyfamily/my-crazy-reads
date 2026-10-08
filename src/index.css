@@ -123,6 +123,19 @@ select:-webkit-autofill:focus {
   -webkit-text-fill-color: hsl(var(--foreground)) !important;
 }
 
+/* ===== Zoom automatique iOS (07/10/2026) =====
+   Safari iOS zoome sur tout champ dont le texte fait moins de 16 px, et la page reste zoomée.
+   Filet de sécurité pour les champs natifs ou surchargés (text-sm hérité d'un parent, classe
+   posée sur le champ) : sur mobile, 16 px imposés. Le pincement pour zoomer reste possible.
+   À partir de 768 px (md), chaque champ reprend sa taille. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* ===== D7 — Tiroir latéral du menu mobile (Navbar) =====
    Le panneau glisse depuis la droite, le fond s'assombrit en fondu. Animations courtes et
    désactivées si l'utilisateur a demandé moins d'animations (réglage système iOS/Android). */
