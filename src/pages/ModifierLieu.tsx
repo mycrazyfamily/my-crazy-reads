@@ -1,3 +1,10 @@
+// ModifierLieu (08/10/2026) : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
 // ModifierLieu  (chantier D2)
 // Changelog D2 : avertissement avant de quitter la page de modification.
 //   Aucun brouillon n'existe ici : une modification en cours et non enregistree est perdue
@@ -48,6 +55,7 @@ const ModifierLieu: React.FC = () => {
   const [existingChildren, setExistingChildren] = useState<Array<{ id: string; first_name: string }>>([]);
   const [selectedChildrenIds, setSelectedChildrenIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false); // 08/10 : verrou synchrone anti double clic
   const [placeStatus, setPlaceStatus] = useState<PlaceStatus>('active');
   // Snapshot initial des liens, pour un diff qui préserve created_at (date d'apparition par enfant)
   const initialLinkIdsRef = useRef<Set<string>>(new Set());
@@ -128,8 +136,10 @@ const ModifierLieu: React.FC = () => {
 
   const handleSave = async (updatedPlace: PlaceData) => {
     if (!placeId) return;
-    if (isSubmitting) return;
+    if (isSubmittingRef.current) return; // 08/10 : verrou synchrone
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
+    let reussi = false;
 
     try {
       // Mettre à jour le lieu dans la table places
@@ -179,6 +189,7 @@ const ModifierLieu: React.FC = () => {
 
       toast.success('Lieu de vie modifié avec succès !');
       invalidateFamilyData();
+      reussi = true; // 08/10 : verrou garde jusqu'au depart de la page
       navigate('/espace-famille');
     } catch (error: any) {
       console.error('Error saving place:', error);
@@ -194,7 +205,10 @@ const ModifierLieu: React.FC = () => {
         toast.error("Erreur lors de la sauvegarde");
       }
     } finally {
-      setIsSubmitting(false);
+      if (!reussi) { // 08/10
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
