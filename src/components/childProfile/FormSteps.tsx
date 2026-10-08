@@ -1,3 +1,8 @@
+// FormSteps v1.8 (07/10/2026)
+// Changelog v1.8 : RETOUR EN HAUT DE PAGE A CHAQUE CHANGEMENT D'ETAPE.
+//   Test du 07/10 : apres « Continuer » en bas de l'etape 1, l'etape 2 s'ouvrait en bas de page.
+//   Toute nouvelle etape (Suivant, Precedent, clic sur un rond) remonte desormais d'un coup en
+//   haut de la page, sans animation. Rien d'autre ne change.
 // FormSteps v1.7
 // Changelog v1.7 (chantier D2, retour arriere) : LES RONDS NE FONT PLUS QUE RECULER.
 //   Les v1.5 et v1.6 permettaient de ressauter en avant vers une etape deja visitee. Or le
@@ -98,6 +103,12 @@ const FormSteps: React.FC<FormStepsProps> = ({
     console.log("🎯 Changing step:", formStep, "→", n)
     handleGoToStep(n)
   }, [formStep, handleGoToStep])
+
+  // v1.8 : chaque changement d'etape ramene en haut de page, d'un coup (aucun scroll-behavior
+  // smooth n'est defini dans le CSS du site, scrollTo(0, 0) est donc instantane).
+  React.useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [formStep])
 
   console.log("Current form step:", formStep);
 
