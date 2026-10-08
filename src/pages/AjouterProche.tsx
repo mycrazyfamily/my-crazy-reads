@@ -1,3 +1,11 @@
+// AjouterProche v1.7 (08/10/2026)
+// Changelog v1.7 : VERROU ANTI DOUBLE CLIC.
+//   Test du 08/10 : un double tap sur mobile lancait DEUX enregistrements, donc deux
+//   generations d'avatar. Le garde existant lisait un etat React, qui ne change qu'au
+//   rafraichissement suivant : un second tap rapide passait. Un ref, lu et ecrit sans attendre,
+//   bloque desormais des le premier tap. En cas de succes, le bouton RESTE verrouille jusqu'au
+//   depart de la page (avant, il se reactivait pendant la navigation). En cas d'erreur ou de
+//   saisie refusee, il se libere pour permettre de corriger.
 // AjouterProche v1.6
 // Changelog v1.6 : plus d'alerte « Quitter le site ? » apres l'enregistrement. Le garde-fou
 //   de sortie (useLeaveFormGuard v1.2) est libere juste avant le rechargement vers l'espace
@@ -46,7 +54,7 @@
 //   en base restent doublement encodees et doivent rester lisibles.
 //   Deux ecritures corrigees ici : physical_details et clothing_style sur family_members.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import LeaveFormDialog from '@/components/childProfile/LeaveFormDialog';
@@ -112,6 +120,7 @@ export default function AjouterProche() {
   const [loading, setLoading] = useState(true);
   const [relativeKey, setRelativeKey] = useState(0); // Pour forcer la réinitialisation du formulaire
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false); // v1.7 : verrou synchrone anti double clic
 
   // Fonction pour créer un formulaire vide pour un nouveau proche
   const createEmptyRelative = (): RelativeData => ({
@@ -183,8 +192,10 @@ export default function AjouterProche() {
   };
 
   const handleAddRelative = async (relativeData: RelativeData) => {
-    if (isSubmitting) return;
+    if (isSubmittingRef.current) return; // v1.7 : verrou synchrone
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
+    let reussi = false; // v1.7
     try {
       // Validation des champs obligatoires
       const errors: string[] = [];
@@ -351,12 +362,16 @@ export default function AjouterProche() {
       invalidateFamilyData();
       queryClient.invalidateQueries({ queryKey: ['book-timeline'] });
       libererSortie(); // v1.6 : enregistrement reussi, on part sans avertissement
+      reussi = true; // v1.7 : verrou garde pendant le rechargement de la page
       window.location.href = '/espace-famille';
     } catch (error) {
       console.error('Erreur lors de l\'ajout du proche:', error);
       toast.error('Erreur lors de l\'ajout du proche');
     } finally {
-      setIsSubmitting(false);
+      if (!reussi) { // v1.7
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
